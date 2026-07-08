@@ -33,3 +33,21 @@ body {
   height: min(100vh, 100dvh);
   object-fit: contain;
 }
+.wall-stage {
+  position: relative;
+}
+
+.hotspot {
+  position: absolute;
+  background: rgba(0, 180, 255, 0.25);
+  border: 2px solid rgba(0, 180, 255, 0.8);
+  color: transparent;
+  cursor: pointer;
+}
+
+.spray-hotspot {
+  left: 77%;
+  top: 78%;
+  width: 12%;
+  height: 9%;
+}
