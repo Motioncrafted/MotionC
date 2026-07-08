@@ -37,6 +37,11 @@ body {
   position: relative;
 }
 
+.image-stage {
+  position: relative;
+  display: inline-block;
+}
+
 .hotspot {
   position: absolute;
   background: rgba(0, 180, 255, 0.25);
@@ -52,9 +57,6 @@ body {
   width: 12%;
   height: 9%;
 }
-.image-stage {
-  position: relative;
-  display: inline-block;
-}
+
 
 
