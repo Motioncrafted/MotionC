@@ -43,6 +43,7 @@ body {
   border: 2px solid rgba(0, 180, 255, 0.8);
   color: transparent;
   cursor: pointer;
+  z-index: 10;
 }
 
 .spray-hotspot {
@@ -56,18 +57,4 @@ body {
   display: inline-block;
 }
 
-.hotspot {
-  position: absolute;
-  background: rgba(0, 180, 255, 0.25);
-  border: 2px solid rgba(0, 180, 255, 0.8);
-  color: transparent;
-  cursor: pointer;
-  z-index: 10;
-}
 
-.spray-hotspot {
-  left: 77%;
-  top: 77%;
-  width: 12%;
-  height: 9%;
-}
