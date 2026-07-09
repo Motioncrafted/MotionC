@@ -1,10 +1,10 @@
 const sprayButton = document.getElementById("sprayButton");
 const imageStage = document.querySelector(".image-stage");
 
-sprayButton.addEventListener("click", () => {
-    console.log("SPRAY IT clicked!");
+let sprayInterval = null;
 
-    for (let i = 0; i < 40; i++) {
+function createSprayBurst() {
+    for (let i = 0; i < 8; i++) {
         const particle = document.createElement("span");
         particle.className = "spray-particle";
 
@@ -23,4 +23,25 @@ sprayButton.addEventListener("click", () => {
             particle.remove();
         }, 650);
     }
-});
+}
+
+function startSpraying() {
+    console.log("SPRAY STARTED");
+
+    createSprayBurst();
+
+    sprayInterval = setInterval(() => {
+        createSprayBurst();
+    }, 60);
+}
+
+function stopSpraying() {
+    console.log("SPRAY STOPPED");
+
+    clearInterval(sprayInterval);
+    sprayInterval = null;
+}
+
+sprayButton.addEventListener("mousedown", startSpraying);
+sprayButton.addEventListener("mouseup", stopSpraying);
+sprayButton.addEventListener("mouseleave", stopSpraying);
