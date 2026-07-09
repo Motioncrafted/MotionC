@@ -21,6 +21,6 @@ sprayButton.addEventListener("click", () => {
 
         setTimeout(() => {
             particle.remove();
-        }, 1000);
+        }, 2000);
     }
 });
