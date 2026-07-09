@@ -27,7 +27,8 @@ function createSprayBurst() {
 
 function startSpraying() {
     console.log("SPRAY STARTED");
-
+    
+    sprayButton.classList.add("spraying");
     createSprayBurst();
 
     sprayInterval = setInterval(() => {
@@ -37,7 +38,8 @@ function startSpraying() {
 
 function stopSpraying() {
     console.log("SPRAY STOPPED");
-
+    sprayButton.classList.remove("spraying");
+    
     clearInterval(sprayInterval);
     sprayInterval = null;
 }
