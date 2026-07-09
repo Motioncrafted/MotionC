@@ -1,3 +1,3 @@
 document.getElementById("sprayButton").addEventListener("click", () => {
-  alert("SPRAY IT clicked!");
+    console.log("SPRAY IT clicked!");
 });
