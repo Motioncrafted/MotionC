@@ -63,20 +63,25 @@ body {
   height: 9%;
 }
 
-#sprayMist {
+.spray-particle {
     position: absolute;
-    left: 67%;
-    top: 77%;
-    width: 120px;
-    height: 70px;
-    opacity: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.85);
     pointer-events: none;
-    transform: translate(-50%, -50%) rotate(-12deg);
-    background:
-        radial-gradient(circle, rgba(255,255,255,0.8) 2px, transparent 3px),
-        radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 3px),
-        radial-gradient(circle, rgba(255,255,255,0.35) 2px, transparent 4px);
-    background-size: 18px 18px, 26px 26px, 34px 34px;
-    filter: blur(1px);
-    transition: opacity 0.12s ease;
+    z-index: 20;
+    animation: sprayFade 600ms ease-out forwards;
+}
+
+@keyframes sprayFade {
+    from {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: translate(var(--x), var(--y)) scale(0.4);
+    }
 }
