@@ -85,3 +85,6 @@ body {
         transform: translate(var(--x), var(--y)) scale(0.4);
     }
 }
+.spraying {
+    transform: translateY(3px) scale(0.98);
+}
