@@ -8,8 +8,8 @@ function createSprayBurst() {
         const particle = document.createElement("span");
         particle.className = "spray-particle";
 
-        particle.style.left = "76%";
-        particle.style.top = "77%";
+       particle.style.left = "84%";
+        particle.style.top = "58%";
 
         const x = -80 - Math.random() * 90;
         const y = -40 + Math.random() * 80;
