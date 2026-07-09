@@ -63,4 +63,16 @@ body {
   height: 9%;
 }
 
-
+#sprayMist {
+    position: absolute;
+    left: 67%;
+    top: 77%;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.35);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.2s ease;
+}
