@@ -9,7 +9,7 @@ function createSprayBurst() {
         particle.className = "spray-particle";
 
        particle.style.left = "74%";
-        particle.style.top = "60%";
+        particle.style.top = "64%";
 
         const x = -80 - Math.random() * 90;
         const y = -40 + Math.random() * 80;
