@@ -9,6 +9,6 @@ sprayButton.addEventListener("click", () => {
 
     setTimeout(() => {
         sprayMist.style.opacity = "0";
-    }, 250);
+    }, 1000);
 
 });
