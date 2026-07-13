@@ -3,25 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>MotionC Dashboard</title>
     <link rel="stylesheet" href="styles.css">
-   
 </head>
 
 <body>
 
-    <img
-        class="dashboard-image"
-        src="../images/dashboard-master.png"
-        alt="MotionC Dashboard"
-    >
-<!-- Invisible clickable zone over the K-Score icon -->
-<div id="kscore-button"></div>
+    <!-- Dashboard Image Wrapper -->
+    <div class="dashboard-wrapper">
+        <img
+            class="dashboard-image"
+            src="../images/dashboard-master.png"
+            alt="MotionC Dashboard"
+        >
 
-    <!-- Temporarily left open while we design and test the form -->
+        <!-- Invisible clickable zone over the K-Score icon -->
+        <div id="kscore-button"></div>
+    </div>
+
+    <!-- Drawer overlay (closed by default) -->
     <div class="drawer-overlay"></div>
-<aside class="input-drawer">
+
+    <!-- Right-side input drawer (closed by default) -->
+    <aside class="input-drawer" aria-label="K-Score information form">
 
         <header class="drawer-header">
             <h1>Update My Information</h1>
@@ -82,174 +86,3 @@
                 </div>
             </fieldset>
 
-            <fieldset>
-                <legend>Lifestyle Checklist</legend>
-<div class="dashboard-wrapper">
-    <img class="dashboard-image" src="../images/dashboard-master.png" alt="MotionC Dashboard">
-<div id="kscore-button"></div>
-
-</div>
-
-                <div class="lifestyle-item">
-                    <h3>Smoking</h3>
-
-                    <label class="choice">
-                        <input type="radio" name="smoking" value="2">
-                        <span>Healthy choice</span>
-                    </label>
-
-                    <label class="choice">
-                        <input type="radio" name="smoking" value="1">
-                        <span>Partial or improving</span>
-                    </label>
-
-                    <label class="choice">
-                        <input type="radio" name="smoking" value="0">
-                        <span>Needs attention</span>
-                    </label>
-                </div>
-
-                <div class="lifestyle-item">
-                    <h3>Sleep</h3>
-
-                    <label class="choice">
-                        <input type="radio" name="sleep" value="2">
-                        <span>Healthy choice</span>
-                    </label>
-
-                    <label class="choice">
-                        <input type="radio" name="sleep" value="1">
-                        <span>Partial or improving</span>
-                    </label>
-
-                    <label class="choice">
-                        <input type="radio" name="sleep" value="0">
-                        <span>Needs attention</span>
-                    </label>
-                </div>
-
-                <div class="lifestyle-item">
-                    <h3>Stress</h3>
-
-                    <label class="choice">
-                        <input type="radio" name="stress" value="2">
-                        <span>Healthy choice</span>
-                    </label>
-
-                    <label class="choice">
-                        <input type="radio" name="stress" value="1">
-                        <span>Partial or improving</span>
-                    </label>
-
-                    <label class="choice">
-                        <input type="radio" name="stress" value="0">
-                        <span>Needs attention</span>
-                    </label>
-                </div>
-
-                <div class="lifestyle-item">
-                    <h3>Daily Movement</h3>
-
-                    <label class="choice">
-                        <input type="radio" name="dailyMovement" value="2">
-                        <span>Healthy choice</span>
-                    </label>
-
-                    <label class="choice">
-                        <input type="radio" name="dailyMovement" value="1">
-                        <span>Partial or improving</span>
-                    </label>
-
-                    <label class="choice">
-                        <input type="radio" name="dailyMovement" value="0">
-                        <span>Needs attention</span>
-                    </label>
-                </div>
-
-                <div class="lifestyle-item">
-                    <h3>Nutrition</h3>
-
-                    <label class="choice">
-                        <input type="radio" name="nutrition" value="2">
-                        <span>Healthy choice</span>
-                    </label>
-
-                    <label class="choice">
-                        <input type="radio" name="nutrition" value="1">
-                        <span>Partial or improving</span>
-                    </label>
-
-                    <label class="choice">
-                        <input type="radio" name="nutrition" value="0">
-                        <span>Needs attention</span>
-                    </label>
-                </div>
-
-                <div class="lifestyle-item">
-                    <h3>Alcohol</h3>
-
-                    <label class="choice">
-                        <input type="radio" name="alcohol" value="2">
-                        <span>Healthy choice</span>
-                    </label>
-
-                    <label class="choice">
-                        <input type="radio" name="alcohol" value="1">
-                        <span>Partial or improving</span>
-                    </label>
-
-                    <label class="choice">
-                        <input type="radio" name="alcohol" value="0">
-                        <span>Needs attention</span>
-                    </label>
-                </div>
-
-                <div class="lifestyle-item">
-                    <h3>Hydration</h3>
-
-                    <label class="choice">
-                        <input type="radio" name="hydration" value="2">
-                        <span>Healthy choice</span>
-                    </label>
-
-                    <label class="choice">
-                        <input type="radio" name="hydration" value="1">
-                        <span>Partial or improving</span>
-                    </label>
-
-                    <label class="choice">
-                        <input type="radio" name="hydration" value="0">
-                        <span>Needs attention</span>
-                    </label>
-                </div>
-
-                <div class="lifestyle-item">
-                    <h3>Lifestyle Item 8 — wording to confirm</h3>
-
-                    <label class="choice">
-                        <input type="radio" name="lifestyleItem8" value="2">
-                        <span>Healthy choice</span>
-                    </label>
-
-                    <label class="choice">
-                        <input type="radio" name="lifestyleItem8" value="1">
-                        <span>Partial or improving</span>
-                    </label>
-
-                    <label class="choice">
-                        <input type="radio" name="lifestyleItem8" value="0">
-                        <span>Needs attention</span>
-                    </label>
-                </div>
-
-            </fieldset>
-
-            <button class="calculate-button" type="submit">
-                Calculate My Results
-            </button>
-
-        </form>
-    </aside>
-        <script src="script.js"></script>
-</body>
-</html>
