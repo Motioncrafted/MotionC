@@ -1,21 +1,5 @@
 {
-  "headers": [
-    {
-      "source": "/dashboard/styles.css",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-store" }
-      ]
-    },
-    {
-      "source": "/dashboard/script.js",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-store" }
-      ]
-    }
-  ]
-}
-
-{
+  "version": 2,
   "headers": [
     {
       "source": "/dashboard/index.html",
