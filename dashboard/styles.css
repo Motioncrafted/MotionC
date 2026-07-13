@@ -30,3 +30,6 @@ img {
     background: rgba(255, 0, 0, 0); /* fully invisible */
     z-index: 50; /* above the image, below the drawer */
 }
+.dashboard-image {
+    position: relative;
+}
