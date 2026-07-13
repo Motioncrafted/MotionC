@@ -17,14 +17,14 @@
             alt="MotionC Dashboard"
         >
 
-        <!-- Invisible clickable zone over the K-Score icon -->
+        <!-- Visible (blue) button so you can position it -->
         <div id="kscore-button"></div>
     </div>
 
-    <!-- Drawer overlay (closed by default) -->
+    <!-- Drawer overlay -->
     <div class="drawer-overlay"></div>
 
-    <!-- Right-side input drawer (closed by default) -->
+    <!-- Drawer -->
     <aside class="input-drawer" aria-label="K-Score information form">
 
         <header class="drawer-header">
@@ -106,4 +106,47 @@
                 <div class="lifestyle-item">
                     <h3>Stress</h3>
                     <label class="choice"><input type="radio" name="stress" value="2"><span>Healthy choice</span></label>
-                    <label class="choice"><input type="radio" name="stress" value="1"><span>Partial or improving</span>
+                    <label class="choice"><input type="radio" name="stress" value="1"><span>Partial or improving</span></label>
+                    <label class="choice"><input type="radio" name="stress" value="0"><span>Needs attention</span></label>
+                </div>
+
+                <div class="lifestyle-item">
+                    <h3>Daily Movement</h3>
+                    <label class="choice"><input type="radio" name="dailyMovement" value="2"><span>Healthy choice</span></label>
+                    <label class="choice"><input type="radio" name="dailyMovement" value="1"><span>Partial or improving</span></label>
+                    <label class="choice"><input type="radio" name="dailyMovement" value="0"><span>Needs attention</span></label>
+                </div>
+
+                <div class="lifestyle-item">
+                    <h3>Nutrition</h3>
+                    <label class="choice"><input type="radio" name="nutrition" value="2"><span>Healthy choice</span></label>
+                    <label class="choice"><input type="radio" name="nutrition" value="1"><span>Partial or improving</span></label>
+                    <label class="choice"><input type="radio" name="nutrition" value="0"><span>Needs attention</span></label>
+                </div>
+
+                <div class="lifestyle-item">
+                    <h3>Alcohol</h3>
+                    <label class="choice"><input type="radio" name="alcohol" value="2"><span>Healthy choice</span></label>
+                    <label class="choice"><input type="radio" name="alcohol" value="1"><span>Partial or improving</span></label>
+                    <label class="choice"><input type="radio" name="alcohol" value="0"><span>Needs attention</span></label>
+                </div>
+
+                <div class="lifestyle-item">
+                    <h3>Hydration</h3>
+                    <label class="choice"><input type="radio" name="hydration" value="2"><span>Healthy choice</span></label>
+                    <label class="choice"><input type="radio" name="hydration" value="1"><span>Partial or improving</span></label>
+                    <label class="choice"><input type="radio" name="hydration" value="0"><span>Needs attention</span></label>
+                </div>
+
+            </fieldset>
+
+            <button class="calculate-button" type="submit">
+                Calculate My Results
+            </button>
+
+        </form>
+    </aside>
+
+    <script src="script.js"></script>
+</body>
+</html>
