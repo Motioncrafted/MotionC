@@ -1,5 +1,17 @@
 {
-  "rewrites": [
-    { "source": "/dashboard/:path*", "destination": "/dashboard/:path*" }
+  "headers": [
+    {
+      "source": "/dashboard/styles.css",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    },
+    {
+      "source": "/dashboard/script.js",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    }
   ]
 }
+
