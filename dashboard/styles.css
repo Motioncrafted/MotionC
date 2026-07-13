@@ -30,12 +30,15 @@ body {
     position: absolute;
     top: 120px;   /* adjust this */
     left: 40px;   /* adjust this */
+
     width: 180px;
     height: 60px;
+
     cursor: pointer;
-    background: rgba(255, 0, 0, 0);
+    background: rgba(0, 0, 255, 0.5); /* TEMP: semi-transparent blue */
     z-index: 50;
 }
+
 
 /* Drawer overlay */
 .drawer-overlay {
