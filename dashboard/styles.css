@@ -33,3 +33,9 @@ img {
 .dashboard-image {
     position: relative;
 }
+.dashboard-wrapper {
+    position: relative;
+    width: 70%;
+    margin: 0 auto;
+}
+
