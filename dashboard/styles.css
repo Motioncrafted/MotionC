@@ -17,3 +17,16 @@ img {
     margin: 0 auto;
     border-radius: 12px;
 }
+/* Invisible button overlay */
+#kscore-button {
+    position: absolute;
+    top: 120px;   /* adjust this */
+    left: 40px;   /* adjust this */
+
+    width: 180px; /* size of the clickable area */
+    height: 60px;
+
+    cursor: pointer;
+    background: rgba(255, 0, 0, 0); /* fully invisible */
+    z-index: 50; /* above the image, below the drawer */
+}
