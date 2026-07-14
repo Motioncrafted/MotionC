@@ -242,3 +242,10 @@ select:focus {
     }
 }
 
+.dashboard-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1276 / 851;
+    display: block;
+}
+
