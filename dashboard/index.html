@@ -5,37 +5,89 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MotionC Dashboard</title>
 
-    <!-- Correct absolute path -->
+    <!-- Correct absolute path to CSS -->
     <link rel="stylesheet" href="/dashboard/styles.css?v=2">
 </head>
 
 <body>
-<link rel="stylesheet" href="/dashboard/styles.css?v=2">
-<script src="/dashboard/script.js?v=2"></script>
 
+    <!-- Dashboard Image Wrapper -->
     <div class="dashboard-wrapper">
         <img
             class="dashboard-image"
             src="/images/dashboard-master.png"
             alt="MotionC Dashboard"
         >
+
+        <!-- Visible (blue) button -->
         <div id="kscore-button"></div>
     </div>
 
+    <!-- Drawer overlay -->
     <div class="drawer-overlay"></div>
 
+    <!-- Drawer -->
     <aside class="input-drawer" aria-label="K-Score information form">
+
         <header class="drawer-header">
             <h1>Update My Information</h1>
             <p>Complete your measurements and Lifestyle Checklist.</p>
         </header>
 
-        <!-- your form unchanged -->
-        <!-- (I’m not repeating it to keep this message tight) -->
-    </aside>
+        <form id="kscore-form">
 
-    <!-- Correct absolute path -->
-    <script src="/dashboard/script.js?v=2"></script>
+            <fieldset>
+                <legend>My Measurements</legend>
 
-</body>
-</html>
+                <div class="field">
+                    <label for="units">Measurement system</label>
+                    <select id="units" name="units">
+                        <option value="imperial">Imperial — lb, ft/in</option>
+                        <option value="metric">Metric — kg, cm</option>
+                    </select>
+                </div>
+
+                <div class="two-column">
+                    <div class="field">
+                        <label for="weight">Weight</label>
+                        <input id="weight" name="weight" type="number" step="0.1">
+                    </div>
+
+                    <div class="field">
+                        <label for="waist">Waist</label>
+                        <input id="waist" name="waist" type="number" step="0.1">
+                    </div>
+                </div>
+
+                <div class="two-column">
+                    <div class="field">
+                        <label for="height-feet">Height — feet</label>
+                        <input id="height-feet" name="heightFeet" type="number">
+                    </div>
+
+                    <div class="field">
+                        <label for="height-inches">Height — inches</label>
+                        <input id="height-inches" name="heightInches" type="number">
+                    </div>
+                </div>
+
+                <div class="two-column">
+                    <div class="field">
+                        <label for="age">Age</label>
+                        <input id="age" name="age" type="number">
+                    </div>
+
+                    <div class="field">
+                        <label for="sex">Sex</label>
+                        <select id="sex" name="sex">
+                            <option value="">Choose</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Lifestyle Checklist</legend>
+
