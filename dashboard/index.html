@@ -91,3 +91,45 @@
             <fieldset>
                 <legend>Lifestyle Checklist</legend>
 
+                <div class="field">
+                    <label for="activity">Daily Activity Level</label>
+                    <select id="activity" name="activity">
+                        <option value="">Choose</option>
+                        <option value="low">Low — mostly sedentary</option>
+                        <option value="moderate">Moderate — some movement</option>
+                        <option value="high">High — active lifestyle</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="sleep">Sleep Quality</label>
+                    <select id="sleep" name="sleep">
+                        <option value="">Choose</option>
+                        <option value="poor">Poor</option>
+                        <option value="average">Average</option>
+                        <option value="good">Good</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="hydration">Hydration</label>
+                    <select id="hydration" name="hydration">
+                        <option value="">Choose</option>
+                        <option value="low">Low</option>
+                        <option value="adequate">Adequate</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+
+            </fieldset>
+
+            <button type="submit" class="submit-btn">Save My Info</button>
+
+        </form>
+    </aside>
+
+    <!-- Load dashboard JS -->
+    <script src="/dashboard/script.js?v=2"></script>
+
+</body>
+</html>
