@@ -1,4 +1,5 @@
 window.addEventListener('load', () => {
+    const button = document.getElementById("kscore-button");
     const drawer = document.querySelector('.input-drawer');
     const overlay = document.querySelector('.drawer-overlay');
     const kscoreBtn = document.getElementById('kscore-button');
@@ -10,6 +11,22 @@ window.addEventListener('load', () => {
         return;
     }
 
+
+
+
+// Toggle drawer open/close when tapping the hotspot
+button.addEventListener("click", () => {
+    drawer.classList.toggle("open");
+    overlay.classList.toggle("open");
+});
+
+// Close drawer when tapping outside
+overlay.addEventListener("click", () => {
+    drawer.classList.remove("open");
+    overlay.classList.remove("open");
+});
+
+    
     // Open drawer
     kscoreBtn.addEventListener('click', () => {
         console.log("Blue box clicked");
