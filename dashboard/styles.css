@@ -33,10 +33,10 @@ body {
 /* Visible button (TEMP) */
 #kscore-button {
     position: absolute;
-    top: 310px;
-    left: 555px;
-    width: 125px;
-    height: 100px;
+    top: 305px;
+    left: 560px;
+    width: 1115px;
+    height: 90px;
     background: rgba(0, 0, 255, 0.5);
     cursor: pointer;
     z-index: 9999; /* force on top */
