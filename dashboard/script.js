@@ -4,11 +4,6 @@ window.addEventListener('load', () => {
     const overlay = document.querySelector('.drawer-overlay');
     const closeBtn = document.querySelector(".drawer-close-btn");
 
-closeBtn.addEventListener("click", () => {
-    drawer.classList.remove("open");
-    overlay.classList.remove("open");
-});
-
     console.log("Dashboard JS loaded, button =", button);
 
     if (!button) {
@@ -24,6 +19,12 @@ closeBtn.addEventListener("click", () => {
 
     // Close drawer when tapping outside
     overlay.addEventListener("click", () => {
+        drawer.classList.remove("open");
+        overlay.classList.remove("open");
+    });
+
+    // Close drawer with the X button
+    closeBtn.addEventListener("click", () => {
         drawer.classList.remove("open");
         overlay.classList.remove("open");
     });
