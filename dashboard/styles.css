@@ -15,12 +15,10 @@ body {
 .dashboard-wrapper {
     position: relative;
     width: 100%;
-    
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;            /* no scroll */
+    max-width: 1276px;
+    margin: 0 auto;
 }
+
 
 .dashboard-image {
     max-width: 100%;
