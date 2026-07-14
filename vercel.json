@@ -21,3 +21,29 @@
     }
   ]
 }
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/dashboard", "destination": "/dashboard/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/dashboard/index.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    },
+    {
+      "source": "/dashboard/styles.css",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    },
+    {
+      "source": "/dashboard/script.js",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    }
+  ]
+}
