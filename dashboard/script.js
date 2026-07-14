@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', () => {
     const drawer = document.querySelector('.input-drawer');
     const overlay = document.querySelector('.drawer-overlay');
     const kscoreBtn = document.getElementById('kscore-button');
@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Open drawer
     kscoreBtn.addEventListener('click', () => {
+        console.log("Blue box clicked");
         drawer.classList.add('open');
         overlay.classList.add('open');
     });
@@ -30,5 +31,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
-
-
