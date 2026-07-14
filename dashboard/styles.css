@@ -31,7 +31,7 @@ body {
     top: 400px;
     left: 14px;
     width: 132px;
-    height: 90px;
+    height: 110px;
     background: rgba(0, 0, 255, 0.5);
     cursor: pointer;
     z-index: 9999; /* force on top */
