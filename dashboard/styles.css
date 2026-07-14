@@ -35,8 +35,8 @@ body {
     position: absolute;
     top: 305px;
     left: 562px;
-    width: 110px;
-    height: 88px;
+    width: 108px;
+    height: 87px;
     background: rgba(0, 0, 255, 0.5);
     cursor: pointer;
     z-index: 9999; /* force on top */
