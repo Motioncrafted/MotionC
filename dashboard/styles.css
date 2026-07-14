@@ -29,7 +29,7 @@ body {
 #kscore-button {
     position: absolute;
     top: 400px;
-    left: 20px;
+    left: 15px;
     width: 180px;
     height: 60px;
     background: rgba(0, 0, 255, 0.5);
