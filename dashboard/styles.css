@@ -67,8 +67,17 @@ body {
     background: #f7f7f4;
     border-left: 1px solid #c9c9c3;
     box-shadow: -10px 0 28px rgba(0, 0, 0, 0.30);
-    transform: translateX(100%) !important;
+
+    /* Start hidden by sliding RIGHT */
+    transform: translateX(100%);
     transition: transform 0.35s ease;
+}
+
+.input-drawer.open {
+    /* Slide LEFT into view */
+    transform: translateX(0);
+}
+
 }
 
 .input-drawer.open {
