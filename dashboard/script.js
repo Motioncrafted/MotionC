@@ -1,4 +1,4 @@
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('load', () => {
     const drawer = document.querySelector('.input-drawer');
     const overlay = document.querySelector('.drawer-overlay');
     const kscoreBtn = document.getElementById('kscore-button');
@@ -31,3 +31,4 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
