@@ -240,7 +240,4 @@ select:focus {
         grid-template-columns: 1fr;
     }
 }
-.dashboard-wrapper img {
-    width: 1276px !important;
-    height: 851px !important;
-}
+
