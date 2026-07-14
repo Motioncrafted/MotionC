@@ -35,12 +35,13 @@ body {
     position: absolute;
     top: 35.8%;
     left: 23.78%;
-    width: 101px;
-    height: 87px;
+    width: 7.92%;
+    height: 10.22%;
     background: rgba(0, 0, 255, 0.5);
     cursor: pointer;
     z-index: 9999;
 }
+
 
 
 /* Drawer overlay */
