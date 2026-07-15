@@ -1,17 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>MotionC Dashboard</title>
 
-    <link rel="stylesheet" href="/dashboard/styles.css">
+    <link
+        rel="stylesheet"
+        href="/dashboard/styles.css"
+    >
 </head>
 
 <body>
 
-    <!-- Main content -->
+    <!-- Main dashboard -->
     <main class="main-content">
 
         <div class="dashboard-wrapper">
@@ -34,11 +42,16 @@
 
     </main>
 
-    <!-- Overlay -->
+
+    <!-- Dark overlay behind the drawer -->
     <div class="drawer-overlay"></div>
 
-    <!-- Drawer -->
-    <aside class="input-drawer" aria-hidden="true">
+
+    <!-- Information drawer -->
+    <aside
+        class="input-drawer"
+        aria-hidden="true"
+    >
 
         <header class="drawer-header">
 
@@ -58,8 +71,10 @@
 
         </header>
 
+
         <form id="kscore-form">
 
+            <!-- Measurements -->
             <fieldset>
 
                 <legend>My Measurements</legend>
@@ -67,208 +82,543 @@
                 <div class="ms-options">
 
                     <label class="ms-option">
+
                         <input
                             type="radio"
                             name="measurementSystem"
                             value="imperial"
                             checked
                         >
+
                         Imperial
+
                     </label>
 
                     <label class="ms-option">
+
                         <input
                             type="radio"
                             name="measurementSystem"
                             value="metric"
                         >
+
                         Metric
+
                     </label>
 
                 </div>
 
+
                 <div class="two-column">
 
                     <div class="field">
-                        <label for="weight">Weight</label>
+
+                        <label for="weight">
+                            Weight
+                        </label>
 
                         <input
                             id="weight"
                             type="number"
                             step="0.1"
                         >
+
                     </div>
 
                     <div class="field">
-                        <label for="waist">Waist</label>
+
+                        <label for="waist">
+                            Waist
+                        </label>
 
                         <input
                             id="waist"
                             type="number"
                             step="0.1"
                         >
+
                     </div>
 
                 </div>
 
+
                 <div class="two-column">
 
                     <div class="field">
-                        <label for="height-feet">Height — ft</label>
+
+                        <label for="height-feet">
+                            Height — ft
+                        </label>
 
                         <input
                             id="height-feet"
                             type="number"
                         >
+
                     </div>
 
                     <div class="field">
-                        <label for="height-inches">Height — in</label>
+
+                        <label for="height-inches">
+                            Height — in
+                        </label>
 
                         <input
                             id="height-inches"
                             type="number"
                         >
+
                     </div>
 
                 </div>
 
+
                 <div class="two-column">
 
                     <div class="field">
-                        <label for="age">Age</label>
+
+                        <label for="age">
+                            Age
+                        </label>
 
                         <input
                             id="age"
                             type="number"
                         >
+
                     </div>
 
                     <div class="field">
-                        <label for="sex">Sex</label>
+
+                        <label for="sex">
+                            Sex
+                        </label>
 
                         <select id="sex">
-                            <option value="">Choose</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
+
+                            <option value="">
+                                Choose
+                            </option>
+
+                            <option value="male">
+                                Male
+                            </option>
+
+                            <option value="female">
+                                Female
+                            </option>
+
                         </select>
+
                     </div>
 
                 </div>
 
             </fieldset>
 
+
             <hr class="form-divider">
 
+
+            <!-- Lifestyle Checklist -->
             <fieldset>
 
                 <legend>Lifestyle Checklist</legend>
 
+
+                <!-- Sleep Quality -->
                 <div class="quiz-group">
 
-                    <p class="quiz-heading">Sleep Quality</p>
+                    <p class="quiz-heading">
+                        Sleep Quality
+                    </p>
 
                     <div class="quiz-options">
 
                         <label>
+
+                            <input
+                                type="radio"
+                                name="sleep"
+                                value="3"
+                            >
+
+                            Usually sleep 7–8 hours each night
+
+                        </label>
+
+                        <label>
+
                             <input
                                 type="radio"
                                 name="sleep"
                                 value="2"
                             >
-                            7–8 hours
+
+                            Usually sleep around 6 hours
+
                         </label>
 
                         <label>
+
                             <input
                                 type="radio"
                                 name="sleep"
                                 value="1"
                             >
-                            6 hours
-                        </label>
 
-                        <label>
-                            <input
-                                type="radio"
-                                name="sleep"
-                                value="0"
-                            >
-                            Less than 6
+                            Usually sleep less than 6 hours
+
                         </label>
 
                     </div>
 
                 </div>
 
+
+                <!-- Hydration -->
                 <div class="quiz-group">
 
-                    <p class="quiz-heading">Hydration</p>
+                    <p class="quiz-heading">
+                        Hydration
+                    </p>
 
                     <div class="quiz-options">
 
                         <label>
+
+                            <input
+                                type="radio"
+                                name="hydration"
+                                value="3"
+                            >
+
+                            Drink enough water most days
+
+                        </label>
+
+                        <label>
+
                             <input
                                 type="radio"
                                 name="hydration"
                                 value="2"
                             >
-                            High
+
+                            Drink some water but could improve
+
                         </label>
 
                         <label>
+
                             <input
                                 type="radio"
                                 name="hydration"
                                 value="1"
                             >
-                            Adequate
-                        </label>
 
-                        <label>
-                            <input
-                                type="radio"
-                                name="hydration"
-                                value="0"
-                            >
-                            Low
+                            Rarely drink enough water
+
                         </label>
 
                     </div>
 
                 </div>
 
+
+                <!-- Nutrition -->
                 <div class="quiz-group">
 
-                    <p class="quiz-heading">Activity Level</p>
+                    <p class="quiz-heading">
+                        Nutrition
+                    </p>
 
                     <div class="quiz-options">
 
                         <label>
+
+                            <input
+                                type="radio"
+                                name="nutrition"
+                                value="3"
+                            >
+
+                            Mostly healthy food choices
+
+                        </label>
+
+                        <label>
+
+                            <input
+                                type="radio"
+                                name="nutrition"
+                                value="2"
+                            >
+
+                            A mix of healthy and unhealthy choices
+
+                        </label>
+
+                        <label>
+
+                            <input
+                                type="radio"
+                                name="nutrition"
+                                value="1"
+                            >
+
+                            Mostly unhealthy food choices
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Walking -->
+                <div class="quiz-group">
+
+                    <p class="quiz-heading">
+                        Walking — Daily Movement
+                    </p>
+
+                    <div class="quiz-options">
+
+                        <label>
+
+                            <input
+                                type="radio"
+                                name="walking"
+                                value="3"
+                            >
+
+                            Average over 8,000 steps per day
+
+                        </label>
+
+                        <label>
+
+                            <input
+                                type="radio"
+                                name="walking"
+                                value="2"
+                            >
+
+                            Average 3,000–8,000 steps per day
+
+                        </label>
+
+                        <label>
+
+                            <input
+                                type="radio"
+                                name="walking"
+                                value="1"
+                            >
+
+                            Average under 3,000 steps per day
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Stress Management -->
+                <div class="quiz-group">
+
+                    <p class="quiz-heading">
+                        Stress Management
+                    </p>
+
+                    <div class="quiz-options">
+
+                        <label>
+
+                            <input
+                                type="radio"
+                                name="stress"
+                                value="3"
+                            >
+
+                            Stress is usually well managed
+
+                        </label>
+
+                        <label>
+
+                            <input
+                                type="radio"
+                                name="stress"
+                                value="2"
+                            >
+
+                            Moderate stress most days
+
+                        </label>
+
+                        <label>
+
+                            <input
+                                type="radio"
+                                name="stress"
+                                value="1"
+                            >
+
+                            High stress most days
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Alcohol Intake -->
+                <div class="quiz-group">
+
+                    <p class="quiz-heading">
+                        Alcohol Intake
+                    </p>
+
+                    <div class="quiz-options">
+
+                        <label>
+
+                            <input
+                                type="radio"
+                                name="alcohol"
+                                value="3"
+                            >
+
+                            Low alcohol intake
+
+                        </label>
+
+                        <label>
+
+                            <input
+                                type="radio"
+                                name="alcohol"
+                                value="2"
+                            >
+
+                            Moderate alcohol intake
+
+                        </label>
+
+                        <label>
+
+                            <input
+                                type="radio"
+                                name="alcohol"
+                                value="1"
+                            >
+
+                            High alcohol intake
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Smoking -->
+                <div class="quiz-group">
+
+                    <p class="quiz-heading">
+                        Smoking
+                    </p>
+
+                    <div class="quiz-options">
+
+                        <label>
+
+                            <input
+                                type="radio"
+                                name="smoking"
+                                value="3"
+                            >
+
+                            Non-smoker
+
+                        </label>
+
+                        <label>
+
+                            <input
+                                type="radio"
+                                name="smoking"
+                                value="2"
+                            >
+
+                            Former smoker
+
+                        </label>
+
+                        <label>
+
+                            <input
+                                type="radio"
+                                name="smoking"
+                                value="0"
+                            >
+
+                            Current smoker
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Activity -->
+                <div class="quiz-group">
+
+                    <p class="quiz-heading">
+                        Activity
+                    </p>
+
+                    <div class="quiz-options">
+
+                        <label>
+
+                            <input
+                                type="radio"
+                                name="activity"
+                                value="3"
+                            >
+
+                            Exercise regularly each week
+
+                        </label>
+
+                        <label>
+
                             <input
                                 type="radio"
                                 name="activity"
                                 value="2"
                             >
-                            8k+ steps/day
+
+                            Exercise occasionally
+
                         </label>
 
                         <label>
+
                             <input
                                 type="radio"
                                 name="activity"
                                 value="1"
                             >
-                            3–4k steps/day
-                        </label>
 
-                        <label>
-                            <input
-                                type="radio"
-                                name="activity"
-                                value="0"
-                            >
-                            Less than 3k
+                            Rarely exercise
+
                         </label>
 
                     </div>
@@ -276,6 +626,7 @@
                 </div>
 
             </fieldset>
+
 
             <button
                 type="submit"
@@ -288,7 +639,9 @@
 
     </aside>
 
+
     <script src="/dashboard/script.js"></script>
 
 </body>
+
 </html>
