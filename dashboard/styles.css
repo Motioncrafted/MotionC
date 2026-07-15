@@ -201,3 +201,16 @@ legend {
     height: auto;
     overflow: visible !important;
 }
+/* Prevent drawer from shifting page left */
+body {
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Ensure dashboard wrapper doesn't clip or shift drawer */
+.dashboard-wrapper {
+    position: relative;
+    width: 100%;
+    height: auto;
+    overflow: visible !important;
+}
