@@ -1,7 +1,88 @@
-/* ============================= */
-/*        DRAWER + OVERLAY       */
-/* ============================= */
+/* Global layout */
+* {
+    box-sizing: border-box;
+}
 
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    background: #f3f4f6;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 220px;
+    background: #111827;
+    color: #e5e7eb;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-logo {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-menu li {
+    padding: 10px 12px;
+    margin-bottom: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.sidebar-menu li.active {
+    background: #2563eb;
+    color: #fff;
+}
+
+.sidebar-menu li:hover {
+    background: #374151;
+}
+
+/* Main content */
+.main-content {
+    flex: 1;
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* Dashboard image */
+.dashboard-wrapper {
+    position: relative;
+    max-width: 1000px;
+}
+
+.dashboard-image {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Blue hotspot button */
+#kscore-button {
+    position: absolute;
+    top: 260px;
+    left: 260px;
+    width: 40px;
+    height: 40px;
+    background: #3b82f6;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* Drawer + overlay */
 .drawer-overlay {
     position: fixed;
     inset: 0;
@@ -9,6 +90,7 @@
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.25s ease;
+    z-index: 20;
 }
 
 .drawer-overlay.open {
@@ -22,21 +104,19 @@
     right: -420px;
     width: 420px;
     height: 100vh;
-    background: #fff;
+    background: #ffffff;
     box-shadow: -4px 0 12px rgba(0,0,0,0.25);
     padding: 24px;
     overflow-y: auto;
     transition: right 0.3s ease;
+    z-index: 30;
 }
 
 .input-drawer.open {
     right: 0;
 }
 
-/* ============================= */
-/*        DRAWER HEADER          */
-/* ============================= */
-
+/* Drawer header */
 .drawer-header {
     position: relative;
     margin-bottom: 20px;
@@ -63,10 +143,7 @@
     color: #666;
 }
 
-/* ============================= */
-/*        FORM BASICS            */
-/* ============================= */
-
+/* Form basics */
 fieldset {
     border: none;
     margin-bottom: 20px;
@@ -78,10 +155,7 @@ legend {
     margin-bottom: 10px;
 }
 
-/* ============================= */
-/*     MEASUREMENT SYSTEM        */
-/* ============================= */
-
+/* Measurement system */
 .ms-options {
     display: flex;
     gap: 20px;
@@ -100,10 +174,7 @@ legend {
     height: 14px;
 }
 
-/* ============================= */
-/*       MEASUREMENT FIELDS      */
-/* ============================= */
-
+/* Measurement fields */
 .two-column {
     display: flex;
     gap: 16px;
@@ -125,20 +196,14 @@ legend {
     border-radius: 6px;
 }
 
-/* ============================= */
-/*          DIVIDER              */
-/* ============================= */
-
+/* Divider */
 .form-divider {
     border: none;
     border-top: 1px solid #ddd;
     margin: 20px 0;
 }
 
-/* ============================= */
-/*       LIFESTYLE QUIZ          */
-/* ============================= */
-
+/* Lifestyle quiz */
 .quiz-group {
     margin-bottom: 16px;
 }
@@ -161,10 +226,7 @@ legend {
     margin-right: 6px;
 }
 
-/* ============================= */
-/*         SUBMIT BUTTON         */
-/* ============================= */
-
+/* Submit button */
 .submit-btn {
     width: 100%;
     padding: 10px;
@@ -179,36 +241,4 @@ legend {
 
 .submit-btn:hover {
     background: #2f6336;
-}
-
-/* ============================= */
-/*       BLUE HOTSPOT BUTTON     */
-/* ============================= */
-
-#kscore-button {
-    position: absolute;
-    top: 260px;
-    left: 260px;
-    width: 40px;
-    height: 40px;
-    background: #3b82f6;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-/* ============================= */
-/*     DASHBOARD IMAGE WRAPPER   */
-/* ============================= */
-
-.dashboard-wrapper {
-    position: relative;
-    width: 100%;
-    height: auto;
-    overflow: visible;
-}
-
-.dashboard-image {
-    width: 100%;
-    height: auto;
-    display: block;
 }
