@@ -2,6 +2,9 @@
 * {
     box-sizing: border-box;
 }
+<style>
+    body { background: yellow !important; }
+</style>
 
 body {
     margin: 0;
