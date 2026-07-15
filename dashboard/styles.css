@@ -1,4 +1,50 @@
 /* ============================= */
+/*        GLOBAL FIXES           */
+/* ============================= */
+
+body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden; /* Prevent horizontal shifting */
+    font-family: Arial, sans-serif;
+}
+
+/* ============================= */
+/*     DASHBOARD IMAGE WRAPPER   */
+/* ============================= */
+
+.dashboard-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 100vw;
+    overflow: hidden; /* Prevent image overflow */
+}
+
+/* Dashboard image scaling fix */
+.dashboard-image {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+}
+
+/* ============================= */
+/*       BLUE HOTSPOT BUTTON     */
+/* ============================= */
+
+#kscore-button {
+    position: absolute;
+    top: 260px;
+    left: 260px;
+    width: 40px;
+    height: 40px;
+    background: #3b82f6;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* ============================= */
 /*        DRAWER + OVERLAY       */
 /* ============================= */
 
@@ -17,9 +63,9 @@
 }
 
 .input-drawer {
-    position: fixed;
+    position: fixed; /* Anchor to viewport */
     top: 0;
-    right: -420px;
+    right: -420px; /* Hidden off-screen */
     width: 420px;
     height: 100vh;
     background: #fff;
@@ -30,7 +76,7 @@
 }
 
 .input-drawer.open {
-    right: 0;
+    right: 0; /* Slide in */
 }
 
 /* ============================= */
@@ -97,129 +143,4 @@ legend {
 
 .ms-option input[type="radio"] {
     width: 14px;
-    height: 14px;
-}
-
-/* ============================= */
-/*       MEASUREMENT FIELDS      */
-/* ============================= */
-
-.two-column {
-    display: flex;
-    gap: 16px;
-    margin-bottom: 12px;
-}
-
-.field label {
-    font-size: 15px;
-    margin-bottom: 4px;
-    display: block;
-}
-
-.field input,
-.field select {
-    width: 100%;
-    padding: 6px 8px;
-    font-size: 15px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-}
-
-/* ============================= */
-/*          DIVIDER              */
-/* ============================= */
-
-.form-divider {
-    border: none;
-    border-top: 1px solid #ddd;
-    margin: 20px 0;
-}
-
-/* ============================= */
-/*       LIFESTYLE QUIZ          */
-/* ============================= */
-
-.quiz-group {
-    margin-bottom: 16px;
-}
-
-.quiz-heading {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 6px;
-}
-
-.quiz-options label {
-    display: block;
-    font-size: 15px;
-    margin-bottom: 4px;
-}
-
-.quiz-options input[type="checkbox"] {
-    width: 14px;
-    height: 14px;
-    margin-right: 6px;
-}
-
-/* ============================= */
-/*         SUBMIT BUTTON         */
-/* ============================= */
-
-.submit-btn {
-    width: 100%;
-    padding: 10px;
-    background: #397842;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    font-size: 16px;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-.submit-btn:hover {
-    background: #2f6336;
-}
-
-/* ============================= */
-/*       BLUE HOTSPOT BUTTON     */
-/* ============================= */
-
-#kscore-button {
-    position: absolute;
-    top: 260px;
-    left: 260px;
-    width: 40px;
-    height: 40px;
-    background: #3b82f6;
-    border-radius: 6px;
-    cursor: pointer;
-}
-.dashboard-wrapper {
-    position: relative;
-    width: 100%;
-    height: auto;
-    overflow: visible !important;
-}
-/* Prevent drawer from shifting page left */
-body {
-    position: relative;
-    overflow-x: hidden;
-}
-
-/* Ensure dashboard wrapper doesn't clip or shift drawer */
-.dashboard-wrapper {
-    position: relative;
-    width: 100%;
-    height: auto;
-    overflow: visible !important;
-}
-.dashboard-image {
-    width: 100%;
-    max-width: 100%;
-    height: auto;
-    display: block;
-}
-body {
-    overflow-x: hidden;
-}
+    height
