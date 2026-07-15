@@ -1,39 +1,20 @@
-window.addEventListener('load', () => {
-    const button = document.getElementById("kscore-button");
-    const drawer = document.querySelector('.input-drawer');
-    const overlay = document.querySelector('.drawer-overlay');
-    const closeBtn = document.querySelector(".drawer-close-btn");
+// Drawer toggle logic
+const drawer = document.querySelector('.input-drawer');
+const overlay = document.querySelector('.drawer-overlay');
+const openBtn = document.getElementById('kscore-button');
+const closeBtn = document.querySelector('.drawer-close-btn');
 
-    console.log("Dashboard JS loaded, button =", button);
+openBtn.addEventListener('click', () => {
+    drawer.classList.add('open');
+    overlay.classList.add('open');
+});
 
-    if (!button) {
-        console.error("ERROR: #kscore-button not found in DOM");
-        return;
-    }
+closeBtn.addEventListener('click', () => {
+    drawer.classList.remove('open');
+    overlay.classList.remove('open');
+});
 
-    // Toggle drawer open/close when tapping the hotspot
-    button.addEventListener("click", () => {
-        drawer.classList.toggle("open");
-        overlay.classList.toggle("open");
-    });
-
-    // Close drawer when tapping outside
-    overlay.addEventListener("click", () => {
-        drawer.classList.remove("open");
-        overlay.classList.remove("open");
-    });
-
-    // Close drawer with the X button
-    closeBtn.addEventListener("click", () => {
-        drawer.classList.remove("open");
-        overlay.classList.remove("open");
-    });
-
-    // Close drawer with ESC key
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            drawer.classList.remove("open");
-            overlay.classList.remove("open");
-        }
-    });
+overlay.addEventListener('click', () => {
+    drawer.classList.remove('open');
+    overlay.classList.remove('open');
 });
