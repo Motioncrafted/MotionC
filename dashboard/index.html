@@ -10,17 +10,34 @@
 
 <body>
 
-    <!-- Dashboard Image Wrapper -->
-    <div class="dashboard-wrapper">
-        <img
-            class="dashboard-image"
-            src="/images/dashboard-master.png"
-            alt="MotionC Dashboard"
-        >
+    <!-- Left sidebar navigation -->
+    <nav class="sidebar">
+        <div class="sidebar-logo">MotionC</div>
+        <ul class="sidebar-menu">
+            <li class="active">K-Score</li>
+            <li>Walking</li>
+            <li>Logs</li>
+            <li>Trends</li>
+            <li>Settings</li>
+        </ul>
+    </nav>
 
-        <!-- Visible (blue) button -->
-        <div id="kscore-button"></div>
-    </div>
+    <!-- Main content area -->
+    <main class="main-content">
+
+        <!-- Dashboard Image Wrapper -->
+        <div class="dashboard-wrapper">
+            <img
+                class="dashboard-image"
+                src="/images/dashboard-master.png"
+                alt="MotionC Dashboard"
+            >
+
+            <!-- Visible (blue) button -->
+            <div id="kscore-button"></div>
+        </div>
+
+    </main>
 
     <!-- Drawer overlay -->
     <div class="drawer-overlay"></div>
@@ -35,9 +52,6 @@
             <p>Complete your measurements and Lifestyle Checklist.</p>
         </header>
 
-        <!-- ========================= -->
-        <!--         FULL FORM         -->
-        <!-- ========================= -->
         <form id="kscore-form">
 
             <!-- ========================= -->
@@ -99,7 +113,6 @@
                 </div>
             </fieldset>
 
-            <!-- Divider -->
             <hr class="form-divider">
 
             <!-- ========================= -->
