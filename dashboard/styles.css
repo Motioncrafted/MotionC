@@ -4,11 +4,18 @@
 }
 
 body {
+    body {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
-    display: flex;
     background: #f3f4f6;
+}
+
+.main-content {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 0;
 }
 
 /* Sidebar */
@@ -61,7 +68,15 @@ body {
 /* Dashboard image */
 .dashboard-wrapper {
     position: relative;
-    max-width: 1000px;
+    width: 100%;
+    max-width: 1276px;
+    margin: 0 auto;
+}
+
+.dashboard-image {
+    display: block;
+    width: 100%;
+    height: auto;
 }
 
 .dashboard-image {
