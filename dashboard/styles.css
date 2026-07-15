@@ -1,7 +1,4 @@
-/* ============================= */
-/*        GLOBAL LAYOUT          */
-/* ============================= */
-
+/* Global layout */
 * {
     box-sizing: border-box;
 }
@@ -14,10 +11,7 @@ body {
     background: #f3f4f6;
 }
 
-/* ============================= */
-/*            SIDEBAR            */
-/* ============================= */
-
+/* Sidebar */
 .sidebar {
     width: 220px;
     background: #111827;
@@ -55,10 +49,7 @@ body {
     background: #374151;
 }
 
-/* ============================= */
-/*          MAIN CONTENT         */
-/* ============================= */
-
+/* Main content */
 .main-content {
     flex: 1;
     padding: 16px;
@@ -67,10 +58,7 @@ body {
     align-items: flex-start;
 }
 
-/* ============================= */
-/*       DASHBOARD IMAGE         */
-/* ============================= */
-
+/* Dashboard image */
 .dashboard-wrapper {
     position: relative;
     max-width: 1000px;
@@ -82,10 +70,7 @@ body {
     display: block;
 }
 
-/* ============================= */
-/*       BLUE HOTSPOT BTN        */
-/* ============================= */
-
+/* Blue hotspot button */
 #kscore-button {
     position: absolute;
     top: 260px;
@@ -97,10 +82,7 @@ body {
     cursor: pointer;
 }
 
-/* ============================= */
-/*        DRAWER + OVERLAY       */
-/* ============================= */
-
+/* Drawer + overlay */
 .drawer-overlay {
     position: fixed;
     inset: 0;
@@ -134,10 +116,7 @@ body {
     right: 0;
 }
 
-/* ============================= */
-/*         DRAWER HEADER         */
-/* ============================= */
-
+/* Drawer header */
 .drawer-header {
     position: relative;
     margin-bottom: 20px;
@@ -164,10 +143,7 @@ body {
     color: #666;
 }
 
-/* ============================= */
-/*          FORM BASICS          */
-/* ============================= */
-
+/* Form basics */
 fieldset {
     border: none;
     margin-bottom: 20px;
@@ -179,10 +155,7 @@ legend {
     margin-bottom: 10px;
 }
 
-/* ============================= */
-/*     MEASUREMENT SYSTEM        */
-/* ============================= */
-
+/* Measurement system */
 .ms-options {
     display: flex;
     gap: 20px;
@@ -201,10 +174,7 @@ legend {
     height: 14px;
 }
 
-/* ============================= */
-/*       MEASUREMENT FIELDS      */
-/* ============================= */
-
+/* Measurement fields */
 .two-column {
     display: flex;
     gap: 16px;
@@ -226,20 +196,14 @@ legend {
     border-radius: 6px;
 }
 
-/* ============================= */
-/*           DIVIDER             */
-/* ============================= */
-
+/* Divider */
 .form-divider {
     border: none;
     border-top: 1px solid #ddd;
     margin: 20px 0;
 }
 
-/* ============================= */
-/*       LIFESTYLE QUIZ          */
-/* ============================= */
-
+/* Lifestyle quiz */
 .quiz-group {
     margin-bottom: 16px;
 }
@@ -262,10 +226,7 @@ legend {
     margin-right: 6px;
 }
 
-/* ============================= */
-/*         SUBMIT BUTTON         */
-/* ============================= */
-
+/* Submit button */
 .submit-btn {
     width: 100%;
     padding: 10px;
