@@ -66,10 +66,10 @@ body {
 }
 
 /* Dashboard image */
+/* Dashboard image */
 .dashboard-wrapper {
     position: relative;
-    width: min(100vw, calc(100vh * 1.5), 1276px);
-    aspect-ratio: 3 / 2;
+    width: min(100vw, calc(96vh * 1.5), 1276px);
     margin: 0 auto;
 }
 
@@ -79,11 +79,6 @@ body {
     height: auto;
 }
 
-.dashboard-image {
-    width: 100%;
-    height: auto;
-    display: block;
-}
 
 /* Blue hotspot button */
 #kscore-button {
