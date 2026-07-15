@@ -1,7 +1,10 @@
 {
   "version": 2,
   "rewrites": [
-    { "source": "/dashboard", "destination": "/dashboard/index.html" }
+    { "source": "/dashboard", "destination": "/dashboard/index.html" },
+    { "source": "/dashboard/", "destination": "/dashboard/index.html" },
+    { "source": "/dashboard/styles.css", "destination": "/dashboard/styles.css" },
+    { "source": "/dashboard/script.js", "destination": "/dashboard/script.js" }
   ],
   "headers": [
     {
