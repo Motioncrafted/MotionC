@@ -68,8 +68,8 @@ body {
 /* Dashboard image */
 .dashboard-wrapper {
     position: relative;
-    width: 100%;
-    max-width: 1276px;
+    width: min(100vw, calc(100vh * 1.5), 1276px);
+    aspect-ratio: 3 / 2;
     margin: 0 auto;
 }
 
