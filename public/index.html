@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MotionC Dashboard</title>
+
+    <!-- Correct CSS path -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- Left sidebar navigation -->
+    <nav class="sidebar">
+        <div class="sidebar-logo">MotionC</div>
+        <ul class="sidebar-menu">
+            <li class="active">K-Score</li>
+            <li>Walking</li>
+            <li>Logs</li>
+            <li>Trends</li>
+            <li>Settings</li>
+        </ul>
+    </nav>
+
+    <!-- Main content area -->
+    <main class="main-content">
+
+        <!-- Dashboard Image Wrapper -->
+        <div class="dashboard-wrapper">
+            <img
+                class="dashboard-image"
+                src="/images/dashboard-master.png"
+                alt="MotionC Dashboard"
+            >
+
+            <!-- Blue hotspot button -->
+            <div id="kscore-button"></div>
+        </div>
+
+    </main>
+
+    <!-- Drawer overlay -->
+    <div class="drawer-overlay"></div>
+
+    <!-- Drawer -->
+    <aside class="input-drawer" aria-label="K-Score information form">
+
+        <header class="drawer-header">
+            <button class="drawer-close-btn" aria-label="Close drawer">✕</button>
+
+            <h1>Update My Information</h1>
+            <p>Complete your measurements and Lifestyle Checklist.</p>
+        </header>
+
+        <form id="kscore-form">
+
+            <fieldset>
+                <legend>My Measurements</legend>
+
+                <div class="ms-options">
+                    <label class="ms-option">
+                        <input type="radio" name="measurementSystem" value="imperial" checked>
+                        Imperial
+                    </label>
+
+                    <label class="ms-option">
+                        <input type="radio" name="measurementSystem" value="metric">
+                        Metric
+                    </label>
+                </div>
+
+                <div class="two-column">
+                    <div class="field">
+                        <label for="weight">Weight</label>
+                        <input id="weight" name="weight" type="number" step="0.1">
+                    </div>
+
+                    <div class="field">
+                        <label for="waist">Waist</label>
+                        <input id="waist" name="waist" type="number" step="0.1">
+                    </div>
+                </div>
+
+                <div class="two-column">
+                    <div class="field">
+                        <label for="height-feet">Height — ft</label>
+                        <input id="height-feet" name="heightFeet" type="number">
+                    </div>
+
+                    <div class="field">
+                        <label for="height-inches">Height — in</label>
+                        <input id="height-inches" name="heightInches" type="number">
+                    </div>
+                </div>
+
+                <div class="two-column">
+                    <div class="field">
+                        <label for="age">Age</label>
+                        <input id="age" name="age" type="number">
+                    </div>
+
+                    <div class="field">
+                        <label for="sex">Sex</label>
+                        <select id="sex" name="sex">
+                            <option value="">Choose</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                </div>
+            </fieldset>
+
+            <hr class="form-divider">
+
+            <fieldset>
+                <legend>Lifestyle Checklist</legend>
+
+                <div class="quiz-group">
+                    <label class="quiz-heading">Sleep Quality</label>
+                    <div class="quiz-options">
+                        <label><input type="checkbox" name="sleep" value="7-8"> 7–8 hours</label>
+                        <label><input type="checkbox" name="sleep" value="6"> 6 hours</label>
+                        <label><input type="checkbox" name="sleep" value="<6"> Less than 6</label>
+                    </div>
+                </div>
+
+                <div class="quiz-group">
+                    <label class="quiz-heading">Hydration</label>
+                    <div class="quiz-options">
+                        <label><input type="checkbox" name="hydration" value="high"> High</label>
+                        <label><input type="checkbox" name="hydration" value="adequate"> Adequate</label>
+                        <label><input type="checkbox" name="hydration" value="low"> Low</label>
+                    </div>
+                </div>
+
+                <div class="quiz-group">
+                    <label class="quiz-heading">Activity Level</label>
+                    <div class="quiz-options">
+                        <label><input type="checkbox" name="activity" value="8k"> 8k+ steps/day</label>
+                        <label><input type="checkbox" name="activity" value="3-4k"> 3–4k steps/day</label>
+                        <label><input type="checkbox" name="activity" value="<3k"> Less than 3k</label>
+                    </div>
+                </div>
+
+            </fieldset>
+
+            <button type="submit" class="submit-btn">Save My Info</button>
+
+        </form>
+    </aside>
+
+    <!-- Correct JS path at the bottom -->
+    <script src="script.js"></script>
+
+</body>
+</html>
