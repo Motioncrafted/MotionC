@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MotionC Dashboard</title>
 
-    <!-- Correct absolute path to CSS -->
     <link rel="stylesheet" href="/dashboard/styles.css?v=2">
 </head>
 
@@ -38,15 +37,27 @@
 
         <form id="kscore-form">
 
+            <!-- ========================= -->
+            <!--       MEASUREMENTS        -->
+            <!-- ========================= -->
             <fieldset>
                 <legend>My Measurements</legend>
 
-                <div class="field">
-                    <label for="units">Measurement system</label>
-                    <select id="units" name="units">
-                        <option value="imperial">Imperial — lb, ft/in</option>
-                        <option value="metric">Metric — kg, cm</option>
-                    </select>
+                <!-- Measurement System (radio buttons) -->
+                <div class="measurement-system">
+                    <label class="ms-label">Measurement System</label>
+
+                    <div class="ms-options">
+                        <label class="ms-option">
+                            <input type="radio" name="measurementSystem" value="imperial" checked>
+                            Imperial
+                        </label>
+
+                        <label class="ms-option">
+                            <input type="radio" name="measurementSystem" value="metric">
+                            Metric
+                        </label>
+                    </div>
                 </div>
 
                 <div class="two-column">
@@ -90,37 +101,93 @@
                 </div>
             </fieldset>
 
+            <!-- Divider -->
+            <hr class="form-divider">
+
+            <!-- ========================= -->
+            <!--     8-POINT LIFESTYLE     -->
+            <!-- ========================= -->
             <fieldset>
                 <legend>Lifestyle Checklist</legend>
 
-                <div class="field">
-                    <label for="activity">Daily Activity Level</label>
-                    <select id="activity" name="activity">
-                        <option value="">Choose</option>
-                        <option value="low">Low — mostly sedentary</option>
-                        <option value="moderate">Moderate — some movement</option>
-                        <option value="high">High — active lifestyle</option>
-                    </select>
+                <!-- Sleep Quality -->
+                <div class="quiz-group">
+                    <label class="quiz-label">Sleep Quality</label>
+                    <div class="quiz-options">
+                        <label><input type="checkbox" name="sleep" value="7-8"> 7–8 hours</label>
+                        <label><input type="checkbox" name="sleep" value="6"> 6 hours</label>
+                        <label><input type="checkbox" name="sleep" value="<6"> Less than 6</label>
+                    </div>
                 </div>
 
-                <div class="field">
-                    <label for="sleep">Sleep Quality</label>
-                    <select id="sleep" name="sleep">
-                        <option value="">Choose</option>
-                        <option value="poor">Poor</option>
-                        <option value="average">Average</option>
-                        <option value="good">Good</option>
-                    </select>
+                <!-- Hydration -->
+                <div class="quiz-group">
+                    <label class="quiz-label">Hydration</label>
+                    <div class="quiz-options">
+                        <label><input type="checkbox" name="hydration" value="high"> High</label>
+                        <label><input type="checkbox" name="hydration" value="adequate"> Adequate</label>
+                        <label><input type="checkbox" name="hydration" value="low"> Low</label>
+                    </div>
                 </div>
 
-                <div class="field">
-                    <label for="hydration">Hydration</label>
-                    <select id="hydration" name="hydration">
-                        <option value="">Choose</option>
-                        <option value="low">Low</option>
-                        <option value="adequate">Adequate</option>
-                        <option value="high">High</option>
-                    </select>
+                <!-- Nutrition -->
+                <div class="quiz-group">
+                    <label class="quiz-label">Nutrition</label>
+                    <div class="quiz-options">
+                        <label><input type="checkbox" name="nutrition" value="balanced"> Mostly Balanced</label>
+                        <label><input type="checkbox" name="nutrition" value="mixed"> Mixed</label>
+                        <label><input type="checkbox" name="nutrition" value="poor"> Poor</label>
+                    </div>
+                </div>
+
+                <!-- Activity Level -->
+                <div class="quiz-group">
+                    <label class="quiz-label">Activity Level</label>
+                    <div class="quiz-options">
+                        <label><input type="checkbox" name="activity" value="8k"> 8k+ steps/day</label>
+                        <label><input type="checkbox" name="activity" value="3-4k"> 3–4k steps/day</label>
+                        <label><input type="checkbox" name="activity" value="<3k"> Less than 3k</label>
+                    </div>
+                </div>
+
+                <!-- Stress Management -->
+                <div class="quiz-group">
+                    <label class="quiz-label">Stress Management</label>
+                    <div class="quiz-options">
+                        <label><input type="checkbox" name="stress" value="low"> Low</label>
+                        <label><input type="checkbox" name="stress" value="moderate"> Moderate</label>
+                        <label><input type="checkbox" name="stress" value="high"> High</label>
+                    </div>
+                </div>
+
+                <!-- Alcohol Intake -->
+                <div class="quiz-group">
+                    <label class="quiz-label">Alcohol Intake</label>
+                    <div class="quiz-options">
+                        <label><input type="checkbox" name="alcohol" value="low"> Low</label>
+                        <label><input type="checkbox" name="alcohol" value="moderate"> Moderate</label>
+                        <label><input type="checkbox" name="alcohol" value="high"> High</label>
+                    </div>
+                </div>
+
+                <!-- Smoking Status -->
+                <div class="quiz-group">
+                    <label class="quiz-label">Smoking Status</label>
+                    <div class="quiz-options">
+                        <label><input type="checkbox" name="smoking" value="none"> None</label>
+                        <label><input type="checkbox" name="smoking" value="former"> Former Smoker</label>
+                        <label><input type="checkbox" name="smoking" value="current"> Current Smoker</label>
+                    </div>
+                </div>
+
+                <!-- Daily Movement -->
+                <div class="quiz-group">
+                    <label class="quiz-label">Daily Movement</label>
+                    <div class="quiz-options">
+                        <label><input type="checkbox" name="movement" value="high"> High</label>
+                        <label><input type="checkbox" name="movement" value="moderate"> Moderate</label>
+                        <label><input type="checkbox" name="movement" value="low"> Low</label>
+                    </div>
                 </div>
 
             </fieldset>
