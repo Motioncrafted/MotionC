@@ -6,38 +6,43 @@
     box-sizing: border-box;
 }
 
-body {
+html, body {
     margin: 0;
     padding: 0;
+    width: 100%;
+    height: 100%;
     overflow-x: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
+    font-family: Arial, sans-serif;
 }
 
+/* ============================= */
+/*     FULL-PAGE CENTER WRAPPER  */
+/* ============================= */
+
+.page-center {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;   /* centers horizontally */
+    align-items: flex-start;   /* keeps dashboard at top */
+    position: relative;
+}
 
 /* ============================= */
 /*     DASHBOARD IMAGE WRAPPER   */
 /* ============================= */
 
 .dashboard-wrapper {
-    position: relative !important;
-    width: 100% !important;
-    max-width: 100vw !important;
-    overflow: hidden !important;
+    position: relative;
+    overflow: visible;
+    transform-origin: top left;
 }
 
-/* FORCE dashboard image to scale */
+/* SCALE the huge PNG */
 .dashboard-image {
-    width: 100% !important;
-    height: auto !important;
-    max-width: 100% !important;
-    display: block !important;
-    object-fit: contain !important;
-
-    /* FINAL FIX — scales ANY huge PNG */
-    transform: scale(0.55) !important;
-    transform-origin: top left !important;
+    display: block;
+    transform: scale(0.55);
+    transform-origin: top left;
 }
 
 /* ============================= */
@@ -76,9 +81,9 @@ body {
 }
 
 .input-drawer {
-    position: fixed !important;
+    position: fixed;
     top: 0;
-    right: -420px; /* Hidden off-screen */
+    right: -420px;
     width: 420px;
     height: 100vh;
     background: #fff;
@@ -90,7 +95,7 @@ body {
 }
 
 .input-drawer.open {
-    right: 0; /* Slide in */
+    right: 0;
 }
 
 /* ============================= */
@@ -196,4 +201,47 @@ legend {
 }
 
 /* ============================= */
-/
+/*       LIFESTYLE QUIZ          */
+/* ============================= */
+
+.quiz-group {
+    margin-bottom: 16px;
+}
+
+.quiz-heading {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.quiz-options label {
+    display: block;
+    font-size: 15px;
+    margin-bottom: 4px;
+}
+
+.quiz-options input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    margin-right: 6px;
+}
+
+/* ============================= */
+/*         SUBMIT BUTTON         */
+/* ============================= */
+
+.submit-btn {
+    width: 100%;
+    padding: 10px;
+    background: #397842;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.submit-btn:hover {
+    background: #2f6336;
+}
