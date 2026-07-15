@@ -18,4 +18,3 @@ overlay.addEventListener('click', () => {
     drawer.classList.remove('open');
     overlay.classList.remove('open');
 });
-
