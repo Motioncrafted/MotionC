@@ -214,3 +214,12 @@ body {
     height: auto;
     overflow: visible !important;
 }
+.dashboard-image {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+body {
+    overflow-x: hidden;
+}
