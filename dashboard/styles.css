@@ -1,81 +1,4 @@
 /* ============================= */
-/*        GLOBAL RESET           */
-/* ============================= */
-/* Center the dashboard */
-.page-center {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-}
-
-/* Scale the huge PNG */
-.dashboard-image {
-    transform: scale(0.55);
-    transform-origin: top left;
-    display: block;
-}
-
-* {
-    box-sizing: border-box;
-}
-
-html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow-x: hidden;
-    font-family: Arial, sans-serif;
-}
-
-/* ============================= */
-/*     FULL-PAGE CENTER WRAPPER  */
-/* ============================= */
-
-.page-center {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;   /* centers horizontally */
-    align-items: flex-start;   /* keeps dashboard at top */
-    position: relative;
-}
-
-/* ============================= */
-/*     DASHBOARD IMAGE WRAPPER   */
-/* ============================= */
-
-.dashboard-wrapper {
-    position: relative;
-    overflow: visible;
-    transform-origin: top left;
-}
-
-/* SCALE the huge PNG */
-.dashboard-image {
-    display: block;
-    transform: scale(0.55);
-    transform-origin: top left;
-}
-
-/* ============================= */
-/*       BLUE HOTSPOT BUTTON     */
-/* ============================= */
-
-#kscore-button {
-    position: absolute;
-    top: 260px;
-    left: 260px;
-    width: 40px;
-    height: 40px;
-    background: #3b82f6;
-    border-radius: 6px;
-    cursor: pointer;
-    z-index: 10;
-}
-
-/* ============================= */
 /*        DRAWER + OVERLAY       */
 /* ============================= */
 
@@ -86,7 +9,6 @@ html, body {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.25s ease;
-    z-index: 20;
 }
 
 .drawer-overlay.open {
@@ -105,7 +27,6 @@ html, body {
     padding: 24px;
     overflow-y: auto;
     transition: right 0.3s ease;
-    z-index: 30;
 }
 
 .input-drawer.open {
@@ -258,4 +179,36 @@ legend {
 
 .submit-btn:hover {
     background: #2f6336;
+}
+
+/* ============================= */
+/*       BLUE HOTSPOT BUTTON     */
+/* ============================= */
+
+#kscore-button {
+    position: absolute;
+    top: 260px;
+    left: 260px;
+    width: 40px;
+    height: 40px;
+    background: #3b82f6;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* ============================= */
+/*     DASHBOARD IMAGE WRAPPER   */
+/* ============================= */
+
+.dashboard-wrapper {
+    position: relative;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+.dashboard-image {
+    width: 100%;
+    height: auto;
+    display: block;
 }
