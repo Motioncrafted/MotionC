@@ -195,3 +195,9 @@ legend {
     border-radius: 6px;
     cursor: pointer;
 }
+.dashboard-wrapper {
+    position: relative;
+    width: 100%;
+    height: auto;
+    overflow: visible !important;
+}
