@@ -1,3 +1,25 @@
+/* FORCE dashboard image to scale correctly */
+.dashboard-image {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    display: block !important;
+    object-fit: contain !important;
+}
+
+/* FORCE wrapper to never exceed screen width */
+.dashboard-wrapper {
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow: hidden !important;
+    position: relative !important;
+}
+
+/* Prevent horizontal scroll */
+body {
+    overflow-x: hidden !important;
+}
+
 /* ============================= */
 /*        GLOBAL FIXES           */
 /* ============================= */
