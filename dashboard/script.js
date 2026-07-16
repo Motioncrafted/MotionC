@@ -56,8 +56,9 @@ const sexInput = document.getElementById("sex");
 
 /* -----------------------------------------
    MCP information popup
+
    These elements will work once they are
-   added to the matched HTML.
+   added to the matching HTML.
    ----------------------------------------- */
 
 const mcpInfoButton =
@@ -83,13 +84,6 @@ function openDrawer() {
 
     drawer.classList.add("open");
     overlay.classList.add("open");
-
-    /*
-       This same active class will eventually
-       produce the warm-gold active highlight.
-       For now, the blue development box can
-       remain visible in CSS.
-    */
     hotspot.classList.add("active");
 
     drawer.setAttribute("aria-hidden", "false");
@@ -176,6 +170,7 @@ function openMcpInfo() {
     }
 
     mcpInfoTooltip.classList.add("open");
+
     mcpInfoButton.setAttribute(
         "aria-expanded",
         "true"
@@ -189,6 +184,7 @@ function closeMcpInfo() {
     }
 
     mcpInfoTooltip.classList.remove("open");
+
     mcpInfoButton.setAttribute(
         "aria-expanded",
         "false"
@@ -211,11 +207,7 @@ function toggleMcpInfo(event) {
 }
 
 
-/*
-   Click/tap support.
-   Hover and keyboard-focus visibility will
-   also be handled in CSS.
-*/
+/* Click/tap support */
 
 mcpInfoButton?.addEventListener(
     "click",
@@ -223,7 +215,7 @@ mcpInfoButton?.addEventListener(
 );
 
 
-/* Close popup when tapping elsewhere */
+/* Close popup when clicking or tapping elsewhere */
 
 document.addEventListener("click", (event) => {
     if (
@@ -350,7 +342,7 @@ measurementSystemInputs.forEach((input) => {
 });
 
 
-/* Set correct initial labels and fields */
+/* Set the correct initial labels and fields */
 
 updateMeasurementFields();
 
@@ -372,11 +364,6 @@ function readNumber(input) {
 }
 
 
-function roundToOne(value) {
-    return Math.round(value * 10) / 10;
-}
-
-
 /* =========================================
    Required measurement validation
    ========================================= */
@@ -389,41 +376,72 @@ function getMeasurementData() {
     const age = readNumber(ageInput);
     const sex = sexInput?.value ?? "";
 
-    let heightInches;
+    let heightCm;
     let heightMetres;
+    let heightInches;
+
+    let waistCm;
     let waistInches;
+
     let weightKg;
+    let weightLbs;
 
     if (system === "metric") {
-        const heightCm = readNumber(heightCmInput);
-
+        heightCm = readNumber(heightCmInput);
         heightMetres = heightCm / 100;
         heightInches = heightCm / 2.54;
-        waistInches = enteredWaist / 2.54;
+
+        waistCm = enteredWaist;
+        waistInches = waistCm / 2.54;
+
         weightKg = enteredWeight;
+        weightLbs = weightKg / 0.453592;
     } else {
         const feet = readNumber(heightFeetInput);
-        const inches = readNumber(
-            heightInchesInput
-        );
+        const inches = readNumber(heightInchesInput);
 
-        heightInches = feet * 12 + inches;
-        heightMetres = heightInches * 0.0254;
+        heightInches = (feet * 12) + inches;
+        heightCm = heightInches * 2.54;
+        heightMetres = heightCm / 100;
+
         waistInches = enteredWaist;
-        weightKg = enteredWeight * 0.45359237;
+        waistCm = waistInches * 2.54;
+
+        weightLbs = enteredWeight;
+        weightKg = weightLbs * 0.453592;
     }
 
     const valuesAreValid =
         Number.isFinite(enteredWeight) &&
         enteredWeight > 0 &&
+
         Number.isFinite(enteredWaist) &&
         enteredWaist > 0 &&
-        Number.isFinite(heightInches) &&
-        heightInches > 0 &&
+
+        Number.isFinite(heightCm) &&
+        heightCm > 0 &&
+
         Number.isFinite(heightMetres) &&
         heightMetres > 0 &&
+
+        Number.isFinite(heightInches) &&
+        heightInches > 0 &&
+
+        Number.isFinite(waistCm) &&
+        waistCm > 0 &&
+
+        Number.isFinite(waistInches) &&
+        waistInches > 0 &&
+
+        Number.isFinite(weightKg) &&
+        weightKg > 0 &&
+
+        Number.isFinite(weightLbs) &&
+        weightLbs > 0 &&
+
         Number.isFinite(age) &&
         age > 0 &&
+
         sex !== "";
 
     if (!valuesAreValid) {
@@ -438,71 +456,115 @@ function getMeasurementData() {
         enteredWaist,
         age,
         sex,
-        heightInches,
+
+        heightCm,
         heightMetres,
+        heightInches,
+
+        waistCm,
         waistInches,
-        weightKg
+
+        weightKg,
+        weightLbs
     };
 }
 
 
 /* =========================================
-   BMI
-   ========================================= */
-
-function calculateBmi(weightKg, heightMetres) {
-    return (
-        weightKg /
-        (heightMetres * heightMetres)
-    );
-}
-
-
-/* =========================================
-   MCP
+   MCP calculation engine
    ========================================= */
 
 /*
-   IMPORTANT:
+   Motion Core Prime formula
 
-   This remains the provisional MCP formula.
-   When the final Motion Core Prime model is
-   confirmed, only this function needs to be
-   changed. Nothing else in the drawer,
-   dashboard, or Lifestyle Checklist needs
-   to be rewritten.
+   All calculations retain full precision.
+
+   Rounding is applied only when values
+   are presented on screen.
 */
 
+function getAgeAdjustment(age) {
+    if (age >= 70) {
+        return 4;
+    }
+
+    if (age >= 60) {
+        return 3;
+    }
+
+    if (age >= 50) {
+        return 2;
+    }
+
+    if (age >= 40) {
+        return 1;
+    }
+
+    return 0;
+}
+
+
+function getSexAdjustment(sex) {
+    const normalizedSex =
+        String(sex).trim().toLowerCase();
+
+    return normalizedSex === "female" ? 1 : 0;
+}
+
+
 function calculateMcp({
-    heightInches,
-    waistInches,
+    heightCm,
+    heightMetres,
+    waistCm,
+    weightKg,
     age,
     sex
 }) {
-    let mcp =
-        (heightInches / waistInches) * 20;
-
     /*
-       One point per completed decade after 40.
+       Core metrics
     */
 
-    if (age > 40) {
-        mcp += Math.floor((age - 40) / 10);
-    }
+    const bmi =
+        weightKg /
+        (heightMetres * heightMetres);
+
+    const whtr =
+        waistCm / heightCm;
+
+    const bodyK50 =
+        (bmi * whtr) * 2;
 
     /*
-       Current MotionC female baseline
-       adjustment.
+       Adjustments
     */
 
-    if (sex === "female") {
-        mcp += 1;
-    }
+    const sexAdjustment =
+        getSexAdjustment(sex);
 
-    return Math.max(
-        0,
-        Math.min(50, mcp)
-    );
+    const ageAdjustment =
+        getAgeAdjustment(age);
+
+    /*
+       Raw score and final scaled MCP
+    */
+
+    const rawScore =
+        bodyK50 +
+        sexAdjustment +
+        ageAdjustment;
+
+    const mcp =
+        (2.551 * rawScore) - 51.53;
+
+    return {
+        bmi,
+        whtr,
+        bodyK50,
+        sexAdjustment,
+        ageAdjustment,
+        rawScore,
+        mcp
+    };
 }
 
 
@@ -511,14 +573,17 @@ function calculateMcp({
    ========================================= */
 
 /*
-   These IDs can be placed over the four
-   top cards when we wire the live values:
+   These IDs can be placed over the top
+   dashboard cards:
 
    display-weight
    display-weight-unit
+
    display-waist
    display-waist-unit
+
    display-bmi
+   display-whtr
    display-mcp
 */
 
@@ -535,14 +600,18 @@ function updateMcpDashboard({
     system,
     enteredWeight,
     enteredWaist,
-    bmi,
-    mcp
+    results
 }) {
     const weightUnit =
         system === "metric" ? "kg" : "lb";
 
     const waistUnit =
         system === "metric" ? "cm" : "in";
+
+    /*
+       Weight and waist are displayed in the
+       measurement system selected by the user.
+    */
 
     setText(
         "display-weight",
@@ -564,14 +633,27 @@ function updateMcpDashboard({
         waistUnit
     );
 
+    /*
+       MotionC display standards:
+
+       BMI  = 1 decimal place
+       WHtR = 2 decimal places
+       MCP  = 1 decimal place
+    */
+
     setText(
         "display-bmi",
-        bmi.toFixed(1)
+        results.bmi.toFixed(1)
+    );
+
+    setText(
+        "display-whtr",
+        results.whtr.toFixed(2)
     );
 
     setText(
         "display-mcp",
-        mcp.toFixed(1)
+        results.mcp.toFixed(1)
     );
 }
 
@@ -587,14 +669,8 @@ calculateMcpButton?.addEventListener(
             const measurementData =
                 getMeasurementData();
 
-            const bmi = calculateBmi(
-                measurementData.weightKg,
-                measurementData.heightMetres
-            );
-
-            const mcp = calculateMcp(
-                measurementData
-            );
+            const results =
+                calculateMcp(measurementData);
 
             updateMcpDashboard({
                 system:
@@ -606,21 +682,43 @@ calculateMcpButton?.addEventListener(
                 enteredWaist:
                     measurementData.enteredWaist,
 
-                bmi,
-                mcp
+                results
             });
 
             /*
-               Temporary confirmation until the
-               live metric overlays are added.
+               Temporary confirmation until all
+               live metric overlays are installed.
             */
 
             alert(
-                `Your MCP is ${roundToOne(mcp)}.\n` +
-                `Your BMI is ${roundToOne(bmi)}.`
+                `Your MCP is ${results.mcp.toFixed(1)}.\n` +
+                `Your BMI is ${results.bmi.toFixed(1)}.\n` +
+                `Your WHtR is ${results.whtr.toFixed(2)}.`
+            );
+
+            /*
+               Future features can listen for this
+               event without duplicating the MCP
+               calculation formula.
+            */
+
+            document.dispatchEvent(
+                new CustomEvent(
+                    "motionc:mcp-updated",
+                    {
+                        detail: {
+                            measurementData,
+                            results
+                        }
+                    }
+                )
             );
         } catch (error) {
-            alert(error.message);
+            alert(
+                error instanceof Error
+                    ? error.message
+                    : "Unable to calculate your MCP."
+            );
         }
     }
 );
@@ -759,7 +857,11 @@ calculateLifestyleButton?.addEventListener(
                 `(${Math.round(percentage)}%).`
             );
         } catch (error) {
-            alert(error.message);
+            alert(
+                error instanceof Error
+                    ? error.message
+                    : "Unable to calculate the Lifestyle score."
+            );
         }
     }
 );
