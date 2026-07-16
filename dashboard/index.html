@@ -24,21 +24,40 @@
 
         <div class="dashboard-wrapper">
 
-            <img
-                class="dashboard-image"
-                src="/images/dashboard-master.png"
-                alt="MotionC Dashboard"
-            >
+    <img
+        class="dashboard-image"
+        src="/images/dashboard-master.png"
+        alt="MotionC Dashboard"
+    >
 
-            <!-- MCP hotspot -->
-            <div
-                id="kscore-button"
-                role="button"
-                tabindex="0"
-                aria-label="Open MCP information form"
-            ></div>
+    <!-- Live top-row metric overlays -->
+    <div class="metric-overlay metric-weight">
+        <span id="display-weight">0.0</span>
+        <span id="display-weight-unit">lb</span>
+    </div>
 
-        </div>
+    <div class="metric-overlay metric-waist">
+        <span id="display-waist">0.0</span>
+        <span id="display-waist-unit">in</span>
+    </div>
+
+    <div class="metric-overlay metric-bmi">
+        <span id="display-bmi">0.0</span>
+    </div>
+
+    <div class="metric-overlay metric-mcp">
+        <span id="display-mcp">0.0</span>
+    </div>
+
+    <!-- MCP hotspot -->
+    <div
+        id="kscore-button"
+        role="button"
+        tabindex="0"
+        aria-label="Open MCP information form"
+    ></div>
+
+</div>
 
     </main>
 
