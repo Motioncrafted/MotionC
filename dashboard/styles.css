@@ -533,5 +533,6 @@ legend {
     left: 5% !important;
     width: 40%;
     height: 8%;
+   background: magenta !important;
 }
 }
