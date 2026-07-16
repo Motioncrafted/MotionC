@@ -529,8 +529,9 @@ legend {
 /* MCP */
 
 .metric-mcp {
-    top: 80.0%;
-    left: 125.5%;
-    width: 8.5%;
-    height: 4%;
+    top: 5% !important;
+    left: 5% !important;
+    width: 40%;
+    height: 8%;
+}
 }
