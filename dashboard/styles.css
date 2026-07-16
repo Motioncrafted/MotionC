@@ -455,3 +455,82 @@ legend {
         border-radius: 6px;
     }
 }
+/* =========================================
+   Live top-row metric overlays
+   ========================================= */
+
+.dashboard-wrapper {
+    position: relative;
+}
+
+.metric-overlay {
+    position: absolute;
+    z-index: 3;
+
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.18em;
+
+    font-family: Arial, sans-serif;
+    font-weight: 700;
+    line-height: 1;
+
+    color: #1f2933;
+
+    /*
+       Temporary development styling.
+       Keep this visible while positioning.
+    */
+    background: rgba(255, 255, 0, 0.35);
+    outline: 1px solid rgba(255, 0, 0, 0.7);
+}
+
+.metric-overlay > span:first-child {
+    font-size: clamp(10px, 1.65vw, 25px);
+}
+
+.metric-overlay > span:last-child {
+    font-size: clamp(7px, 0.72vw, 12px);
+    font-weight: 600;
+}
+
+
+/* Current Weight */
+
+.metric-weight {
+    top: 12.9%;
+    left: 19.9%;
+    width: 12.5%;
+    height: 4%;
+}
+
+
+/* Waist */
+
+.metric-waist {
+    top: 12.9%;
+    left: 39.1%;
+    width: 12.5%;
+    height: 4%;
+}
+
+
+/* BMI */
+
+.metric-bmi {
+    top: 12.9%;
+    left: 58.4%;
+    width: 12.5%;
+    height: 4%;
+}
+
+
+/* MCP */
+
+.metric-mcp {
+    top: 12.9%;
+    left: 77.6%;
+    width: 12.5%;
+    height: 4%;
+}
