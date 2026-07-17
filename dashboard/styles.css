@@ -490,7 +490,12 @@ legend {
     font-size: clamp(10px, 1.65vw, 25px);
 }
 
-.metric-overlay > span:last-child {
+/*
+   Apply the smaller font only to the
+   weight and waist unit labels.
+*/
+#display-weight-unit,
+#display-waist-unit {
     font-size: clamp(7px, 0.72vw, 12px);
     font-weight: 600;
 }
