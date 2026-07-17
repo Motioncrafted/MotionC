@@ -98,6 +98,33 @@ body {
     outline-offset: 2px;
 }
 
+/* =========================================
+   Simulation Lab hotspot
+   ========================================= */
+
+#simulation-button {
+    position: absolute;
+
+    /* Temporary values */
+    top: 5.0%;
+    left: 83.2%;
+    width: 12.5%;
+    height: 8.2%;
+
+    padding: 0;
+
+    background: rgba(255, 230, 0, 0.35);
+    border: 2px solid rgba(255, 210, 0, 0.95);
+    border-radius: 8px;
+
+    cursor: pointer;
+    z-index: 25;
+}
+
+#simulation-button:hover {
+    background: rgba(255, 230, 0, 0.50);
+}
+
 
 /* =========================================
    Drawer overlay
