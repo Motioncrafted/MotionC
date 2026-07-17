@@ -1058,3 +1058,4 @@ document.addEventListener(
         );
     }
 );
+<script src="/dashboard/script.js?v=2"></script>
