@@ -926,45 +926,58 @@ function percentageToGaugeAngle(percentage) {
     const percent =
         clamp(percentage, 0, 100);
 
+    /*
+       The arrow naturally points straight up
+       at 0 degrees.
+
+       Negative angles point left.
+       Positive angles point right.
+
+       Yellow remains unused.
+    */
+
     if (percent <= 25) {
+        /* Red — far left */
         return interpolate(
             percent,
             0,
             25,
-            -158,
-            -139
+            -86,
+            -55
         );
     }
 
     if (percent <= 50) {
+        /* Orange — upper left */
         return interpolate(
             percent,
             25,
             50,
-            -130,
-            -108
+            -52,
+            -20
         );
     }
 
     if (percent <= 75) {
+        /* Light green — upper right */
         return interpolate(
             percent,
             50,
             75,
-            -72,
-            -50
+            20,
+            52
         );
     }
 
+    /* Dark green — far right */
     return interpolate(
         percent,
         75,
         100,
-        -41,
-        -20
+        55,
+        86
     );
 }
-
 
 function moveGaugeArrow(element, percentage) {
     if (!element) {
