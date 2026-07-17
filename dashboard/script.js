@@ -870,18 +870,15 @@ calculateLifestyleButton?.addEventListener(
    ========================================= */
 
 /*
-   The artwork contains five coloured sections,
-   but MotionC uses only four active zones:
+   The two gauges intentionally use different
+   zone systems.
 
-   0–25%    Red
-   26–50%   Orange
-   51–75%   Light Green
-   76–100%  Dark Green
+   YOUR TREND:
+   Four active 25% zones. Yellow is skipped.
 
-   The centre yellow section remains visible,
-   but the arrow never lands there.
+   LIFESTYLE CHECKLIST:
+   Five active 20% zones. Yellow is included.
 */
-
 
 function clamp(value, minimum, maximum) {
     return Math.min(
@@ -889,7 +886,6 @@ function clamp(value, minimum, maximum) {
         maximum
     );
 }
-
 
 function interpolate(
     value,
@@ -910,34 +906,16 @@ function interpolate(
 }
 
 
-/*
-   Converts 0–100 into the four coloured areas.
+/* -----------------------------------------
+   YOUR TREND
+   ----------------------------------------- */
 
-   Gauge angles:
+function trendPercentageToGaugeAngle(percentage) {
 
-   Red:         -158° to -139°
-   Orange:      -130° to -108°
-   Yellow:      deliberately skipped
-   Light Green:  -72° to  -50°
-   Dark Green:   -41° to  -20°
-*/
-
-function percentageToGaugeAngle(percentage) {
     const percent =
         clamp(percentage, 0, 100);
 
-    /*
-       The arrow naturally points straight up
-       at 0 degrees.
-
-       Negative angles point left.
-       Positive angles point right.
-
-       Yellow remains unused.
-    */
-
     if (percent <= 25) {
-        /* Red — far left */
         return interpolate(
             percent,
             0,
@@ -948,7 +926,6 @@ function percentageToGaugeAngle(percentage) {
     }
 
     if (percent <= 50) {
-        /* Orange — upper left */
         return interpolate(
             percent,
             25,
@@ -959,7 +936,6 @@ function percentageToGaugeAngle(percentage) {
     }
 
     if (percent <= 75) {
-        /* Light green — upper right */
         return interpolate(
             percent,
             50,
@@ -969,7 +945,6 @@ function percentageToGaugeAngle(percentage) {
         );
     }
 
-    /* Dark green — far right */
     return interpolate(
         percent,
         75,
@@ -979,13 +954,34 @@ function percentageToGaugeAngle(percentage) {
     );
 }
 
-function moveGaugeArrow(element, percentage) {
+
+/* -----------------------------------------
+   LIFESTYLE CHECKLIST
+   ----------------------------------------- */
+
+function lifestylePercentageToGaugeAngle(percentage) {
+
+    const percent =
+        clamp(percentage, 0, 100);
+
+    return interpolate(
+        percent,
+        0,
+        100,
+        -86,
+        86
+    );
+}
+
+
+function setGaugeArrowAngle(
+    element,
+    angle
+) {
+
     if (!element) {
         return;
     }
-
-    const angle =
-        percentageToGaugeAngle(percentage);
 
     element.style.setProperty(
         "--gauge-angle",
@@ -995,22 +991,11 @@ function moveGaugeArrow(element, percentage) {
 
 
 /* -----------------------------------------
-   Your Trend MCP mapping
+   MCP percentage
    ----------------------------------------- */
 
-/*
-   MCP currently uses a working 0–50 scale:
-
-   0–12.5   Red
-   12.5–25  Orange
-   25–37.5  Light Green
-   37.5–50  Dark Green
-
-   Values above 50 remain at the far end
-   of the dark-green section.
-*/
-
 function mcpToGaugePercentage(mcp) {
+
     return clamp(
         (mcp / 50) * 100,
         0,
@@ -1030,45 +1015,60 @@ const lifestyleGaugeArrow =
     );
 
 
-/* Respond to MCP calculations */
-
 document.addEventListener(
     "motionc:mcp-updated",
     (event) => {
+
         const mcp =
-            Number(event.detail?.results?.mcp);
+            Number(
+                event.detail?.results?.mcp
+            );
 
         if (!Number.isFinite(mcp)) {
             return;
         }
 
         const percentage =
-            mcpToGaugePercentage(mcp);
+            mcpToGaugePercentage(
+                mcp
+            );
 
-        moveGaugeArrow(
+        const angle =
+            trendPercentageToGaugeAngle(
+                percentage
+            );
+
+        setGaugeArrowAngle(
             trendGaugeArrow,
-            percentage
+            angle
         );
+
     }
 );
 
 
-/* Respond to Lifestyle calculations */
-
 document.addEventListener(
     "motionc:lifestyle-updated",
     (event) => {
+
         const percentage =
-            Number(event.detail?.percentage);
+            Number(
+                event.detail?.percentage
+            );
 
         if (!Number.isFinite(percentage)) {
             return;
         }
 
-        moveGaugeArrow(
+        const angle =
+            lifestylePercentageToGaugeAngle(
+                percentage
+            );
+
+        setGaugeArrowAngle(
             lifestyleGaugeArrow,
-            percentage
+            angle
         );
+
     }
 );
-
