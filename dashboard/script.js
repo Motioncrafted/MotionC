@@ -865,3 +865,196 @@ calculateLifestyleButton?.addEventListener(
         }
     }
 );
+/* =========================================
+   Gauge arrow controls
+   ========================================= */
+
+/*
+   The artwork contains five coloured sections,
+   but MotionC uses only four active zones:
+
+   0–25%    Red
+   26–50%   Orange
+   51–75%   Light Green
+   76–100%  Dark Green
+
+   The centre yellow section remains visible,
+   but the arrow never lands there.
+*/
+
+
+function clamp(value, minimum, maximum) {
+    return Math.min(
+        Math.max(value, minimum),
+        maximum
+    );
+}
+
+
+function interpolate(
+    value,
+    inputMinimum,
+    inputMaximum,
+    outputMinimum,
+    outputMaximum
+) {
+    const progress =
+        (value - inputMinimum) /
+        (inputMaximum - inputMinimum);
+
+    return outputMinimum +
+        (
+            progress *
+            (outputMaximum - outputMinimum)
+        );
+}
+
+
+/*
+   Converts 0–100 into the four coloured areas.
+
+   Gauge angles:
+
+   Red:         -158° to -139°
+   Orange:      -130° to -108°
+   Yellow:      deliberately skipped
+   Light Green:  -72° to  -50°
+   Dark Green:   -41° to  -20°
+*/
+
+function percentageToGaugeAngle(percentage) {
+    const percent =
+        clamp(percentage, 0, 100);
+
+    if (percent <= 25) {
+        return interpolate(
+            percent,
+            0,
+            25,
+            -158,
+            -139
+        );
+    }
+
+    if (percent <= 50) {
+        return interpolate(
+            percent,
+            25,
+            50,
+            -130,
+            -108
+        );
+    }
+
+    if (percent <= 75) {
+        return interpolate(
+            percent,
+            50,
+            75,
+            -72,
+            -50
+        );
+    }
+
+    return interpolate(
+        percent,
+        75,
+        100,
+        -41,
+        -20
+    );
+}
+
+
+function moveGaugeArrow(element, percentage) {
+    if (!element) {
+        return;
+    }
+
+    const angle =
+        percentageToGaugeAngle(percentage);
+
+    element.style.setProperty(
+        "--gauge-angle",
+        `${angle}deg`
+    );
+}
+
+
+/* -----------------------------------------
+   Your Trend MCP mapping
+   ----------------------------------------- */
+
+/*
+   MCP currently uses a working 0–50 scale:
+
+   0–12.5   Red
+   12.5–25  Orange
+   25–37.5  Light Green
+   37.5–50  Dark Green
+
+   Values above 50 remain at the far end
+   of the dark-green section.
+*/
+
+function mcpToGaugePercentage(mcp) {
+    return clamp(
+        (mcp / 50) * 100,
+        0,
+        100
+    );
+}
+
+
+const trendGaugeArrow =
+    document.getElementById(
+        "trend-gauge-arrow"
+    );
+
+const lifestyleGaugeArrow =
+    document.getElementById(
+        "lifestyle-gauge-arrow"
+    );
+
+
+/* Respond to MCP calculations */
+
+document.addEventListener(
+    "motionc:mcp-updated",
+    (event) => {
+        const mcp =
+            Number(event.detail?.results?.mcp);
+
+        if (!Number.isFinite(mcp)) {
+            return;
+        }
+
+        const percentage =
+            mcpToGaugePercentage(mcp);
+
+        moveGaugeArrow(
+            trendGaugeArrow,
+            percentage
+        );
+    }
+);
+
+
+/* Respond to Lifestyle calculations */
+
+document.addEventListener(
+    "motionc:lifestyle-updated",
+    (event) => {
+        const percentage =
+            Number(event.detail?.percentage);
+
+        if (!Number.isFinite(percentage)) {
+            return;
+        }
+
+        moveGaugeArrow(
+            lifestyleGaugeArrow,
+            percentage
+        );
+    }
+);
