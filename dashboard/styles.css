@@ -76,12 +76,45 @@ body {
 
     padding: 0;
 
-    background: rgba(59, 130, 246, 0.22);
-    border: 2px solid rgba(59, 130, 246, 0.85);
+    background: transparent;
+    border: 2px solid transparent;
     border-radius: 10px;
 
     cursor: pointer;
+    z-index: 25;
 
+    transition:
+        background 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+/* =========================================
+   Active Page Indicator
+   ========================================= */
+
+.active-page {
+
+    background: rgba(212,175,55,0.10);
+
+    border: 2px solid #C8A03A;
+
+    box-shadow:
+        0 0 4px rgba(255,235,170,.65),
+        0 0 10px rgba(212,175,55,.40),
+        inset 0 0 5px rgba(255,245,180,.25);
+
+}
+
+.active-page:hover {
+
+    background: rgba(212,175,55,0.14);
+
+    box-shadow:
+        0 0 6px rgba(255,235,170,.80),
+        0 0 14px rgba(212,175,55,.55),
+        inset 0 0 7px rgba(255,245,180,.35);
+
+}
     /*
        Must stay above the overlay so the MCP
        button can also close the drawer.
