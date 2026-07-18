@@ -94,7 +94,7 @@ body {
 
 .active-page {
 
-    background: rgba(212,175,55,0.10);
+    background: transparent;
 
     border: 2px solid #C8A03A;
 
@@ -107,7 +107,7 @@ body {
 
 .active-page:hover {
 
-    background: rgba(212,175,55,0.14);
+    background: transparent;
 
     box-shadow:
         0 0 6px rgba(255,235,170,.80),
@@ -115,15 +115,9 @@ body {
         inset 0 0 7px rgba(255,245,180,.35);
 
 }
-    /*
-       Must stay above the overlay so the MCP
-       button can also close the drawer.
-    */
-    z-index: 25;
-}
 
 #kscore-button:hover {
-    background: rgba(59, 130, 246, 0.32);
+    background: transparent;
 }
 
 #kscore-button:focus-visible {
