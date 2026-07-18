@@ -13,7 +13,11 @@ const drawer = document.querySelector(".input-drawer");
 const overlay = document.querySelector(".drawer-overlay");
 const hotspot = document.getElementById("kscore-button");
 const closeButton = document.querySelector(".drawer-close-btn");
+/* =========================================
+   Active page indicator
+   ========================================= */
 
+hotspot?.classList.add("active-page");
 const form = document.getElementById("kscore-form");
 
 const calculateMcpButton =
@@ -84,8 +88,7 @@ function openDrawer() {
 
     drawer.classList.add("open");
     overlay.classList.add("open");
-   hotspot.classList.add("active-page");
-
+   
     drawer.setAttribute("aria-hidden", "false");
     hotspot.setAttribute("aria-expanded", "true");
 }
@@ -98,8 +101,7 @@ function closeDrawer() {
 
     drawer.classList.remove("open");
     overlay.classList.remove("open");
-    hotspot.classList.remove("active-page");
-
+    
     drawer.setAttribute("aria-hidden", "true");
     hotspot.setAttribute("aria-expanded", "false");
 
