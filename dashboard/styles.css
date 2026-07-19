@@ -821,7 +821,7 @@ legend {
        placement has been confirmed.
     */
     background: transparent;
-    outline: none
+    outline: none;
 
     pointer-events: none;
 }
