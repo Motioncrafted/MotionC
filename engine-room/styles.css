@@ -1,0 +1,12 @@
+body {
+    margin: 0;
+    background: #ececec;
+    opacity: 0;
+    animation: pageFadeIn 0.25s ease forwards;
+}
+
+.engine-room-image {
+    display: block;
+    width: 100%;
+    height: auto;
+}
