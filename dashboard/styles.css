@@ -130,9 +130,9 @@ body {
    ========================================= */
 
 #simulation-button {
+    #simulation-button {
     position: absolute;
 
-    /* Temporary values */
     top: 19.7%;
     left: 66.5%;
     width: 6.3%;
@@ -147,9 +147,37 @@ body {
     cursor: pointer;
     z-index: 25;
 
-    transition:
-        box-shadow 0.35s ease,
-        transform 0.35s ease;
+    animation: engineRoomGlow 4.8s ease-in-out infinite;
+}
+
+#simulation-button:hover {
+    background: transparent;
+    animation-play-state: paused;
+
+    box-shadow:
+        0 0 8px rgba(255, 220, 120, 0.35),
+        0 0 18px rgba(212, 175, 55, 0.22),
+        0 8px 18px rgba(255, 210, 80, 0.20);
+}
+
+@keyframes engineRoomGlow {
+    0%, 100% {
+        box-shadow:
+            0 0 0 rgba(255,220,120,0),
+            0 8px 12px rgba(255,210,80,0.05);
+    }
+
+    50% {
+        box-shadow:
+            0 0 10px rgba(255,220,120,0.20),
+            0 12px 24px rgba(255,210,80,0.18);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #simulation-button {
+        animation: none;
+    }
 }
 
 /*
