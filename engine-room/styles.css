@@ -10,3 +10,8 @@ body {
     width: 100%;
     height: auto;
 }
+@keyframes pageFadeIn {
+    to {
+        opacity: 1;
+    }
+}
