@@ -33,6 +33,13 @@ const calculateMcpButton =
 const calculateLifestyleButton =
     document.getElementById("calculate-lifestyle-btn");
 
+/* -----------------------------------------
+   Engine Room button
+   ----------------------------------------- */
+
+const engineRoomButton =
+    document.getElementById("simulation-button");
+
 
 /* -----------------------------------------
    Measurement elements
@@ -168,6 +175,20 @@ document.addEventListener("keydown", (event) => {
     }
 });
 
+
+/* =========================================
+   Engine Room
+   ========================================= */
+
+engineRoomButton?.addEventListener("click", () => {
+
+    document.body.classList.add("page-fade-out");
+
+    setTimeout(() => {
+        window.location.href = "/engine-room/";
+    }, 250);
+
+});
 
 /* =========================================
    Engine Room
