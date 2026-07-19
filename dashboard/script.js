@@ -33,12 +33,6 @@ const calculateMcpButton =
 const calculateLifestyleButton =
     document.getElementById("calculate-lifestyle-btn");
 
-/* -----------------------------------------
-   Engine Room button
-   ----------------------------------------- */
-
-const engineRoomButton =
-    document.getElementById("simulation-button");
 
 
 /* -----------------------------------------
