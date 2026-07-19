@@ -51,6 +51,18 @@ body {
     height: auto;
 }
 
+/* =========================================
+   Page Fade
+   ========================================= */
+
+body {
+    transition: opacity 0.25s ease;
+}
+
+body.page-fade-out {
+    opacity: 0;
+}
+
 
 /* =========================================
    MCP hotspot
