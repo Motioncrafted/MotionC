@@ -7,9 +7,10 @@ body {
 
 .engine-room-image {
     display: block;
-    width: 70%;
+    width: auto;
     max-width: 100%;
     height: auto;
+    max-height: 100vh;
     margin: 0 auto;
 }
 
