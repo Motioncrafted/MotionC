@@ -13,6 +13,13 @@ const drawer = document.querySelector(".input-drawer");
 const overlay = document.querySelector(".drawer-overlay");
 const hotspot = document.getElementById("kscore-button");
 const closeButton = document.querySelector(".drawer-close-btn");
+
+/* -----------------------------------------
+   Engine Room button
+   ----------------------------------------- */
+
+const engineRoomButton =
+    document.getElementById("simulation-button");
 /* =========================================
    Active page indicator
    ========================================= */
@@ -162,6 +169,19 @@ document.addEventListener("keydown", (event) => {
 });
 
 
+/* =========================================
+   Engine Room
+   ========================================= */
+
+engineRoomButton?.addEventListener("click", () => {
+
+    document.body.classList.add("page-fade-out");
+
+    setTimeout(() => {
+        window.location.href = "/engine-room/";
+    }, 250);
+
+});
 /* =========================================
    MCP information popup
    ========================================= */
