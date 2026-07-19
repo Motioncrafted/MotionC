@@ -156,20 +156,25 @@ body {
     content: "";
 
     position: absolute;
-    z-index: -1;
+    z-index: 0;
 
-    left: 12%;
-    right: 12%;
-    bottom: -12%;
-    height: 34%;
+    left: 8%;
+    right: 8%;
+    bottom: -18%;
+    height: 42%;
 
     border-radius: 50%;
 
-    background: rgba(255, 221, 119, 0.22);
+    background: radial-gradient(
+        ellipse at center,
+        rgba(255, 224, 125, 0.48) 0%,
+        rgba(255, 210, 80, 0.22) 45%,
+        rgba(255, 210, 80, 0) 75%
+    );
 
-    filter: blur(clamp(5px, 0.7vw, 10px));
+    filter: blur(clamp(4px, 0.6vw, 9px));
 
-    opacity: 0.12;
+    opacity: 0.18;
     transform: scaleX(0.82);
 
     animation: engine-room-breathe 4.8s ease-in-out infinite;
@@ -195,13 +200,13 @@ body {
 @keyframes engine-room-breathe {
     0%,
     100% {
-        opacity: 0.12;
+        opacity: 0.18;
         transform: scaleX(0.82);
     }
 
     45%,
     55% {
-        opacity: 0.30;
+        opacity: 0.42;
         transform: scaleX(1);
     }
 }
