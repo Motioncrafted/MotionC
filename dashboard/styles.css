@@ -592,7 +592,7 @@ legend {
        Keep this visible while positioning.
     */
     background: transparent;
-    outline: 1px solid rgba(255, 0, 0, 0.7);
+    outline: none;
 }
 
 .metric-overlay > span:first-child {
