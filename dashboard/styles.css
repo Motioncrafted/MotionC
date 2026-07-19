@@ -130,7 +130,6 @@ body {
    ========================================= */
 
 #simulation-button {
-    #simulation-button {
     position: absolute;
 
     top: 19.7%;
@@ -146,45 +145,13 @@ body {
 
     cursor: pointer;
     z-index: 25;
-
-    animation: engineRoomGlow 4.8s ease-in-out infinite;
-}
-
-#simulation-button:hover {
-    background: transparent;
-    animation-play-state: paused;
-
-    box-shadow:
-        0 0 8px rgba(255, 220, 120, 0.35),
-        0 0 18px rgba(212, 175, 55, 0.22),
-        0 8px 18px rgba(255, 210, 80, 0.20);
-}
-
-@keyframes engineRoomGlow {
-    0%, 100% {
-        box-shadow:
-            0 0 0 rgba(255,220,120,0),
-            0 8px 12px rgba(255,210,80,0.05);
-    }
-
-    50% {
-        box-shadow:
-            0 0 10px rgba(255,220,120,0.20),
-            0 12px 24px rgba(255,210,80,0.18);
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    #simulation-button {
-        animation: none;
-    }
 }
 
 /*
    Slow, subtle light beneath the Engine Room button.
-   The light breathes gently to improve discoverability
-   without making the control look like an alert.
+   The hotspot itself remains completely transparent.
 */
+
 #simulation-button::after {
     content: "";
 
@@ -202,8 +169,8 @@ body {
 
     filter: blur(clamp(5px, 0.7vw, 10px));
 
-    opacity: 0.16;
-    transform: scaleX(0.86);
+    opacity: 0.12;
+    transform: scaleX(0.82);
 
     animation: engine-room-breathe 4.8s ease-in-out infinite;
 
@@ -212,10 +179,6 @@ body {
 
 #simulation-button:hover {
     background: transparent;
-
-    box-shadow:
-        0 0 5px rgba(255, 239, 184, 0.46),
-        0 0 11px rgba(212, 175, 55, 0.30);
 }
 
 #simulation-button:hover::after {
@@ -250,8 +213,6 @@ body {
         transform: scaleX(0.92);
     }
 }
-
-
 /* =========================================
    Drawer overlay
    ========================================= */
