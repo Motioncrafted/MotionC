@@ -148,48 +148,22 @@ body {
 }
 
 /*
-   Slow, subtle light beneath the Engine Room button.
-   The hotspot itself remains completely transparent.
+   Slow light leaking from beneath the Engine Room plate.
+   Negative spread keeps the glow concentrated underneath.
 */
 
-#simulation-button::after {
-    content: "";
-
-    position: absolute;
-    z-index: 0;
-
-    left: 8%;
-    right: 8%;
-    bottom: -18%;
-    height: 42%;
-
-    border-radius: 50%;
-
-    background: radial-gradient(
-        ellipse at center,
-        rgba(255, 224, 125, 0.48) 0%,
-        rgba(255, 210, 80, 0.22) 45%,
-        rgba(255, 210, 80, 0) 75%
-    );
-
-    filter: blur(clamp(4px, 0.6vw, 9px));
-
-    opacity: 0.18;
-    transform: scaleX(0.82);
-
+#simulation-button {
     animation: engine-room-breathe 4.8s ease-in-out infinite;
-
-    pointer-events: none;
 }
 
 #simulation-button:hover {
     background: transparent;
-}
 
-#simulation-button:hover::after {
-    opacity: 0.30;
+    box-shadow:
+        0 11px 12px -5px rgba(255, 220, 105, 0.52),
+        0 17px 20px -10px rgba(212, 175, 55, 0.40);
+
     animation-play-state: paused;
-    transform: scaleX(1);
 }
 
 #simulation-button:focus-visible {
@@ -200,22 +174,26 @@ body {
 @keyframes engine-room-breathe {
     0%,
     100% {
-        opacity: 0.18;
-        transform: scaleX(0.82);
+        box-shadow:
+            0 9px 10px -7px rgba(255, 220, 105, 0.16),
+            0 14px 17px -11px rgba(212, 175, 55, 0.10);
     }
 
     45%,
     55% {
-        opacity: 0.42;
-        transform: scaleX(1);
+        box-shadow:
+            0 11px 13px -5px rgba(255, 224, 120, 0.48),
+            0 18px 22px -10px rgba(212, 175, 55, 0.34);
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    #simulation-button::after {
+    #simulation-button {
         animation: none;
-        opacity: 0.20;
-        transform: scaleX(0.92);
+
+        box-shadow:
+            0 10px 11px -6px rgba(255, 220, 105, 0.30),
+            0 15px 18px -10px rgba(212, 175, 55, 0.20);
     }
 }
 /* =========================================
