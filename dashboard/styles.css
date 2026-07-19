@@ -96,12 +96,12 @@ body {
 
     background: transparent;
 
-    border: 2px solid #C8A03A;
+    border: 2px solid #D3AA3D;
 
     box-shadow:
-        0 0 4px rgba(255,235,170,.65),
-        0 0 10px rgba(212,175,55,.40),
-        inset 0 0 5px rgba(255,245,180,.25);
+        0 0 5px rgba(255, 239, 184, 0.78),
+        0 0 13px rgba(212, 175, 55, 0.54),
+        inset 0 0 6px rgba(255, 245, 180, 0.32);
 
 }
 
@@ -110,9 +110,9 @@ body {
     background: transparent;
 
     box-shadow:
-        0 0 6px rgba(255,235,170,.80),
-        0 0 14px rgba(212,175,55,.55),
-        inset 0 0 7px rgba(255,245,180,.35);
+        0 0 7px rgba(255, 242, 196, 0.92),
+        0 0 17px rgba(212, 175, 55, 0.68),
+        inset 0 0 8px rgba(255, 245, 180, 0.42);
 
 }
 
@@ -126,7 +126,7 @@ body {
 }
 
 /* =========================================
-   Simulation Lab hotspot
+   Engine Room hotspot
    ========================================= */
 
 #simulation-button {
@@ -140,16 +140,87 @@ body {
 
     padding: 0;
 
-    background: rgba(255, 230, 0, 0.35);
-    border: 2px solid rgba(255, 210, 0, 0.95);
+    background: transparent;
+    border: 2px solid transparent;
     border-radius: 8px;
 
     cursor: pointer;
     z-index: 25;
+
+    transition:
+        box-shadow 0.35s ease,
+        transform 0.35s ease;
+}
+
+/*
+   Slow, subtle light beneath the Engine Room button.
+   The light breathes gently to improve discoverability
+   without making the control look like an alert.
+*/
+#simulation-button::after {
+    content: "";
+
+    position: absolute;
+    z-index: -1;
+
+    left: 12%;
+    right: 12%;
+    bottom: -12%;
+    height: 34%;
+
+    border-radius: 50%;
+
+    background: rgba(255, 221, 119, 0.22);
+
+    filter: blur(clamp(5px, 0.7vw, 10px));
+
+    opacity: 0.16;
+    transform: scaleX(0.86);
+
+    animation: engine-room-breathe 4.8s ease-in-out infinite;
+
+    pointer-events: none;
 }
 
 #simulation-button:hover {
-    background: rgba(255, 230, 0, 0.50);
+    background: transparent;
+
+    box-shadow:
+        0 0 5px rgba(255, 239, 184, 0.46),
+        0 0 11px rgba(212, 175, 55, 0.30);
+}
+
+#simulation-button:hover::after {
+    opacity: 0.30;
+    animation-play-state: paused;
+    transform: scaleX(1);
+}
+
+#simulation-button:focus-visible {
+    outline: 3px solid rgba(59, 130, 246, 0.45);
+    outline-offset: 2px;
+}
+
+@keyframes engine-room-breathe {
+    0%,
+    100% {
+        opacity: 0.12;
+        transform: scaleX(0.82);
+    }
+
+    45%,
+    55% {
+        opacity: 0.30;
+        transform: scaleX(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #simulation-button::after {
+        animation: none;
+        opacity: 0.20;
+        transform: scaleX(0.92);
+    }
 }
 
 
