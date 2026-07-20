@@ -151,7 +151,7 @@ body.page-fade-out {
 
     padding: 0;
 
-    background: transparent;
+    background: rgba(255,255,0,35);
     border: 2px solid transparent;
     border-radius: 8px;
 
