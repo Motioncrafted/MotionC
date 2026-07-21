@@ -5,13 +5,66 @@ body {
     animation: pageFadeIn 0.25s ease forwards;
 }
 
+/*
+    This container remains exactly the same size
+    as the displayed Engine Room image.
+*/
+.engine-room-stage {
+    position: relative;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
 .engine-room-image {
     display: block;
     width: auto;
     max-width: 100%;
     height: auto;
     max-height: 100vh;
-    margin: 0 auto;
+}
+
+/*
+    EXIT HOTSPOT
+
+    Adjust these four percentage values later:
+    top
+    left
+    width
+    height
+*/
+.exit-hotspot {
+    position: absolute;
+
+    top: 80.5%;
+    left: 0.5%;
+    width: 8%;
+    height: 15%;
+
+    box-sizing: border-box;
+
+    background: transparent;
+    border: 2px solid transparent;
+
+    cursor: pointer;
+
+    transition: border-color 0.12s ease;
+}
+
+/*
+    Thin yellow line appears only while the
+    mouse is over the EXIT hotspot.
+*/
+.exit-hotspot:hover {
+    border-color: #ffd900;
+}
+
+/*
+    Keyboard users receive the same indication.
+*/
+.exit-hotspot:focus-visible {
+    border-color: #ffd900;
+    outline: none;
 }
 
 @keyframes pageFadeIn {
