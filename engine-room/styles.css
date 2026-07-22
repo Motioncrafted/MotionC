@@ -56,11 +56,11 @@ body {
         Consolas,
         monospace;
 
-    font-size: clamp(15px, 2.35vw, 43px);
+    font-size: clamp(13px, 2vw, 34px);
     font-weight: 700;
     line-height: 1;
 
-    letter-spacing: 0.06em;
+    letter-spacing: 0;
 
     text-align: center;
     white-space: nowrap;
