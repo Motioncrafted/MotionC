@@ -386,3 +386,26 @@ body {
 
     z-index: 11;
 }
+/* =================================================
+   WEIGHT-ONLY SLIDER AREA
+   Temporary testing position
+================================================= */
+
+.weight-slider-area {
+    position: absolute;
+
+    left: 42%;
+    top: 54.2%;
+
+    width: 29%;
+    height: 4.5%;
+
+    transform: translate(-50%, -50%);
+
+    border: 2px solid #ffd900;
+    box-sizing: border-box;
+
+    --weight-slider-position: 50%;
+
+    z-index: 10;
+}
