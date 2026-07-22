@@ -16,10 +16,39 @@
         href="/engine-room/styles.css?v=7"
     >
 
-    <script
-        src="/engine-room/script.js?v=2"
-        defer
-    ></script>
+    function calculateJourneyPercentage(mcp) {
+    /*
+        Lock Journey to the MCP zone where the
+        simulation began.
+
+        Crossing into the next-better zone reaches
+        100% and does not restart at zero.
+    */
+    if (!journeyRange) {
+        journeyRange = getMcpRange(mcp);
+    }
+
+    if (journeyRange.category === "Core Zone") {
+        return 100;
+    }
+
+    const progress =
+        (
+            (journeyRange.maximum - mcp) /
+            (
+                journeyRange.maximum -
+                journeyRange.minimum
+            )
+        ) * 100;
+
+    return Math.max(
+        0,
+        Math.min(
+            100,
+            Math.round(progress)
+        )
+    );
+}
 </head>
 
 <body>
