@@ -14,13 +14,13 @@ body {
 }
 
 /*
-    The Engine Room image is approximately 3:2.
+    The Engine Room artwork is approximately 3:2.
 
     This keeps the complete image inside both:
-    - the browser width
-    - the browser height
+    - browser width
+    - browser height
 
-    Every overlay scales with this stage.
+    All overlays scale with this stage.
 */
 .engine-room-stage {
     position: relative;
@@ -37,12 +37,13 @@ body {
     height: auto;
 }
 
-/* -------------------------------------------------
-   LIVE DIGITAL READOUTS
-------------------------------------------------- */
+/* =================================================
+   LIVE TOP DIGITAL READOUTS
+================================================= */
 
 .engine-display {
     position: absolute;
+
     transform: translate(-50%, -50%);
 
     display: flex;
@@ -73,11 +74,6 @@ body {
     pointer-events: none;
 }
 
-/*
-    These positions are percentages of the complete PNG.
-
-    We can fine-tune them after you view the page.
-*/
 .engine-display-mcp {
     left: 28.65%;
     top: 27.1%;
@@ -93,15 +89,156 @@ body {
     top: 27.1%;
 }
 
-/* -------------------------------------------------
+/* =================================================
+   WEIGHT-ONLY SLIDER
+
+   Temporary yellow border:
+   This lets us place the working slider directly
+   over the Weight Only track in the PNG.
+================================================= */
+
+.weight-slider-area {
+    --weight-slider-position: 50%;
+
+    position: absolute;
+
+    /*
+        Starting position only.
+
+        We will adjust these four percentages after
+        seeing the slider on your live Engine Room.
+    */
+    left: 27.5%;
+    top: 54.2%;
+    width: 45%;
+    height: 5.5%;
+
+    box-sizing: border-box;
+
+    border: 2px solid #ffd900;
+
+    z-index: 10;
+}
+
+/*
+    The real browser range control covers the entire
+    yellow positioning rectangle.
+
+    It remains invisible, but still accepts:
+    - mouse dragging
+    - touch dragging
+    - keyboard arrows
+*/
+.weight-slider-input {
+    position: absolute;
+
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    margin: 0;
+
+    opacity: 0;
+
+    cursor: grab;
+
+    z-index: 3;
+}
+
+.weight-slider-input:active {
+    cursor: grabbing;
+}
+
+/*
+    Temporary visible handle.
+
+    JavaScript changes --weight-slider-position as
+    the user drags the invisible range control.
+*/
+.weight-slider-handle {
+    position: absolute;
+
+    left: var(--weight-slider-position);
+    top: 50%;
+
+    width: clamp(14px, 2.2vw, 34px);
+    aspect-ratio: 1;
+
+    transform: translate(-50%, -50%);
+
+    border: 2px solid #f8d35d;
+    border-radius: 50%;
+
+    box-sizing: border-box;
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #fff4b2 0%,
+            #d3a72e 35%,
+            #665019 70%,
+            #241c08 100%
+        );
+
+    box-shadow:
+        0 0 4px rgba(255, 221, 84, 0.95),
+        0 0 10px rgba(255, 194, 38, 0.75),
+        0 2px 5px rgba(0, 0, 0, 0.75);
+
+    pointer-events: none;
+
+    z-index: 2;
+}
+
+/*
+    Temporary diagnostic weight number.
+
+    We can later move this number into one of the
+    smaller industrial input windows.
+*/
+.weight-test-display {
+    position: absolute;
+
+    left: 74.5%;
+    top: 54.2%;
+
+    transform: translate(-50%, -50%);
+
+    min-width: 6%;
+
+    color: #fff08a;
+
+    font-family:
+        "Courier New",
+        Consolas,
+        monospace;
+
+    font-size: clamp(10px, 1.15vw, 20px);
+    font-weight: 700;
+    line-height: 1;
+
+    text-align: center;
+
+    text-shadow:
+        0 0 3px rgba(255, 236, 120, 0.9),
+        0 0 7px rgba(255, 193, 36, 0.65);
+
+    pointer-events: none;
+
+    z-index: 11;
+}
+
+/* =================================================
    EXIT HOTSPOT
-------------------------------------------------- */
+================================================= */
 
 .exit-hotspot {
     position: absolute;
 
     top: 80%;
     left: 0.2%;
+
     width: 8%;
     height: 17%;
 
@@ -110,12 +247,14 @@ body {
     background: transparent;
 
     /*
-        Temporary yellow positioning border.
-        Remove this after the hotspot is confirmed.
+        Temporary positioning border.
+        Remove after location is confirmed.
     */
     border: 2px solid #ffd900;
 
     cursor: pointer;
+
+    z-index: 20;
 }
 
 .exit-hotspot:focus-visible {
