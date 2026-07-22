@@ -246,7 +246,27 @@ const waistTestDisplay =
             `${percentage}%`
         );
     }
+function updateWaistSliderHandle() {
+    const minimum =
+        Number(waistSlider.min);
 
+    const maximum =
+        Number(waistSlider.max);
+
+    const currentValue =
+        Number(waistSlider.value);
+
+    const percentage =
+        (
+            (currentValue - minimum) /
+            (maximum - minimum)
+        ) * 100;
+
+    waistSliderArea.style.setProperty(
+        "--waist-slider-position",
+        `${percentage}%`
+    );
+}
     function runSimulation() {
         try {
             const metrics =
@@ -254,7 +274,7 @@ const waistTestDisplay =
 
             updateDisplays(metrics);
             updateSliderHandle();
-
+            updateWaistSliderHandle();
             console.log(
                 "MotionC Weight Simulation:",
                 {
@@ -302,6 +322,16 @@ const waistTestDisplay =
         }
     );
 
+    waistSlider.addEventListener("input", () => {
+    profile.waistInches =
+        Number(waistSlider.value);
+
+    waistTestDisplay.textContent =
+        `${profile.waistInches.toFixed(1)}"`;
+
+    runSimulation();
+});
+    
     /*
         Starting state.
     */
