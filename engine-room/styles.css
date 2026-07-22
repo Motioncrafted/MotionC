@@ -97,27 +97,35 @@ body {
    over the Weight Only track in the PNG.
 ================================================= */
 
-.weight-slider-area {
-    --weight-slider-position: 50%;
-
+.weight-test-display {
     position: absolute;
 
-    /*
-        Starting position only.
+    left: 18.4%;
+    top: 53.7%;
 
-        We will adjust these four percentages after
-        seeing the slider on your live Engine Room.
-    */
-    left: 27.5%;
-    top: 54.2%;
-    width: 45%;
-    height: 5.5%;
+    transform: translate(-50%, -50%);
 
-    box-sizing: border-box;
+    min-width: 6%;
 
-    border: 2px solid #ffd900;
+    color: #fff08a;
 
-    z-index: 10;
+    font-family:
+        "Courier New",
+        Consolas,
+        monospace;
+
+    font-size: clamp(10px, 1.15vw, 20px);
+    font-weight: 700;
+    line-height: 1;
+
+    text-align: center;
+
+    text-shadow:
+        0 0 3px rgba(255, 236, 120, 0.9),
+        0 0 7px rgba(255, 193, 36, 0.65);
+
+    pointer-events: none;
+    z-index: 11;
 }
 
 /*
