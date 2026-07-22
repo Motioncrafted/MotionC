@@ -28,6 +28,8 @@ document.addEventListener("DOMContentLoaded", () => {
         waistInches: 40
     };
 
+let journeyRange = null;
+    
     const displays = {
         mcp: document.querySelector("#mcp-display"),
         journey: document.querySelector("#journey-display"),
@@ -188,27 +190,39 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     }
 
-    function calculateJourneyPercentage(mcp) {
-        const range = getMcpRange(mcp);
+function calculateJourneyPercentage(mcp) {
+    /*
+        Lock Journey to the MCP zone where the
+        simulation began.
 
-        if (range.category === "Core Zone") {
-            return 100;
-        }
-
-        const progress =
-            (
-                (range.maximum - mcp) /
-                (range.maximum - range.minimum)
-            ) * 100;
-
-        return Math.max(
-            0,
-            Math.min(
-                99,
-                Math.round(progress)
-            )
-        );
+        Crossing into the next-better zone reaches
+        100% and does not restart at zero.
+    */
+    if (!journeyRange) {
+        journeyRange = getMcpRange(mcp);
     }
+
+    if (journeyRange.category === "Core Zone") {
+        return 100;
+    }
+
+    const progress =
+        (
+            (journeyRange.maximum - mcp) /
+            (
+                journeyRange.maximum -
+                journeyRange.minimum
+            )
+        ) * 100;
+
+    return Math.max(
+        0,
+        Math.min(
+            100,
+            Math.round(progress)
+        )
+    );
+}
 
     function updateDisplays(metrics) {
         const journeyPercentage =
