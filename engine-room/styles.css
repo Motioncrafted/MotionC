@@ -20,7 +20,7 @@ body {
     - the browser width
     - the browser height
 
-    The hotspot will now scale with the image.
+    Every overlay scales with this stage.
 */
 .engine-room-stage {
     position: relative;
@@ -37,18 +37,66 @@ body {
     height: auto;
 }
 
+/* -------------------------------------------------
+   LIVE DIGITAL READOUTS
+------------------------------------------------- */
+
+.engine-display {
+    position: absolute;
+    transform: translate(-50%, -50%);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #8cff88;
+
+    font-family:
+        "Courier New",
+        Consolas,
+        monospace;
+
+    font-size: clamp(15px, 2.35vw, 43px);
+    font-weight: 700;
+    line-height: 1;
+
+    letter-spacing: 0.06em;
+
+    text-align: center;
+    white-space: nowrap;
+
+    text-shadow:
+        0 0 3px rgba(126, 255, 121, 0.95),
+        0 0 7px rgba(72, 255, 70, 0.7),
+        0 0 12px rgba(31, 210, 31, 0.45);
+
+    pointer-events: none;
+}
+
 /*
-    TEMPORARY EXIT POSITIONING BOX
+    These positions are percentages of the complete PNG.
 
-    The yellow line stays visible for now so you
-    can locate and adjust it.
-
-    Adjust:
-    top
-    left
-    width
-    height
+    We can fine-tune them after you view the page.
 */
+.engine-display-mcp {
+    left: 28.65%;
+    top: 27.1%;
+}
+
+.engine-display-journey {
+    left: 48.8%;
+    top: 27.1%;
+}
+
+.engine-display-bmi {
+    left: 68.2%;
+    top: 27.1%;
+}
+
+/* -------------------------------------------------
+   EXIT HOTSPOT
+------------------------------------------------- */
+
 .exit-hotspot {
     position: absolute;
 
@@ -60,14 +108,16 @@ body {
     box-sizing: border-box;
 
     background: transparent;
+
+    /*
+        Temporary yellow positioning border.
+        Remove this after the hotspot is confirmed.
+    */
     border: 2px solid #ffd900;
 
     cursor: pointer;
 }
 
-/*
-    Keep the keyboard focus visible.
-*/
 .exit-hotspot:focus-visible {
     outline: 2px solid #ffd900;
     outline-offset: 2px;
