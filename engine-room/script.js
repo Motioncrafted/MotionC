@@ -2,7 +2,12 @@
 
 /*
     MotionC Engine Room
-    First working calculation and display layer.
+
+    Current milestone:
+    - MCP display works
+    - Journey display works
+    - BMI display works
+    - Weight Only slider changes all three values
 
     Temporary starting profile:
     - Age: 65
@@ -10,10 +15,6 @@
     - Height: 5 ft 11 in
     - Weight: 200 lb
     - Waist: 40 in
-
-    Next step:
-    Replace these temporary values with the user's
-    saved Summary-page information.
 */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -29,33 +30,56 @@ document.addEventListener("DOMContentLoaded", () => {
     const displays = {
         mcp: document.querySelector("#mcp-display"),
         journey: document.querySelector("#journey-display"),
-        bmi: document.querySelector("#bmi-display")
+        bmi: document.querySelector("#bmi-display"),
+        weightTest: document.querySelector("#weight-test-display")
     };
 
-    if (!displays.mcp || !displays.journey || !displays.bmi) {
-        console.error("Engine Room display elements were not found.");
+    const weightSlider =
+        document.querySelector("#weight-slider");
+
+    const weightSliderArea =
+        document.querySelector(".weight-slider-area");
+
+    if (
+        !displays.mcp ||
+        !displays.journey ||
+        !displays.bmi ||
+        !displays.weightTest ||
+        !weightSlider ||
+        !weightSliderArea
+    ) {
+        console.error(
+            "One or more Engine Room controls were not found."
+        );
+
         return;
     }
 
     function poundsToKilograms(pounds) {
-        return pounds * 0.453592;
+        return Number(pounds) * 0.453592;
     }
 
     function inchesToCentimetres(inches) {
-        return inches * 2.54;
+        return Number(inches) * 2.54;
     }
 
     function getAgeAdjustment(age) {
-        if (age >= 70) return 4;
-        if (age >= 60) return 3;
-        if (age >= 50) return 2;
-        if (age >= 40) return 1;
+        const numericAge = Number(age);
+
+        if (numericAge >= 70) return 4;
+        if (numericAge >= 60) return 3;
+        if (numericAge >= 50) return 2;
+        if (numericAge >= 40) return 1;
 
         return 0;
     }
 
     function getSexAdjustment(sex) {
-        return String(sex).trim().toUpperCase() === "F" ? 1 : 0;
+        return String(sex)
+            .trim()
+            .toUpperCase() === "F"
+            ? 1
+            : 0;
     }
 
     function calculateMetrics({
@@ -67,7 +91,18 @@ document.addEventListener("DOMContentLoaded", () => {
         waistInches
     }) {
         const totalHeightInches =
-            (Number(heightFeet) * 12) + Number(heightInches);
+            (Number(heightFeet) * 12) +
+            Number(heightInches);
+
+        if (
+            totalHeightInches <= 0 ||
+            Number(weightPounds) <= 0 ||
+            Number(waistInches) <= 0
+        ) {
+            throw new Error(
+                "Height, weight and waist must be greater than zero."
+            );
+        }
 
         const heightCentimetres =
             inchesToCentimetres(totalHeightInches);
@@ -76,27 +111,32 @@ document.addEventListener("DOMContentLoaded", () => {
             heightCentimetres / 100;
 
         const weightKilograms =
-            poundsToKilograms(Number(weightPounds));
+            poundsToKilograms(weightPounds);
 
         const waistCentimetres =
-            inchesToCentimetres(Number(waistInches));
+            inchesToCentimetres(waistInches);
 
         const bmi =
-            weightKilograms / (heightMetres * heightMetres);
+            weightKilograms /
+            (heightMetres * heightMetres);
 
         const waistToHeightRatio =
-            waistCentimetres / heightCentimetres;
+            waistCentimetres /
+            heightCentimetres;
 
         const bodyMcp50 =
-            bmi * waistToHeightRatio * 2;
+            bmi *
+            waistToHeightRatio *
+            2;
 
         const rawMcp =
             bodyMcp50 +
             getSexAdjustment(sex) +
-            getAgeAdjustment(Number(age));
+            getAgeAdjustment(age);
 
         const mcp =
-            (2.551 * rawMcp) - 51.53;
+            (2.551 * rawMcp) -
+            51.53;
 
         return {
             bmi,
@@ -145,12 +185,17 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const progress =
-            ((range.maximum - mcp) /
-                (range.maximum - range.minimum)) * 100;
+            (
+                (range.maximum - mcp) /
+                (range.maximum - range.minimum)
+            ) * 100;
 
         return Math.max(
             0,
-            Math.min(99, Math.round(progress))
+            Math.min(
+                99,
+                Math.round(progress)
+            )
         );
     }
 
@@ -166,16 +211,93 @@ document.addEventListener("DOMContentLoaded", () => {
 
         displays.bmi.textContent =
             metrics.bmi.toFixed(1);
+
+        displays.weightTest.textContent =
+            profile.weightPounds.toFixed(1);
     }
 
-    const metrics = calculateMetrics(profile);
+    function updateSliderHandle() {
+        const minimum =
+            Number(weightSlider.min);
 
-    updateDisplays(metrics);
+        const maximum =
+            Number(weightSlider.max);
 
-    console.log("MotionC Engine Room metrics:", {
-        MCP: metrics.mcp.toFixed(1),
-        BMI: metrics.bmi.toFixed(1),
-        journey: `${calculateJourneyPercentage(metrics.mcp)}%`,
-        WHtR: metrics.waistToHeightRatio.toFixed(2)
-    });
+        const currentValue =
+            Number(weightSlider.value);
+
+        const percentage =
+            (
+                (currentValue - minimum) /
+                (maximum - minimum)
+            ) * 100;
+
+        weightSliderArea.style.setProperty(
+            "--weight-slider-position",
+            `${percentage}%`
+        );
+    }
+
+    function runSimulation() {
+        try {
+            const metrics =
+                calculateMetrics(profile);
+
+            updateDisplays(metrics);
+            updateSliderHandle();
+
+            console.log(
+                "MotionC Weight Simulation:",
+                {
+                    weight:
+                        profile.weightPounds.toFixed(1),
+
+                    MCP:
+                        metrics.mcp.toFixed(1),
+
+                    BMI:
+                        metrics.bmi.toFixed(1),
+
+                    journey:
+                        `${calculateJourneyPercentage(
+                            metrics.mcp
+                        )}%`,
+
+                    WHtR:
+                        metrics.waistToHeightRatio.toFixed(2)
+                }
+            );
+        } catch (error) {
+            console.error(
+                "Engine Room calculation failed:",
+                error
+            );
+        }
+    }
+
+    /*
+        Recalculate continuously while the slider moves.
+
+        The input event supports:
+        - mouse
+        - touch
+        - keyboard arrows
+    */
+    weightSlider.addEventListener(
+        "input",
+        () => {
+            profile.weightPounds =
+                Number(weightSlider.value);
+
+            runSimulation();
+        }
+    );
+
+    /*
+        Starting state.
+    */
+    weightSlider.value =
+        String(profile.weightPounds);
+
+    runSimulation();
 });
