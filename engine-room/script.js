@@ -40,6 +40,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const weightSliderArea =
         document.querySelector(".weight-slider-area");
 
+const waistSlider =
+    document.querySelector("#waist-slider");
+
+const waistSliderArea =
+    document.querySelector(".waist-slider-area");
+
+const waistTestDisplay =
+    document.querySelector("#waist-test-display");
+    
     if (
         !displays.mcp ||
         !displays.journey ||
