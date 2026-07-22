@@ -13,42 +13,14 @@
 
     <link
         rel="stylesheet"
-        href="/engine-room/styles.css?v=7"
+        href="/engine-room/styles.css?v=8"
     >
 
-    function calculateJourneyPercentage(mcp) {
-    /*
-        Lock Journey to the MCP zone where the
-        simulation began.
+    <script
+        src="/engine-room/script.js?v=6"
+        defer
+    ></script>
 
-        Crossing into the next-better zone reaches
-        100% and does not restart at zero.
-    */
-    if (!journeyRange) {
-        journeyRange = getMcpRange(mcp);
-    }
-
-    if (journeyRange.category === "Core Zone") {
-        return 100;
-    }
-
-    const progress =
-        (
-            (journeyRange.maximum - mcp) /
-            (
-                journeyRange.maximum -
-                journeyRange.minimum
-            )
-        ) * 100;
-
-    return Math.max(
-        0,
-        Math.min(
-            100,
-            Math.round(progress)
-        )
-    );
-}
 </head>
 
 <body>
@@ -114,7 +86,7 @@
 
         </div>
 
-        <!-- Temporary value readout while testing -->
+        <!-- Temporary value readout -->
         <div
             id="weight-test-display"
             class="weight-test-display"
@@ -147,8 +119,7 @@
             ></div>
 
         </div>
-
-        <!-- Temporary waist value while testing -->
+                <!-- Temporary waist value -->
         <div
             id="waist-test-display"
             class="waist-test-display"
@@ -156,7 +127,7 @@
         >
             40.0"
         </div>
-        
+
         <!-- =====================================
              EXIT
         ====================================== -->
@@ -172,3 +143,4 @@
 </body>
 
 </html>
+            
