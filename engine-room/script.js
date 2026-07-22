@@ -7,7 +7,8 @@
     - MCP display works
     - Journey display works
     - BMI display works
-    - Weight Only slider changes all three values
+    - Weight Only slider changes weight
+    - Waist Only slider changes waist
 
     Temporary starting profile:
     - Age: 65
@@ -31,7 +32,8 @@ document.addEventListener("DOMContentLoaded", () => {
         mcp: document.querySelector("#mcp-display"),
         journey: document.querySelector("#journey-display"),
         bmi: document.querySelector("#bmi-display"),
-        weightTest: document.querySelector("#weight-test-display")
+        weightTest: document.querySelector("#weight-test-display"),
+        waistTest: document.querySelector("#waist-test-display")
     };
 
     const weightSlider =
@@ -40,13 +42,22 @@ document.addEventListener("DOMContentLoaded", () => {
     const weightSliderArea =
         document.querySelector(".weight-slider-area");
 
+    const waistSlider =
+        document.querySelector("#waist-slider");
+
+    const waistSliderArea =
+        document.querySelector(".waist-slider-area");
+
     if (
         !displays.mcp ||
         !displays.journey ||
         !displays.bmi ||
         !displays.weightTest ||
+        !displays.waistTest ||
         !weightSlider ||
-        !weightSliderArea
+        !weightSliderArea ||
+        !waistSlider ||
+        !waistSliderArea
     ) {
         console.error(
             "One or more Engine Room controls were not found."
@@ -214,26 +225,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
         displays.weightTest.textContent =
             profile.weightPounds.toFixed(1);
+
+        displays.waistTest.textContent =
+            `${profile.waistInches.toFixed(2)}"`;
     }
 
-    function updateSliderHandle() {
+    function getSliderPercentage(slider) {
         const minimum =
-            Number(weightSlider.min);
+            Number(slider.min);
 
         const maximum =
-            Number(weightSlider.max);
+            Number(slider.max);
 
         const currentValue =
-            Number(weightSlider.value);
+            Number(slider.value);
 
+        return (
+            (currentValue - minimum) /
+            (maximum - minimum)
+        ) * 100;
+    }
+
+    function updateWeightSliderHandle() {
         const percentage =
-            (
-                (currentValue - minimum) /
-                (maximum - minimum)
-            ) * 100;
+            getSliderPercentage(weightSlider);
 
         weightSliderArea.style.setProperty(
             "--weight-slider-position",
+            `${percentage}%`
+        );
+    }
+
+    function updateWaistSliderHandle() {
+        const percentage =
+            getSliderPercentage(waistSlider);
+
+        waistSliderArea.style.setProperty(
+            "--waist-slider-position",
             `${percentage}%`
         );
     }
@@ -244,13 +272,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 calculateMetrics(profile);
 
             updateDisplays(metrics);
-            updateSliderHandle();
+            updateWeightSliderHandle();
+            updateWaistSliderHandle();
 
             console.log(
-                "MotionC Weight Simulation:",
+                "MotionC Engine Room Simulation:",
                 {
                     weight:
                         profile.weightPounds.toFixed(1),
+
+                    waist:
+                        profile.waistInches.toFixed(2),
 
                     MCP:
                         metrics.mcp.toFixed(1),
@@ -264,7 +296,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         )}%`,
 
                     WHtR:
-                        metrics.waistToHeightRatio.toFixed(2)
+                        metrics.waistToHeightRatio.toFixed(3)
                 }
             );
         } catch (error) {
@@ -276,12 +308,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /*
-        Recalculate continuously while the slider moves.
-
-        The input event supports:
-        - mouse
-        - touch
-        - keyboard arrows
+        Weight Only slider
     */
     weightSlider.addEventListener(
         "input",
@@ -294,10 +321,33 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     /*
-        Starting state.
+        Waist Only slider
+
+        Waist affects:
+        - WHtR
+        - MCP
+        - Journey
+
+        Waist does not affect BMI.
+    */
+    waistSlider.addEventListener(
+        "input",
+        () => {
+            profile.waistInches =
+                Number(waistSlider.value);
+
+            runSimulation();
+        }
+    );
+
+    /*
+        Starting state
     */
     weightSlider.value =
         String(profile.weightPounds);
+
+    waistSlider.value =
+        String(profile.waistInches);
 
     runSimulation();
 });
