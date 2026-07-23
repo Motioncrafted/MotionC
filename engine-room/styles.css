@@ -186,26 +186,24 @@ body {
     top: var(--active-tier-top, 79.15%);
     width: 28.25%;
     height: 3.75%;
-    border: clamp(2px, 0.18vw, 3px) solid var(--active-tier-color, #51cf66);
+    border: clamp(2px, 0.18vw, 3px) solid #ffe082;
     border-radius: clamp(5px, 0.48vw, 8px);
     background: rgba(255, 255, 255, 0.035);
     box-shadow:
-        0 0 clamp(5px, 0.55vw, 9px) var(--active-tier-color, #51cf66),
+        0 0 clamp(5px, 0.55vw, 9px) #ffd54f,
         0 0 clamp(10px, 1vw, 17px) color-mix(
             in srgb,
-            var(--active-tier-color, #51cf66) 58%,
+            #ffc107 62%,
             transparent
         ),
         inset 0 0 clamp(5px, 0.55vw, 9px) color-mix(
             in srgb,
-            var(--active-tier-color, #51cf66) 34%,
+            #fff3bf 42%,
             transparent
         );
     pointer-events: none;
     transition:
-        top 280ms cubic-bezier(0.22, 1, 0.36, 1),
-        border-color 220ms ease,
-        box-shadow 220ms ease;
+        top 280ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .exit-hotspot {
