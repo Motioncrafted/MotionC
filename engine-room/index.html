@@ -13,11 +13,11 @@
 
     <link
         rel="stylesheet"
-        href="/engine-room/styles.css?v=19"
+        href="/engine-room/styles.css?v=21"
     >
 
     <script
-        src="/engine-room/script.js?v=15"
+        src="/engine-room/script.js?v=17"
         defer
     ></script>
 
@@ -173,6 +173,33 @@
                 role="tooltip"
             ></span>
         </div>
+
+        <section
+            class="population-summary"
+            aria-labelledby="population-summary-title"
+        >
+            <div class="population-summary-header">
+                <h2 id="population-summary-title">Sample Simulations (6 of 200)</h2>
+                <button
+                    id="refresh-population-button"
+                    type="button"
+                    aria-label="Generate six new sample profiles"
+                >
+                    ↻ New Samples
+                </button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th scope="col">Weight</th>
+                        <th scope="col">Waist</th>
+                        <th scope="col">MCP</th>
+                        <th scope="col">Result</th>
+                    </tr>
+                </thead>
+                <tbody id="population-summary-body"></tbody>
+            </table>
+        </section>
 
         <!-- =====================================
              EXIT
