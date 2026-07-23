@@ -211,20 +211,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const tierPresentation = {
         "Core Zone": {
-            top: "79.15%",
-            color: "#8ee600"
+            top: "79.15%"
         },
         "Healthy": {
-            top: "83.25%",
-            color: "#228be6"
+            top: "83.25%"
         },
         "Elevated": {
-            top: "87.35%",
-            color: "#ff922b"
+            top: "87.35%"
         },
         "Watch Zone": {
-            top: "91.45%",
-            color: "#fa3e3e"
+            top: "91.45%"
         }
     };
 
@@ -235,10 +231,6 @@ document.addEventListener("DOMContentLoaded", () => {
         activeTierIndicator.style.setProperty(
             "--active-tier-top",
             presentation.top
-        );
-        activeTierIndicator.style.setProperty(
-            "--active-tier-color",
-            presentation.color
         );
         activeTierIndicator.setAttribute(
             "data-active-tier",
@@ -349,35 +341,33 @@ document.addEventListener("DOMContentLoaded", () => {
         return `${value > 0 ? "+" : ""}${value.toFixed(1)}`;
     }
 
-    function updateScenarioDisplays(mode, metrics) {
-        const impact = metrics.mcp - baselineMetrics.mcp;
+    function updateScenarioDisplays(metrics) {
+        const weightChange =
+            profile.weightPounds - baseline.weightPounds;
+        const waistChange =
+            profile.waistInches - baseline.waistInches;
 
-        displays.combinedImpact.textContent = "--";
-        displays.weightImpact.textContent = "--";
-        displays.waistImpact.textContent = "--";
+        const weightOnlyMetrics = calculateMetrics({
+            ...baseline,
+            weightPounds: profile.weightPounds
+        });
 
-        if (mode === "combined") {
-            const weightChange =
-                profile.weightPounds - baseline.weightPounds;
-            const waistChange =
-                profile.waistInches - baseline.waistInches;
+        const waistOnlyMetrics = calculateMetrics({
+            ...baseline,
+            waistInches: profile.waistInches
+        });
 
-            displays.combinedChange.innerHTML =
-                `${signed(weightChange)} lb<br>${signed(waistChange)}"`;
-            displays.combinedImpact.textContent = signed(impact);
-        } else if (mode === "weight") {
-            displays.weightImpact.textContent = signed(impact);
-        } else if (mode === "waist") {
-            displays.waistImpact.textContent = signed(impact);
-        } else {
-            displays.combinedChange.innerHTML = `0.0 lb<br>0.0"`;
-            displays.combinedImpact.textContent = "0.0";
-            displays.weightImpact.textContent = "0.0";
-            displays.waistImpact.textContent = "0.0";
-        }
+        displays.combinedChange.innerHTML =
+            `${signed(weightChange)} lb<br>${signed(waistChange)}"`;
+        displays.combinedImpact.textContent =
+            signed(metrics.mcp - baselineMetrics.mcp);
+        displays.weightImpact.textContent =
+            signed(weightOnlyMetrics.mcp - baselineMetrics.mcp);
+        displays.waistImpact.textContent =
+            signed(waistOnlyMetrics.mcp - baselineMetrics.mcp);
     }
 
-    function runSimulation(mode = "initial") {
+    function runSimulation() {
         try {
             const metrics =
                 calculateMetrics(profile);
@@ -386,7 +376,7 @@ document.addEventListener("DOMContentLoaded", () => {
             updateSliderHandle();
             updateWaistSliderHandle();
             updateCombinedSliderHandle();
-            updateScenarioDisplays(mode, metrics);
+            updateScenarioDisplays(metrics);
             updateActiveTier(metrics.mcp);
             console.log(
                 "MotionC Weight Simulation:",
@@ -430,28 +420,20 @@ document.addEventListener("DOMContentLoaded", () => {
         () => {
             profile.weightPounds =
                 Number(weightSlider.value);
-            profile.waistInches =
-                baseline.waistInches;
 
-            waistSlider.value =
-                String(baseline.waistInches);
             combinedSlider.value = "0";
 
-            runSimulation("weight");
+            runSimulation();
         }
     );
 
     waistSlider.addEventListener("input", () => {
-        profile.weightPounds =
-            baseline.weightPounds;
         profile.waistInches =
             Number(waistSlider.value);
 
-        weightSlider.value =
-            String(baseline.weightPounds);
         combinedSlider.value = "0";
 
-        runSimulation("waist");
+        runSimulation();
     });
 
     combinedSlider.addEventListener("input", () => {
@@ -467,7 +449,7 @@ document.addEventListener("DOMContentLoaded", () => {
         waistSlider.value =
             String(profile.waistInches);
 
-        runSimulation("combined");
+        runSimulation();
     });
     
     /*
