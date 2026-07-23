@@ -335,36 +335,106 @@ document.addEventListener("DOMContentLoaded", () => {
             `${percentage}%`
         );
     }
-    const baselineMetrics = calculateMetrics(baseline);
-
     function signed(value) {
         return `${value > 0 ? "+" : ""}${value.toFixed(1)}`;
     }
 
-    function updateScenarioDisplays(metrics) {
+    /*
+        Impact model imported from the Obsidian Scenario Explorer.
+
+        Negative impact is beneficial because it lowers MCP.
+        Weight contributes 0.4 impact points per pound.
+        Waist contributes 2.0 impact points per inch.
+    */
+    function computeImpactArrows(weightDelta, waistDelta) {
+        const weightImpact = weightDelta * 0.4;
+        const waistImpact = waistDelta * 2.0;
+        const totalImpact = weightImpact + waistImpact;
+
+        function classify(value) {
+            if (value <= -2) {
+                return {
+                    arrow: "↓↓",
+                    color: "#51cf66",
+                    label: "strong improvement"
+                };
+            }
+
+            if (value < 0) {
+                return {
+                    arrow: "↓",
+                    color: "#51cf66",
+                    label: "improvement"
+                };
+            }
+
+            if (value === 0) {
+                return {
+                    arrow: "→",
+                    color: "#f2c94c",
+                    label: "no change"
+                };
+            }
+
+            if (value <= 2) {
+                return {
+                    arrow: "↑",
+                    color: "#ff6b6b",
+                    label: "increase"
+                };
+            }
+
+            return {
+                arrow: "↑↑",
+                color: "#ff6b6b",
+                label: "strong increase"
+            };
+        }
+
+        return {
+            weight: classify(weightImpact),
+            waist: classify(waistImpact),
+            combined: classify(totalImpact)
+        };
+    }
+
+    function impactMarkup(impact) {
+        return [
+            `<span style="color:${impact.color};`,
+            `text-shadow:0 0 7px ${impact.color};">●</span>`,
+            `<span style="color:${impact.color};">${impact.arrow}</span>`
+        ].join(" ");
+    }
+
+    function updateScenarioDisplays() {
         const weightChange =
             profile.weightPounds - baseline.weightPounds;
         const waistChange =
             profile.waistInches - baseline.waistInches;
-
-        const weightOnlyMetrics = calculateMetrics({
-            ...baseline,
-            weightPounds: profile.weightPounds
-        });
-
-        const waistOnlyMetrics = calculateMetrics({
-            ...baseline,
-            waistInches: profile.waistInches
-        });
+        const arrows =
+            computeImpactArrows(weightChange, waistChange);
 
         displays.combinedChange.innerHTML =
             `${signed(weightChange)} lb<br>${signed(waistChange)}"`;
-        displays.combinedImpact.textContent =
-            signed(metrics.mcp - baselineMetrics.mcp);
-        displays.weightImpact.textContent =
-            signed(weightOnlyMetrics.mcp - baselineMetrics.mcp);
-        displays.waistImpact.textContent =
-            signed(waistOnlyMetrics.mcp - baselineMetrics.mcp);
+        displays.combinedImpact.innerHTML =
+            impactMarkup(arrows.combined);
+        displays.weightImpact.innerHTML =
+            impactMarkup(arrows.weight);
+        displays.waistImpact.innerHTML =
+            impactMarkup(arrows.waist);
+
+        displays.combinedImpact.setAttribute(
+            "aria-label",
+            `Combined impact: ${arrows.combined.label}`
+        );
+        displays.weightImpact.setAttribute(
+            "aria-label",
+            `Weight impact: ${arrows.weight.label}`
+        );
+        displays.waistImpact.setAttribute(
+            "aria-label",
+            `Waist impact: ${arrows.waist.label}`
+        );
     }
 
     function runSimulation() {
@@ -376,7 +446,7 @@ document.addEventListener("DOMContentLoaded", () => {
             updateSliderHandle();
             updateWaistSliderHandle();
             updateCombinedSliderHandle();
-            updateScenarioDisplays(metrics);
+            updateScenarioDisplays();
             updateActiveTier(metrics.mcp);
             console.log(
                 "MotionC Weight Simulation:",
