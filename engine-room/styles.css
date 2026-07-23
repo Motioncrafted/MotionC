@@ -350,11 +350,11 @@ body {
 .population-summary {
     position: absolute;
     z-index: 9;
-    left: 69.35%;
+    left: 69.75%;
     top: 79.3%;
-    width: 26.4%;
+    width: 25.95%;
     height: 16.35%;
-    padding: clamp(6px, 0.55vw, 10px);
+    padding: clamp(4px, 0.42vw, 7px);
     color: #e9ece8;
     background:
         linear-gradient(
@@ -373,9 +373,9 @@ body {
 .population-counts {
     position: absolute;
     z-index: 9;
-    left: 46.2%;
+    left: 47.15%;
     top: 79.3%;
-    width: 21.75%;
+    width: 20.65%;
     height: 16.35%;
     padding: clamp(6px, 0.55vw, 10px);
     color: #e9ece8;
@@ -443,13 +443,13 @@ body {
     align-items: center;
     justify-content: space-between;
     gap: clamp(4px, 0.4vw, 7px);
-    margin: 0 0 clamp(3px, 0.28vw, 5px);
+    margin: 0 0 clamp(2px, 0.18vw, 3px);
 }
 
 .population-summary h2 {
     margin: 0;
     color: #fff3bf;
-    font-size: clamp(8px, 0.78vw, 13px);
+    font-size: clamp(7px, 0.7vw, 12px);
     line-height: 1.1;
     text-align: left;
 }
@@ -490,13 +490,13 @@ body {
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
-    font-size: clamp(7px, 0.62vw, 10.5px);
+    font-size: clamp(6.5px, 0.54vw, 9.5px);
     line-height: 1;
 }
 
 .population-summary th,
 .population-summary td {
-    height: clamp(13px, 1.25vw, 21px);
+    height: clamp(10px, 0.92vw, 16px);
     padding: 0 clamp(2px, 0.25vw, 4px);
     border-right: 1px solid rgba(116, 128, 121, 0.3);
     border-bottom: 1px solid rgba(116, 128, 121, 0.25);
