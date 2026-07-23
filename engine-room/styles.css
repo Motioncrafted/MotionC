@@ -150,18 +150,20 @@ body {
 }
 
 .combined-change-display {
-    top: 39.35%;
-    height: 5.45%;
-    font-size: clamp(10px, 1.25vw, 21px);
-    line-height: 1.08;
+    top: 40.15%;
+    height: 4.35%;
+    font-size: clamp(10px, 1.18vw, 20px);
+    line-height: 1.18;
 }
 
 .weight-test-display {
-    top: 50.6%;
+    top: 52.45%;
+    height: 4.9%;
 }
 
 .waist-test-display {
-    top: 63.4%;
+    top: 65.25%;
+    height: 4.9%;
 }
 
 .change-heading {
