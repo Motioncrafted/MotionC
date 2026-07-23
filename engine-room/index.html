@@ -13,11 +13,11 @@
 
     <link
         rel="stylesheet"
-        href="/engine-room/styles.css?v=12"
+        href="/engine-room/styles.css?v=15"
     >
 
     <script
-        src="/engine-room/script.js?v=11"
+        src="/engine-room/script.js?v=15"
         defer
     ></script>
 
@@ -160,8 +160,16 @@
         <div
             id="active-tier-indicator"
             class="active-tier-indicator"
-            aria-hidden="true"
-        ></div>
+            role="button"
+            tabindex="0"
+        >
+            <span id="active-tier-label" class="active-tier-label"></span>
+            <span
+                id="active-tier-tooltip"
+                class="active-tier-tooltip"
+                role="tooltip"
+            ></span>
+        </div>
 
         <!-- =====================================
              EXIT
