@@ -1157,7 +1157,7 @@ document.addEventListener("DOMContentLoaded", () => {
         {
             position: "absolute",
             top: "35.6%",
-            left: "1.0%",
+            left: "1.3%",
             width: "6.9%",
             height: "10.3%",
             border: "3px solid #ffd400",
