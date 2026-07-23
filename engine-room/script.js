@@ -44,6 +44,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const activeTierIndicator =
         document.querySelector("#active-tier-indicator");
 
+    const activeTierLabel =
+        document.querySelector("#active-tier-label");
+
+    const activeTierTooltip =
+        document.querySelector("#active-tier-tooltip");
+
     const combinedSlider =
         document.querySelector("#combined-slider");
 
@@ -73,6 +79,8 @@ document.addEventListener("DOMContentLoaded", () => {
         !displays.weightImpact ||
         !displays.waistImpact ||
         !activeTierIndicator ||
+        !activeTierLabel ||
+        !activeTierTooltip ||
         !combinedSlider ||
         !combinedSliderArea ||
         !weightSlider ||
@@ -211,16 +219,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const tierPresentation = {
         "Core Zone": {
-            top: "79.15%"
+            top: "79.15%",
+            slogan: "Optimal range; maintain strong habits."
         },
         "Healthy": {
-            top: "83.25%"
+            top: "83.25%",
+            slogan: "Good balance. Small improvements move you toward Core."
         },
         "Elevated": {
-            top: "87.35%"
+            top: "87.35%",
+            slogan: "Early signal; consistent changes have high impact."
         },
         "Watch Zone": {
-            top: "91.45%"
+            top: "91.45%",
+            slogan: "Point of concern; increased physiological strain."
         }
     };
 
@@ -235,6 +247,12 @@ document.addEventListener("DOMContentLoaded", () => {
         activeTierIndicator.setAttribute(
             "data-active-tier",
             category
+        );
+        activeTierLabel.textContent = category;
+        activeTierTooltip.textContent = presentation.slogan;
+        activeTierIndicator.setAttribute(
+            "aria-label",
+            `${category}: ${presentation.slogan}`
         );
     }
 
