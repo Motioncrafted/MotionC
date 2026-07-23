@@ -84,7 +84,10 @@ body.page-fade-out {
     top: 21.6%;
     left: 68.5%;
     width: 13.2%;
-    height: 4.3%;
+    height: 4.5%;
+
+    /* Fully enclose the top edge of the Health Profile plate. */
+    transform: translateY(-5%);
 
     padding: 0;
 
@@ -146,8 +149,14 @@ body.page-fade-out {
 
     top: 21.6%;
     left: 66.7%;
-    width: 6.2%;
-    height: 3.3%;
+    width: 5.95%;
+    height: 4.2%;
+
+    /*
+       Lift the hotspot so its border follows
+       the full Engine Room button plate.
+    */
+    transform: translateY(-25%);
 
     padding: 0;
 
