@@ -50,6 +50,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const activeTierTooltip =
         document.querySelector("#active-tier-tooltip");
 
+    const populationSummaryBody =
+        document.querySelector("#population-summary-body");
+
+    const refreshPopulationButton =
+        document.querySelector("#refresh-population-button");
+
     const combinedSlider =
         document.querySelector("#combined-slider");
 
@@ -81,6 +87,8 @@ document.addEventListener("DOMContentLoaded", () => {
         !activeTierIndicator ||
         !activeTierLabel ||
         !activeTierTooltip ||
+        !populationSummaryBody ||
+        !refreshPopulationButton ||
         !combinedSlider ||
         !combinedSliderArea ||
         !weightSlider ||
@@ -276,6 +284,99 @@ document.addEventListener("DOMContentLoaded", () => {
                 Math.round(progress)
             )
         );
+    }
+
+    function createSeededRandom(seed) {
+        let state = seed >>> 0;
+
+        return function random() {
+            state = (state * 1664525 + 1013904223) >>> 0;
+            return state / 4294967296;
+        };
+    }
+
+    let populationSeed = 196540;
+
+    function renderPopulationSummary() {
+        const random = createSeededRandom(populationSeed);
+        const population = Array.from({ length: 200 }, () => {
+            const heightCentimetres = 160 + (random() * 30);
+            const heightMetres = heightCentimetres / 100;
+            const weightKilograms =
+                heightMetres * heightMetres * (20 + (random() * 18));
+            const waistCentimetres =
+                heightCentimetres * (0.42 + (random() * 0.28));
+            const sampleSex = random() > 0.5 ? "M" : "F";
+            const heightInches = heightCentimetres / 2.54;
+            const heightFeetPart = Math.floor(heightInches / 12);
+            const heightInchesPart =
+                heightInches - (heightFeetPart * 12);
+
+            const metrics = calculateMetrics({
+                age: 45,
+                sex: sampleSex,
+                heightFeet: heightFeetPart,
+                heightInches: heightInchesPart,
+                weightPounds: weightKilograms / 0.453592,
+                waistInches: waistCentimetres / 2.54
+            });
+
+            return {
+                weight: weightKilograms / 0.453592,
+                waist: waistCentimetres / 2.54,
+                mcp: metrics.mcp,
+                category: getMcpRange(metrics.mcp).category
+            };
+        });
+
+        const categoryColors = {
+            "Core Zone": "#51cf66",
+            "Healthy": "#74c0fc",
+            "Elevated": "#ffa94d",
+            "Watch Zone": "#ff6b6b"
+        };
+        const categoryOrder = [
+            "Core Zone",
+            "Healthy",
+            "Elevated",
+            "Watch Zone"
+        ];
+        const selectedPeople = [];
+
+        categoryOrder.forEach((category) => {
+            const matches =
+                population.filter((person) => person.category === category);
+
+            if (matches.length > 0) {
+                selectedPeople.push(
+                    matches[Math.floor(random() * matches.length)]
+                );
+            }
+        });
+
+        while (selectedPeople.length < 6) {
+            const candidate =
+                population[Math.floor(random() * population.length)];
+
+            if (!selectedPeople.includes(candidate)) {
+                selectedPeople.push(candidate);
+            }
+        }
+
+        populationSummaryBody.innerHTML =
+            selectedPeople.map((person) => {
+                return `
+                    <tr>
+                        <td>${person.weight.toFixed(0)} lb</td>
+                        <td>${person.waist.toFixed(1)}"</td>
+                        <td>${person.mcp.toFixed(1)}</td>
+                        <td
+                            class="population-result"
+                            style="color:${categoryColors[person.category]}"
+                        >${person.category}</td>
+                    </tr>
+                `;
+            }).join("");
     }
 
     function updateDisplays(metrics) {
@@ -524,6 +625,11 @@ document.addEventListener("DOMContentLoaded", () => {
         runSimulation();
     });
 
+    refreshPopulationButton.addEventListener("click", () => {
+        populationSeed += 7919;
+        renderPopulationSummary();
+    });
+
     combinedSlider.addEventListener("input", () => {
         const change = Number(combinedSlider.value);
 
@@ -549,5 +655,6 @@ document.addEventListener("DOMContentLoaded", () => {
     waistSlider.value =
         String(profile.waistInches);
 
+    renderPopulationSummary();
     runSimulation();
 });
