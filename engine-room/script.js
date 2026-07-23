@@ -31,7 +31,8 @@ document.addEventListener("DOMContentLoaded", () => {
         mcp: document.querySelector("#mcp-display"),
         journey: document.querySelector("#journey-display"),
         bmi: document.querySelector("#bmi-display"),
-        weightTest: document.querySelector("#weight-test-display")
+        weightTest: document.querySelector("#weight-test-display"),
+        waistTest: document.querySelector("#waist-test-display")
     };
 
     const weightSlider =
@@ -40,22 +41,22 @@ document.addEventListener("DOMContentLoaded", () => {
     const weightSliderArea =
         document.querySelector(".weight-slider-area");
 
-const waistSlider =
-    document.querySelector("#waist-slider");
+    const waistSlider =
+        document.querySelector("#waist-slider");
 
-const waistSliderArea =
-    document.querySelector(".waist-slider-area");
-
-const waistTestDisplay =
-    document.querySelector("#waist-test-display");
+    const waistSliderArea =
+        document.querySelector(".waist-slider-area");
     
     if (
         !displays.mcp ||
         !displays.journey ||
         !displays.bmi ||
         !displays.weightTest ||
+        !displays.waistTest ||
         !weightSlider ||
-        !weightSliderArea
+        !weightSliderArea ||
+        !waistSlider ||
+        !waistSliderArea
     ) {
         console.error(
             "One or more Engine Room controls were not found."
@@ -223,6 +224,9 @@ const waistTestDisplay =
 
         displays.weightTest.textContent =
             profile.weightPounds.toFixed(1);
+
+        displays.waistTest.textContent =
+            `${profile.waistInches.toFixed(1)}"`;
     }
 
     function updateSliderHandle() {
@@ -246,27 +250,27 @@ const waistTestDisplay =
             `${percentage}%`
         );
     }
-function updateWaistSliderHandle() {
-    const minimum =
-        Number(waistSlider.min);
+    function updateWaistSliderHandle() {
+        const minimum =
+            Number(waistSlider.min);
 
-    const maximum =
-        Number(waistSlider.max);
+        const maximum =
+            Number(waistSlider.max);
 
-    const currentValue =
-        Number(waistSlider.value);
+        const currentValue =
+            Number(waistSlider.value);
 
-    const percentage =
-        (
-            (currentValue - minimum) /
-            (maximum - minimum)
-        ) * 100;
+        const percentage =
+            (
+                (currentValue - minimum) /
+                (maximum - minimum)
+            ) * 100;
 
-    waistSliderArea.style.setProperty(
-        "--waist-slider-position",
-        `${percentage}%`
-    );
-}
+        waistSliderArea.style.setProperty(
+            "--waist-slider-position",
+            `${percentage}%`
+        );
+    }
     function runSimulation() {
         try {
             const metrics =
@@ -323,20 +327,20 @@ function updateWaistSliderHandle() {
     );
 
     waistSlider.addEventListener("input", () => {
-    profile.waistInches =
-        Number(waistSlider.value);
+        profile.waistInches =
+            Number(waistSlider.value);
 
-    waistTestDisplay.textContent =
-        `${profile.waistInches.toFixed(1)}"`;
-
-    runSimulation();
-});
+        runSimulation();
+    });
     
     /*
         Starting state.
     */
     weightSlider.value =
         String(profile.weightPounds);
+
+    waistSlider.value =
+        String(profile.waistInches);
 
     runSimulation();
 });
