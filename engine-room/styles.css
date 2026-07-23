@@ -330,10 +330,10 @@ body {
 .exit-hotspot {
     position: absolute;
     z-index: 12;
-    left: 0.8%;
-    top: 81.2%;
+    left: 1.15%;
+    top: 81.25%;
     width: 7.2%;
-    height: 13.5%;
+    height: 11.55%;
     background: rgba(255, 214, 42, 0.025);
     border: clamp(2px, 0.18vw, 3px) solid #ffd62a;
     border-radius: clamp(6px, 0.55vw, 10px);
