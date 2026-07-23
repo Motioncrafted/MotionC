@@ -53,6 +53,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const populationSummaryBody =
         document.querySelector("#population-summary-body");
 
+    const populationCountsBody =
+        document.querySelector("#population-counts-body");
+
     const refreshPopulationButton =
         document.querySelector("#refresh-population-button");
 
@@ -88,6 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
         !activeTierLabel ||
         !activeTierTooltip ||
         !populationSummaryBody ||
+        !populationCountsBody ||
         !refreshPopulationButton ||
         !combinedSlider ||
         !combinedSliderArea ||
@@ -341,6 +345,30 @@ document.addEventListener("DOMContentLoaded", () => {
             "Elevated",
             "Watch Zone"
         ];
+        const categoryCounts = categoryOrder.map((category) => ({
+            category,
+            count: population.filter(
+                (person) => person.category === category
+            ).length
+        }));
+
+        populationCountsBody.innerHTML =
+            categoryCounts.map(({ category, count }) => `
+                <div class="population-count-row">
+                    <span class="population-count-label">${category}</span>
+                    <span class="population-count-track">
+                        <span
+                            class="population-count-fill"
+                            style="
+                                width:${(count / 200) * 100}%;
+                                background:${categoryColors[category]};
+                            "
+                        ></span>
+                    </span>
+                    <span class="population-count-total">${count}</span>
+                </div>
+            `).join("");
+
         const selectedPeople = [];
 
         categoryOrder.forEach((category) => {
