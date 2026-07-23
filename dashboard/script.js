@@ -1109,3 +1109,68 @@ document.addEventListener(
 
     }
 );
+
+/* ==========================================================
+   TEMP LOCATION MARKER
+   MCP "YOU ARE HERE" PLACEHOLDER
+   ========================================================== */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const dashboardWrapper =
+        document.querySelector(
+            ".dashboard-wrapper"
+        );
+
+    if (!dashboardWrapper) {
+        console.warn(
+            "MCP location marker: dashboard wrapper not found."
+        );
+
+        return;
+    }
+
+    const existingMarker =
+        document.getElementById(
+            "mcp-location-marker"
+        );
+
+    if (existingMarker) {
+        return;
+    }
+
+    const mcpLocationMarker =
+        document.createElement(
+            "div"
+        );
+
+    mcpLocationMarker.id =
+        "mcp-location-marker";
+
+    mcpLocationMarker.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+    Object.assign(
+        mcpLocationMarker.style,
+        {
+            position: "absolute",
+            top: "35.6%",
+            left: "1.0%",
+            width: "6.9%",
+            height: "10.3%",
+            border: "3px solid #ffd400",
+            borderRadius: "6px",
+            background: "transparent",
+            boxSizing: "border-box",
+            pointerEvents: "none",
+            zIndex: "20"
+        }
+    );
+
+    dashboardWrapper.appendChild(
+        mcpLocationMarker
+    );
+
+});
