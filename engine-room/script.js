@@ -23,17 +23,32 @@ document.addEventListener("DOMContentLoaded", () => {
         sex: "M",
         heightFeet: 5,
         heightInches: 11,
-        weightPounds: 200,
+        weightPounds: 196.5,
         waistInches: 40
     };
+
+    const baseline = Object.freeze({ ...profile });
 
     const displays = {
         mcp: document.querySelector("#mcp-display"),
         journey: document.querySelector("#journey-display"),
         bmi: document.querySelector("#bmi-display"),
         weightTest: document.querySelector("#weight-test-display"),
-        waistTest: document.querySelector("#waist-test-display")
+        waistTest: document.querySelector("#waist-test-display"),
+        combinedChange: document.querySelector("#combined-change-display"),
+        combinedImpact: document.querySelector("#combined-impact-display"),
+        weightImpact: document.querySelector("#weight-impact-display"),
+        waistImpact: document.querySelector("#waist-impact-display")
     };
+
+    const activeTierIndicator =
+        document.querySelector("#active-tier-indicator");
+
+    const combinedSlider =
+        document.querySelector("#combined-slider");
+
+    const combinedSliderArea =
+        document.querySelector(".combined-slider-area");
 
     const weightSlider =
         document.querySelector("#weight-slider");
@@ -53,6 +68,13 @@ document.addEventListener("DOMContentLoaded", () => {
         !displays.bmi ||
         !displays.weightTest ||
         !displays.waistTest ||
+        !displays.combinedChange ||
+        !displays.combinedImpact ||
+        !displays.weightImpact ||
+        !displays.waistImpact ||
+        !activeTierIndicator ||
+        !combinedSlider ||
+        !combinedSliderArea ||
         !weightSlider ||
         !weightSliderArea ||
         !waistSlider ||
@@ -187,6 +209,43 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     }
 
+    const tierPresentation = {
+        "Core Zone": {
+            top: "79.15%",
+            color: "#8ee600"
+        },
+        "Healthy": {
+            top: "83.25%",
+            color: "#228be6"
+        },
+        "Elevated": {
+            top: "87.35%",
+            color: "#ff922b"
+        },
+        "Watch Zone": {
+            top: "91.45%",
+            color: "#fa3e3e"
+        }
+    };
+
+    function updateActiveTier(mcp) {
+        const category = getMcpRange(mcp).category;
+        const presentation = tierPresentation[category];
+
+        activeTierIndicator.style.setProperty(
+            "--active-tier-top",
+            presentation.top
+        );
+        activeTierIndicator.style.setProperty(
+            "--active-tier-color",
+            presentation.color
+        );
+        activeTierIndicator.setAttribute(
+            "data-active-tier",
+            category
+        );
+    }
+
     function calculateJourneyPercentage(mcp) {
         const range = getMcpRange(mcp);
 
@@ -250,6 +309,19 @@ document.addEventListener("DOMContentLoaded", () => {
             `${percentage}%`
         );
     }
+
+    function updateCombinedSliderHandle() {
+        const minimum = Number(combinedSlider.min);
+        const maximum = Number(combinedSlider.max);
+        const currentValue = Number(combinedSlider.value);
+        const percentage =
+            ((currentValue - minimum) / (maximum - minimum)) * 100;
+
+        combinedSliderArea.style.setProperty(
+            "--combined-slider-position",
+            `${percentage}%`
+        );
+    }
     function updateWaistSliderHandle() {
         const minimum =
             Number(waistSlider.min);
@@ -271,7 +343,41 @@ document.addEventListener("DOMContentLoaded", () => {
             `${percentage}%`
         );
     }
-    function runSimulation() {
+    const baselineMetrics = calculateMetrics(baseline);
+
+    function signed(value) {
+        return `${value > 0 ? "+" : ""}${value.toFixed(1)}`;
+    }
+
+    function updateScenarioDisplays(mode, metrics) {
+        const impact = metrics.mcp - baselineMetrics.mcp;
+
+        displays.combinedImpact.textContent = "--";
+        displays.weightImpact.textContent = "--";
+        displays.waistImpact.textContent = "--";
+
+        if (mode === "combined") {
+            const weightChange =
+                profile.weightPounds - baseline.weightPounds;
+            const waistChange =
+                profile.waistInches - baseline.waistInches;
+
+            displays.combinedChange.innerHTML =
+                `${signed(weightChange)} lb<br>${signed(waistChange)}"`;
+            displays.combinedImpact.textContent = signed(impact);
+        } else if (mode === "weight") {
+            displays.weightImpact.textContent = signed(impact);
+        } else if (mode === "waist") {
+            displays.waistImpact.textContent = signed(impact);
+        } else {
+            displays.combinedChange.innerHTML = `0.0 lb<br>0.0"`;
+            displays.combinedImpact.textContent = "0.0";
+            displays.weightImpact.textContent = "0.0";
+            displays.waistImpact.textContent = "0.0";
+        }
+    }
+
+    function runSimulation(mode = "initial") {
         try {
             const metrics =
                 calculateMetrics(profile);
@@ -279,6 +385,9 @@ document.addEventListener("DOMContentLoaded", () => {
             updateDisplays(metrics);
             updateSliderHandle();
             updateWaistSliderHandle();
+            updateCombinedSliderHandle();
+            updateScenarioDisplays(mode, metrics);
+            updateActiveTier(metrics.mcp);
             console.log(
                 "MotionC Weight Simulation:",
                 {
@@ -321,16 +430,44 @@ document.addEventListener("DOMContentLoaded", () => {
         () => {
             profile.weightPounds =
                 Number(weightSlider.value);
+            profile.waistInches =
+                baseline.waistInches;
 
-            runSimulation();
+            waistSlider.value =
+                String(baseline.waistInches);
+            combinedSlider.value = "0";
+
+            runSimulation("weight");
         }
     );
 
     waistSlider.addEventListener("input", () => {
+        profile.weightPounds =
+            baseline.weightPounds;
         profile.waistInches =
             Number(waistSlider.value);
 
-        runSimulation();
+        weightSlider.value =
+            String(baseline.weightPounds);
+        combinedSlider.value = "0";
+
+        runSimulation("waist");
+    });
+
+    combinedSlider.addEventListener("input", () => {
+        const change = Number(combinedSlider.value);
+
+        profile.weightPounds =
+            baseline.weightPounds + change;
+        profile.waistInches =
+            baseline.waistInches + (change / 5);
+
+        weightSlider.value =
+            String(profile.weightPounds);
+        waistSlider.value =
+            String(profile.waistInches);
+
+        runSimulation("combined");
     });
     
     /*
