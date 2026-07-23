@@ -1,411 +1,818 @@
+/* =========================================
+   MotionC Dashboard
+   ========================================= */
+
+* {
+    box-sizing: border-box;
+}
+
 html,
 body {
     margin: 0;
-    width: 100%;
-    min-height: 100%;
+    padding: 0;
 }
 
 body {
-    background: #ececec;
+    font-family: Arial, sans-serif;
+    background: #f3f4f6;
     overflow-x: hidden;
-
-    opacity: 0;
-    animation: pageFadeIn 0.25s ease forwards;
 }
 
-/*
-    The Engine Room artwork is approximately 3:2.
 
-    This keeps the complete image inside both:
-    - browser width
-    - browser height
+/* =========================================
+   Dashboard image
+   ========================================= */
 
-    All overlays scale with this stage.
-*/
-.engine-room-stage {
+.main-content {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.dashboard-wrapper {
     position: relative;
 
-    width: min(100vw, 150vh);
+    /*
+       The dashboard image has a 3:2 aspect ratio.
+
+       This sizing allows it to:
+       - use the available browser width,
+       - fit within roughly 96% of browser height,
+       - stop enlarging at 1276px.
+    */
+    width: min(100vw, calc(96vh * 1.5), 1276px);
 
     margin: 0 auto;
 }
 
-.engine-room-image {
+.dashboard-image {
     display: block;
-
     width: 100%;
     height: auto;
 }
 
-/* =================================================
-   LIVE TOP DIGITAL READOUTS
-================================================= */
+/* =========================================
+   Page Fade
+   ========================================= */
 
-.engine-display {
-    position: absolute;
-
-    transform: translate(-50%, -50%);
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    color: #8cff88;
-
-    font-family:
-        "Courier New",
-        Consolas,
-        monospace;
-
-    font-size: clamp(13px, 2vw, 34px);
-    font-weight: 700;
-    line-height: 1;
-
-    letter-spacing: 0;
-
-    text-align: center;
-    white-space: nowrap;
-
-    text-shadow:
-        0 0 3px rgba(126, 255, 121, 0.95),
-        0 0 7px rgba(72, 255, 70, 0.7),
-        0 0 12px rgba(31, 210, 31, 0.45);
-
-    pointer-events: none;
+body {
+    transition: opacity 0.25s ease;
 }
 
-.engine-display-mcp {
-    left: 28.65%;
-    top: 27.1%;
-}
-
-.engine-display-journey {
-    left: 48.8%;
-    top: 27.1%;
-}
-
-.engine-display-bmi {
-    left: 68.2%;
-    top: 27.1%;
-}
-
-/* =================================================
-   WEIGHT-ONLY SLIDER
-
-   Temporary yellow border:
-   This lets us place the working slider directly
-   over the Weight Only track in the PNG.
-================================================= */
-
-.weight-test-display {
-    position: absolute;
-
-    left: 18.4%;
-    top: 53.7%;
-
-    transform: translate(-50%, -50%);
-
-    min-width: 6%;
-
-    color: #fff08a;
-
-    font-family:
-        "Courier New",
-        Consolas,
-        monospace;
-
-    font-size: clamp(10px, 1.15vw, 20px);
-    font-weight: 700;
-    line-height: 1;
-
-    text-align: center;
-
-    text-shadow:
-        0 0 3px rgba(255, 236, 120, 0.9),
-        0 0 7px rgba(255, 193, 36, 0.65);
-
-    pointer-events: none;
-    z-index: 11;
-}
-
-/*
-    The real browser range control covers the entire
-    yellow positioning rectangle.
-
-    It remains invisible, but still accepts:
-    - mouse dragging
-    - touch dragging
-    - keyboard arrows
-*/
-.weight-slider-input {
-    position: absolute;
-
-    inset: 0;
-
-    width: 100%;
-    height: 100%;
-
-    margin: 0;
-
+body.page-fade-out {
     opacity: 0;
-
-    cursor: grab;
-
-    z-index: 3;
 }
 
-.weight-slider-input:active {
-    cursor: grabbing;
-}
+
+/* =========================================
+   MCP hotspot
+   ========================================= */
 
 /*
-    Temporary visible handle.
+   These four percentage values can be
+   adjusted after viewing the deployed page:
 
-    JavaScript changes --weight-slider-position as
-    the user drags the invisible range control.
+   top
+   left
+   width
+   height
 */
-.weight-slider-handle {
+
+#kscore-button {
     position: absolute;
 
-    left: var(--weight-slider-position);
-    top: 50%;
+    top: 21.6%;
+    left: 68.5%;
+    width: 13.2%;
+    height: 4.5%;
 
-    width: clamp(14px, 2.2vw, 34px);
-    aspect-ratio: 1;
+    /* Fully enclose the top edge of the Health Profile plate. */
+    transform: translateY(-5%);
 
-    transform: translate(-50%, -50%);
+    padding: 0;
 
-    border: 2px solid #f8d35d;
-    border-radius: 50%;
+    background: transparent;
+    border: 2px solid transparent;
+    border-radius: 10px;
 
-    box-sizing: border-box;
+    cursor: pointer;
+    z-index: 25;
 
-    background:
-        radial-gradient(
-            circle at 35% 30%,
-            #fff4b2 0%,
-            #d3a72e 35%,
-            #665019 70%,
-            #241c08 100%
-        );
-
-    box-shadow:
-        0 0 4px rgba(255, 221, 84, 0.95),
-        0 0 10px rgba(255, 194, 38, 0.75),
-        0 2px 5px rgba(0, 0, 0, 0.75);
-
-    pointer-events: none;
-
-    z-index: 2;
+    transition:
+        background 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
 }
+/* =========================================
+   Active Page Indicator
+   ========================================= */
 
-/*
-    Temporary diagnostic weight number.
-
-    We can later move this number into one of the
-    smaller industrial input windows.
-*/
-.weight-test-display {
-    position: absolute;
-
-    left: 74.5%;
-    top: 54.2%;
-
-    transform: translate(-50%, -50%);
-
-    min-width: 6%;
-
-    color: #fff08a;
-
-    font-family:
-        "Courier New",
-        Consolas,
-        monospace;
-
-    font-size: clamp(10px, 1.15vw, 20px);
-    font-weight: 700;
-    line-height: 1;
-
-    text-align: center;
-
-    text-shadow:
-        0 0 3px rgba(255, 236, 120, 0.9),
-        0 0 7px rgba(255, 193, 36, 0.65);
-
-    pointer-events: none;
-
-    z-index: 11;
-}
-
-/* =================================================
-   EXIT HOTSPOT
-================================================= */
-
-.exit-hotspot {
-    position: absolute;
-
-    top: 80%;
-    left: 0.2%;
-
-    width: 8%;
-    height: 17%;
-
-    box-sizing: border-box;
+.active-page {
 
     background: transparent;
 
+    border: 2px solid #D3AA3D;
+
+    box-shadow:
+        0 0 5px rgba(255, 239, 184, 0.78),
+        0 0 13px rgba(212, 175, 55, 0.54),
+        inset 0 0 6px rgba(255, 245, 180, 0.32);
+
+}
+
+.active-page:hover {
+
+    background: transparent;
+
+    box-shadow:
+        0 0 7px rgba(255, 242, 196, 0.92),
+        0 0 17px rgba(212, 175, 55, 0.68),
+        inset 0 0 8px rgba(255, 245, 180, 0.42);
+
+}
+
+#kscore-button:hover {
+    background: transparent;
+}
+
+#kscore-button:focus-visible {
+    outline: 3px solid rgba(59, 130, 246, 0.45);
+    outline-offset: 2px;
+}
+
+/* =========================================
+   Engine Room hotspot
+   ========================================= */
+
+#simulation-button {
+    position: absolute;
+
+    top: 21.6%;
+    left: 66.7%;
+    width: 5.95%;
+    height: 4.4%;
+
     /*
-        Temporary positioning border.
-        Remove after location is confirmed.
+       Lift the hotspot so its border follows
+       the full Engine Room button plate.
     */
-    border: 2px solid #ffd900;
+    transform: translateY(-25%);
+
+    padding: 0;
+
+    background: transparent;
+    border: 2px solid transparent;
+    border-radius: 8px;
 
     cursor: pointer;
+    z-index: 25;
+}
+
+#simulation-button:hover {
+    background: transparent;
+}
+
+#simulation-button:focus-visible {
+    outline: 3px solid rgba(59, 130, 246, 0.45);
+    outline-offset: 2px;
+}
+
+/*
+   Steady, close-fitting outlines for the
+   Health Profile and Engine Room buttons.
+*/
+
+#kscore-button,
+#simulation-button {
+    border: 2px solid #D3AA3D;
+    border-radius: 6px;
+    box-shadow: none;
+    animation: none;
+}
+
+#kscore-button:hover,
+#simulation-button:hover {
+    border-color: #D3AA3D;
+    box-shadow: none;
+}
+/* =========================================
+   Drawer overlay
+   ========================================= */
+
+.drawer-overlay {
+    position: fixed;
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.48);
+
+    opacity: 0;
+    pointer-events: none;
+
+    transition: opacity 0.25s ease;
 
     z-index: 20;
 }
 
-.exit-hotspot:focus-visible {
-    outline: 2px solid #ffd900;
+.drawer-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+
+/* =========================================
+   Input drawer
+   ========================================= */
+
+.input-drawer {
+    position: fixed;
+
+    top: 0;
+    right: -440px;
+
+    /*
+       Desktop maximum: 420px
+
+       On narrow screens, always leave an
+       88px strip visible outside the drawer.
+       This preserves access to the MCP button
+       and provides an easy outside-click area.
+    */
+    width: min(420px, calc(100vw - 88px));
+    height: 100vh;
+
+    padding: 24px;
+
+    overflow-y: auto;
+    overscroll-behavior: contain;
+
+    background: #ffffff;
+    color: #1f2937;
+
+    box-shadow: -5px 0 18px rgba(0, 0, 0, 0.28);
+
+    transition: right 0.3s ease;
+
+    z-index: 30;
+}
+
+.input-drawer.open {
+    right: 0;
+}
+
+
+/* =========================================
+   Drawer header
+   ========================================= */
+
+.drawer-header {
+    position: relative;
+
+    padding-right: 42px;
+    margin-bottom: 22px;
+}
+
+.drawer-header h1 {
+    margin: 0 0 6px;
+
+    color: #174f2c;
+
+    font-size: 23px;
+    line-height: 1.2;
+}
+
+.drawer-header p {
+    margin: 0;
+
+    color: #667085;
+
+    font-size: 15px;
+    line-height: 1.45;
+}
+
+.drawer-close-btn {
+    position: absolute;
+
+    top: -5px;
+    right: -4px;
+
+    width: 36px;
+    height: 36px;
+
+    padding: 0;
+
+    background: #eef2f6;
+    color: #374151;
+
+    border: none;
+    border-radius: 50%;
+
+    font-size: 21px;
+    line-height: 36px;
+
+    cursor: pointer;
+}
+
+.drawer-close-btn:hover {
+    background: #dde4ea;
+}
+
+.drawer-close-btn:focus-visible {
+    outline: 3px solid rgba(57, 120, 66, 0.22);
+}
+
+
+/* =========================================
+   Form basics
+   ========================================= */
+
+fieldset {
+    margin: 0 0 22px;
+    padding: 0;
+
+    border: none;
+}
+
+legend {
+    margin-bottom: 14px;
+
+    color: #174f2c;
+
+    font-size: 18px;
+    font-weight: 700;
+}
+
+
+/* =========================================
+   Measurement system
+   ========================================= */
+
+.ms-options {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 18px;
+
+    margin-bottom: 16px;
+}
+
+.ms-option {
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.ms-option input[type="radio"] {
+    width: 16px;
+    height: 16px;
+
+    margin: 0;
+}
+
+
+/* =========================================
+   Measurement fields
+   ========================================= */
+
+.two-column {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    gap: 14px;
+
+    margin-bottom: 14px;
+}
+
+.field {
+    min-width: 0;
+}
+
+.field label {
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: #344054;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.field input,
+.field select {
+    width: 100%;
+
+    padding: 10px 11px;
+
+    background: #ffffff;
+    color: #111827;
+
+    border: 1px solid #cfd6df;
+    border-radius: 8px;
+
+    font-family: inherit;
+    font-size: 15px;
+}
+
+.field input:focus,
+.field select:focus {
+    border-color: #397842;
+
+    outline: 3px solid rgba(57, 120, 66, 0.14);
+}
+
+
+/* =========================================
+   Divider
+   ========================================= */
+
+.form-divider {
+    margin: 22px 0;
+
+    border: none;
+    border-top: 1px solid #e2e7ec;
+}
+
+
+/* =========================================
+   Lifestyle checklist
+   ========================================= */
+
+.quiz-group {
+    margin-bottom: 16px;
+    padding: 14px;
+
+    background: #f8faf9;
+
+    border: 1px solid #e2e7ec;
+    border-radius: 10px;
+}
+
+.quiz-heading {
+    display: block;
+
+    margin: 0 0 9px;
+
+    color: #344054;
+
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.quiz-options {
+    display: grid;
+
+    gap: 7px;
+}
+
+.quiz-options label {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.quiz-options input[type="checkbox"],
+.quiz-options input[type="radio"] {
+    width: 16px;
+    height: 16px;
+
+    margin: 0;
+}
+
+
+/* =========================================
+   Submit button
+   ========================================= */
+
+.submit-btn {
+    width: 100%;
+
+    margin-top: 4px;
+    padding: 12px;
+
+    background: #397842;
+    color: #ffffff;
+
+    border: none;
+    border-radius: 9px;
+
+    font-size: 16px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.submit-btn:hover {
+    background: #2f6336;
+}
+
+.submit-btn:focus-visible {
+    outline: 3px solid rgba(57, 120, 66, 0.25);
     outline-offset: 2px;
 }
 
-@keyframes pageFadeIn {
-    to {
-        opacity: 1;
+
+/* =========================================
+   Smaller screens
+   ========================================= */
+
+@media (max-width: 600px) {
+    .input-drawer {
+        /*
+           Keep enough of the dashboard visible
+           to reach the MCP hotspot and overlay.
+        */
+        width: calc(100vw - 82px);
+        padding: 19px;
+    }
+
+    .drawer-header {
+        padding-right: 38px;
+    }
+
+    .drawer-header h1 {
+        font-size: 20px;
+    }
+
+    .two-column {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    #kscore-button {
+        border-width: 1px;
+        border-radius: 6px;
     }
 }
-/* =================================================
-   WAIST-ONLY SLIDER
-   Temporary placement for testing
-================================================= */
+/* =========================================
+   Live top-row metric overlays
+   ========================================= */
 
-.waist-slider-area {
-    position: absolute;
-
-    left: 42%;
-    top: 63%;
-
-    width: 29%;
-    height: 4.5%;
-
-    transform: translate(-50%, -50%);
-
-    border: 2px solid #ffd900;
-    box-sizing: border-box;
-
-    --waist-slider-position: 50%;
-
-    z-index: 10;
+.dashboard-wrapper {
+    position: relative;
 }
 
-.waist-slider-input {
+.metric-overlay {
     position: absolute;
-
-    inset: 0;
-
-    width: 100%;
-    height: 100%;
-
-    margin: 0;
-
-    opacity: 0;
-
-    cursor: grab;
-
     z-index: 3;
-}
 
-.waist-slider-input:active {
-    cursor: grabbing;
-}
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.18em;
 
-.waist-slider-handle {
-    position: absolute;
-
-    left: var(--waist-slider-position);
-    top: 50%;
-
-    width: clamp(16px, 2.5vw, 40px);
-    aspect-ratio: 1;
-
-    transform: translate(-50%, -50%);
-
-    border: 2px solid #f8d35d;
-    border-radius: 50%;
-
-    box-sizing: border-box;
-
-    background:
-        radial-gradient(
-            circle at 35% 30%,
-            #fff4b2 0%,
-            #d3a72e 35%,
-            #665019 70%,
-            #241c08 100%
-        );
-
-    box-shadow:
-        0 0 4px rgba(255, 221, 84, 0.95),
-        0 0 10px rgba(255, 194, 38, 0.75),
-        0 2px 5px rgba(0, 0, 0, 0.75);
-
-    pointer-events: none;
-
-    z-index: 2;
-}
-
-.waist-test-display {
-    position: absolute;
-
-    left: 74.5%;
-    top: 63%;
-
-    transform: translate(-50%, -50%);
-
-    min-width: 6%;
-
-    color: #fff08a;
-
-    font-family:
-        "Courier New",
-        Consolas,
-        monospace;
-
-    font-size: clamp(10px, 1.15vw, 20px);
+    font-family: Arial, sans-serif;
     font-weight: 700;
     line-height: 1;
 
-    text-align: center;
+    color: #1f2933;
 
-    text-shadow:
-        0 0 3px rgba(255, 236, 120, 0.9),
-        0 0 7px rgba(255, 193, 36, 0.65);
+    /*
+       Temporary development styling.
+       Keep this visible while positioning.
+    */
+    background: transparent;
+    outline: none;
+}
+
+.metric-overlay > span:first-child {
+    font-size: clamp(10px, 1.65vw, 25px);
+}
+
+/*
+   Apply the smaller font only to the
+   weight and waist unit labels.
+*/
+#display-weight-unit,
+#display-waist-unit {
+    font-size: clamp(7px, 0.72vw, 12px);
+    font-weight: 600;
+}
+
+
+/* Current Weight */
+
+.metric-weight {
+    top: 33.9%;
+    left: 16.5%;
+    width: 8%;
+    height: 3.5%;
+}
+
+
+/* Waist */
+
+.metric-waist {
+    top: 33.9%;
+    left: 32.5%;
+    width: 8%;
+    height: 3.5%;
+}
+
+
+/* BMI */
+
+.metric-bmi {
+    top: 33.9%;
+    left: 44.5%;
+    width: 8%;
+    height: 3.5%;
+}
+
+
+/* MCP */
+
+.metric-mcp {
+    top: 33.9%; 
+    left: 59.2%; 
+    width: 8%;
+    height: 3.5%;
+}
+/* =========================================
+   Gauge arrows
+   ========================================= */
+
+/*
+   Each positioning box marks the centre pivot
+   at the bottom-middle of its gauge.
+
+   The arrow itself rotates around that point.
+*/
+
+.gauge-arrow-position {
+    position: absolute;
+    z-index: 6;
+
+    width: 1px;
+    height: 1px;
 
     pointer-events: none;
-
-    z-index: 11;
 }
-/* =================================================
-   WEIGHT-ONLY SLIDER AREA
-   Temporary testing position
-================================================= */
 
-.weight-slider-area {
+
+/* Your Trend pivot */
+
+.gauge-arrow-trend {
+    left: 76.57%;
+    top: 45.70%;
+}
+
+
+/* Lifestyle pivot */
+
+.gauge-arrow-lifestyle {
+    left: 91.15%;
+    top: 45.70%;
+}
+
+
+/*
+   Initial angle points toward the centre-top.
+
+   JavaScript changes --gauge-angle after a
+   calculation is completed.
+*/
+
+.gauge-arrow {
+    --gauge-angle: -90deg;
+
     position: absolute;
 
-    left: 42%;
-    top: 54.2%;
+    left: 0;
+    bottom: 0;
 
-    width: 29%;
-    height: 4.5%;
+    width: clamp(3px, 0.32vw, 5px);
+    height: clamp(46px, 6.2vw, 79px);
 
-    transform: translate(-50%, -50%);
+    transform:
+        translateX(-50%)
+        rotate(var(--gauge-angle));
 
-    border: 2px solid #ffd900;
-    box-sizing: border-box;
+    transform-origin: 50% 100%;
 
-    --weight-slider-position: 50%;
+    transition:
+        transform 0.7s
+        cubic-bezier(0.22, 1, 0.36, 1);
+}
 
-    z-index: 10;
+
+/* Arrow shaft */
+
+.gauge-arrow-shaft {
+    position: absolute;
+
+    left: 50%;
+    bottom: clamp(6px, 0.7vw, 10px);
+
+    width: clamp(2px, 0.22vw, 4px);
+    height: calc(100% - clamp(15px, 1.5vw, 22px));
+
+    transform: translateX(-50%);
+
+    background: #17202a;
+
+    border-radius: 999px;
+
+    box-shadow:
+        0 1px 2px rgba(255, 255, 255, 0.7),
+        0 2px 3px rgba(0, 0, 0, 0.28);
+}
+
+
+/* Arrow tip */
+
+.gauge-arrow-head {
+    position: absolute;
+
+    top: 0;
+    left: 50%;
+
+    width: 0;
+    height: 0;
+
+    transform: translateX(-50%);
+
+    border-left:
+        clamp(5px, 0.48vw, 8px) solid transparent;
+
+    border-right:
+        clamp(5px, 0.48vw, 8px) solid transparent;
+
+    border-bottom:
+        clamp(10px, 0.9vw, 15px) solid #17202a;
+
+    filter:
+        drop-shadow(0 2px 1px rgba(0, 0, 0, 0.25));
+}
+
+
+/* Centre pivot cap */
+
+.gauge-arrow-pivot {
+    position: absolute;
+
+    left: 50%;
+    bottom: 0;
+
+    width: clamp(10px, 0.95vw, 15px);
+    height: clamp(10px, 0.95vw, 15px);
+
+    transform: translate(-50%, 50%);
+
+    background: #f4f4f4;
+
+    border: clamp(2px, 0.17vw, 3px) solid #17202a;
+    border-radius: 50%;
+
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+
+/* =========================================
+   Lifestyle score overlay
+   ========================================= */
+
+.lifestyle-score-overlay {
+    position: absolute;
+    z-index: 7;
+
+    top: 42.1%;
+    left: 88.35%;
+
+    width: 6.25%;
+    height: 3.4%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.18em;
+
+    color: #17202a;
+
+    font-family: Arial, sans-serif;
+    font-size: clamp(9px, 1.2vw, 18px);
+    font-weight: 700;
+    line-height: 1;
+
+    /*
+       Temporary positioning guides.
+       Remove these two declarations once
+       placement has been confirmed.
+    */
+    background: transparent;
+    outline: none;
+
+    pointer-events: none;
+}
+
+.lifestyle-score-divider {
+    font-weight: 500;
 }
