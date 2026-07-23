@@ -370,6 +370,74 @@ body {
     overflow: hidden;
 }
 
+.population-counts {
+    position: absolute;
+    z-index: 9;
+    left: 46.2%;
+    top: 79.3%;
+    width: 21.75%;
+    height: 16.35%;
+    padding: clamp(6px, 0.55vw, 10px);
+    color: #e9ece8;
+    background:
+        linear-gradient(
+            180deg,
+            rgba(31, 35, 34, 0.97),
+            rgba(14, 18, 17, 0.98)
+        );
+    border: clamp(1px, 0.12vw, 2px) solid rgba(116, 128, 121, 0.78);
+    border-radius: clamp(4px, 0.4vw, 7px);
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.8),
+        inset 0 0 12px rgba(103, 138, 112, 0.12);
+    overflow: hidden;
+}
+
+.population-counts h2 {
+    margin: 0 0 clamp(5px, 0.48vw, 8px);
+    color: #fff3bf;
+    font-size: clamp(8px, 0.72vw, 12px);
+    line-height: 1.1;
+    text-align: center;
+}
+
+.population-count-row {
+    display: grid;
+    grid-template-columns: 27% 1fr 18%;
+    align-items: center;
+    gap: clamp(3px, 0.3vw, 5px);
+    min-height: clamp(17px, 1.65vw, 27px);
+    font-size: clamp(6.5px, 0.58vw, 10px);
+}
+
+.population-count-label {
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.population-count-track {
+    height: clamp(6px, 0.55vw, 9px);
+    overflow: hidden;
+    background: rgba(116, 128, 121, 0.27);
+    border-radius: 999px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.population-count-fill {
+    display: block;
+    height: 100%;
+    width: 0;
+    border-radius: inherit;
+    transition: width 350ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.population-count-total {
+    color: #d7ddd8;
+    font-weight: 800;
+    text-align: right;
+    white-space: nowrap;
+}
+
 .population-summary-header {
     display: flex;
     align-items: center;
