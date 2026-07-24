@@ -22,6 +22,17 @@
       padding: clamp(7px, 0.75vw, 15px);
     }
 
+    .route-marker {
+      position: absolute;
+      z-index: 4;
+      height: 10.5%;
+      width: auto;
+      pointer-events: none;
+      transform: translate(-50%, -92%);
+      filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .65));
+      transition: left 900ms ease, top 900ms ease;
+    }
+
     .lifetime {
       left: 12.35%;
       top: 3.8%;
@@ -251,6 +262,14 @@
 </head>
 <body>
   <main class="page">
+    <img
+      class="route-marker"
+      id="routeMarker"
+      src="../images/walking-marker-motionc.png"
+      alt=""
+      aria-hidden="true"
+    >
+
     <section class="panel lifetime" aria-label="Walking page total">
       <strong id="walkingTotal">0.00</strong>
       <span>Total Walking Miles</span>
@@ -302,7 +321,7 @@
         <div class="total"><strong id="dayMinutes">0</strong><span>Minutes</span></div>
       </div>
       <div class="data-actions">
-        <button type="button" id="exportData">Export JSON</button>
+        <button type="button" id="exportData">Export All</button>
         <label class="file-label">Import JSON<input id="importData" type="file" accept=".json,application/json"></label>
       </div>
     </section>
@@ -316,7 +335,28 @@
     const minutesInput = document.getElementById("minutes");
     const walkList = document.getElementById("walkList");
     const message = document.getElementById("message");
+    const routeMarker = document.getElementById("routeMarker");
     let walks = loadWalks();
+
+    /*
+      Station positions are percentages of the walking-page image.
+      Miles are cumulative from Calgary City Limits.
+    */
+    const routeStations = [
+      { name: "Calgary City Limits", miles: 0,   x: 4.0,  y: 74.4 },
+      { name: "CP Tower",            miles: 8,   x: 7.9,  y: 68.7 },
+      { name: "Canada Olympic Park", miles: 18,  x: 10.2, y: 61.0 },
+      { name: "Cochrane",            miles: 29,  x: 12.7, y: 56.1 },
+      { name: "Morley",              miles: 43,  x: 14.4, y: 50.7 },
+      { name: "Dead Man's Flats",    miles: 79,  x: 16.7, y: 45.8 },
+      { name: "Banff Townsite",      miles: 93,  x: 14.5, y: 41.1 },
+      { name: "Castle Junction",     miles: 109, x: 18.4, y: 36.1 },
+      { name: "Lake Louise",         miles: 130, x: 15.6, y: 30.3 },
+      { name: "Bow Lake",            miles: 155, x: 18.8, y: 24.8 },
+      { name: "Saskatchewan River Crossing", miles: 177, x: 22.2, y: 19.1 },
+      { name: "Sunwapta Falls",      miles: 210, x: 25.4, y: 12.3 },
+      { name: "Jasper Townsite",     miles: 244, x: 31.5, y: 7.9 }
+    ];
 
     function localToday() {
       const now = new Date();
@@ -348,6 +388,37 @@
       });
     }
 
+    function updateRouteMarker(totalMiles) {
+      const routeMiles = Math.min(Math.max(totalMiles, 0), 244);
+      let start = routeStations[0];
+      let end = routeStations[1];
+
+      for (let index = 0; index < routeStations.length - 1; index++) {
+        if (routeMiles >= routeStations[index].miles &&
+            routeMiles <= routeStations[index + 1].miles) {
+          start = routeStations[index];
+          end = routeStations[index + 1];
+          break;
+        }
+      }
+
+      if (routeMiles >= 244) {
+        start = routeStations[routeStations.length - 1];
+        end = start;
+      }
+
+      const segmentMiles = end.miles - start.miles;
+      const progress = segmentMiles
+        ? (routeMiles - start.miles) / segmentMiles
+        : 0;
+      const x = start.x + (end.x - start.x) * progress;
+      const y = start.y + (end.y - start.y) * progress;
+
+      routeMarker.style.left = x + "%";
+      routeMarker.style.top = y + "%";
+      routeMarker.title = totalMiles.toFixed(2) + " walking miles";
+    }
+
     function render() {
       const selected = walks
         .filter(walk => walk.date === filterDate.value)
@@ -357,6 +428,7 @@
       const walkingTotal = walks.reduce((sum, walk) => sum + walk.miles, 0);
 
       document.getElementById("walkingTotal").textContent = walkingTotal.toFixed(2);
+      updateRouteMarker(walkingTotal);
       document.getElementById("dayWalks").textContent = selected.length;
       document.getElementById("dayMiles").textContent = dayMiles.toFixed(2);
       document.getElementById("dayMinutes").textContent = dayMinutes;
@@ -422,16 +494,29 @@
     });
 
     document.getElementById("exportData").addEventListener("click", () => {
+      const sortedDates = walks.map(walk => walk.date).sort();
+      const firstDate = sortedDates[0] || "no-walks";
+      const lastDate = sortedDates[sortedDates.length - 1] || "no-walks";
+      const now = new Date();
+      const exportTime = [
+        String(now.getHours()).padStart(2, "0"),
+        String(now.getMinutes()).padStart(2, "0"),
+        String(now.getSeconds()).padStart(2, "0")
+      ].join("");
       const data = {
         version: 1,
-        exported_at: new Date().toISOString(),
+        exported_at: now.toISOString(),
+        first_walk_date: sortedDates.length ? firstDate : null,
+        last_walk_date: sortedDates.length ? lastDate : null,
+        walk_count: walks.length,
         walking_total: Number(walks.reduce((sum, walk) => sum + walk.miles, 0).toFixed(2)),
         walks
       };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = "walking-data-" + localToday() + ".json";
+      link.download = "walking-data-" + firstDate + "-to-" + lastDate +
+        "-exported-" + localToday() + "-" + exportTime + ".json";
       link.click();
       URL.revokeObjectURL(link.href);
     });
