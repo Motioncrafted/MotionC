@@ -234,6 +234,14 @@
       font-size: clamp(8px, 0.7vw, 12px);
     }
 
+    .data-actions .reset {
+      background: #a93b3b;
+    }
+
+    .data-actions .reset:hover {
+      background: #862d2d;
+    }
+
     .file-label {
       display: grid;
       place-items: center;
@@ -323,6 +331,7 @@
       <div class="data-actions">
         <button type="button" id="exportData">Export All</button>
         <label class="file-label">Import JSON<input id="importData" type="file" accept=".json,application/json"></label>
+        <button class="reset" type="button" id="resetData">Reset Test</button>
       </div>
     </section>
   </main>
@@ -535,6 +544,24 @@
         alert("That file is not a valid walking-data JSON file.");
       }
       event.target.value = "";
+    });
+
+    document.getElementById("resetData").addEventListener("click", () => {
+      const confirmed = confirm(
+        "Reset all walking test data?\n\n" +
+        "This removes every walk stored in this browser and returns the marker " +
+        "to Calgary. Downloaded JSON backup files will not be deleted."
+      );
+      if (!confirmed) return;
+
+      walks = [];
+      saveWalks();
+      dateInput.value = localToday();
+      filterDate.value = localToday();
+      milesInput.value = "1.00";
+      minutesInput.value = "30";
+      message.textContent = "Test data reset. The marker is back in Calgary.";
+      render();
     });
 
     render();
