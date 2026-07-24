@@ -5,30 +5,451 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Walking</title>
   <style>
-    html,
-    body {
-      margin: 0;
-      min-height: 100%;
-      background: #fff;
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #182326; }
+    body { display: grid; place-items: center; font-family: Arial, sans-serif; color: #26343a; }
+
+    .page {
+      position: relative;
+      width: min(100vw, 150vh);
+      aspect-ratio: 3 / 2;
+      background: url("../images/walking-page.png") center / 100% 100% no-repeat;
     }
 
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
+    .panel {
+      position: absolute;
+      overflow: hidden;
+      padding: clamp(7px, 0.75vw, 15px);
     }
 
-    img {
+    .lifetime {
+      left: 12.35%;
+      top: 3.8%;
+      width: 10.7%;
+      height: 14.2%;
+      display: grid;
+      place-content: center;
+      text-align: center;
+    }
+
+    .lifetime strong {
       display: block;
-      width: auto;
-      height: auto;
-      max-width: 100%;
-      max-height: 100vh;
-      object-fit: contain;
+      font-size: clamp(17px, 2vw, 36px);
+      color: #1763a6;
+    }
+
+    .lifetime span { font-size: clamp(8px, 0.8vw, 14px); }
+
+    .entry {
+      left: 29.7%;
+      top: 78%;
+      width: 44.2%;
+      height: 18.3%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: clamp(5px, 0.55vw, 10px);
+    }
+
+    .entry h2, .history h2, .summary h2 {
+      margin: 0;
+      font-size: clamp(11px, 1.15vw, 20px);
+      color: #164e75;
+    }
+
+    .fields {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr 1fr auto;
+      gap: clamp(5px, 0.55vw, 10px);
+      align-items: end;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      font-size: clamp(8px, 0.72vw, 13px);
+    }
+
+    input, button {
+      font: inherit;
+      border: 1px solid #9baab0;
+      border-radius: 6px;
+    }
+
+    input {
+      width: 100%;
+      height: clamp(25px, 2.4vw, 40px);
+      padding: 0 clamp(5px, 0.5vw, 9px);
+      background: rgba(255,255,255,.92);
+      font-size: clamp(10px, 0.9vw, 16px);
+    }
+
+    .stepper {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+    }
+
+    .stepper input { border-radius: 0; text-align: center; }
+
+    button {
+      min-width: clamp(24px, 2.2vw, 38px);
+      height: clamp(25px, 2.4vw, 40px);
+      padding: 0 clamp(5px, 0.65vw, 11px);
+      cursor: pointer;
+      color: #fff;
+      background: #1763a6;
+      font-size: clamp(10px, 0.9vw, 16px);
+      font-weight: 700;
+    }
+
+    button:hover { background: #0f4e86; }
+    button:focus-visible, input:focus-visible { outline: 3px solid #f0b429; outline-offset: 1px; }
+    .stepper button:first-child { border-radius: 6px 0 0 6px; }
+    .stepper button:last-child { border-radius: 0 6px 6px 0; }
+    .add { background: #287a43; }
+    .add:hover { background: #1c6032; }
+
+    .message {
+      min-height: 1em;
+      margin: 0;
+      font-size: clamp(8px, 0.7vw, 12px);
+      color: #287a43;
+    }
+
+    .history {
+      left: 82.2%;
+      top: 21.6%;
+      width: 15.4%;
+      height: 51.9%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .history-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 8px;
+    }
+
+    .history-head input {
+      width: 58%;
+      height: clamp(23px, 2vw, 34px);
+      font-size: clamp(8px, 0.7vw, 12px);
+    }
+
+    .walk-list {
+      overflow: auto;
+      padding-right: 3px;
+    }
+
+    .empty {
+      text-align: center;
+      margin-top: 25%;
+      color: #68777d;
+      font-size: clamp(9px, 0.78vw, 14px);
+    }
+
+    .walk-card {
+      margin-bottom: clamp(5px, 0.5vw, 9px);
+      padding: clamp(6px, 0.55vw, 10px);
+      border-left: 4px solid #1763a6;
+      border-radius: 6px;
+      background: rgba(226, 239, 245, .78);
+      font-size: clamp(8px, 0.72vw, 13px);
+    }
+
+    .walk-card strong { font-size: clamp(10px, 0.9vw, 16px); }
+    .walk-card small { display: block; margin-top: 3px; color: #58686e; }
+
+    .delete {
+      float: right;
+      min-width: 0;
+      width: clamp(20px, 1.7vw, 28px);
+      height: clamp(20px, 1.7vw, 28px);
+      padding: 0;
+      background: #a93b3b;
+      font-size: clamp(10px, 0.85vw, 14px);
+    }
+
+    .summary {
+      left: 75.1%;
+      top: 78%;
+      width: 22.5%;
+      height: 18.3%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: clamp(4px, 0.45vw, 8px);
+    }
+
+    .totals {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
+      text-align: center;
+    }
+
+    .total {
+      padding: clamp(4px, 0.4vw, 7px);
+      border-radius: 6px;
+      background: rgba(226, 239, 245, .78);
+    }
+
+    .total strong {
+      display: block;
+      color: #1763a6;
+      font-size: clamp(13px, 1.35vw, 23px);
+    }
+
+    .total span { font-size: clamp(7px, 0.65vw, 11px); }
+    .data-actions { display: flex; gap: 5px; }
+    .data-actions button, .file-label {
+      flex: 1;
+      height: clamp(22px, 2vw, 34px);
+      font-size: clamp(8px, 0.7vw, 12px);
+    }
+
+    .file-label {
+      display: grid;
+      place-items: center;
+      padding: 0 6px;
+      border-radius: 6px;
+      color: #fff;
+      background: #1763a6;
+      cursor: pointer;
+    }
+
+    .file-label input { display: none; }
+
+    @media (max-width: 700px), (max-height: 480px) {
+      .panel { padding: 5px; }
+      .entry { gap: 3px; }
+      .entry h2, .summary h2, .history h2 { font-size: 9px; }
+      label, .message, .walk-card, .total span { font-size: 6px; }
+      input, button { height: 20px; font-size: 7px; border-radius: 3px; }
+      .fields { gap: 3px; }
+      .history-head { margin-bottom: 3px; }
+      .walk-card { padding: 3px; margin-bottom: 3px; border-left-width: 2px; }
+      .walk-card strong { font-size: 7px; }
+      .delete { width: 14px; height: 14px; font-size: 7px; }
     }
   </style>
 </head>
 <body>
-  <img src="../images/walking-page.png" alt="Walking page">
+  <main class="page">
+    <section class="panel lifetime" aria-label="Walking page total">
+      <strong id="walkingTotal">0.00</strong>
+      <span>Total Walking Miles</span>
+    </section>
+
+    <section class="panel entry" aria-labelledby="entryTitle">
+      <h2 id="entryTitle">Add a Walk</h2>
+      <form id="walkForm">
+        <div class="fields">
+          <label>Date
+            <input id="walkDate" type="date" required>
+          </label>
+
+          <label>Miles Walked
+            <span class="stepper">
+              <button type="button" data-target="miles" data-change="-0.10" aria-label="Subtract 0.10 miles">−</button>
+              <input id="miles" type="number" min="0.01" step="0.01" value="1.00" required inputmode="decimal">
+              <button type="button" data-target="miles" data-change="0.10" aria-label="Add 0.10 miles">+</button>
+            </span>
+          </label>
+
+          <label>Minutes Walked
+            <span class="stepper">
+              <button type="button" data-target="minutes" data-change="-1" aria-label="Subtract one minute">−</button>
+              <input id="minutes" type="number" min="1" step="1" value="30" required inputmode="numeric">
+              <button type="button" data-target="minutes" data-change="1" aria-label="Add one minute">+</button>
+            </span>
+          </label>
+
+          <button class="add" type="submit">Add Walk</button>
+        </div>
+      </form>
+      <p class="message" id="message" aria-live="polite"></p>
+    </section>
+
+    <section class="panel history" aria-labelledby="historyTitle">
+      <div class="history-head">
+        <h2 id="historyTitle">Walks</h2>
+        <input id="filterDate" type="date" aria-label="Show walks for date">
+      </div>
+      <div class="walk-list" id="walkList"></div>
+    </section>
+
+    <section class="panel summary" aria-labelledby="summaryTitle">
+      <h2 id="summaryTitle">Selected Day</h2>
+      <div class="totals">
+        <div class="total"><strong id="dayWalks">0</strong><span>Walks</span></div>
+        <div class="total"><strong id="dayMiles">0.00</strong><span>Miles</span></div>
+        <div class="total"><strong id="dayMinutes">0</strong><span>Minutes</span></div>
+      </div>
+      <div class="data-actions">
+        <button type="button" id="exportData">Export JSON</button>
+        <label class="file-label">Import JSON<input id="importData" type="file" accept=".json,application/json"></label>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "walking_page_walks_v1";
+    const dateInput = document.getElementById("walkDate");
+    const filterDate = document.getElementById("filterDate");
+    const milesInput = document.getElementById("miles");
+    const minutesInput = document.getElementById("minutes");
+    const walkList = document.getElementById("walkList");
+    const message = document.getElementById("message");
+    let walks = loadWalks();
+
+    function localToday() {
+      const now = new Date();
+      const offset = now.getTimezoneOffset() * 60000;
+      return new Date(now - offset).toISOString().slice(0, 10);
+    }
+
+    dateInput.value = localToday();
+    dateInput.max = localToday();
+    filterDate.value = localToday();
+    filterDate.max = localToday();
+
+    function loadWalks() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        return Array.isArray(saved) ? saved : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveWalks() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(walks));
+    }
+
+    function formatDate(date) {
+      return new Date(date + "T12:00:00").toLocaleDateString(undefined, {
+        month: "short", day: "numeric", year: "numeric"
+      });
+    }
+
+    function render() {
+      const selected = walks
+        .filter(walk => walk.date === filterDate.value)
+        .sort((a, b) => a.created_at.localeCompare(b.created_at));
+      const dayMiles = selected.reduce((sum, walk) => sum + walk.miles, 0);
+      const dayMinutes = selected.reduce((sum, walk) => sum + walk.minutes, 0);
+      const walkingTotal = walks.reduce((sum, walk) => sum + walk.miles, 0);
+
+      document.getElementById("walkingTotal").textContent = walkingTotal.toFixed(2);
+      document.getElementById("dayWalks").textContent = selected.length;
+      document.getElementById("dayMiles").textContent = dayMiles.toFixed(2);
+      document.getElementById("dayMinutes").textContent = dayMinutes;
+
+      if (!selected.length) {
+        walkList.innerHTML = '<p class="empty">No walks saved for<br>' + formatDate(filterDate.value) + ".</p>";
+        return;
+      }
+
+      walkList.innerHTML = selected.map((walk, index) => `
+        <article class="walk-card">
+          <button class="delete" type="button" data-delete="${walk.id}" aria-label="Delete walk">×</button>
+          <strong>Walk ${index + 1}</strong>
+          <div>${walk.miles.toFixed(2)} miles · ${walk.minutes} minutes</div>
+          <small>${formatDate(walk.date)}</small>
+        </article>
+      `).join("");
+    }
+
+    document.querySelectorAll("[data-change]").forEach(button => {
+      button.addEventListener("click", () => {
+        const input = document.getElementById(button.dataset.target);
+        const change = Number(button.dataset.change);
+        const decimals = input.id === "miles" ? 2 : 0;
+        const minimum = Number(input.min);
+        input.value = Math.max(minimum, Number(input.value || 0) + change).toFixed(decimals);
+      });
+    });
+
+    document.getElementById("walkForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const miles = Number(milesInput.value);
+      const minutes = Number(minutesInput.value);
+      if (!dateInput.value || miles <= 0 || minutes <= 0) return;
+
+      walks.push({
+        id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
+        user_id: "local_user",
+        date: dateInput.value,
+        miles: Number(miles.toFixed(2)),
+        minutes: Math.round(minutes),
+        source: "walking_page",
+        created_at: new Date().toISOString()
+      });
+
+      saveWalks();
+      filterDate.value = dateInput.value;
+      milesInput.value = "1.00";
+      minutesInput.value = "30";
+      message.textContent = "Walk saved.";
+      render();
+      setTimeout(() => message.textContent = "", 2500);
+    });
+
+    filterDate.addEventListener("change", render);
+
+    walkList.addEventListener("click", event => {
+      const id = event.target.dataset.delete;
+      if (!id || !confirm("Delete this walk?")) return;
+      walks = walks.filter(walk => walk.id !== id);
+      saveWalks();
+      render();
+    });
+
+    document.getElementById("exportData").addEventListener("click", () => {
+      const data = {
+        version: 1,
+        exported_at: new Date().toISOString(),
+        walking_total: Number(walks.reduce((sum, walk) => sum + walk.miles, 0).toFixed(2)),
+        walks
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "walking-data-" + localToday() + ".json";
+      link.click();
+      URL.revokeObjectURL(link.href);
+    });
+
+    document.getElementById("importData").addEventListener("change", async event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        const data = JSON.parse(await file.text());
+        const imported = Array.isArray(data) ? data : data.walks;
+        if (!Array.isArray(imported)) throw new Error();
+        walks = imported.map(walk => ({
+          id: String(walk.id || Date.now() + Math.random()),
+          user_id: String(walk.user_id || "local_user"),
+          date: String(walk.date),
+          miles: Number(Number(walk.miles).toFixed(2)),
+          minutes: Math.round(Number(walk.minutes)),
+          source: "walking_page",
+          created_at: String(walk.created_at || new Date().toISOString())
+        })).filter(walk => walk.date && walk.miles > 0 && walk.minutes > 0);
+        saveWalks();
+        message.textContent = walks.length + " walks imported.";
+        render();
+      } catch {
+        alert("That file is not a valid walking-data JSON file.");
+      }
+      event.target.value = "";
+    });
+
+    render();
+  </script>
 </body>
 </html>
