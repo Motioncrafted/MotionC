@@ -4,10 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Walking</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&display=swap"
+    rel="stylesheet"
+  >
   <style>
     * { box-sizing: border-box; }
     html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #182326; }
-    body { display: grid; place-items: center; font-family: Arial, sans-serif; color: #26343a; }
+    body { display: grid; place-items: center; font-family: "Kalam", cursive; color: #26343a; }
 
     .page {
       position: relative;
@@ -20,6 +26,14 @@
       position: absolute;
       overflow: hidden;
       padding: clamp(7px, 0.75vw, 15px);
+    }
+
+    .lifetime,
+    .entry,
+    .history,
+    .summary {
+      border-radius: 12px;
+      background: rgba(224, 214, 196, .82);
     }
 
     .route-marker {
@@ -111,7 +125,7 @@
     }
 
     input, button {
-      font: inherit;
+      font-family: "Kalam", cursive;
       border: 1px solid #9baab0;
       border-radius: 6px;
     }
@@ -186,7 +200,7 @@
       display: flex;
       flex-direction: column;
       border-radius: 12px;
-      background: rgba(250, 249, 248, .98);
+      background: rgba(224, 214, 196, .98);
       box-shadow: 0 2px 8px rgba(0, 0, 0, .28);
     }
 
