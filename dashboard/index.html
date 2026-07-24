@@ -15,6 +15,29 @@
         rel="stylesheet"
         href="/dashboard/styles.css?v=2"
     >
+
+    <style>
+        .dashboard-wrapper {
+            position: relative;
+        }
+
+        .walking-page-link {
+            position: absolute;
+            z-index: 20;
+            left: 3.35%;
+            top: 27.2%;
+            width: 6.75%;
+            height: 11.5%;
+            border: 3px solid transparent;
+            border-radius: 10px;
+        }
+
+        .walking-page-link:focus-visible {
+            outline: none;
+            border-color: #f0b429;
+            background: rgba(240, 180, 41, 0.10);
+        }
+    </style>
 </head>
 
 <body>
@@ -32,6 +55,13 @@
                 src="/images/dashboard-master.png"
                 alt="MotionC Dashboard"
             >
+
+            <a
+                class="walking-page-link"
+                href="/walking/"
+                aria-label="Open Walking page"
+                title="Walking"
+            ></a>
 
 
             <!-- =====================================
