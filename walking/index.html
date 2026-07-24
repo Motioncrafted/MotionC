@@ -162,6 +162,16 @@
       font-size: clamp(8px, 0.7vw, 12px);
     }
 
+    .view-toggle {
+      width: 100%;
+      height: clamp(23px, 2vw, 34px);
+      margin-bottom: clamp(5px, 0.5vw, 9px);
+      background: #287a43;
+      font-size: clamp(8px, 0.72vw, 13px);
+    }
+
+    .view-toggle:hover { background: #1c6032; }
+
     .walk-list {
       overflow: auto;
       padding-right: 3px;
@@ -185,6 +195,26 @@
 
     .walk-card strong { font-size: clamp(10px, 0.9vw, 16px); }
     .walk-card small { display: block; margin-top: 3px; color: #58686e; }
+
+    .station-card {
+      margin-bottom: clamp(6px, 0.6vw, 11px);
+      padding: clamp(7px, 0.65vw, 12px);
+      border-left: 4px solid #287a43;
+      border-radius: 6px;
+      background: rgba(230, 242, 233, .85);
+      font-size: clamp(8px, 0.72vw, 13px);
+    }
+
+    .station-card strong {
+      display: block;
+      color: #1c6032;
+      font-size: clamp(10px, 0.9vw, 16px);
+    }
+
+    .station-card span {
+      display: block;
+      margin-top: 4px;
+    }
 
     .delete {
       float: right;
@@ -318,6 +348,7 @@
         <h2 id="historyTitle">Walks</h2>
         <input id="filterDate" type="date" aria-label="Show walks for date">
       </div>
+      <button class="view-toggle" type="button" id="viewToggle">Next 3 Stops</button>
       <div class="walk-list" id="walkList"></div>
     </section>
 
@@ -345,7 +376,10 @@
     const walkList = document.getElementById("walkList");
     const message = document.getElementById("message");
     const routeMarker = document.getElementById("routeMarker");
+    const historyTitle = document.getElementById("historyTitle");
+    const viewToggle = document.getElementById("viewToggle");
     let walks = loadWalks();
+    let showingUpcoming = false;
 
     /*
       Station positions are percentages of the walking-page image.
@@ -419,6 +453,51 @@
           : " · Route complete");
     }
 
+    function renderWalkPanel(selected, walkingTotal) {
+      historyTitle.textContent = showingUpcoming ? "Next Stops" : "Walks";
+      filterDate.style.display = showingUpcoming ? "none" : "";
+      viewToggle.textContent = showingUpcoming ? "Back to Walks" : "Next 3 Stops";
+
+      if (showingUpcoming) {
+        const upcoming = routeStations
+          .filter(station => station.miles > walkingTotal)
+          .slice(0, 3);
+
+        if (!upcoming.length) {
+          walkList.innerHTML =
+            '<p class="empty">Route complete!<br>You reached Jasper.</p>';
+          return;
+        }
+
+        walkList.innerHTML = upcoming.map((station, index) => {
+          const remaining = station.miles - walkingTotal;
+          return `
+            <article class="station-card">
+              <strong>${index + 1}. ${station.name}</strong>
+              <span>${remaining.toFixed(2)} miles away</span>
+              <small>Route milestone: ${station.miles} miles</small>
+            </article>
+          `;
+        }).join("");
+        return;
+      }
+
+      if (!selected.length) {
+        walkList.innerHTML = '<p class="empty">No walks saved for<br>' +
+          formatDate(filterDate.value) + ".</p>";
+        return;
+      }
+
+      walkList.innerHTML = selected.map((walk, index) => `
+        <article class="walk-card">
+          <button class="delete" type="button" data-delete="${walk.id}" aria-label="Delete walk">×</button>
+          <strong>Walk ${index + 1}</strong>
+          <div>${walk.miles.toFixed(2)} miles · ${walk.minutes} minutes</div>
+          <small>${formatDate(walk.date)}</small>
+        </article>
+      `).join("");
+    }
+
     function render() {
       const selected = walks
         .filter(walk => walk.date === filterDate.value)
@@ -433,19 +512,7 @@
       document.getElementById("dayMiles").textContent = dayMiles.toFixed(2);
       document.getElementById("dayMinutes").textContent = dayMinutes;
 
-      if (!selected.length) {
-        walkList.innerHTML = '<p class="empty">No walks saved for<br>' + formatDate(filterDate.value) + ".</p>";
-        return;
-      }
-
-      walkList.innerHTML = selected.map((walk, index) => `
-        <article class="walk-card">
-          <button class="delete" type="button" data-delete="${walk.id}" aria-label="Delete walk">×</button>
-          <strong>Walk ${index + 1}</strong>
-          <div>${walk.miles.toFixed(2)} miles · ${walk.minutes} minutes</div>
-          <small>${formatDate(walk.date)}</small>
-        </article>
-      `).join("");
+      renderWalkPanel(selected, walkingTotal);
     }
 
     document.querySelectorAll("[data-change]").forEach(button => {
@@ -484,6 +551,11 @@
     });
 
     filterDate.addEventListener("change", render);
+
+    viewToggle.addEventListener("click", () => {
+      showingUpcoming = !showingUpcoming;
+      render();
+    });
 
     walkList.addEventListener("click", event => {
       const id = event.target.dataset.delete;
