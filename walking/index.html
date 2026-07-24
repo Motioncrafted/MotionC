@@ -30,7 +30,7 @@
       pointer-events: none;
       transform: translate(-50%, -92%);
       filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .65));
-      transition: left 900ms ease, top 900ms ease;
+      transition: left 650ms ease, top 650ms ease;
     }
 
     .lifetime {
@@ -343,19 +343,19 @@
       Miles are cumulative from Calgary City Limits.
     */
     const routeStations = [
-      { name: "Calgary City Limits", miles: 0,   x: 4.0,  y: 74.4 },
-      { name: "CP Tower",            miles: 8,   x: 7.9,  y: 68.7 },
-      { name: "Canada Olympic Park", miles: 18,  x: 10.2, y: 61.0 },
-      { name: "Cochrane",            miles: 29,  x: 12.7, y: 56.1 },
-      { name: "Morley",              miles: 43,  x: 14.4, y: 50.7 },
-      { name: "Dead Man's Flats",    miles: 79,  x: 16.7, y: 45.8 },
-      { name: "Banff Townsite",      miles: 93,  x: 14.5, y: 41.1 },
-      { name: "Castle Junction",     miles: 109, x: 18.4, y: 36.1 },
-      { name: "Lake Louise",         miles: 130, x: 15.6, y: 30.3 },
-      { name: "Bow Lake",            miles: 155, x: 18.8, y: 24.8 },
-      { name: "Saskatchewan River Crossing", miles: 177, x: 22.2, y: 19.1 },
-      { name: "Sunwapta Falls",      miles: 210, x: 25.4, y: 12.3 },
-      { name: "Jasper Townsite",     miles: 244, x: 31.5, y: 7.9 }
+      { name: "Calgary City Limits", miles: 0,   x: 13.4, y: 74.4 },
+      { name: "CP Tower",            miles: 8,   x: 17.3, y: 68.7 },
+      { name: "Canada Olympic Park", miles: 18,  x: 19.6, y: 61.0 },
+      { name: "Cochrane",            miles: 29,  x: 22.1, y: 56.1 },
+      { name: "Morley",              miles: 43,  x: 23.8, y: 50.7 },
+      { name: "Dead Man's Flats",    miles: 79,  x: 26.1, y: 45.8 },
+      { name: "Banff Townsite",      miles: 93,  x: 23.9, y: 41.1 },
+      { name: "Castle Junction",     miles: 109, x: 27.8, y: 36.1 },
+      { name: "Lake Louise",         miles: 130, x: 25.0, y: 30.3 },
+      { name: "Bow Lake",            miles: 155, x: 28.2, y: 24.8 },
+      { name: "Saskatchewan River Crossing", miles: 177, x: 31.6, y: 19.1 },
+      { name: "Sunwapta Falls",      miles: 210, x: 34.8, y: 12.3 },
+      { name: "Jasper Townsite",     miles: 244, x: 40.9, y: 7.9 }
     ];
 
     function localToday() {
@@ -390,33 +390,24 @@
 
     function updateRouteMarker(totalMiles) {
       const routeMiles = Math.min(Math.max(totalMiles, 0), 244);
-      let start = routeStations[0];
-      let end = routeStations[1];
+      let reachedStation = routeStations[0];
+      let nextStation = routeStations[1];
 
-      for (let index = 0; index < routeStations.length - 1; index++) {
-        if (routeMiles >= routeStations[index].miles &&
-            routeMiles <= routeStations[index + 1].miles) {
-          start = routeStations[index];
-          end = routeStations[index + 1];
-          break;
+      for (let index = 0; index < routeStations.length; index++) {
+        if (routeMiles >= routeStations[index].miles) {
+          reachedStation = routeStations[index];
+          nextStation = routeStations[index + 1] || routeStations[index];
         }
       }
 
-      if (routeMiles >= 244) {
-        start = routeStations[routeStations.length - 1];
-        end = start;
-      }
+      routeMarker.style.left = reachedStation.x + "%";
+      routeMarker.style.top = reachedStation.y + "%";
 
-      const segmentMiles = end.miles - start.miles;
-      const progress = segmentMiles
-        ? (routeMiles - start.miles) / segmentMiles
-        : 0;
-      const x = start.x + (end.x - start.x) * progress;
-      const y = start.y + (end.y - start.y) * progress;
-
-      routeMarker.style.left = x + "%";
-      routeMarker.style.top = y + "%";
-      routeMarker.title = totalMiles.toFixed(2) + " walking miles";
+      const remaining = Math.max(0, nextStation.miles - routeMiles);
+      routeMarker.title = reachedStation.name +
+        (remaining
+          ? " · " + remaining.toFixed(2) + " miles to " + nextStation.name
+          : " · Route complete");
     }
 
     function render() {
