@@ -148,6 +148,23 @@
       flex-direction: column;
     }
 
+    .walk-modal {
+      left: 82.2%;
+      top: 21.6%;
+      z-index: 7;
+      width: 15.4%;
+      height: 51.9%;
+      display: flex;
+      flex-direction: column;
+      border-radius: 12px;
+      background: rgba(250, 249, 248, .98);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .28);
+    }
+
+    .walk-modal[hidden] {
+      display: none;
+    }
+
     .history-head {
       display: flex;
       justify-content: space-between;
@@ -349,19 +366,26 @@
 
           <div class="entry-actions">
             <button class="add" type="submit">Add Walk</button>
-            <button class="view-toggle" type="button" id="viewToggle">Next 3 Stops</button>
+            <button class="view-toggle" type="button" id="viewToggle">Walks</button>
           </div>
         </div>
       </form>
       <p class="message" id="message" aria-live="polite"></p>
     </section>
 
-    <section class="panel history" aria-labelledby="historyTitle">
+    <section class="panel history" aria-labelledby="upcomingTitle">
+      <div class="history-head">
+        <h2 id="upcomingTitle">Next Stops</h2>
+      </div>
+      <div class="walk-list" id="upcomingList"></div>
+    </section>
+
+    <section class="panel walk-modal" id="walkModal" aria-labelledby="historyTitle" hidden>
       <div class="history-head">
         <h2 id="historyTitle">Walks</h2>
         <input id="filterDate" type="date" aria-label="Show walks for date">
       </div>
-      <div class="walk-list" id="walkList"></div>
+      <div class="walk-list" id="historyList"></div>
     </section>
 
     <section class="panel summary" aria-labelledby="summaryTitle">
@@ -385,13 +409,14 @@
     const filterDate = document.getElementById("filterDate");
     const milesInput = document.getElementById("miles");
     const minutesInput = document.getElementById("minutes");
-    const walkList = document.getElementById("walkList");
+    const upcomingList = document.getElementById("upcomingList");
+    const historyList = document.getElementById("historyList");
     const message = document.getElementById("message");
     const routeMarker = document.getElementById("routeMarker");
-    const historyTitle = document.getElementById("historyTitle");
     const viewToggle = document.getElementById("viewToggle");
+    const walkModal = document.getElementById("walkModal");
     let walks = loadWalks();
-    let showingUpcoming = false;
+    let walksOpen = false;
 
     /*
       Station positions are percentages of the walking-page image.
@@ -465,42 +490,37 @@
           : " · Route complete");
     }
 
-    function renderWalkPanel(selected, walkingTotal) {
-      historyTitle.textContent = showingUpcoming ? "Next Stops" : "Walks";
-      filterDate.style.display = showingUpcoming ? "none" : "";
-      viewToggle.textContent = showingUpcoming ? "Back to Walks" : "Next 3 Stops";
+    function renderUpcoming(walkingTotal) {
+      const upcoming = routeStations
+        .filter(station => station.miles > walkingTotal)
+        .slice(0, 3);
 
-      if (showingUpcoming) {
-        const upcoming = routeStations
-          .filter(station => station.miles > walkingTotal)
-          .slice(0, 3);
-
-        if (!upcoming.length) {
-          walkList.innerHTML =
-            '<p class="empty">Route complete!<br>You reached Jasper.</p>';
-          return;
-        }
-
-        walkList.innerHTML = upcoming.map((station, index) => {
-          const remaining = station.miles - walkingTotal;
-          return `
-            <article class="station-card">
-              <strong>${index + 1}. ${station.name}</strong>
-              <span>${remaining.toFixed(2)} miles away</span>
-              <small>Route milestone: ${station.miles} miles</small>
-            </article>
-          `;
-        }).join("");
+      if (!upcoming.length) {
+        upcomingList.innerHTML =
+          '<p class="empty">Route complete!<br>You reached Jasper.</p>';
         return;
       }
 
+      upcomingList.innerHTML = upcoming.map((station, index) => {
+        const remaining = station.miles - walkingTotal;
+        return `
+          <article class="station-card">
+            <strong>${index + 1}. ${station.name}</strong>
+            <span>${remaining.toFixed(2)} miles away</span>
+            <small>Route milestone: ${station.miles} miles</small>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderWalkHistory(selected) {
       if (!selected.length) {
-        walkList.innerHTML = '<p class="empty">No walks saved for<br>' +
+        historyList.innerHTML = '<p class="empty">No walks saved for<br>' +
           formatDate(filterDate.value) + ".</p>";
         return;
       }
 
-      walkList.innerHTML = selected.map((walk, index) => `
+      historyList.innerHTML = selected.map((walk, index) => `
         <article class="walk-card">
           <button class="delete" type="button" data-delete="${walk.id}" aria-label="Delete walk">×</button>
           <strong>Walk ${index + 1}</strong>
@@ -524,7 +544,8 @@
       document.getElementById("dayMiles").textContent = dayMiles.toFixed(2);
       document.getElementById("dayMinutes").textContent = dayMinutes;
 
-      renderWalkPanel(selected, walkingTotal);
+      renderUpcoming(walkingTotal);
+      renderWalkHistory(selected);
     }
 
     document.querySelectorAll("[data-change]").forEach(button => {
@@ -565,11 +586,12 @@
     filterDate.addEventListener("change", render);
 
     viewToggle.addEventListener("click", () => {
-      showingUpcoming = !showingUpcoming;
-      render();
+      walksOpen = !walksOpen;
+      walkModal.hidden = !walksOpen;
+      viewToggle.textContent = walksOpen ? "Close Walks" : "Walks";
     });
 
-    walkList.addEventListener("click", event => {
+    historyList.addEventListener("click", event => {
       const id = event.target.dataset.delete;
       if (!id || !confirm("Delete this walk?")) return;
       walks = walks.filter(walk => walk.id !== id);
