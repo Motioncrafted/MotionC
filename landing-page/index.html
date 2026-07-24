@@ -134,19 +134,8 @@
       line-height: 1.28;
     }
 
-    .font-kalam { font-family: "Kalam", cursive; }
-    .font-patrick { font-family: "Patrick Hand", cursive; }
     .font-caveat { font-family: "Caveat", cursive; }
 
-    .font-tests {
-      position: relative;
-      z-index: 2;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .font-tests button,
     .mira-close {
       min-height: 30px;
       padding: 4px 10px;
@@ -156,11 +145,6 @@
       background: #ead29c;
       cursor: pointer;
       font: 700 clamp(9px, .68vw, 12px) Arial, sans-serif;
-    }
-
-    .font-tests button[aria-pressed="true"] {
-      color: #fff;
-      background: #287a43;
     }
 
     .mira-close {
@@ -306,12 +290,7 @@
         <span>MIRA · SCALE TALK</span>
         <button class="mira-close" id="miraClose" type="button" aria-label="Close MIRA">×</button>
       </div>
-      <p class="mira-comment font-kalam" id="miraComment"></p>
-      <div class="font-tests" aria-label="Test MIRA font">
-        <button type="button" data-font="font-kalam" aria-pressed="true">Kalam</button>
-        <button type="button" data-font="font-patrick" aria-pressed="false">Patrick Hand</button>
-        <button type="button" data-font="font-caveat" aria-pressed="false">Caveat</button>
-      </div>
+      <p class="mira-comment font-caveat" id="miraComment"></p>
     </aside>
 
     <section
@@ -351,7 +330,6 @@
     const miraBubble = document.getElementById("miraBubble");
     const miraComment = document.getElementById("miraComment");
     const miraClose = document.getElementById("miraClose");
-    const fontButtons = document.querySelectorAll("[data-font]");
     const miraComments = [
       "Oh, you found me. I was beginning to think that button was decorative.",
       "Progress is rarely dramatic. Annoying, but true.",
@@ -363,7 +341,6 @@
       "You bring the effort. I’ll bring the unsolicited commentary."
     ];
     let miraCommentIndex = 0;
-    let activeMiraFont = "font-kalam";
 
     function setInfoOpen(open) {
       infoOverlay.hidden = !open;
@@ -398,16 +375,6 @@
     miraHotspot.addEventListener("click", showNextMiraComment);
     miraClose.addEventListener("click", () => setMiraOpen(false));
 
-    fontButtons.forEach(button => {
-      button.addEventListener("click", () => {
-        miraComment.classList.remove(activeMiraFont);
-        activeMiraFont = button.dataset.font;
-        miraComment.classList.add(activeMiraFont);
-        fontButtons.forEach(item => {
-          item.setAttribute("aria-pressed", String(item === button));
-        });
-      });
-    });
   </script>
 </body>
 </html>
