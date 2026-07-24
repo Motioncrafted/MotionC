@@ -165,12 +165,22 @@
     .view-toggle {
       width: 100%;
       height: clamp(23px, 2vw, 34px);
-      margin-bottom: clamp(5px, 0.5vw, 9px);
+      margin: 0;
       background: #287a43;
       font-size: clamp(8px, 0.72vw, 13px);
     }
 
     .view-toggle:hover { background: #1c6032; }
+
+    .entry-actions {
+      display: grid;
+      gap: clamp(4px, 0.4vw, 7px);
+    }
+
+    .entry-actions button {
+      width: 100%;
+      white-space: nowrap;
+    }
 
     .walk-list {
       overflow: auto;
@@ -337,7 +347,10 @@
             </span>
           </label>
 
-          <button class="add" type="submit">Add Walk</button>
+          <div class="entry-actions">
+            <button class="add" type="submit">Add Walk</button>
+            <button class="view-toggle" type="button" id="viewToggle">Next 3 Stops</button>
+          </div>
         </div>
       </form>
       <p class="message" id="message" aria-live="polite"></p>
@@ -348,7 +361,6 @@
         <h2 id="historyTitle">Walks</h2>
         <input id="filterDate" type="date" aria-label="Show walks for date">
       </div>
-      <button class="view-toggle" type="button" id="viewToggle">Next 3 Stops</button>
       <div class="walk-list" id="walkList"></div>
     </section>
 
