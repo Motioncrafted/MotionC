@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MotionC — See What Change Looks Like</title>
+  <meta name="description" content="Move, track, and live with purpose using MotionC.">
+  <style>
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #17120e;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      font-family: Arial, sans-serif;
+    }
+
+    .landing-page {
+      position: relative;
+      width: min(100vw, 177.7778vh);
+      aspect-ratio: 16 / 9;
+      background: url("../images/landing-page.png") center / 100% 100% no-repeat;
+    }
+
+    .hotspot {
+      position: absolute;
+      z-index: 2;
+      display: block;
+      border: 3px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .hotspot:hover,
+    .hotspot:focus-visible {
+      outline: none;
+      border-color: #f0b429;
+      background: rgba(240, 180, 41, .10);
+      box-shadow: 0 0 12px rgba(240, 180, 41, .45);
+    }
+
+    .get-started {
+      left: 37.8%;
+      top: 70.2%;
+      width: 12%;
+      height: 8%;
+    }
+
+    .learn-more {
+      left: 51.3%;
+      top: 70.2%;
+      width: 13.2%;
+      height: 8%;
+    }
+
+    .walks-sign {
+      left: 0;
+      top: 38.5%;
+      width: 16.2%;
+      height: 9%;
+      transform: rotate(-1deg);
+    }
+
+    .info-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: rgba(10, 8, 6, .72);
+      backdrop-filter: blur(3px);
+    }
+
+    .info-overlay[hidden] { display: none; }
+
+    .info-card {
+      position: relative;
+      width: min(620px, 92vw);
+      padding: clamp(24px, 4vw, 46px);
+      border: 2px solid #9c6b31;
+      border-radius: 16px;
+      color: #f6ead5;
+      background:
+        linear-gradient(rgba(38, 26, 17, .97), rgba(21, 15, 11, .98)),
+        #21170f;
+      box-shadow: 0 18px 55px rgba(0, 0, 0, .65);
+    }
+
+    .info-card h1 {
+      margin: 0 0 12px;
+      color: #f0b429;
+      font-size: clamp(25px, 3vw, 42px);
+    }
+
+    .info-card p {
+      margin: 0 0 20px;
+      font-size: clamp(15px, 1.4vw, 19px);
+      line-height: 1.55;
+    }
+
+    .pillars {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .pillar {
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .07);
+    }
+
+    .pillar strong {
+      display: block;
+      margin-bottom: 3px;
+      color: #7bd35a;
+    }
+
+    .info-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .info-actions a,
+    .close-info {
+      min-height: 44px;
+      padding: 0 20px;
+      border: 1px solid #c79545;
+      border-radius: 7px;
+      color: #fff;
+      background: #785027;
+      font: 700 16px Arial, sans-serif;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .info-actions a {
+      display: grid;
+      place-items: center;
+      background: #287a43;
+    }
+
+    .close-info {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      min-width: 42px;
+      padding: 0;
+      font-size: 22px;
+    }
+
+    @media (max-width: 620px) {
+      .pillars { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="landing-page">
+    <a
+      class="hotspot get-started"
+      href="/dashboard/"
+      aria-label="Get started — open the MotionC Dashboard"
+      title="Get Started"
+    ></a>
+
+    <button
+      class="hotspot learn-more"
+      id="learnMore"
+      type="button"
+      aria-label="Learn more about MotionC"
+      aria-controls="infoOverlay"
+      aria-expanded="false"
+      title="Learn More"
+    ></button>
+
+    <a
+      class="hotspot walks-sign"
+      href="/walking/"
+      aria-label="Open the Walking page"
+      title="Walking"
+    ></a>
+
+    <section
+      class="info-overlay"
+      id="infoOverlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="infoTitle"
+      hidden
+    >
+      <div class="info-card">
+        <button class="close-info" id="closeInfo" type="button" aria-label="Close">×</button>
+        <h1 id="infoTitle">See What Change Looks Like</h1>
+        <p>
+          MotionC helps turn everyday health information into a journey you can
+          understand, track, and keep moving forward.
+        </p>
+        <div class="pillars">
+          <div class="pillar"><strong>Understand</strong>Know your numbers and what they mean.</div>
+          <div class="pillar"><strong>Track</strong>Monitor progress that matters.</div>
+          <div class="pillar"><strong>Move</strong>Build habits that strengthen your life.</div>
+          <div class="pillar"><strong>Live</strong>Live longer, live better, and live with purpose.</div>
+        </div>
+        <div class="info-actions">
+          <a href="/dashboard/">Open Dashboard</a>
+          <a href="/walking/">Explore Walking</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const learnMore = document.getElementById("learnMore");
+    const infoOverlay = document.getElementById("infoOverlay");
+    const closeInfo = document.getElementById("closeInfo");
+
+    function setInfoOpen(open) {
+      infoOverlay.hidden = !open;
+      learnMore.setAttribute("aria-expanded", String(open));
+      if (open) closeInfo.focus();
+      else learnMore.focus();
+    }
+
+    learnMore.addEventListener("click", () => setInfoOpen(true));
+    closeInfo.addEventListener("click", () => setInfoOpen(false));
+
+    infoOverlay.addEventListener("click", event => {
+      if (event.target === infoOverlay) setInfoOpen(false);
+    });
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && !infoOverlay.hidden) setInfoOpen(false);
+    });
+  </script>
+</body>
+</html>
