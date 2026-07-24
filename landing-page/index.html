@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>MotionC — See What Change Looks Like</title>
   <meta name="description" content="Move, track, and live with purpose using MotionC.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Kalam:wght@400;700&family=Patrick+Hand&display=swap"
+    rel="stylesheet"
+  >
   <style>
     * { box-sizing: border-box; }
 
@@ -68,6 +74,99 @@
       width: 17.4%;
       height: 9%;
       transform: rotate(-1deg);
+    }
+
+    .mira-hotspot {
+      left: 67.2%;
+      top: 42.2%;
+      width: 25.8%;
+      height: 37.8%;
+      border-color: #f0b429;
+      border-width: 4px;
+      background: rgba(240, 180, 41, .05);
+      box-shadow: 0 0 14px rgba(240, 180, 41, .55);
+    }
+
+    .mira-bubble {
+      position: absolute;
+      z-index: 8;
+      left: 48.5%;
+      top: 32%;
+      width: 25%;
+      min-height: 19%;
+      padding: clamp(14px, 1.7vw, 28px);
+      border: 3px solid #9a672c;
+      border-radius: 18px;
+      color: #2b2118;
+      background: #fff3cf;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, .46);
+    }
+
+    .mira-bubble[hidden] { display: none; }
+
+    .mira-bubble::after {
+      content: "";
+      position: absolute;
+      right: -28px;
+      bottom: 24%;
+      width: 50px;
+      height: 34px;
+      background: #fff3cf;
+      clip-path: polygon(0 0, 100% 50%, 0 100%);
+    }
+
+    .scale-talk {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid rgba(154, 103, 44, .35);
+      color: #6c461f;
+      font: 800 clamp(10px, .85vw, 15px) Arial, sans-serif;
+      letter-spacing: .14em;
+    }
+
+    .mira-comment {
+      min-height: 2.6em;
+      margin: 0 0 12px;
+      font-size: clamp(18px, 1.75vw, 31px);
+      line-height: 1.28;
+    }
+
+    .font-kalam { font-family: "Kalam", cursive; }
+    .font-patrick { font-family: "Patrick Hand", cursive; }
+    .font-caveat { font-family: "Caveat", cursive; }
+
+    .font-tests {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .font-tests button,
+    .mira-close {
+      min-height: 30px;
+      padding: 4px 10px;
+      border: 1px solid #9a672c;
+      border-radius: 6px;
+      color: #38271b;
+      background: #ead29c;
+      cursor: pointer;
+      font: 700 clamp(9px, .68vw, 12px) Arial, sans-serif;
+    }
+
+    .font-tests button[aria-pressed="true"] {
+      color: #fff;
+      background: #287a43;
+    }
+
+    .mira-close {
+      min-width: 28px;
+      min-height: 24px;
+      padding: 0 6px;
     }
 
     .info-overlay {
@@ -192,6 +291,29 @@
       title="Walking"
     ></a>
 
+    <button
+      class="hotspot mira-hotspot"
+      id="miraHotspot"
+      type="button"
+      aria-label="Talk to MIRA"
+      aria-controls="miraBubble"
+      aria-expanded="false"
+      title="MIRA test area"
+    ></button>
+
+    <aside class="mira-bubble" id="miraBubble" aria-live="polite" hidden>
+      <div class="scale-talk">
+        <span>MIRA · SCALE TALK</span>
+        <button class="mira-close" id="miraClose" type="button" aria-label="Close MIRA">×</button>
+      </div>
+      <p class="mira-comment font-kalam" id="miraComment"></p>
+      <div class="font-tests" aria-label="Test MIRA font">
+        <button type="button" data-font="font-kalam" aria-pressed="true">Kalam</button>
+        <button type="button" data-font="font-patrick" aria-pressed="false">Patrick Hand</button>
+        <button type="button" data-font="font-caveat" aria-pressed="false">Caveat</button>
+      </div>
+    </aside>
+
     <section
       class="info-overlay"
       id="infoOverlay"
@@ -225,6 +347,23 @@
     const learnMore = document.getElementById("learnMore");
     const infoOverlay = document.getElementById("infoOverlay");
     const closeInfo = document.getElementById("closeInfo");
+    const miraHotspot = document.getElementById("miraHotspot");
+    const miraBubble = document.getElementById("miraBubble");
+    const miraComment = document.getElementById("miraComment");
+    const miraClose = document.getElementById("miraClose");
+    const fontButtons = document.querySelectorAll("[data-font]");
+    const miraComments = [
+      "Oh, you found me. I was beginning to think that button was decorative.",
+      "Progress is rarely dramatic. Annoying, but true.",
+      "Small steps count. I checked the math twice.",
+      "Clicking me is not technically exercise.",
+      "Back again? I’ll pretend this is about your health.",
+      "Your persistence is impressive. Misguided, but impressive.",
+      "I measure numbers, not excuses. Those require different equipment.",
+      "You bring the effort. I’ll bring the unsolicited commentary."
+    ];
+    let miraCommentIndex = 0;
+    let activeMiraFont = "font-kalam";
 
     function setInfoOpen(open) {
       infoOverlay.hidden = !open;
@@ -242,6 +381,32 @@
 
     document.addEventListener("keydown", event => {
       if (event.key === "Escape" && !infoOverlay.hidden) setInfoOpen(false);
+      if (event.key === "Escape" && !miraBubble.hidden) setMiraOpen(false);
+    });
+
+    function setMiraOpen(open) {
+      miraBubble.hidden = !open;
+      miraHotspot.setAttribute("aria-expanded", String(open));
+    }
+
+    function showNextMiraComment() {
+      miraComment.textContent = miraComments[miraCommentIndex];
+      miraCommentIndex = (miraCommentIndex + 1) % miraComments.length;
+      setMiraOpen(true);
+    }
+
+    miraHotspot.addEventListener("click", showNextMiraComment);
+    miraClose.addEventListener("click", () => setMiraOpen(false));
+
+    fontButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        miraComment.classList.remove(activeMiraFont);
+        activeMiraFont = button.dataset.font;
+        miraComment.classList.add(activeMiraFont);
+        fontButtons.forEach(item => {
+          item.setAttribute("aria-pressed", String(item === button));
+        });
+      });
     });
   </script>
 </body>
