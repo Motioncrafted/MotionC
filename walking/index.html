@@ -67,10 +67,10 @@
     .mc-finish-flag {
       position: absolute;
       z-index: 3;
-      left: 40.1%;
+      left: 41.15%;
       top: .65%;
       width: 2.65%;
-      height: 5.4%;
+      height: 4.15%;
       pointer-events: none;
     }
 
@@ -78,9 +78,9 @@
       content: "";
       position: absolute;
       left: 7%;
-      top: 7%;
+      top: 8%;
       width: clamp(2px, .14vw, 3px);
-      height: 93%;
+      height: 70%;
       border-radius: 999px;
       background: linear-gradient(90deg, #5b3518, #d4a259 48%, #6e411d);
       box-shadow:
@@ -91,13 +91,12 @@
     .mc-finish-flag::after {
       content: "";
       position: absolute;
-      left: 3.2%;
+      left: 4.7%;
       top: 0;
-      width: clamp(4px, .43vw, 7px);
-      aspect-ratio: 1;
-      border: 1px solid rgba(76, 42, 14, .75);
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 30%, #f5cf78, #a86c25 68%, #5b3518);
+      width: clamp(3px, .27vw, 5px);
+      height: clamp(5px, .48vw, 8px);
+      clip-path: polygon(50% 0, 100% 66%, 72% 100%, 28% 100%, 0 66%);
+      background: linear-gradient(90deg, #754619, #e2b45c 50%, #754619);
       box-shadow: 0 1px 2px rgba(0, 0, 0, .45);
     }
 
@@ -129,15 +128,15 @@
       letter-spacing: -.06em;
       transform: rotate(2deg) skewY(-1deg);
       transform-origin: left center;
-      animation: mc-flag-wave 2.4s ease-in-out infinite alternate;
+      animation: mc-flag-wave 2.7s ease-in-out infinite alternate;
     }
 
     @keyframes mc-flag-wave {
       from {
-        transform: rotate(1deg) skewY(-2deg) scaleX(.97);
+        transform: rotate(1.5deg) skewY(-.7deg) scaleX(.99);
       }
       to {
-        transform: rotate(3deg) skewY(1deg) scaleX(1.03);
+        transform: rotate(2.5deg) skewY(.7deg) scaleX(1.015);
       }
     }
 
