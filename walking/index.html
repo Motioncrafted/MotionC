@@ -67,39 +67,84 @@
     .mc-finish-flag {
       position: absolute;
       z-index: 3;
-      left: 40.35%;
-      top: 1.25%;
-      width: 2.1%;
-      height: 3.65%;
+      left: 40.1%;
+      top: .65%;
+      width: 2.65%;
+      height: 5.4%;
       pointer-events: none;
     }
 
     .mc-finish-flag::before {
       content: "";
       position: absolute;
-      left: 0;
-      top: 0;
-      width: clamp(1px, .11vw, 2px);
-      height: 100%;
+      left: 7%;
+      top: 7%;
+      width: clamp(2px, .14vw, 3px);
+      height: 93%;
       border-radius: 999px;
-      background: #6e4a27;
-      box-shadow: 1px 0 1px rgba(255, 255, 255, .35);
+      background: linear-gradient(90deg, #5b3518, #d4a259 48%, #6e411d);
+      box-shadow:
+        1px 0 1px rgba(255, 255, 255, .45),
+        1px 1px 2px rgba(0, 0, 0, .5);
+    }
+
+    .mc-finish-flag::after {
+      content: "";
+      position: absolute;
+      left: 3.2%;
+      top: 0;
+      width: clamp(4px, .43vw, 7px);
+      aspect-ratio: 1;
+      border: 1px solid rgba(76, 42, 14, .75);
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #f5cf78, #a86c25 68%, #5b3518);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, .45);
     }
 
     .mc-flag-cloth {
       position: absolute;
-      left: 5%;
-      top: 4%;
+      left: 9%;
+      top: 11%;
       display: grid;
       place-items: center;
       width: 88%;
-      height: 48%;
+      height: 43%;
+      padding-right: 4%;
       color: #ed7d18;
-      background: #fff;
-      clip-path: polygon(0 4%, 100% 12%, 91% 54%, 100% 94%, 0 86%);
-      filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .42));
-      font: 800 clamp(6px, .7vw, 12px) Arial, sans-serif;
-      letter-spacing: -.08em;
+      background:
+        linear-gradient(105deg,
+          rgba(255,255,255,.98) 0%,
+          #e8e2d8 22%,
+          #fff 43%,
+          #ded7ca 65%,
+          #fff 86%);
+      clip-path: polygon(
+        0 7%, 22% 2%, 45% 10%, 68% 4%, 100% 13%,
+        94% 91%, 73% 84%, 50% 95%, 26% 87%, 0 94%
+      );
+      filter:
+        drop-shadow(0 1px 1px rgba(0, 0, 0, .5))
+        drop-shadow(1px 1px 1px rgba(0, 0, 0, .25));
+      font: 800 clamp(5px, .62vw, 11px) Arial, sans-serif;
+      letter-spacing: -.06em;
+      transform: rotate(2deg) skewY(-1deg);
+      transform-origin: left center;
+      animation: mc-flag-wave 2.4s ease-in-out infinite alternate;
+    }
+
+    @keyframes mc-flag-wave {
+      from {
+        transform: rotate(1deg) skewY(-2deg) scaleX(.97);
+      }
+      to {
+        transform: rotate(3deg) skewY(1deg) scaleX(1.03);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .mc-flag-cloth {
+        animation: none;
+      }
     }
 
     .nav-hotspot {
