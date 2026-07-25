@@ -69,24 +69,7 @@
       z-index: 8;
       width: var(--rail-width);
       overflow: hidden;
-      background:
-        radial-gradient(circle at 50% 12%, rgba(55, 68, 70, .72), transparent 24%),
-        linear-gradient(90deg, #172123, #263234 50%, #172123);
-      box-shadow: 8px 0 18px rgba(0, 0, 0, .28);
-    }
-
-    .sidebar-menu-art {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 50%;
-      width: auto;
-      height: 100%;
-      transform: translateX(-50%);
-      filter: drop-shadow(0 3px 8px rgba(0, 0, 0, .32));
-      clip-path: inset(4px 3px 24px);
-      user-select: none;
-      pointer-events: none;
+      background: transparent;
     }
 
     .sidebar-link {
@@ -116,33 +99,6 @@
     .sidebar-link.library { top: 47.2%; }
     .sidebar-link.drop-zone { top: 57.3%; }
     .sidebar-link.settings { top: 67%; }
-
-    .slogan-cover {
-      position: absolute;
-      z-index: 3;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 20.5%;
-      display: grid;
-      place-content: center;
-      padding: 0 8%;
-      color: #d7df32;
-      background:
-        radial-gradient(circle at center, rgba(39, 52, 54, .96), #1d282a 72%);
-      text-align: center;
-      font: 700 clamp(10px, 1.05vw, 18px) "Kalam", cursive;
-      line-height: 1.55;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, .65);
-    }
-
-    .slogan-cover::after {
-      content: "";
-      width: 62%;
-      height: 1px;
-      margin: 10% auto 0;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-    }
 
     /* The live interface sits directly over the illustrated open book. */
     .book-interface {
@@ -561,13 +517,6 @@
 <body>
   <main class="page">
     <nav class="library-sidebar" aria-label="MotionC sections">
-      <img
-        class="sidebar-menu-art"
-        src="../images/library-menu-standard.png"
-        alt=""
-        aria-hidden="true"
-      >
-
       <a class="sidebar-link home" href="/" aria-label="Open Home"></a>
       <a class="sidebar-link walking" href="/walking/" aria-label="Open Walking"></a>
       <a class="sidebar-link mcp" href="/dashboard/" aria-label="Open MCP"></a>
@@ -583,10 +532,6 @@
         aria-label="Open Settings"
         title="Settings"
       ></button>
-
-      <div class="slogan-cover">
-        <span>Fuel Your Walk.<br>Feed Your Mind.</span>
-      </div>
     </nav>
 
     <section class="book-interface" aria-label="Library book">
