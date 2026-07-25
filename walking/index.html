@@ -446,6 +446,111 @@
       gap: clamp(4px, 0.45vw, 8px);
     }
 
+    .jasper-celebration {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      display: grid;
+      place-items: center;
+      padding: 3%;
+      background: rgba(12, 20, 22, .48);
+      backdrop-filter: blur(2px);
+    }
+
+    .jasper-celebration[hidden] {
+      display: none;
+    }
+
+    .celebration-card {
+      position: relative;
+      z-index: 2;
+      width: min(36%, 500px);
+      overflow: hidden;
+      padding: clamp(24px, 3.4vw, 54px) clamp(20px, 3vw, 48px)
+        clamp(20px, 2.6vw, 42px);
+      border: clamp(2px, .18vw, 3px) solid rgba(240, 180, 41, .9);
+      border-radius: clamp(16px, 1.6vw, 26px);
+      color: #26343a;
+      background:
+        linear-gradient(rgba(255, 255, 255, .95), rgba(244, 238, 225, .97));
+      box-shadow: 0 18px 55px rgba(0, 0, 0, .55);
+      text-align: center;
+    }
+
+    .celebration-card h2 {
+      position: relative;
+      z-index: 2;
+      margin: 0 0 clamp(8px, .8vw, 14px);
+      color: #1763a6;
+      font-size: clamp(24px, 2.5vw, 43px);
+      line-height: 1.08;
+    }
+
+    .celebration-card p {
+      position: relative;
+      z-index: 2;
+      margin: 0 auto clamp(16px, 1.8vw, 28px);
+      max-width: 32ch;
+      font-size: clamp(13px, 1.15vw, 20px);
+      line-height: 1.45;
+    }
+
+    .celebration-card strong {
+      color: #287a43;
+    }
+
+    .celebration-dismiss {
+      position: relative;
+      z-index: 2;
+      min-width: clamp(120px, 11vw, 180px);
+      border-color: #0f5b9b;
+      background: #176fd1;
+      box-shadow: 0 5px 12px rgba(23, 111, 209, .28);
+    }
+
+    .celebration-dismiss:hover {
+      background: #0f5b9b;
+    }
+
+    .confetti {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      top: -4%;
+      left: var(--left);
+      width: var(--size);
+      height: calc(var(--size) * 1.7);
+      border-radius: 2px;
+      background: var(--color);
+      opacity: .9;
+      transform: rotate(var(--rotation));
+      animation: confetti-fall var(--duration) ease-in var(--delay) forwards;
+    }
+
+    @keyframes confetti-fall {
+      0% {
+        transform: translate3d(0, -8%, 0) rotate(var(--rotation));
+      }
+      100% {
+        transform:
+          translate3d(var(--drift), 105vh, 0)
+          rotate(calc(var(--rotation) + 540deg));
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .confetti-piece {
+        animation: none;
+        top: var(--resting-top);
+      }
+    }
+
     .totals {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -610,10 +715,33 @@
         <button class="reset" type="button" id="resetData">Reset Test</button>
       </div>
     </section>
+
+    <section
+      class="jasper-celebration"
+      id="jasperCelebration"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="jasperCelebrationTitle"
+      aria-describedby="jasperCelebrationMessage"
+      hidden
+    >
+      <div class="confetti" id="confetti" aria-hidden="true"></div>
+      <div class="celebration-card">
+        <h2 id="jasperCelebrationTitle">🎉 Welcome to Jasper!</h2>
+        <p id="jasperCelebrationMessage">
+          <strong>Congratulations—you made it!</strong><br>
+          You walked the full 244-mile route from Calgary to Jasper.
+        </p>
+        <button class="celebration-dismiss" id="celebrationDismiss" type="button">
+          Awesome!
+        </button>
+      </div>
+    </section>
   </main>
 
   <script>
     const STORAGE_KEY = "walking_page_walks_v1";
+    const JASPER_CELEBRATION_KEY = "walking_page_jasper_celebrated_v1";
     const dateInput = document.getElementById("walkDate");
     const filterDate = document.getElementById("filterDate");
     const milesInput = document.getElementById("miles");
@@ -629,6 +757,9 @@
     const routeDots = document.getElementById("routeDots");
     const viewToggle = document.getElementById("viewToggle");
     const walkModal = document.getElementById("walkModal");
+    const jasperCelebration = document.getElementById("jasperCelebration");
+    const celebrationDismiss = document.getElementById("celebrationDismiss");
+    const confetti = document.getElementById("confetti");
     let walks = loadWalks();
     let walksOpen = false;
 
@@ -661,6 +792,48 @@
       routeDots.appendChild(dot);
       return dot;
     });
+
+    function buildConfetti() {
+      const colors = ["#ed7d18", "#176fd1", "#2f9e44", "#f0b429", "#cf3f4f"];
+      confetti.replaceChildren();
+
+      for (let index = 0; index < 26; index++) {
+        const piece = document.createElement("span");
+        piece.className = "confetti-piece";
+        piece.style.setProperty("--left", (3 + Math.random() * 94) + "%");
+        piece.style.setProperty("--size", (5 + Math.random() * 6) + "px");
+        piece.style.setProperty("--color", colors[index % colors.length]);
+        piece.style.setProperty("--rotation", (Math.random() * 180) + "deg");
+        piece.style.setProperty("--duration", (3 + Math.random() * 1.6) + "s");
+        piece.style.setProperty("--delay", (Math.random() * .75) + "s");
+        piece.style.setProperty("--drift", (-35 + Math.random() * 70) + "px");
+        piece.style.setProperty("--resting-top", (5 + Math.random() * 82) + "%");
+        confetti.appendChild(piece);
+      }
+    }
+
+    function showJasperCelebration() {
+      buildConfetti();
+      jasperCelebration.hidden = false;
+      localStorage.setItem(JASPER_CELEBRATION_KEY, "true");
+      celebrationDismiss.focus();
+    }
+
+    function closeJasperCelebration() {
+      jasperCelebration.hidden = true;
+      document.querySelector(".add").focus();
+    }
+
+    function updateJasperCelebration(totalMiles) {
+      if (totalMiles < 244) {
+        localStorage.removeItem(JASPER_CELEBRATION_KEY);
+        return;
+      }
+
+      if (localStorage.getItem(JASPER_CELEBRATION_KEY) !== "true") {
+        showJasperCelebration();
+      }
+    }
 
     function localToday() {
       const now = new Date();
@@ -799,6 +972,7 @@
 
       renderUpcoming(walkingTotal);
       renderWalkHistory(selected);
+      updateJasperCelebration(walkingTotal);
     }
 
     document.querySelectorAll("[data-change]").forEach(button => {
@@ -842,6 +1016,14 @@
       walksOpen = !walksOpen;
       walkModal.hidden = !walksOpen;
       viewToggle.textContent = walksOpen ? "Close Walks" : "Walks";
+    });
+
+    celebrationDismiss.addEventListener("click", closeJasperCelebration);
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && !jasperCelebration.hidden) {
+        closeJasperCelebration();
+      }
     });
 
     historyList.addEventListener("click", event => {
