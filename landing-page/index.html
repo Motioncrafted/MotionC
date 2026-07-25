@@ -77,14 +77,27 @@
     }
 
     .mira-hotspot {
-      left: 67.2%;
+      left: 66.5%;
       top: 42.2%;
-      width: 25.8%;
+      width: 26.5%;
       height: 37.8%;
-      border-color: #f0b429;
-      border-width: 4px;
-      background: rgba(240, 180, 41, .05);
-      box-shadow: 0 0 14px rgba(240, 180, 41, .55);
+      border-color: transparent;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .mira-hotspot:hover {
+      border-color: transparent;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .mira-hotspot:focus-visible {
+      border-color: transparent;
+      background: transparent;
+      box-shadow: none;
+      outline: 3px solid rgba(255, 243, 207, .9);
+      outline-offset: 3px;
     }
 
     .mira-bubble {
@@ -100,9 +113,19 @@
       color: #2b2118;
       background: #fff3cf;
       box-shadow: 0 12px 30px rgba(0, 0, 0, .46);
+      opacity: 1;
+      transition: opacity 400ms ease;
     }
 
     .mira-bubble[hidden] { display: none; }
+    .mira-bubble.is-closing {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .mira-bubble { transition-duration: 1ms; }
+    }
 
     .mira-bubble::after {
       content: "";
@@ -341,6 +364,12 @@
       "You bring the effort. I’ll bring the unsolicited commentary."
     ];
     let miraCommentIndex = 0;
+    const miraDisplayDuration = 10000;
+    const miraFadeDuration = 400;
+    let miraDismissTimer = null;
+    let miraFadeTimer = null;
+    let miraTimerStartedAt = 0;
+    let miraTimeRemaining = miraDisplayDuration;
 
     function setInfoOpen(open) {
       infoOverlay.hidden = !open;
@@ -361,9 +390,39 @@
       if (event.key === "Escape" && !miraBubble.hidden) setMiraOpen(false);
     });
 
+    function clearMiraTimers() {
+      window.clearTimeout(miraDismissTimer);
+      window.clearTimeout(miraFadeTimer);
+      miraDismissTimer = null;
+      miraFadeTimer = null;
+    }
+
+    function startMiraDismissTimer(duration = miraDisplayDuration) {
+      window.clearTimeout(miraDismissTimer);
+      miraTimeRemaining = duration;
+      miraTimerStartedAt = Date.now();
+      miraDismissTimer = window.setTimeout(() => setMiraOpen(false), duration);
+    }
+
     function setMiraOpen(open) {
-      miraBubble.hidden = !open;
-      miraHotspot.setAttribute("aria-expanded", String(open));
+      clearMiraTimers();
+
+      if (open) {
+        miraBubble.classList.remove("is-closing");
+        miraBubble.hidden = false;
+        miraHotspot.setAttribute("aria-expanded", "true");
+        startMiraDismissTimer();
+        return;
+      }
+
+      if (miraBubble.hidden || miraBubble.classList.contains("is-closing")) return;
+
+      miraHotspot.setAttribute("aria-expanded", "false");
+      miraBubble.classList.add("is-closing");
+      miraFadeTimer = window.setTimeout(() => {
+        miraBubble.hidden = true;
+        miraBubble.classList.remove("is-closing");
+      }, miraFadeDuration);
     }
 
     function showNextMiraComment() {
@@ -374,6 +433,22 @@
 
     miraHotspot.addEventListener("click", showNextMiraComment);
     miraClose.addEventListener("click", () => setMiraOpen(false));
+
+    miraBubble.addEventListener("mouseenter", () => {
+      if (miraDismissTimer === null) return;
+      miraTimeRemaining = Math.max(
+        0,
+        miraTimeRemaining - (Date.now() - miraTimerStartedAt)
+      );
+      window.clearTimeout(miraDismissTimer);
+      miraDismissTimer = null;
+    });
+
+    miraBubble.addEventListener("mouseleave", () => {
+      if (!miraBubble.hidden && !miraBubble.classList.contains("is-closing")) {
+        startMiraDismissTimer(miraTimeRemaining);
+      }
+    });
 
   </script>
 </body>
