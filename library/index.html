@@ -62,6 +62,21 @@
       isolation: isolate;
     }
 
+    .page::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background: url("../images/library-results.png") center / 100% 100% no-repeat;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 240ms ease;
+    }
+
+    .page.results-view::before {
+      opacity: 1;
+    }
+
     /* Wider Library version of the standard MotionC menu. */
     .library-sidebar {
       position: absolute;
@@ -100,7 +115,83 @@
     .sidebar-link.drop-zone { top: 57.3%; }
     .sidebar-link.settings { top: 67%; }
 
-    /* The live interface sits directly over the illustrated open book. */
+    /* Invisible category targets over the printed Library Index artwork. */
+    .index-hotspots {
+      position: absolute;
+      z-index: 6;
+      left: 35.5%;
+      top: 58.8%;
+      width: 36.9%;
+      height: 28.5%;
+      transition: opacity 180ms ease;
+    }
+
+    .index-hotspots[hidden] {
+      display: none;
+    }
+
+    .index-choice {
+      position: absolute;
+      width: 42%;
+      height: 16%;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+    }
+
+    .index-choice:hover,
+    .index-choice:focus-visible {
+      outline: none;
+      border-color: rgba(215, 151, 52, .72);
+      background: rgba(255, 239, 197, .16);
+      box-shadow: 0 0 12px rgba(215, 151, 52, .38);
+    }
+
+    .index-choice.walking { left: 5%; top: 24%; }
+    .index-choice.recovery { left: 5%; top: 45%; }
+    .index-choice.nutrition { left: 5%; top: 65%; }
+    .index-choice.mindset { right: 5%; top: 24%; }
+    .index-choice.metrics { right: 5%; top: 45%; }
+    .index-choice.guides { right: 5%; top: 65%; }
+
+    .book-transition {
+      position: absolute;
+      z-index: 7;
+      left: 35.5%;
+      top: 58.8%;
+      width: 36.9%;
+      height: 28.5%;
+      overflow: hidden;
+      pointer-events: none;
+      perspective: 900px;
+    }
+
+    .book-transition::after {
+      content: "";
+      position: absolute;
+      inset: 3% 5%;
+      border-radius: 50% 44% 12% 10% / 8% 8% 12% 12%;
+      background:
+        linear-gradient(90deg, rgba(246, 220, 172, .84), rgba(255, 243, 214, .96));
+      box-shadow: 0 4px 14px rgba(81, 47, 17, .28);
+      opacity: 0;
+      transform: rotateY(-88deg);
+      transform-origin: center;
+    }
+
+    .page.turning-book .book-transition::after {
+      animation: library-page-turn 440ms ease-in-out;
+    }
+
+    @keyframes library-page-turn {
+      0% { opacity: 0; transform: rotateY(-88deg) scale(.97); }
+      32% { opacity: .86; transform: rotateY(-28deg) scale(.99); }
+      52% { opacity: .96; transform: rotateY(0) scale(1); }
+      72% { opacity: .82; transform: rotateY(30deg) scale(.99); }
+      100% { opacity: 0; transform: rotateY(88deg) scale(.97); }
+    }
+
+    /* Results text sits directly over the authentic blank book artwork. */
     .book-interface {
       position: absolute;
       z-index: 5;
@@ -115,55 +206,33 @@
     .book-pages {
       position: absolute;
       inset: 0;
-      transition: opacity 220ms ease, transform 220ms ease, filter 220ms ease;
-    }
-
-    .book-pages.turning {
-      opacity: .15;
-      filter: blur(2px);
-      transform: perspective(700px) rotateY(-8deg) scale(.985);
+      transition: opacity 180ms ease;
     }
 
     .book-page {
       position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 50%;
+      top: 5%;
+      bottom: 10%;
+      width: 43%;
       overflow: hidden;
-      padding: 7% 7% 9%;
-      background:
-        repeating-linear-gradient(
-          0deg,
-          rgba(113, 76, 34, .018) 0 1px,
-          transparent 1px 5px
-        ),
-        linear-gradient(100deg, #eacb96, #fce7bd 88%);
-      box-shadow: inset 0 0 18px rgba(112, 73, 31, .12);
+      padding: 3% 4%;
+      background: transparent;
     }
 
     .book-page.left {
-      left: 0;
-      clip-path: polygon(4% 7%, 82% 0, 100% 6%, 100% 96%, 20% 100%, 0 89%);
-      background:
-        repeating-linear-gradient(
-          0deg,
-          rgba(113, 76, 34, .018) 0 1px,
-          transparent 1px 5px
-        ),
-        linear-gradient(82deg, #fce8bf 8%, #e9c992);
+      left: 5%;
       text-align: left;
     }
 
     .book-page.right {
-      right: 0;
-      clip-path: polygon(0 6%, 18% 0, 96% 7%, 100% 89%, 80% 100%, 0 96%);
+      right: 5%;
       text-align: left;
     }
 
     .book-title {
-      margin: 0 0 5%;
+      margin: 0 0 6%;
       color: #51331c;
-      font-size: clamp(11px, 1.12vw, 19px);
+      font-size: clamp(12px, 1.28vw, 21px);
       line-height: 1.1;
       text-align: center;
     }
@@ -177,7 +246,7 @@
 
     .book-list {
       display: grid;
-      gap: 5%;
+      gap: 8%;
       margin: 0;
       padding: 0;
       list-style: none;
@@ -185,14 +254,14 @@
 
     .book-choice {
       width: 100%;
-      min-height: clamp(18px, 1.75vw, 30px);
-      padding: 2% 3%;
+      min-height: clamp(25px, 2.4vw, 42px);
+      padding: 5% 3%;
       border: 0;
       border-bottom: 1px solid rgba(126, 79, 34, .38);
       color: #38271b;
-      background: transparent;
-      font-size: clamp(7px, .72vw, 13px);
-      line-height: 1.18;
+      background: rgba(255, 244, 218, .06);
+      font-size: clamp(9px, .9vw, 15px);
+      line-height: 1.22;
       text-align: inherit;
     }
 
@@ -207,14 +276,6 @@
     .book-choice.category {
       font-weight: 700;
       text-align: center;
-    }
-
-    .book-choice small {
-      display: block;
-      margin-top: 1%;
-      color: #765a3e;
-      font-size: .8em;
-      font-weight: 400;
     }
 
     .book-footer {
@@ -534,8 +595,49 @@
       ></button>
     </nav>
 
+    <section class="index-hotspots" id="indexHotspots" aria-label="Library sections">
+      <button
+        class="index-choice walking"
+        type="button"
+        data-category="walking"
+        aria-label="Open Walking and Movement"
+      ></button>
+      <button
+        class="index-choice recovery"
+        type="button"
+        data-category="recovery"
+        aria-label="Open Sleep and Recovery"
+      ></button>
+      <button
+        class="index-choice nutrition"
+        type="button"
+        data-category="nutrition"
+        aria-label="Open Food and Nutrition"
+      ></button>
+      <button
+        class="index-choice mindset"
+        type="button"
+        data-category="mindset"
+        aria-label="Open Mindset and Habits"
+      ></button>
+      <button
+        class="index-choice metrics"
+        type="button"
+        data-category="metrics"
+        aria-label="Open Weight and Body Metrics"
+      ></button>
+      <button
+        class="index-choice guides"
+        type="button"
+        data-category="guides"
+        aria-label="Open MotionC Guides"
+      ></button>
+    </section>
+
+    <div class="book-transition" aria-hidden="true"></div>
+
     <section class="book-interface" aria-label="Library book">
-      <div class="book-pages" id="bookPages">
+      <div class="book-pages" id="bookPages" hidden>
         <div class="book-page left" id="leftBookPage"></div>
         <div class="book-page right" id="rightBookPage"></div>
       </div>
@@ -799,6 +901,8 @@
     ];
 
     const categoryMap = new Map(categories.map(category => [category.id, category]));
+    const page = document.querySelector(".page");
+    const indexHotspots = document.getElementById("indexHotspots");
     const bookPages = document.getElementById("bookPages");
     const leftBookPage = document.getElementById("leftBookPage");
     const rightBookPage = document.getElementById("rightBookPage");
@@ -824,6 +928,7 @@
     let activeArticle = null;
     let activeArticlePage = 0;
     let turnTimer = null;
+    let turnCleanupTimer = null;
 
     function escapeHtml(value) {
       return String(value)
@@ -836,11 +941,18 @@
 
     function turnBook(update) {
       window.clearTimeout(turnTimer);
-      bookPages.classList.add("turning");
+      window.clearTimeout(turnCleanupTimer);
+      page.classList.remove("turning-book");
+      void page.offsetWidth;
+      page.classList.add("turning-book");
+
       turnTimer = window.setTimeout(() => {
         update();
-        requestAnimationFrame(() => bookPages.classList.remove("turning"));
       }, 220);
+
+      turnCleanupTimer = window.setTimeout(() => {
+        page.classList.remove("turning-book");
+      }, 460);
     }
 
     function categoryButton(category, index) {
@@ -856,22 +968,11 @@
     function renderIndex() {
       currentMode = "index";
       resultSpread = 0;
-
-      leftBookPage.innerHTML = `
-        <h2 class="book-title">Library Index</h2>
-        <ul class="book-list">
-          ${categories.slice(0, 3).map(categoryButton).join("")}
-        </ul>
-      `;
-
-      rightBookPage.innerHTML = `
-        <h2 class="book-title">Explore</h2>
-        <ul class="book-list">
-          ${categories.slice(3).map((category, index) =>
-            categoryButton(category, index + 3)
-          ).join("")}
-        </ul>
-      `;
+      page.classList.remove("results-view");
+      indexHotspots.hidden = false;
+      bookPages.hidden = true;
+      leftBookPage.replaceChildren();
+      rightBookPage.replaceChildren();
 
       bookPrevious.hidden = true;
       bookNext.hidden = true;
@@ -883,18 +984,22 @@
         <li>
           <button class="book-choice" type="button" data-article="${article.id}">
             ${escapeHtml(article.title)}
-            <small>${escapeHtml(article.summary)}</small>
           </button>
         </li>
       `;
     }
 
     function renderResults() {
-      const perSpread = 8;
+      page.classList.add("results-view");
+      indexHotspots.hidden = true;
+      bookPages.hidden = false;
+
+      const perSpread = 6;
       const start = resultSpread * perSpread;
       const spreadArticles = currentResults.slice(start, start + perSpread);
-      const leftArticles = spreadArticles.slice(0, 4);
-      const rightArticles = spreadArticles.slice(4, 8);
+      const splitAt = Math.ceil(spreadArticles.length / 2);
+      const leftArticles = spreadArticles.slice(0, splitAt);
+      const rightArticles = spreadArticles.slice(splitAt);
       const totalSpreads = Math.max(1, Math.ceil(currentResults.length / perSpread));
 
       leftBookPage.innerHTML = `
@@ -910,12 +1015,12 @@
       `;
 
       rightBookPage.innerHTML = `
-        <h2 class="book-title">Continue Reading</h2>
+        <h2 class="book-title">${rightArticles.length ? "More to Explore" : ""}</h2>
         <p class="book-subtitle">Spread ${resultSpread + 1} of ${totalSpreads}</p>
         ${
           rightArticles.length
             ? `<ul class="book-list">${rightArticles.map(articleButton).join("")}</ul>`
-            : `<p class="empty-result">More articles will appear here as the Library grows.</p>`
+            : ``
         }
       `;
 
@@ -1020,7 +1125,7 @@
     });
 
     bookNext.addEventListener("click", () => {
-      const totalSpreads = Math.ceil(currentResults.length / 8);
+      const totalSpreads = Math.ceil(currentResults.length / 6);
       if (resultSpread >= totalSpreads - 1) return;
       resultSpread += 1;
       turnBook(renderResults);
