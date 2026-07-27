@@ -1,6 +1,16 @@
 import { Redis } from "@upstash/redis";
 
-const redis = Redis.fromEnv();
+const redisUrl =
+  process.env.UPSTASH_REDIS_REST_URL ||
+  process.env.KV_REST_API_URL;
+const redisToken =
+  process.env.UPSTASH_REDIS_REST_TOKEN ||
+  process.env.KV_REST_API_TOKEN;
+
+const redis = new Redis({
+  url: redisUrl,
+  token: redisToken
+});
 const HISTORY_KEY = "motionc:drop-zone:commons";
 const COLORS = new Set(["#d52b69", "#ee7512", "#ffbf22"]);
 const FONTS = new Set([
