@@ -1,1 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Drop Zone | MotionC</title>
+  <meta name="description" content="Leave your mark and celebrate progress in the MotionC Drop Zone.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="prototype-shell">
+    <section class="wall-stage" aria-label="MotionC Drop Zone">
+      <img class="wall-art" src="../images/drop-zone.png" alt="">
 
+      <div class="permanent-tag mira-tag">MIRA was here 💖</div>
+      <div class="permanent-tag steps-tag">small steps still move you →</div>
+
+      <div class="tag-layer" id="tagLayer" aria-live="polite"></div>
+
+      <aside class="common-history" id="commonHistory" aria-label="The Commons tag history">
+        <p class="history-state" id="historyState">Loading the latest wins…</p>
+      </aside>
+
+      <div class="mist-target" id="mistTarget" aria-hidden="true"></div>
+      <div class="spray-stream" id="sprayStream" aria-hidden="true"></div>
+      <div class="purple-can-pulse" id="purpleCan" aria-hidden="true"></div>
+
+      <div class="interactive-controls">
+        <label class="message-field">
+          <span class="sr-only">Share your win</span>
+          <textarea id="message" maxlength="60" placeholder="Share your win...">Small steps count!</textarea>
+          <small><span id="messageCount">18</span>/60</small>
+        </label>
+
+        <div class="emoji-picker">
+          <button
+            aria-expanded="false"
+            aria-label="Choose an emoji"
+            class="emoji-toggle"
+            id="emojiToggle"
+            type="button"
+          >😊</button>
+          <div class="emoji-menu" id="emojiMenu" role="menu" hidden>
+            <button data-emoji="🎉" role="menuitem" type="button">🎉</button>
+            <button data-emoji="🔥" role="menuitem" type="button">🔥</button>
+            <button aria-label="Members emoji locked" class="locked" disabled type="button">💪</button>
+            <button aria-label="Members emoji locked" class="locked" disabled type="button">👟</button>
+          </div>
+        </div>
+
+        <div class="font-picks" aria-label="Choose a font">
+          <button class="selected" data-font="'Segoe Print', 'Comic Sans MS', cursive" type="button">BRUSH</button>
+          <button data-font="'Comic Sans MS', cursive" type="button">WILD</button>
+        </div>
+
+        <div class="color-picks" aria-label="Choose a colour">
+          <button aria-label="Use pink paint" class="selected" data-color="#d52b69" style="background:#d52b69" type="button"></button>
+          <button aria-label="Use orange paint" data-color="#ee7512" style="background:#ee7512" type="button"></button>
+          <button aria-label="Use yellow paint" data-color="#ffbf22" style="background:#ffbf22" type="button"></button>
+        </div>
+
+        <button class="spray-button" id="sprayButton" type="button">SPRAY IT!</button>
+      </div>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
