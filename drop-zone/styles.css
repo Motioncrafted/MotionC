@@ -423,6 +423,10 @@ textarea {
   box-shadow: 0 9px 28px rgba(0,0,0,.55);
 }
 
+.emoji-menu[hidden] {
+  display: none;
+}
+
 .emoji-menu button {
   display: grid;
   width: 36px;
