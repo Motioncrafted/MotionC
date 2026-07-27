@@ -51,12 +51,29 @@
         <div class="font-picks" aria-label="Choose a font">
           <button class="selected" data-font="'Segoe Print', 'Comic Sans MS', cursive" type="button">BRUSH</button>
           <button data-font="'Comic Sans MS', cursive" type="button">WILD</button>
+          <button
+            aria-label="Marker font — registration required"
+            class="locked-choice"
+            disabled
+            title="Register to unlock Marker"
+            type="button"
+          >MARKER</button>
+          <button
+            aria-label="Chalk font — registration required"
+            class="locked-choice"
+            disabled
+            title="Register to unlock Chalk"
+            type="button"
+          >CHALK</button>
         </div>
 
         <div class="color-picks" aria-label="Choose a colour">
           <button aria-label="Use pink paint" class="selected" data-color="#d52b69" style="background:#d52b69" type="button"></button>
           <button aria-label="Use orange paint" data-color="#ee7512" style="background:#ee7512" type="button"></button>
           <button aria-label="Use yellow paint" data-color="#ffbf22" style="background:#ffbf22" type="button"></button>
+          <button aria-label="Green paint — registration required" class="locked-choice" disabled style="background:#69a923" title="Register to unlock green" type="button"></button>
+          <button aria-label="Teal paint — registration required" class="locked-choice" disabled style="background:#0ea5b3" title="Register to unlock teal" type="button"></button>
+          <button aria-label="Purple paint — registration required" class="locked-choice" disabled style="background:#7550a5" title="Register to unlock purple" type="button"></button>
         </div>
 
         <button class="spray-button" id="sprayButton" type="button">SPRAY IT!</button>
