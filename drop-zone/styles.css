@@ -342,6 +342,32 @@ textarea {
   color: var(--blue);
 }
 
+.font-picks button.locked-choice,
+.color-picks button.locked-choice {
+  position: relative;
+  cursor: not-allowed;
+  filter: grayscale(1);
+  opacity: .38;
+}
+
+.font-picks button.locked-choice::after,
+.color-picks button.locked-choice::after {
+  content: "🔒";
+  position: absolute;
+  right: -5px;
+  top: -8px;
+  display: grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+  border: 1px solid #555;
+  border-radius: 50%;
+  background: #111;
+  filter: grayscale(1);
+  font-size: 10px;
+  line-height: 1;
+}
+
 .color-picks {
   position: absolute;
   left: 36.2%;
