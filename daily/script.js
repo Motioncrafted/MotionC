@@ -28,6 +28,7 @@ const fields = {
 let state = loadState();
 syncLifestyleSummary();
 let activeScoreDate = null;
+let addingWalk = false;
 
 function isoDate(date = new Date()) {
   const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
@@ -201,6 +202,7 @@ function formatFullDate(value) {
 
 function loadEntry(dateValue) {
   const entry = state.entries[dateValue];
+  addingWalk = false;
   fields.date.value = dateValue;
   fields.weight.value = entry?.weight ?? "";
   fields.distance.value = entry?.distance ?? "";
@@ -211,6 +213,7 @@ function loadEntry(dateValue) {
   fields.noFastFood.checked = entry?.noFastFood ?? true;
   fields.noJunkFood.checked = entry?.noJunkFood ?? true;
   fields.oneTreat.checked = entry?.oneTreat ?? true;
+  updateWalkEntryMode();
   renderToday(dateValue);
 }
 
@@ -233,11 +236,57 @@ function readEntry() {
 function saveEntry() {
   const entry = readEntry();
   if (!entry.date) return;
+
+  if (addingWalk) {
+    const existing = state.entries[entry.date];
+    if (!existing) return;
+
+    if (entry.distance <= 0 && entry.minutes <= 0) {
+      byId("saveStatus").textContent = "Enter the distance or time for the additional walk.";
+      return;
+    }
+
+    entry.distance = Math.round((Number(existing.distance || 0) + entry.distance) * 100) / 100;
+    entry.minutes = Number(existing.minutes || 0) + entry.minutes;
+  }
+
+  const addedWalk = addingWalk;
   state.entries[entry.date] = entry;
   persist();
-  byId("saveStatus").textContent = "Saved. Today’s dot and weekly summary are updated.";
+  loadEntry(entry.date);
+  byId("saveStatus").textContent = addedWalk
+    ? "Walk added. Today’s totals and score are updated."
+    : "Saved. Today’s dot and weekly summary are updated.";
   window.setTimeout(() => byId("saveStatus").textContent = "", 3000);
   renderAll(entry.date);
+}
+
+function updateWalkEntryMode() {
+  const entry = state.entries[fields.date.value];
+  const hasSavedWalk = Number(entry?.distance || 0) > 0 || Number(entry?.minutes || 0) > 0;
+  const addWalkButton = byId("addWalk");
+
+  addWalkButton.hidden = !hasSavedWalk;
+  addWalkButton.textContent = addingWalk ? "Cancel additional walk" : "+ Add another walk";
+  byId("saveEntry").textContent = addingWalk ? "Add walk to today" : "Save today";
+}
+
+function toggleAddWalk() {
+  if (addingWalk) {
+    loadEntry(fields.date.value);
+    byId("saveStatus").textContent = "";
+    return;
+  }
+
+  const entry = state.entries[fields.date.value];
+  if (!entry) return;
+
+  addingWalk = true;
+  fields.distance.value = "";
+  fields.minutes.value = "";
+  updateWalkEntryMode();
+  byId("saveStatus").textContent = "Enter only the new walk. It will be added to today’s totals.";
+  fields.distance.focus();
 }
 
 function renderToday(dateValue) {
@@ -492,6 +541,7 @@ function renderAll(dateValue = isoDate()) {
 
 fields.date.addEventListener("change", () => loadEntry(fields.date.value));
 byId("saveEntry").addEventListener("click", saveEntry);
+byId("addWalk").addEventListener("click", toggleAddWalk);
 byId("todayOrb").addEventListener("click", () => activeScoreDate && openScore(activeScoreDate));
 byId("explainToday").addEventListener("click", () => activeScoreDate && openScore(activeScoreDate));
 byId("closeScore").addEventListener("click", () => byId("scoreDialog").close());
