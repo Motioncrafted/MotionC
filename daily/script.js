@@ -66,7 +66,8 @@ function calculateEntry(entry, weeklyScore) {
   const distancePoints = Math.min(6, Number(entry.distance || 0) / 5 * 6);
   const timePoints = Math.min(6, Number(entry.minutes || 0) / 60 * 6);
   const movement = roundHalf(distancePoints + timePoints);
-  const lifestyle = roundHalf(Number(weeklyScore || 0));
+  const weightRecordedPoint = entry.weight ? 1 : 0;
+  const lifestyle = Math.min(10, roundHalf(Number(weeklyScore || 0) + weightRecordedPoint));
   const total = roundHalf(food + movement + lifestyle);
   const percent = Math.round(total / 30 * 100);
   return { food, movement, lifestyle, total, percent, color: colorFor(percent) };
@@ -159,14 +160,10 @@ function syncLifestyleSummary() {
     if (!summary?.week || !Number.isFinite(Number(summary.baseScore))) return false;
 
     const existing = state.weeks[summary.week];
-    if (existing?.summaryUpdatedAt === summary.updatedAt) return false;
+    if (existing?.summaryUpdatedAt === summary.updatedAt && existing?.scoreLogicVersion === 2) return false;
 
-    const entries = Object.values(state.entries).filter(item => item.weight);
-    const recentWeights = entries.sort((a, b) => a.date.localeCompare(b.date)).slice(-7).map(item => item.weight);
-    const spread = recentWeights.length ? Math.max(...recentWeights) - Math.min(...recentWeights) : 99;
-    const stabilityPoint = spread <= 3 ? 1 : spread <= 5 ? .5 : 0;
     const waistPoint = state.profile.waist ? 1 : 0;
-    const score = Math.min(10, roundHalf(Number(summary.baseScore) + stabilityPoint + waistPoint));
+    const score = Math.min(9, roundHalf(Number(summary.baseScore) + waistPoint));
 
     state.weeks[summary.week] = {
       ...existing,
@@ -174,6 +171,7 @@ function syncLifestyleSummary() {
       score,
       summaryScore: Number(summary.score),
       summaryUpdatedAt: summary.updatedAt,
+      scoreLogicVersion: 2,
       updatedAt: new Date().toISOString()
     };
     persist();
@@ -514,13 +512,9 @@ function saveWeekly() {
   const values = {};
   document.querySelectorAll("[data-lifestyle]").forEach(select => values[select.dataset.lifestyle] = Number(select.value));
   const lifestyleBase = Object.values(values).reduce((sum, value) => sum + value, 0);
-  const entries = Object.values(state.entries).filter(item => item.weight);
-  const recentWeights = entries.sort((a, b) => a.date.localeCompare(b.date)).slice(-7).map(item => item.weight);
-  const spread = recentWeights.length ? Math.max(...recentWeights) - Math.min(...recentWeights) : 99;
-  const stabilityPoint = spread <= 3 ? 1 : spread <= 5 ? .5 : 0;
   const waistPoint = byId("weeklyWaist").value ? 1 : 0;
-  const score = Math.min(10, roundHalf(lifestyleBase + stabilityPoint + waistPoint));
-  state.weeks[weekKey(new Date())] = { values, score, updatedAt: new Date().toISOString() };
+  const score = Math.min(9, roundHalf(lifestyleBase + waistPoint));
+  state.weeks[weekKey(new Date())] = { values, score, scoreLogicVersion: 2, updatedAt: new Date().toISOString() };
   state.profile.waist = Number(byId("weeklyWaist").value || state.profile.waist);
   state.profile.vibratoryLine = Number(byId("vibratoryLine").value || state.profile.vibratoryLine);
   state.profile.motivationalGoal = Number(byId("motivationalGoal").value || state.profile.motivationalGoal);
