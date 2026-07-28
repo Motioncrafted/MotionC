@@ -1,570 +1,1276 @@
-const STORAGE_KEY = "motionc-daily-prototype-v1";
-const LIFESTYLE_SUMMARY_STORAGE_KEY = "motionc-lifestyle-summary-v1";
-const LIFESTYLE_ITEMS = [
-  ["sleep", "Sleep quality"],
-  ["hydration", "Hydration"],
-  ["nutrition", "Nutrition"],
-  ["activity", "Activity level"],
-  ["stress", "Stress management"],
-  ["alcohol", "Alcohol"],
-  ["smoking", "Smoking"],
-  ["movement", "Daily movement"]
+"use strict";
+
+/* =========================================
+   MotionC Dashboard
+   ========================================= */
+
+
+/* -----------------------------------------
+   Main elements
+   ----------------------------------------- */
+
+const drawer = document.querySelector(".input-drawer");
+const overlay = document.querySelector(".drawer-overlay");
+const hotspot = document.getElementById("kscore-button");
+const closeButton = document.querySelector(".drawer-close-btn");
+
+/* -----------------------------------------
+   Engine Room button
+   ----------------------------------------- */
+
+const engineRoomButton =
+    document.getElementById("simulation-button");
+/* =========================================
+   Active page indicator
+   ========================================= */
+
+hotspot?.classList.add("active-page");
+const form = document.getElementById("kscore-form");
+
+const calculateMcpButton =
+    document.getElementById("calculate-mcp-btn");
+
+const calculateLifestyleButton =
+    document.getElementById("calculate-lifestyle-btn");
+
+
+
+/* -----------------------------------------
+   Measurement elements
+   ----------------------------------------- */
+
+const measurementSystemInputs =
+    document.querySelectorAll(
+        'input[name="measurementSystem"]'
+    );
+
+const imperialHeightFields =
+    document.getElementById("imperial-height-fields");
+
+const metricHeightFields =
+    document.getElementById("metric-height-fields");
+
+const weightInput = document.getElementById("weight");
+const waistInput = document.getElementById("waist");
+
+const heightFeetInput =
+    document.getElementById("height-feet");
+
+const heightInchesInput =
+    document.getElementById("height-inches");
+
+const heightCmInput =
+    document.getElementById("height-cm");
+
+const ageInput = document.getElementById("age");
+const sexInput = document.getElementById("sex");
+
+
+/* -----------------------------------------
+   MCP information popup
+
+   These elements will work once they are
+   added to the matching HTML.
+   ----------------------------------------- */
+
+const mcpInfoButton =
+    document.querySelector(".mcp-info-button");
+
+const mcpInfoTooltip =
+    document.querySelector(".mcp-info-tooltip");
+
+
+/* =========================================
+   Drawer controls
+   ========================================= */
+
+function isDrawerOpen() {
+    return drawer?.classList.contains("open") ?? false;
+}
+
+
+function openDrawer() {
+    if (!drawer || !overlay || !hotspot) {
+        return;
+    }
+
+    drawer.classList.add("open");
+    overlay.classList.add("open");
+   
+    drawer.setAttribute("aria-hidden", "false");
+    hotspot.setAttribute("aria-expanded", "true");
+}
+
+
+function closeDrawer() {
+    if (!drawer || !overlay || !hotspot) {
+        return;
+    }
+
+    drawer.classList.remove("open");
+    overlay.classList.remove("open");
+    
+    drawer.setAttribute("aria-hidden", "true");
+    hotspot.setAttribute("aria-expanded", "false");
+
+    closeMcpInfo();
+}
+
+
+function toggleDrawer() {
+    if (isDrawerOpen()) {
+        closeDrawer();
+    } else {
+        openDrawer();
+    }
+}
+
+
+/* MCP hotspot: mouse or touch */
+
+hotspot?.addEventListener("click", toggleDrawer);
+
+
+/*
+   The MCP hotspot is currently a div with
+   role="button", so Enter and Space should
+   also operate it for keyboard users.
+*/
+
+hotspot?.addEventListener("keydown", (event) => {
+    if (
+        event.key === "Enter" ||
+        event.key === " "
+    ) {
+        event.preventDefault();
+        toggleDrawer();
+    }
+});
+
+
+/* X button */
+
+closeButton?.addEventListener("click", closeDrawer);
+
+
+/* Outside overlay */
+
+overlay?.addEventListener("click", closeDrawer);
+
+
+/* Escape key */
+
+document.addEventListener("keydown", (event) => {
+    if (
+        event.key === "Escape" &&
+        isDrawerOpen()
+    ) {
+        closeDrawer();
+    }
+});
+
+
+/* =========================================
+   Engine Room
+   ========================================= */
+
+engineRoomButton?.addEventListener("click", () => {
+
+    document.body.classList.add("page-fade-out");
+
+    setTimeout(() => {
+        window.location.href = "/engine-room/";
+    }, 250);
+
+});
+
+/* =========================================
+   Engine Room
+   ========================================= */
+
+engineRoomButton?.addEventListener("click", () => {
+
+    document.body.classList.add("page-fade-out");
+
+    setTimeout(() => {
+        window.location.href = "/engine-room/";
+    }, 250);
+
+});
+/* =========================================
+   MCP information popup
+   ========================================= */
+
+function openMcpInfo() {
+    if (!mcpInfoButton || !mcpInfoTooltip) {
+        return;
+    }
+
+    mcpInfoTooltip.classList.add("open");
+
+    mcpInfoButton.setAttribute(
+        "aria-expanded",
+        "true"
+    );
+}
+
+
+function closeMcpInfo() {
+    if (!mcpInfoButton || !mcpInfoTooltip) {
+        return;
+    }
+
+    mcpInfoTooltip.classList.remove("open");
+
+    mcpInfoButton.setAttribute(
+        "aria-expanded",
+        "false"
+    );
+}
+
+
+function toggleMcpInfo(event) {
+    event.stopPropagation();
+
+    if (!mcpInfoTooltip) {
+        return;
+    }
+
+    if (mcpInfoTooltip.classList.contains("open")) {
+        closeMcpInfo();
+    } else {
+        openMcpInfo();
+    }
+}
+
+
+/* Click/tap support */
+
+mcpInfoButton?.addEventListener(
+    "click",
+    toggleMcpInfo
+);
+
+
+/* Close popup when clicking or tapping elsewhere */
+
+document.addEventListener("click", (event) => {
+    if (
+        !mcpInfoTooltip ||
+        !mcpInfoButton
+    ) {
+        return;
+    }
+
+    const clickedInsideTooltip =
+        mcpInfoTooltip.contains(event.target);
+
+    const clickedInfoButton =
+        mcpInfoButton.contains(event.target);
+
+    if (
+        !clickedInsideTooltip &&
+        !clickedInfoButton
+    ) {
+        closeMcpInfo();
+    }
+});
+
+
+/* =========================================
+   Imperial / Metric switching
+   ========================================= */
+
+function getMeasurementSystem() {
+    const selected =
+        form?.querySelector(
+            'input[name="measurementSystem"]:checked'
+        );
+
+    return selected?.value ?? "imperial";
+}
+
+
+function updateUnitLabels(system) {
+    const weightLabel =
+        document.querySelector(
+            'label[for="weight"]'
+        );
+
+    const waistLabel =
+        document.querySelector(
+            'label[for="waist"]'
+        );
+
+    if (system === "metric") {
+        if (weightLabel) {
+            weightLabel.textContent = "Weight — kg";
+        }
+
+        if (waistLabel) {
+            waistLabel.textContent = "Waist — cm";
+        }
+
+        if (weightInput) {
+            weightInput.placeholder = "kg";
+        }
+
+        if (waistInput) {
+            waistInput.placeholder = "cm";
+        }
+    } else {
+        if (weightLabel) {
+            weightLabel.textContent = "Weight — lb";
+        }
+
+        if (waistLabel) {
+            waistLabel.textContent = "Waist — in";
+        }
+
+        if (weightInput) {
+            weightInput.placeholder = "lb";
+        }
+
+        if (waistInput) {
+            waistInput.placeholder = "in";
+        }
+    }
+}
+
+
+function updateMeasurementFields() {
+    const system = getMeasurementSystem();
+    const useMetric = system === "metric";
+
+    if (imperialHeightFields) {
+        imperialHeightFields.hidden = useMetric;
+    }
+
+    if (metricHeightFields) {
+        metricHeightFields.hidden = !useMetric;
+    }
+
+    /*
+       Required status follows the selected
+       measurement system.
+    */
+
+    if (heightFeetInput) {
+        heightFeetInput.required = !useMetric;
+    }
+
+    if (heightInchesInput) {
+        heightInchesInput.required = !useMetric;
+    }
+
+    if (heightCmInput) {
+        heightCmInput.required = useMetric;
+    }
+
+    updateUnitLabels(system);
+}
+
+
+measurementSystemInputs.forEach((input) => {
+    input.addEventListener(
+        "change",
+        updateMeasurementFields
+    );
+});
+
+
+/* Set the correct initial labels and fields */
+
+updateMeasurementFields();
+
+
+/* =========================================
+   Number helpers
+   ========================================= */
+
+function readNumber(input) {
+    if (!input) {
+        return NaN;
+    }
+
+    const value = Number(input.value);
+
+    return Number.isFinite(value)
+        ? value
+        : NaN;
+}
+
+
+/* =========================================
+   Required measurement validation
+   ========================================= */
+
+function getMeasurementData() {
+    const system = getMeasurementSystem();
+
+    const enteredWeight = readNumber(weightInput);
+    const enteredWaist = readNumber(waistInput);
+    const age = readNumber(ageInput);
+    const sex = sexInput?.value ?? "";
+
+    let heightCm;
+    let heightMetres;
+    let heightInches;
+
+    let waistCm;
+    let waistInches;
+
+    let weightKg;
+    let weightLbs;
+
+    if (system === "metric") {
+        heightCm = readNumber(heightCmInput);
+        heightMetres = heightCm / 100;
+        heightInches = heightCm / 2.54;
+
+        waistCm = enteredWaist;
+        waistInches = waistCm / 2.54;
+
+        weightKg = enteredWeight;
+        weightLbs = weightKg / 0.453592;
+    } else {
+        const feet = readNumber(heightFeetInput);
+        const inches = readNumber(heightInchesInput);
+
+        heightInches = (feet * 12) + inches;
+        heightCm = heightInches * 2.54;
+        heightMetres = heightCm / 100;
+
+        waistInches = enteredWaist;
+        waistCm = waistInches * 2.54;
+
+        weightLbs = enteredWeight;
+        weightKg = weightLbs * 0.453592;
+    }
+
+    const valuesAreValid =
+        Number.isFinite(enteredWeight) &&
+        enteredWeight > 0 &&
+
+        Number.isFinite(enteredWaist) &&
+        enteredWaist > 0 &&
+
+        Number.isFinite(heightCm) &&
+        heightCm > 0 &&
+
+        Number.isFinite(heightMetres) &&
+        heightMetres > 0 &&
+
+        Number.isFinite(heightInches) &&
+        heightInches > 0 &&
+
+        Number.isFinite(waistCm) &&
+        waistCm > 0 &&
+
+        Number.isFinite(waistInches) &&
+        waistInches > 0 &&
+
+        Number.isFinite(weightKg) &&
+        weightKg > 0 &&
+
+        Number.isFinite(weightLbs) &&
+        weightLbs > 0 &&
+
+        Number.isFinite(age) &&
+        age > 0 &&
+
+        sex !== "";
+
+    if (!valuesAreValid) {
+        throw new Error(
+            "Please complete all measurement fields before calculating your MCP."
+        );
+    }
+
+    return {
+        system,
+        enteredWeight,
+        enteredWaist,
+        age,
+        sex,
+
+        heightCm,
+        heightMetres,
+        heightInches,
+
+        waistCm,
+        waistInches,
+
+        weightKg,
+        weightLbs
+    };
+}
+
+
+/* =========================================
+   MCP calculation engine
+   ========================================= */
+
+/*
+   Motion Core Prime formula
+
+   All calculations retain full precision.
+
+   Rounding is applied only when values
+   are presented on screen.
+*/
+
+function getAgeAdjustment(age) {
+    if (age >= 70) {
+        return 4;
+    }
+
+    if (age >= 60) {
+        return 3;
+    }
+
+    if (age >= 50) {
+        return 2;
+    }
+
+    if (age >= 40) {
+        return 1;
+    }
+
+    return 0;
+}
+
+
+function getSexAdjustment(sex) {
+    const normalizedSex =
+        String(sex).trim().toLowerCase();
+
+    return normalizedSex === "female" ? 1 : 0;
+}
+
+
+function calculateMcp({
+    heightCm,
+    heightMetres,
+    waistCm,
+    weightKg,
+    age,
+    sex
+}) {
+    /*
+       Core metrics
+    */
+
+    const bmi =
+        weightKg /
+        (heightMetres * heightMetres);
+
+    const whtr =
+        waistCm / heightCm;
+
+    const bodyK50 =
+        (bmi * whtr) * 2;
+
+    /*
+       Adjustments
+    */
+
+    const sexAdjustment =
+        getSexAdjustment(sex);
+
+    const ageAdjustment =
+        getAgeAdjustment(age);
+
+    /*
+       Raw score and final scaled MCP
+    */
+
+    const rawScore =
+        bodyK50 +
+        sexAdjustment +
+        ageAdjustment;
+
+    const mcp =
+        (2.551 * rawScore) - 51.53;
+
+    return {
+        bmi,
+        whtr,
+        bodyK50,
+        sexAdjustment,
+        ageAdjustment,
+        rawScore,
+        mcp
+    };
+}
+
+
+/* =========================================
+   Dashboard metric updating
+   ========================================= */
+
+/*
+   These IDs can be placed over the top
+   dashboard cards:
+
+   display-weight
+   display-weight-unit
+
+   display-waist
+   display-waist-unit
+
+   display-bmi
+   display-whtr
+   display-mcp
+*/
+
+function setText(id, value) {
+    const element = document.getElementById(id);
+
+    if (element) {
+        element.textContent = value;
+    }
+}
+
+
+function updateMcpDashboard({
+    system,
+    enteredWeight,
+    enteredWaist,
+    results
+}) {
+    const weightUnit =
+        system === "metric" ? "kg" : "lb";
+
+    const waistUnit =
+        system === "metric" ? "cm" : "in";
+
+    /*
+       Weight and waist are displayed in the
+       measurement system selected by the user.
+    */
+
+    setText(
+        "display-weight",
+        enteredWeight.toFixed(1)
+    );
+
+    setText(
+        "display-weight-unit",
+        weightUnit
+    );
+
+    setText(
+        "display-waist",
+        enteredWaist.toFixed(1)
+    );
+
+    setText(
+        "display-waist-unit",
+        waistUnit
+    );
+
+    /*
+       MotionC display standards:
+
+       BMI  = 1 decimal place
+       WHtR = 2 decimal places
+       MCP  = 1 decimal place
+    */
+
+    setText(
+        "display-bmi",
+        results.bmi.toFixed(1)
+    );
+
+    setText(
+        "display-whtr",
+        results.whtr.toFixed(2)
+    );
+
+    setText(
+        "display-mcp",
+        results.mcp.toFixed(1)
+    );
+}
+
+
+/* =========================================
+   Calculate MCP button
+   ========================================= */
+
+calculateMcpButton?.addEventListener(
+    "click",
+    () => {
+        try {
+            const measurementData =
+                getMeasurementData();
+
+            const results =
+                calculateMcp(measurementData);
+
+            updateMcpDashboard({
+                system:
+                    measurementData.system,
+
+                enteredWeight:
+                    measurementData.enteredWeight,
+
+                enteredWaist:
+                    measurementData.enteredWaist,
+
+                results
+            });
+
+            /*
+               Temporary confirmation until all
+               live metric overlays are installed.
+            */
+
+            alert(
+                `Your MCP is ${results.mcp.toFixed(1)}.\n` +
+                `Your BMI is ${results.bmi.toFixed(1)}.\n` +
+                `Your WHtR is ${results.whtr.toFixed(2)}.`
+            );
+
+            /*
+               Future features can listen for this
+               event without duplicating the MCP
+               calculation formula.
+            */
+
+            document.dispatchEvent(
+                new CustomEvent(
+                    "motionc:mcp-updated",
+                    {
+                        detail: {
+                            measurementData,
+                            results
+                        }
+                    }
+                )
+            );
+        } catch (error) {
+            alert(
+                error instanceof Error
+                    ? error.message
+                    : "Unable to calculate your MCP."
+            );
+        }
+    }
+);
+
+
+/* =========================================
+   Lifestyle Checklist
+   ========================================= */
+
+const lifestyleGroups = [
+    "sleep",
+    "hydration",
+    "nutrition",
+    "walking",
+    "stress",
+    "alcohol",
+    "smoking",
+    "activity"
 ];
 
-const byId = id => document.getElementById(id);
-const fields = {
-  date: byId("entryDate"),
-  weight: byId("weight"),
-  distance: byId("distance"),
-  minutes: byId("minutes"),
-  weightNote: byId("weightNote"),
-  observation: byId("observation"),
-  noRestaurant: byId("noRestaurant"),
-  noFastFood: byId("noFastFood"),
-  noJunkFood: byId("noJunkFood"),
-  oneTreat: byId("oneTreat")
+const lifestyleSummaryStorageKey =
+    "motionc-lifestyle-summary-v1";
+
+const dailyLifestyleKeys = {
+    sleep: "sleep",
+    hydration: "hydration",
+    nutrition: "nutrition",
+    walking: "movement",
+    stress: "stress",
+    alcohol: "alcohol",
+    smoking: "smoking",
+    activity: "activity"
 };
 
-let state = loadState();
-syncLifestyleSummary();
-let activeScoreDate = null;
-let addingWalk = false;
+function currentLifestyleWeekKey() {
+    const date = new Date();
+    date.setHours(12, 0, 0, 0);
+    date.setDate(date.getDate() - date.getDay());
 
-function isoDate(date = new Date()) {
-  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-  return local.toISOString().slice(0, 10);
+    const localDate =
+        new Date(
+            date.getTime() -
+            date.getTimezoneOffset() * 60000
+        );
+
+    return localDate.toISOString().slice(0, 10);
 }
 
-function dateFromIso(value) {
-  return new Date(`${value}T12:00:00`);
+function saveLifestyleSummary(score) {
+    const values = {};
+
+    lifestyleGroups.forEach((groupName) => {
+        values[dailyLifestyleKeys[groupName]] =
+            getSelectedLifestyleValue(groupName) / 3;
+    });
+
+    localStorage.setItem(
+        lifestyleSummaryStorageKey,
+        JSON.stringify({
+            week: currentLifestyleWeekKey(),
+            score,
+            maximumScore: 24,
+            baseScore: score / 3,
+            values,
+            updatedAt: new Date().toISOString()
+        })
+    );
 }
 
-function addDays(date, amount) {
-  const next = new Date(date);
-  next.setDate(next.getDate() + amount);
-  return next;
-}
+function restoreLifestyleSummary() {
+    try {
+        const saved = JSON.parse(
+            localStorage.getItem(
+                lifestyleSummaryStorageKey
+            )
+        );
 
-function startOfWeek(date) {
-  const next = new Date(date);
-  next.setHours(12, 0, 0, 0);
-  next.setDate(next.getDate() - next.getDay());
-  return next;
-}
+        const score = Number(saved?.score);
 
-function weekKey(date) {
-  return isoDate(startOfWeek(date));
-}
+        if (
+            !Number.isFinite(score) ||
+            score < 0 ||
+            score > 24
+        ) {
+            return;
+        }
 
-function roundHalf(value) {
-  return Math.round(value * 2) / 2;
-}
+        lifestyleGroups.forEach((groupName) => {
+            const dailyKey =
+                dailyLifestyleKeys[groupName];
 
-function calculateEntry(entry, weeklyScore) {
-  const promiseKeys = ["noRestaurant", "noFastFood", "noJunkFood", "oneTreat"];
-  const food = promiseKeys.reduce((total, key) => total + (entry[key] ? 2 : 0), 0);
-  const distancePoints = Math.min(6, Number(entry.distance || 0) / 5 * 6);
-  const timePoints = Math.min(6, Number(entry.minutes || 0) / 60 * 6);
-  const movement = roundHalf(distancePoints + timePoints);
-  const weightRecordedPoint = entry.weight ? 1 : 0;
-  const lifestyle = Math.min(10, roundHalf(Number(weeklyScore || 0) + weightRecordedPoint));
-  const total = roundHalf(food + movement + lifestyle);
-  const percent = Math.round(total / 30 * 100);
-  return { food, movement, lifestyle, total, percent, color: colorFor(percent) };
-}
+            const savedValue =
+                Number(saved.values?.[dailyKey]);
 
-function colorFor(percent) {
-  if (percent >= 85) return "green";
-  if (percent >= 70) return "light-green";
-  if (percent >= 50) return "yellow";
-  if (percent >= 30) return "orange";
-  return "red";
-}
+            if (!Number.isFinite(savedValue)) {
+                return;
+            }
 
-function colorLabel(color) {
-  return color.split("-").map(word => word[0].toUpperCase() + word.slice(1)).join(" ");
-}
+            const option = form?.querySelector(
+                `input[name="${groupName}"][value="${Math.round(savedValue * 3)}"]`
+            );
 
-function seedState() {
-  const today = new Date();
-  const entries = {};
-  const distances = [2.4, 3.1, 0, 4.2, 5.4, 2.8, 0, 3.7, 4.9, 2.1, 5.8, 0, 6.1, 4.3, 3.6, 5.2, 4.7, 0, 5.36, 3.9, 0];
-  const weights = [203.2, 202.8, 202.9, 202.3, 201.9, 201.6, 201.8, 201.1, 200.8, 200.4, 200.6, 200.1, 199.8, 199.6, 199.4, 199.7, 199.2, 198.9, 198.7, 198.8, 198.5];
+            if (option) {
+                option.checked = true;
+            }
+        });
 
-  for (let index = 20; index >= 0; index -= 1) {
-    const date = addDays(today, -index);
-    const arrayIndex = 20 - index;
-    const distance = distances[arrayIndex];
-    const promises = {
-      noRestaurant: arrayIndex !== 5 && arrayIndex !== 15,
-      noFastFood: arrayIndex !== 9,
-      noJunkFood: arrayIndex !== 3 && arrayIndex !== 17,
-      oneTreat: arrayIndex !== 12
-    };
-    const minutes = distance ? Math.round(distance * (18 + (arrayIndex % 4))) : 0;
-    entries[isoDate(date)] = {
-      date: isoDate(date),
-      weight: weights[arrayIndex],
-      distance,
-      minutes,
-      weightNote: arrayIndex === 12 ? "Entered the 190s" : "",
-      observation: arrayIndex === 18 ? "Long route felt easier today" : "",
-      ...promises,
-      updatedAt: new Date().toISOString()
-    };
-  }
-
-  const currentWeek = weekKey(today);
-  const previousWeek = weekKey(addDays(today, -7));
-  const earlierWeek = weekKey(addDays(today, -14));
-  return {
-    entries,
-    weeks: {
-      [earlierWeek]: weeklyTemplate(6),
-      [previousWeek]: weeklyTemplate(7),
-      [currentWeek]: weeklyTemplate(6.5)
-    },
-    profile: {
-      waist: 38.5,
-      vibratoryLine: 200,
-      motivationalGoal: 195,
-      startWeight: 217
+        updateLifestyleGauge(score);
+    } catch {
+        // Ignore missing or invalid saved data.
     }
-  };
 }
 
-function weeklyTemplate(score) {
-  const values = {};
-  LIFESTYLE_ITEMS.forEach(([key], index) => {
-    values[key] = index < Math.round(score) ? 1 : index < Math.round(score) + 2 ? .5 : 0;
-  });
-  return { values, score, updatedAt: new Date().toISOString() };
-}
 
-function loadState() {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : seedState();
-  } catch {
-    return seedState();
-  }
-}
+function getSelectedLifestyleValue(groupName) {
+    const selected =
+        form?.querySelector(
+            `input[name="${groupName}"]:checked`
+        );
 
-function persist() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-}
-
-function syncLifestyleSummary() {
-  try {
-    const summary = JSON.parse(localStorage.getItem(LIFESTYLE_SUMMARY_STORAGE_KEY));
-    if (!summary?.week || !Number.isFinite(Number(summary.baseScore))) return false;
-
-    const existing = state.weeks[summary.week];
-    if (existing?.summaryUpdatedAt === summary.updatedAt && existing?.scoreLogicVersion === 2) return false;
-
-    const waistPoint = state.profile.waist ? 1 : 0;
-    const score = Math.min(9, roundHalf(Number(summary.baseScore) + waistPoint));
-
-    state.weeks[summary.week] = {
-      ...existing,
-      values: summary.values || existing?.values || {},
-      score,
-      summaryScore: Number(summary.score),
-      summaryUpdatedAt: summary.updatedAt,
-      scoreLogicVersion: 2,
-      updatedAt: new Date().toISOString()
-    };
-    persist();
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function weeklyForDate(dateValue) {
-  const key = weekKey(dateFromIso(dateValue));
-  return state.weeks[key] || weeklyTemplate(6);
-}
-
-function scoreForEntry(entry) {
-  return calculateEntry(entry, weeklyForDate(entry.date).score);
-}
-
-function formatShortDate(value) {
-  return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(dateFromIso(value));
-}
-
-function formatFullDate(value) {
-  return new Intl.DateTimeFormat(undefined, { weekday: "long", month: "long", day: "numeric" }).format(dateFromIso(value));
-}
-
-function loadEntry(dateValue) {
-  const entry = state.entries[dateValue];
-  addingWalk = false;
-  fields.date.value = dateValue;
-  fields.weight.value = entry?.weight ?? "";
-  fields.distance.value = entry?.distance ?? "";
-  fields.minutes.value = entry?.minutes ?? "";
-  fields.weightNote.value = entry?.weightNote ?? "";
-  fields.observation.value = entry?.observation ?? "";
-  fields.noRestaurant.checked = entry?.noRestaurant ?? true;
-  fields.noFastFood.checked = entry?.noFastFood ?? true;
-  fields.noJunkFood.checked = entry?.noJunkFood ?? true;
-  fields.oneTreat.checked = entry?.oneTreat ?? true;
-  updateWalkEntryMode();
-  renderToday(dateValue);
-}
-
-function readEntry() {
-  return {
-    date: fields.date.value,
-    weight: fields.weight.value ? Number(fields.weight.value) : null,
-    distance: fields.distance.value ? Number(fields.distance.value) : 0,
-    minutes: fields.minutes.value ? Number(fields.minutes.value) : 0,
-    weightNote: fields.weightNote.value.trim(),
-    observation: fields.observation.value.trim(),
-    noRestaurant: fields.noRestaurant.checked,
-    noFastFood: fields.noFastFood.checked,
-    noJunkFood: fields.noJunkFood.checked,
-    oneTreat: fields.oneTreat.checked,
-    updatedAt: new Date().toISOString()
-  };
-}
-
-function saveEntry() {
-  const entry = readEntry();
-  if (!entry.date) return;
-
-  if (addingWalk) {
-    const existing = state.entries[entry.date];
-    if (!existing) return;
-
-    if (entry.distance <= 0 && entry.minutes <= 0) {
-      byId("saveStatus").textContent = "Enter the distance or time for the additional walk.";
-      return;
+    if (!selected) {
+        return null;
     }
 
-    entry.distance = Math.round((Number(existing.distance || 0) + entry.distance) * 100) / 100;
-    entry.minutes = Number(existing.minutes || 0) + entry.minutes;
-  }
+    const value = Number(selected.value);
 
-  const addedWalk = addingWalk;
-  state.entries[entry.date] = entry;
-  persist();
-  loadEntry(entry.date);
-  byId("saveStatus").textContent = addedWalk
-    ? "Walk added. Today’s totals and score are updated."
-    : "Saved. Today’s dot and weekly summary are updated.";
-  window.setTimeout(() => byId("saveStatus").textContent = "", 3000);
-  renderAll(entry.date);
+    return Number.isFinite(value)
+        ? value
+        : null;
 }
 
-function updateWalkEntryMode() {
-  const entry = state.entries[fields.date.value];
-  const hasSavedWalk = Number(entry?.distance || 0) > 0 || Number(entry?.minutes || 0) > 0;
-  const addWalkButton = byId("addWalk");
 
-  addWalkButton.hidden = !hasSavedWalk;
-  addWalkButton.textContent = addingWalk ? "Cancel additional walk" : "+ Add another walk";
-  byId("saveEntry").textContent = addingWalk ? "Add walk to today" : "Save today";
-}
+function calculateLifestyleScore() {
+    let total = 0;
+    const unanswered = [];
 
-function toggleAddWalk() {
-  if (addingWalk) {
-    loadEntry(fields.date.value);
-    byId("saveStatus").textContent = "";
-    return;
-  }
+    lifestyleGroups.forEach((groupName) => {
+        const value =
+            getSelectedLifestyleValue(groupName);
 
-  const entry = state.entries[fields.date.value];
-  if (!entry) return;
+        if (value === null) {
+            unanswered.push(groupName);
+        } else {
+            total += value;
+        }
+    });
 
-  addingWalk = true;
-  fields.distance.value = "";
-  fields.minutes.value = "";
-  updateWalkEntryMode();
-  byId("saveStatus").textContent = "Enter only the new walk. It will be added to today’s totals.";
-  fields.distance.focus();
-}
-
-function renderToday(dateValue) {
-  const entry = state.entries[dateValue];
-  const orb = byId("todayOrb");
-  orb.className = "score-orb";
-  if (!entry) {
-    byId("todayPercent").textContent = "—";
-    byId("todayColor").textContent = "Save today to create your dot";
-    orb.classList.add("future");
-    return;
-  }
-  const score = scoreForEntry(entry);
-  orb.classList.add(score.color);
-  byId("todayPercent").textContent = `${score.percent}%`;
-  byId("todayColor").textContent = `${colorLabel(score.color)} · ${score.total}/30`;
-  activeScoreDate = dateValue;
-}
-
-function renderCalendar(focusDateValue) {
-  const focus = dateFromIso(focusDateValue);
-  const year = focus.getFullYear();
-  const month = focus.getMonth();
-  byId("calendarTitle").textContent = new Intl.DateTimeFormat(undefined, { month: "long", year: "numeric" }).format(focus);
-  const first = new Date(year, month, 1, 12);
-  const lastDay = new Date(year, month + 1, 0, 12).getDate();
-  const grid = byId("calendarGrid");
-  grid.replaceChildren();
-
-  for (let blank = 0; blank < first.getDay(); blank += 1) {
-    const cell = document.createElement("div");
-    cell.className = "calendar-day empty";
-    grid.append(cell);
-  }
-
-  for (let day = 1; day <= lastDay; day += 1) {
-    const value = isoDate(new Date(year, month, day, 12));
-    const entry = state.entries[value];
-    const cell = document.createElement("div");
-    cell.className = "calendar-day";
-    const number = document.createElement("span");
-    number.className = "day-number";
-    number.textContent = day;
-    cell.append(number);
-    const dot = document.createElement("button");
-    dot.className = "dot";
-    if (entry) {
-      const score = scoreForEntry(entry);
-      dot.classList.add(score.color);
-      const weightLabel = entry.weight ? ` · ${Number(entry.weight).toFixed(1)} lb` : "";
-      dot.title = `${score.percent}% · ${colorLabel(score.color)}${weightLabel}`;
-      dot.addEventListener("click", () => openScore(value));
-    } else {
-      dot.classList.add("future");
-      dot.disabled = true;
-      dot.title = value > isoDate() ? "Future day" : "No entry";
+    if (unanswered.length > 0) {
+        throw new Error(
+            "Please answer all eight Lifestyle Checklist questions before updating the gauge."
+        );
     }
-    cell.append(dot);
-    grid.append(cell);
-  }
+
+    return total;
 }
 
-function entriesInRange(start, end) {
-  return Object.values(state.entries)
-    .filter(entry => {
-      const date = dateFromIso(entry.date);
-      return date >= start && date <= end;
-    })
-    .sort((a, b) => a.date.localeCompare(b.date));
+
+/* =========================================
+   Lifestyle gauge updating
+   ========================================= */
+
+/*
+   Once the gauge is built, it can use:
+
+   lifestyleScore: 0–24
+   lifestylePercent: 0–100
+*/
+
+function updateLifestyleGauge(score) {
+    const maximumScore = 24;
+
+    const percentage =
+        (score / maximumScore) * 100;
+
+    setText(
+        "display-lifestyle-score",
+        String(score)
+    );
+
+    setText(
+        "display-lifestyle-percent",
+        `${Math.round(percentage)}%`
+    );
+
+    /*
+       This custom event gives the future
+       gauge code a clean place to listen
+       without mixing it into the form logic.
+    */
+
+    document.dispatchEvent(
+        new CustomEvent(
+            "motionc:lifestyle-updated",
+            {
+                detail: {
+                    score,
+                    maximumScore,
+                    percentage
+                }
+            }
+        )
+    );
+
+    return percentage;
 }
 
-function currentStreak(entries) {
-  if (!entries.length) return 0;
-  let streak = 0;
-  for (let index = entries.length - 1; index >= 0; index -= 1) {
-    if (Number(entries[index].distance || 0) <= 0) break;
-    streak += 1;
-  }
-  return streak;
+
+/* =========================================
+   Update Lifestyle Gauge button
+   ========================================= */
+
+calculateLifestyleButton?.addEventListener(
+    "click",
+    () => {
+        try {
+            const score =
+                calculateLifestyleScore();
+
+            saveLifestyleSummary(score);
+
+            const percentage =
+                updateLifestyleGauge(score);
+
+            /*
+               Temporary confirmation until the
+               live gauge needle is installed.
+            */
+
+            alert(
+                `Lifestyle Checklist: ${score} of 24 ` +
+                `(${Math.round(percentage)}%).`
+            );
+        } catch (error) {
+            alert(
+                error instanceof Error
+                    ? error.message
+                    : "Unable to calculate the Lifestyle score."
+            );
+        }
+    }
+);
+/* =========================================
+   Gauge arrow controls
+   ========================================= */
+
+/*
+   The two gauges intentionally use different
+   zone systems.
+
+   YOUR TREND:
+   Four active 25% zones. Yellow is skipped.
+
+   LIFESTYLE CHECKLIST:
+   Five active 20% zones. Yellow is included.
+*/
+
+function clamp(value, minimum, maximum) {
+    return Math.min(
+        Math.max(value, minimum),
+        maximum
+    );
 }
 
-function weeklySummary(start) {
-  const end = addDays(start, 6);
-  const entries = entriesInRange(start, end);
-  const weights = entries.filter(item => item.weight).map(item => item.weight);
-  const totalDistance = entries.reduce((sum, item) => sum + Number(item.distance || 0), 0);
-  const longest = entries.reduce((best, item) => Number(item.distance || 0) > Number(best?.distance || 0) ? item : best, null);
-  const percentages = entries.map(item => scoreForEntry(item).percent);
-  return {
-    entries,
-    weight: weights.at(-1),
-    change: weights.length > 1 ? weights.at(-1) - weights[0] : 0,
-    totalDistance,
-    streak: currentStreak(entries),
-    longest,
-    average: percentages.length ? Math.round(percentages.reduce((a, b) => a + b, 0) / percentages.length) : 0
-  };
+function interpolate(
+    value,
+    inputMinimum,
+    inputMaximum,
+    outputMinimum,
+    outputMaximum
+) {
+    const progress =
+        (value - inputMinimum) /
+        (inputMaximum - inputMinimum);
+
+    return outputMinimum +
+        (
+            progress *
+            (outputMaximum - outputMinimum)
+        );
 }
 
-function renderWeekly() {
-  const start = startOfWeek(new Date());
-  const end = addDays(start, 6);
-  byId("weekRange").textContent = `${formatShortDate(isoDate(start))}–${formatShortDate(isoDate(end))}`;
-  const summary = weeklySummary(start);
-  const stats = [
-    ["Current weight", summary.weight ? `${summary.weight.toFixed(1)} lb` : "—"],
-    ["Weekly change", summary.change === 0 ? "No change" : `${summary.change < 0 ? "Down" : "Up"} ${Math.abs(summary.change).toFixed(1)} lb`],
-    ["Distance", `${summary.totalDistance.toFixed(2)} mi`],
-    ["Walking streak", `${summary.streak} day${summary.streak === 1 ? "" : "s"}`],
-    ["Longest walk", summary.longest ? `${summary.longest.distance.toFixed(2)} mi` : "—"],
-    ["Average dot", summary.average ? `${summary.average}%` : "—"]
-  ];
-  byId("weeklyStats").innerHTML = stats.map(([label, value]) =>
-    `<div class="weekly-stat"><span>${label}</span><strong>${value}</strong></div>`
-  ).join("");
-  const notes = summary.entries.filter(entry => entry.weightNote || entry.observation);
-  byId("weeklyNotes").innerHTML = notes.length
-    ? notes.map(entry => `<p><strong>${formatShortDate(entry.date)}:</strong> ${escapeHtml(entry.weightNote || entry.observation)}</p>`).join("")
-    : "<p>No notes recorded this week.</p>";
 
-  const previous = byId("previousWeeks");
-  previous.replaceChildren();
-  for (let offset = 1; offset <= 3; offset += 1) {
-    const weekStart = addDays(start, -7 * offset);
-    const weekEnd = addDays(weekStart, 6);
-    const old = weeklySummary(weekStart);
-    const block = document.createElement("div");
-    block.className = "previous-week";
-    block.innerHTML = `<strong>${formatShortDate(isoDate(weekStart))}–${formatShortDate(isoDate(weekEnd))}</strong>
-      <p>${old.totalDistance.toFixed(2)} miles · ${old.average || 0}% average · ${old.entries.length} entries</p>`;
-    previous.append(block);
-  }
+/* -----------------------------------------
+   YOUR TREND
+   ----------------------------------------- */
+
+function trendPercentageToGaugeAngle(percentage) {
+
+    const percent =
+        clamp(percentage, 0, 100);
+
+    if (percent <= 25) {
+        return interpolate(
+            percent,
+            0,
+            25,
+            -86,
+            -55
+        );
+    }
+
+    if (percent <= 50) {
+        return interpolate(
+            percent,
+            25,
+            50,
+            -52,
+            -20
+        );
+    }
+
+    if (percent <= 75) {
+        return interpolate(
+            percent,
+            50,
+            75,
+            20,
+            52
+        );
+    }
+
+    return interpolate(
+        percent,
+        75,
+        100,
+        55,
+        86
+    );
 }
 
-function longestWalk() {
-  return Object.values(state.entries).reduce((best, entry) =>
-    Number(entry.distance || 0) > Number(best?.distance || 0) ? entry : best, null
-  );
+
+/* -----------------------------------------
+   LIFESTYLE CHECKLIST
+   ----------------------------------------- */
+
+function lifestylePercentageToGaugeAngle(percentage) {
+
+    const percent =
+        clamp(percentage, 0, 100);
+
+    return interpolate(
+        percent,
+        0,
+        100,
+        -86,
+        86
+    );
 }
 
-function renderMilestones() {
-  const entries = Object.values(state.entries).sort((a, b) => a.date.localeCompare(b.date));
-  const weights = entries.filter(item => item.weight).map(item => item.weight);
-  const lowest = weights.length ? Math.min(...weights) : null;
-  const startWeight = state.profile.startWeight;
-  const totalMiles = entries.reduce((sum, item) => sum + Number(item.distance || 0), 0);
-  const longest = longestWalk();
-  const greenDays = entries.filter(item => ["green", "light-green"].includes(scoreForEntry(item).color)).length;
-  const vibratoryLine = state.profile.vibratoryLine;
-  const milestoneData = [
-    { label: "First 5 pounds", reached: lowest <= startWeight - 5, detail: `${Math.max(0, startWeight - (lowest || startWeight)).toFixed(1)} lb down` },
-    { label: "Entered the 190s", reached: lowest < 200, detail: lowest ? `${lowest.toFixed(1)} lb` : "Not yet" },
-    { label: "Crossed the Vibratory Line", reached: lowest < vibratoryLine, detail: `${vibratoryLine} lb line` },
-    { label: "First 5-mile walk", reached: Number(longest?.distance || 0) >= 5, detail: longest ? `${longest.distance.toFixed(2)} mi` : "Not yet" },
-    { label: "50 cumulative miles", reached: totalMiles >= 50, detail: `${totalMiles.toFixed(1)} mi` },
-    { label: "Five positive dots", reached: greenDays >= 5, detail: `${greenDays} days` }
-  ];
-  const reached = milestoneData.filter(item => item.reached);
-  byId("milestoneCount").textContent = `${reached.length} reached`;
-  const latest = reached.at(-1) || milestoneData[0];
-  byId("latestMilestone").innerHTML = `<span>${latest.reached ? "LATEST ACHIEVEMENT" : "NEXT MILESTONE"}</span><strong>${latest.label}</strong><small>${latest.detail}</small>`;
-  byId("milestoneList").innerHTML = milestoneData.map(item =>
-    `<div class="milestone-item ${item.reached ? "" : "locked"}"><i>${item.reached ? "✓" : "·"}</i><span>${item.label}</span><small>${item.detail}</small></div>`
-  ).join("");
+
+function setGaugeArrowAngle(
+    element,
+    angle
+) {
+
+    if (!element) {
+        return;
+    }
+
+    element.style.setProperty(
+        "--gauge-angle",
+        `${angle}deg`
+    );
 }
 
-function promiseLine(label, passed) {
-  return `<li><span>${label}</span><strong>${passed ? "✓" : "✕"}</strong></li>`;
+
+/* -----------------------------------------
+   MCP percentage
+   ----------------------------------------- */
+
+function mcpToGaugePercentage(mcp) {
+
+    return clamp(
+        (mcp / 50) * 100,
+        0,
+        100
+    );
 }
 
-function openScore(dateValue) {
-  const entry = state.entries[dateValue];
-  if (!entry) return;
-  const score = scoreForEntry(entry);
-  const weekly = weeklyForDate(dateValue);
-  const weak = Object.entries(weekly.values || {}).filter(([, value]) => value < 1).map(([key]) => LIFESTYLE_ITEMS.find(item => item[0] === key)?.[1]).filter(Boolean);
-  const dailyImpact = score.food >= 8 ? "Strong positive" : score.food >= 6 ? "Mild negative" : "Needs attention";
-  const moveImpact = score.movement >= 9 ? "Strong positive" : score.movement >= 5 ? "Positive" : "Limited movement";
-  const lifestyleImpact = score.lifestyle >= 8 ? "Strong" : score.lifestyle >= 6 ? "Moderate" : "Moderate negative";
-  byId("scoreDetails").innerHTML = `
-    <p class="eyebrow">${escapeHtml(formatFullDate(dateValue).toUpperCase())}</p>
-    <div class="score-summary"><span class="dot ${score.color}"></span><div><h2>${score.percent}% · ${colorLabel(score.color)}</h2><span>${score.total}/30 points</span></div></div>
-    <div class="daily-measurement">
-      <span>Weight recorded</span>
-      <strong>${entry.weight ? `${Number(entry.weight).toFixed(1)} lb` : "Not recorded"}</strong>
-      ${entry.weightNote ? `<small>${escapeHtml(entry.weightNote)}</small>` : ""}
-    </div>
-    <section class="score-section"><header><h3>Food</h3><strong>${score.food}/8</strong></header><ul>
-      ${promiseLine("No restaurant meal", entry.noRestaurant)}
-      ${promiseLine("No fast food", entry.noFastFood)}
-      ${promiseLine("No junk food", entry.noJunkFood)}
-      ${promiseLine("Stayed within one treat", entry.oneTreat)}
-    </ul><p class="impact">Impact: ${dailyImpact}</p></section>
-    <section class="score-section"><header><h3>Movement</h3><strong>${score.movement}/12</strong></header><ul>
-      <li><span>Walking time</span><strong>${entry.minutes || 0} min</strong></li>
-      <li><span>Distance</span><strong>${Number(entry.distance || 0).toFixed(2)} mi</strong></li>
-    </ul><p class="impact">Impact: ${moveImpact}</p></section>
-    <section class="score-section"><header><h3>Your lifestyle this week</h3><strong>${score.lifestyle}/10</strong></header>
-      <p>${weak.length ? `Needs attention: ${escapeHtml(weak.slice(0, 3).join(", "))}.` : "Your weekly lifestyle is supporting today’s dot."}</p>
-      <p class="impact">Impact: ${lifestyleImpact}</p></section>
-    <p class="score-conclusion">${score.movement >= 8 ? "Your movement was strong today. " : ""}${score.lifestyle < 6 ? "This week’s lifestyle is lowering the overall result slightly." : "Your weekly foundation is supporting today’s choices."}</p>`;
-  byId("scoreDialog").showModal();
-}
 
-function escapeHtml(value) {
-  return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
-}
+const trendGaugeArrow =
+    document.getElementById(
+        "trend-gauge-arrow"
+    );
 
-function buildLifestyleForm() {
-  const week = weeklyForDate(isoDate());
-  byId("lifestyleGrid").innerHTML = LIFESTYLE_ITEMS.map(([key, label]) => `
-    <label>${label}
-      <select data-lifestyle="${key}">
-        <option value="0" ${week.values?.[key] === 0 ? "selected" : ""}>Needs attention</option>
-        <option value="0.5" ${week.values?.[key] === .5 ? "selected" : ""}>Fair</option>
-        <option value="1" ${week.values?.[key] === 1 ? "selected" : ""}>Supporting me</option>
-      </select>
-    </label>`).join("");
-  byId("weeklyWaist").value = state.profile.waist;
-  byId("vibratoryLine").value = state.profile.vibratoryLine;
-  byId("motivationalGoal").value = state.profile.motivationalGoal;
-}
+const lifestyleGaugeArrow =
+    document.getElementById(
+        "lifestyle-gauge-arrow"
+    );
 
-function saveWeekly() {
-  const values = {};
-  document.querySelectorAll("[data-lifestyle]").forEach(select => values[select.dataset.lifestyle] = Number(select.value));
-  const lifestyleBase = Object.values(values).reduce((sum, value) => sum + value, 0);
-  const waistPoint = byId("weeklyWaist").value ? 1 : 0;
-  const score = Math.min(9, roundHalf(lifestyleBase + waistPoint));
-  state.weeks[weekKey(new Date())] = { values, score, scoreLogicVersion: 2, updatedAt: new Date().toISOString() };
-  state.profile.waist = Number(byId("weeklyWaist").value || state.profile.waist);
-  state.profile.vibratoryLine = Number(byId("vibratoryLine").value || state.profile.vibratoryLine);
-  state.profile.motivationalGoal = Number(byId("motivationalGoal").value || state.profile.motivationalGoal);
-  persist();
-  byId("weeklyDialog").close();
-  renderAll(fields.date.value);
-}
 
-function renderAll(dateValue = isoDate()) {
-  const now = new Date();
-  byId("heroWeekday").textContent = new Intl.DateTimeFormat(undefined, { weekday: "long" }).format(now);
-  byId("heroDate").textContent = new Intl.DateTimeFormat(undefined, { month: "long", day: "numeric", year: "numeric" }).format(now);
-  renderToday(dateValue);
-  renderCalendar(dateValue);
-  renderWeekly();
-  renderMilestones();
-}
+document.addEventListener(
+    "motionc:mcp-updated",
+    (event) => {
 
-fields.date.addEventListener("change", () => loadEntry(fields.date.value));
-byId("saveEntry").addEventListener("click", saveEntry);
-byId("addWalk").addEventListener("click", toggleAddWalk);
-byId("todayOrb").addEventListener("click", () => activeScoreDate && openScore(activeScoreDate));
-byId("explainToday").addEventListener("click", () => activeScoreDate && openScore(activeScoreDate));
-byId("closeScore").addEventListener("click", () => byId("scoreDialog").close());
-byId("scoreDialog").addEventListener("click", event => {
-  const dialog = event.currentTarget;
-  const bounds = dialog.getBoundingClientRect();
-  const clickedBackdrop =
-    event.clientX < bounds.left ||
-    event.clientX > bounds.right ||
-    event.clientY < bounds.top ||
-    event.clientY > bounds.bottom;
+        const mcp =
+            Number(
+                event.detail?.results?.mcp
+            );
 
-  if (clickedBackdrop) dialog.close();
+        if (!Number.isFinite(mcp)) {
+            return;
+        }
+
+        const percentage =
+            mcpToGaugePercentage(
+                mcp
+            );
+
+        const angle =
+            trendPercentageToGaugeAngle(
+                percentage
+            );
+
+        setGaugeArrowAngle(
+            trendGaugeArrow,
+            angle
+        );
+
+    }
+);
+
+
+document.addEventListener(
+    "motionc:lifestyle-updated",
+    (event) => {
+
+        const percentage =
+            Number(
+                event.detail?.percentage
+            );
+
+        if (!Number.isFinite(percentage)) {
+            return;
+        }
+
+        const angle =
+            lifestylePercentageToGaugeAngle(
+                percentage
+            );
+
+        setGaugeArrowAngle(
+            lifestyleGaugeArrow,
+            angle
+        );
+
+    }
+);
+
+document.addEventListener(
+    "DOMContentLoaded",
+    restoreLifestyleSummary
+);
+
+/* ==========================================================
+   TEMP LOCATION MARKER
+   MCP "YOU ARE HERE" PLACEHOLDER
+   ========================================================== */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const dashboardWrapper =
+        document.querySelector(
+            ".dashboard-wrapper"
+        );
+
+    if (!dashboardWrapper) {
+        console.warn(
+            "MCP location marker: dashboard wrapper not found."
+        );
+
+        return;
+    }
+
+    const existingMarker =
+        document.getElementById(
+            "mcp-location-marker"
+        );
+
+    if (existingMarker) {
+        return;
+    }
+
+    const mcpLocationMarker =
+        document.createElement(
+            "div"
+        );
+
+    mcpLocationMarker.id =
+        "mcp-location-marker";
+
+    mcpLocationMarker.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+    Object.assign(
+        mcpLocationMarker.style,
+        {
+            position: "absolute",
+            top: "35.6%",
+            left: "1.3%",
+            width: "6.9%",
+            height: "10.3%",
+            border: "3px solid #ffd400",
+            borderRadius: "6px",
+            background: "transparent",
+            boxSizing: "border-box",
+            pointerEvents: "none",
+            zIndex: "20"
+        }
+    );
+
+    dashboardWrapper.appendChild(
+        mcpLocationMarker
+    );
+
 });
-byId("weeklyButton").addEventListener("click", () => {
-  buildLifestyleForm();
-  byId("weeklyDialog").showModal();
-});
-byId("closeWeekly").addEventListener("click", () => byId("weeklyDialog").close());
-byId("saveWeekly").addEventListener("click", saveWeekly);
-window.addEventListener("focus", () => {
-  if (syncLifestyleSummary()) renderAll(fields.date.value);
-});
-window.addEventListener("storage", event => {
-  if (event.key === LIFESTYLE_SUMMARY_STORAGE_KEY && syncLifestyleSummary()) {
-    renderAll(fields.date.value);
-  }
-});
-
-persist();
-loadEntry(isoDate());
-renderAll();
