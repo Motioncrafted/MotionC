@@ -863,15 +863,7 @@ function restoreLifestyleSummary() {
             }
         });
 
-        const percentage =
-            updateLifestyleGauge(score);
-
-        setGaugeArrowAngle(
-            lifestyleGaugeArrow,
-            lifestylePercentageToGaugeAngle(
-                percentage
-            )
-        );
+        updateLifestyleGauge(score);
     } catch {
         // Ignore missing or invalid saved data.
     }
@@ -1213,26 +1205,19 @@ document.addEventListener(
     }
 );
 
-if (document.readyState === "loading") {
-    document.addEventListener(
-        "DOMContentLoaded",
-        restoreLifestyleSummary
-    );
-} else {
-    restoreLifestyleSummary();
-}
-
 window.addEventListener(
-    "pageshow",
+    "load",
     restoreLifestyleSummary
 );
 
-document.addEventListener(
-    "visibilitychange",
+window.addEventListener(
+    "pageshow",
     () => {
-        if (!document.hidden) {
-            restoreLifestyleSummary();
-        }
+        document.body.classList.remove(
+            "page-fade-out"
+        );
+        closeDrawer();
+        restoreLifestyleSummary();
     }
 );
 
@@ -1275,4 +1260,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
     mcpLocationMarker.setAttribute(
         "aria-hidden",
-        "tr
+        "true"
+    );
+
+    Object.assign(
+        mcpLocationMarker.style,
+        {
+            position: "absolute",
+            top: "35.6%",
+            left: "1.3%",
+            width: "6.9%",
+            height: "10.3%",
+            border: "3px solid #ffd400",
+            borderRadius: "6px",
+            background: "transparent",
+            boxSizing: "border-box",
+            pointerEvents: "none",
+            zIndex: "20"
+        }
+    );
+
+    dashboardWrapper.appendChild(
+        mcpLocationMarker
+    );
+
+});
