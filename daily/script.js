@@ -1,4 +1,5 @@
 const STORAGE_KEY = "motionc-daily-prototype-v1";
+const LIFESTYLE_SUMMARY_STORAGE_KEY = "motionc-lifestyle-summary-v1";
 const LIFESTYLE_ITEMS = [
   ["sleep", "Sleep quality"],
   ["hydration", "Hydration"],
@@ -25,6 +26,7 @@ const fields = {
 };
 
 let state = loadState();
+syncLifestyleSummary();
 let activeScoreDate = null;
 
 function isoDate(date = new Date()) {
@@ -148,6 +150,36 @@ function loadState() {
 
 function persist() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function syncLifestyleSummary() {
+  try {
+    const summary = JSON.parse(localStorage.getItem(LIFESTYLE_SUMMARY_STORAGE_KEY));
+    if (!summary?.week || !Number.isFinite(Number(summary.baseScore))) return false;
+
+    const existing = state.weeks[summary.week];
+    if (existing?.summaryUpdatedAt === summary.updatedAt) return false;
+
+    const entries = Object.values(state.entries).filter(item => item.weight);
+    const recentWeights = entries.sort((a, b) => a.date.localeCompare(b.date)).slice(-7).map(item => item.weight);
+    const spread = recentWeights.length ? Math.max(...recentWeights) - Math.min(...recentWeights) : 99;
+    const stabilityPoint = spread <= 3 ? 1 : spread <= 5 ? .5 : 0;
+    const waistPoint = state.profile.waist ? 1 : 0;
+    const score = Math.min(10, roundHalf(Number(summary.baseScore) + stabilityPoint + waistPoint));
+
+    state.weeks[summary.week] = {
+      ...existing,
+      values: summary.values || existing?.values || {},
+      score,
+      summaryScore: Number(summary.score),
+      summaryUpdatedAt: summary.updatedAt,
+      updatedAt: new Date().toISOString()
+    };
+    persist();
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function weeklyForDate(dateValue) {
@@ -480,6 +512,14 @@ byId("weeklyButton").addEventListener("click", () => {
 });
 byId("closeWeekly").addEventListener("click", () => byId("weeklyDialog").close());
 byId("saveWeekly").addEventListener("click", saveWeekly);
+window.addEventListener("focus", () => {
+  if (syncLifestyleSummary()) renderAll(fields.date.value);
+});
+window.addEventListener("storage", event => {
+  if (event.key === LIFESTYLE_SUMMARY_STORAGE_KEY && syncLifestyleSummary()) {
+    renderAll(fields.date.value);
+  }
+});
 
 persist();
 loadEntry(isoDate());
