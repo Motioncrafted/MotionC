@@ -825,6 +825,58 @@ function saveLifestyleSummary(score) {
     );
 }
 
+function restoreLifestyleSummary() {
+    try {
+        const saved = JSON.parse(
+            localStorage.getItem(
+                lifestyleSummaryStorageKey
+            )
+        );
+
+        const score = Number(saved?.score);
+
+        if (
+            !Number.isFinite(score) ||
+            score < 0 ||
+            score > 24
+        ) {
+            return;
+        }
+
+        lifestyleGroups.forEach((groupName) => {
+            const dailyKey =
+                dailyLifestyleKeys[groupName];
+
+            const savedValue =
+                Number(saved.values?.[dailyKey]);
+
+            if (!Number.isFinite(savedValue)) {
+                return;
+            }
+
+            const option = form?.querySelector(
+                `input[name="${groupName}"][value="${Math.round(savedValue * 3)}"]`
+            );
+
+            if (option) {
+                option.checked = true;
+            }
+        });
+
+        const percentage =
+            updateLifestyleGauge(score);
+
+        setGaugeArrowAngle(
+            lifestyleGaugeArrow,
+            lifestylePercentageToGaugeAngle(
+                percentage
+            )
+        );
+    } catch {
+        // Ignore missing or invalid saved data.
+    }
+}
+
 
 function getSelectedLifestyleValue(groupName) {
     const selected =
@@ -1161,6 +1213,29 @@ document.addEventListener(
     }
 );
 
+if (document.readyState === "loading") {
+    document.addEventListener(
+        "DOMContentLoaded",
+        restoreLifestyleSummary
+    );
+} else {
+    restoreLifestyleSummary();
+}
+
+window.addEventListener(
+    "pageshow",
+    restoreLifestyleSummary
+);
+
+document.addEventListener(
+    "visibilitychange",
+    () => {
+        if (!document.hidden) {
+            restoreLifestyleSummary();
+        }
+    }
+);
+
 /* ==========================================================
    TEMP LOCATION MARKER
    MCP "YOU ARE HERE" PLACEHOLDER
@@ -1200,28 +1275,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
     mcpLocationMarker.setAttribute(
         "aria-hidden",
-        "true"
-    );
-
-    Object.assign(
-        mcpLocationMarker.style,
-        {
-            position: "absolute",
-            top: "35.6%",
-            left: "1.3%",
-            width: "6.9%",
-            height: "10.3%",
-            border: "3px solid #ffd400",
-            borderRadius: "6px",
-            background: "transparent",
-            boxSizing: "border-box",
-            pointerEvents: "none",
-            zIndex: "20"
-        }
-    );
-
-    dashboardWrapper.appendChild(
-        mcpLocationMarker
-    );
-
-});
+        "tr
