@@ -255,7 +255,8 @@ function renderCalendar(focusDateValue) {
     if (entry) {
       const score = scoreForEntry(entry);
       dot.classList.add(score.color);
-      dot.title = `${score.percent}% · ${colorLabel(score.color)}`;
+      const weightLabel = entry.weight ? ` · ${Number(entry.weight).toFixed(1)} lb` : "";
+      dot.title = `${score.percent}% · ${colorLabel(score.color)}${weightLabel}`;
       dot.addEventListener("click", () => openScore(value));
     } else {
       dot.classList.add("future");
@@ -387,6 +388,11 @@ function openScore(dateValue) {
   byId("scoreDetails").innerHTML = `
     <p class="eyebrow">${escapeHtml(formatFullDate(dateValue).toUpperCase())}</p>
     <div class="score-summary"><span class="dot ${score.color}"></span><div><h2>${score.percent}% · ${colorLabel(score.color)}</h2><span>${score.total}/30 points</span></div></div>
+    <div class="daily-measurement">
+      <span>Weight recorded</span>
+      <strong>${entry.weight ? `${Number(entry.weight).toFixed(1)} lb` : "Not recorded"}</strong>
+      ${entry.weightNote ? `<small>${escapeHtml(entry.weightNote)}</small>` : ""}
+    </div>
     <section class="score-section"><header><h3>Food</h3><strong>${score.food}/8</strong></header><ul>
       ${promiseLine("No restaurant meal", entry.noRestaurant)}
       ${promiseLine("No fast food", entry.noFastFood)}
