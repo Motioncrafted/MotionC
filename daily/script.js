@@ -463,6 +463,17 @@ byId("saveEntry").addEventListener("click", saveEntry);
 byId("todayOrb").addEventListener("click", () => activeScoreDate && openScore(activeScoreDate));
 byId("explainToday").addEventListener("click", () => activeScoreDate && openScore(activeScoreDate));
 byId("closeScore").addEventListener("click", () => byId("scoreDialog").close());
+byId("scoreDialog").addEventListener("click", event => {
+  const dialog = event.currentTarget;
+  const bounds = dialog.getBoundingClientRect();
+  const clickedBackdrop =
+    event.clientX < bounds.left ||
+    event.clientX > bounds.right ||
+    event.clientY < bounds.top ||
+    event.clientY > bounds.bottom;
+
+  if (clickedBackdrop) dialog.close();
+});
 byId("weeklyButton").addEventListener("click", () => {
   buildLifestyleForm();
   byId("weeklyDialog").showModal();
