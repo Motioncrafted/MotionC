@@ -776,6 +776,55 @@ const lifestyleGroups = [
     "activity"
 ];
 
+const lifestyleSummaryStorageKey =
+    "motionc-lifestyle-summary-v1";
+
+const dailyLifestyleKeys = {
+    sleep: "sleep",
+    hydration: "hydration",
+    nutrition: "nutrition",
+    walking: "movement",
+    stress: "stress",
+    alcohol: "alcohol",
+    smoking: "smoking",
+    activity: "activity"
+};
+
+function currentLifestyleWeekKey() {
+    const date = new Date();
+    date.setHours(12, 0, 0, 0);
+    date.setDate(date.getDate() - date.getDay());
+
+    const localDate =
+        new Date(
+            date.getTime() -
+            date.getTimezoneOffset() * 60000
+        );
+
+    return localDate.toISOString().slice(0, 10);
+}
+
+function saveLifestyleSummary(score) {
+    const values = {};
+
+    lifestyleGroups.forEach((groupName) => {
+        values[dailyLifestyleKeys[groupName]] =
+            getSelectedLifestyleValue(groupName) / 3;
+    });
+
+    localStorage.setItem(
+        lifestyleSummaryStorageKey,
+        JSON.stringify({
+            week: currentLifestyleWeekKey(),
+            score,
+            maximumScore: 24,
+            baseScore: score / 3,
+            values,
+            updatedAt: new Date().toISOString()
+        })
+    );
+}
+
 
 function getSelectedLifestyleValue(groupName) {
     const selected =
@@ -880,6 +929,8 @@ calculateLifestyleButton?.addEventListener(
         try {
             const score =
                 calculateLifestyleScore();
+
+            saveLifestyleSummary(score);
 
             const percentage =
                 updateLifestyleGauge(score);
