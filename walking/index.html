@@ -239,6 +239,22 @@
       font-size: clamp(8px, .72vw, 12px);
     }
     .walking-preferences-menu label small { margin-left: auto; color: #728078; }
+    .walking-preferences-close {
+      position: absolute;
+      top: 6px;
+      right: 7px;
+      width: 27px;
+      height: 27px;
+      border: 0;
+      border-radius: 7px;
+      color: #607069;
+      background: transparent;
+      font-family: Arial, sans-serif;
+      font-size: 20px;
+      line-height: 1;
+    }
+    .walking-preferences-close:hover,
+    .walking-preferences-close:focus-visible { color: #17352c; background: #e8efe9; outline: none; }
 
     .lifetime {
       left: 12.35%;
@@ -693,6 +709,7 @@
       aria-controls="walkingPreferencesMenu"
     ></button>
     <div class="walking-preferences-menu" id="walkingPreferencesMenu" hidden>
+      <button class="walking-preferences-close" id="walkingPreferencesClose" type="button" aria-label="Close preferences">×</button>
       <strong>Preferences</strong>
       <p>Measurement system</p>
       <label><input type="radio" name="walkingUnitSystem" value="imperial"> Imperial <small>lb · mi · in</small></label>
@@ -965,6 +982,16 @@
       const menu = document.getElementById("walkingPreferencesMenu");
       menu.hidden = !menu.hidden;
       event.currentTarget.setAttribute("aria-expanded", String(!menu.hidden));
+    });
+    function closeWalkingPreferences() {
+      document.getElementById("walkingPreferencesMenu").hidden = true;
+      document.getElementById("walkingPreferencesToggle").setAttribute("aria-expanded", "false");
+    }
+    document.getElementById("walkingPreferencesMenu").addEventListener("click", event => event.stopPropagation());
+    document.getElementById("walkingPreferencesClose").addEventListener("click", closeWalkingPreferences);
+    document.addEventListener("click", closeWalkingPreferences);
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") closeWalkingPreferences();
     });
 
     function loadWalks() {
