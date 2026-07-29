@@ -1435,6 +1435,7 @@ function drawWeightChart(points) {
         y: padding.top + chartHeight * (1 - (point.value - minimum) / (maximum - minimum)),
         ...point
     }));
+    canvas._hitPoints = coordinates;
 
     const gradient = context.createLinearGradient(0, padding.top, 0, height - padding.bottom);
     gradient.addColorStop(0, "rgba(52, 123, 80, .28)");
@@ -1541,8 +1542,10 @@ function drawWalkingChart(points) {
     const timeCoordinates = points.map((point, index) => ({
         x: padding.left + slot * (index + .5),
         y: padding.top + chartHeight * (1 - point.minutes / maxMinutes),
-        active: point.minutes > 0
+        active: point.minutes > 0,
+        ...point
     }));
+    canvas._hitPoints = timeCoordinates.filter(point => point.active);
     context.beginPath();
     let lineStarted = false;
     timeCoordinates.forEach(point => {
@@ -1709,6 +1712,88 @@ summaryWeightCanvas?.addEventListener("pointerup", event => {
         summaryWeightCanvas.releasePointerCapture(event.pointerId);
     }
 });
+
+function fullChartDate(value) {
+    return new Intl.DateTimeFormat(undefined, {
+        weekday: "short",
+        month: "short",
+        day: "numeric"
+    }).format(summaryDate(value));
+}
+
+function nearestChartPoint(canvas, event, radius = 12) {
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    let nearest = null;
+    let nearestDistance = radius;
+
+    (canvas._hitPoints || []).forEach(point => {
+        const distance = Math.hypot(point.x - x, point.y - y);
+        if (distance <= nearestDistance) {
+            nearest = point;
+            nearestDistance = distance;
+        }
+    });
+
+    return nearest;
+}
+
+function positionChartTooltip(tooltip, canvas, point) {
+    const wrap = canvas.closest(".chart-wrap");
+    if (!wrap) return;
+    const canvasRect = canvas.getBoundingClientRect();
+    const wrapRect = wrap.getBoundingClientRect();
+    const tooltipHalfWidth = Math.max(63, tooltip.offsetWidth / 2);
+    const left = Math.max(
+        tooltipHalfWidth + 4,
+        Math.min(wrapRect.width - tooltipHalfWidth - 4, canvasRect.left - wrapRect.left + point.x)
+    );
+    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${canvasRect.top - wrapRect.top + point.y}px`;
+}
+
+function attachChartTooltip(canvasId, tooltipId, renderContent) {
+    const canvas = document.getElementById(canvasId);
+    const tooltip = document.getElementById(tooltipId);
+    if (!canvas || !tooltip) return;
+
+    canvas.addEventListener("pointermove", event => {
+        if (canvas === summaryWeightCanvas && draggingWeightGoal) {
+            tooltip.hidden = true;
+            return;
+        }
+
+        const point = nearestChartPoint(canvas, event);
+        if (!point) {
+            tooltip.hidden = true;
+            canvas.style.cursor = canvas === summaryWeightCanvas ? "ns-resize" : "default";
+            return;
+        }
+
+        tooltip.innerHTML = renderContent(point);
+        tooltip.hidden = false;
+        canvas.style.cursor = "pointer";
+        positionChartTooltip(tooltip, canvas, point);
+    });
+
+    canvas.addEventListener("pointerleave", () => {
+        tooltip.hidden = true;
+        canvas.style.cursor = canvas === summaryWeightCanvas ? "ns-resize" : "default";
+    });
+}
+
+attachChartTooltip(
+    "weight-chart",
+    "weight-chart-tooltip",
+    point => `<strong>${fullChartDate(point.date)}</strong><span>Weight: ${point.value.toFixed(1)} lb</span>`
+);
+
+attachChartTooltip(
+    "walking-chart",
+    "walking-chart-tooltip",
+    point => `<strong>${fullChartDate(point.date)}</strong><span>Miles: ${point.miles.toFixed(2)}</span><span>Time: ${Math.round(point.minutes)} min</span>`
+);
 
 window.addEventListener("DOMContentLoaded", renderSummaryData);
 window.addEventListener("pageshow", renderSummaryData);

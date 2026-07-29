@@ -1209,6 +1209,43 @@ body {
     text-align: center;
 }
 .chart-empty[hidden] { display: none; }
+.chart-tooltip {
+    position: absolute;
+    z-index: 5;
+    min-width: 126px;
+    padding: 9px 11px;
+    border: 1px solid rgba(255, 255, 255, .16);
+    border-radius: 9px;
+    color: white;
+    background: rgba(18, 45, 38, .96);
+    box-shadow: 0 8px 20px rgba(12, 34, 28, .22);
+    font-size: 11px;
+    line-height: 1.4;
+    pointer-events: none;
+    transform: translate(-50%, calc(-100% - 12px));
+    white-space: nowrap;
+}
+.chart-tooltip::after {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    content: "";
+    background: rgba(18, 45, 38, .96);
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+.chart-tooltip strong {
+    display: block;
+    margin-bottom: 3px;
+    color: #d9e89c;
+    font-size: 11px;
+}
+.chart-tooltip span {
+    display: block;
+    color: rgba(255, 255, 255, .86);
+}
+.chart-tooltip[hidden] { display: none; }
 .chart-legend {
     display: flex;
     gap: 20px;
