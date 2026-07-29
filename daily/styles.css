@@ -127,6 +127,51 @@ main { min-width: 0; }
 .hero-date { text-align: right; text-shadow: 0 2px 12px #000; }
 .hero-date span { display: block; font-size: 14px; letter-spacing: .14em; text-transform: uppercase; }
 .hero-date strong { font-size: clamp(21px, 2vw, 31px); }
+.preferences-toggle {
+  position: absolute;
+  z-index: 4;
+  top: 22px;
+  right: 22px;
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.45);
+  border-radius: 11px;
+  color: white;
+  background: rgba(9,31,27,.72);
+  cursor: pointer;
+  font-size: 20px;
+}
+.preferences-menu {
+  position: absolute;
+  z-index: 5;
+  top: 70px;
+  right: 22px;
+  width: 225px;
+  padding: 16px;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 13px;
+  color: #17352c;
+  background: rgba(255,255,255,.97);
+  box-shadow: 0 14px 32px rgba(0,0,0,.24);
+}
+.preferences-menu[hidden] { display: none; }
+.preferences-menu > strong { display: block; font-size: 16px; }
+.preferences-menu > p { margin: 5px 0 12px; color: #687771; font-size: 11px; }
+.preferences-menu label {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 9px;
+  align-items: center;
+  border-radius: 8px;
+  background: #f2f6f2;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+}
+.preferences-menu label small { margin-left: auto; color: #728078; }
 
 .content {
   display: grid;

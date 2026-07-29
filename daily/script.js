@@ -1,5 +1,9 @@
 const STORAGE_KEY = "motionc-daily-prototype-v1";
 const LIFESTYLE_SUMMARY_STORAGE_KEY = "motionc-lifestyle-summary-v1";
+const PREFERENCES_STORAGE_KEY = "motionc-preferences-v1";
+const KG_PER_LB = 0.45359237;
+const KM_PER_MI = 1.609344;
+const CM_PER_IN = 2.54;
 const LIFESTYLE_ITEMS = [
   ["sleep", "Sleep quality"],
   ["hydration", "Hydration"],
@@ -12,6 +16,35 @@ const LIFESTYLE_ITEMS = [
 ];
 
 const byId = id => document.getElementById(id);
+let unitSystem = loadUnitSystem();
+
+function loadUnitSystem() {
+  try {
+    return JSON.parse(localStorage.getItem(PREFERENCES_STORAGE_KEY))?.unitSystem === "metric"
+      ? "metric"
+      : "imperial";
+  } catch {
+    return "imperial";
+  }
+}
+
+function saveUnitSystem(value) {
+  unitSystem = value === "metric" ? "metric" : "imperial";
+  localStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify({ unitSystem, updatedAt: new Date().toISOString() }));
+  window.dispatchEvent(new CustomEvent("motionc:preferences-updated", { detail: { unitSystem } }));
+}
+
+const displayWeight = pounds => unitSystem === "metric" ? pounds * KG_PER_LB : pounds;
+const storedWeight = value => unitSystem === "metric" ? value / KG_PER_LB : value;
+const displayDistance = miles => unitSystem === "metric" ? miles * KM_PER_MI : miles;
+const storedDistance = value => unitSystem === "metric" ? value / KM_PER_MI : value;
+const displayWaist = inches => unitSystem === "metric" ? inches * CM_PER_IN : inches;
+const storedWaist = value => unitSystem === "metric" ? value / CM_PER_IN : value;
+const weightUnit = () => unitSystem === "metric" ? "kg" : "lb";
+const distanceUnit = () => unitSystem === "metric" ? "km" : "mi";
+const waistUnit = () => unitSystem === "metric" ? "cm" : "in";
+const formatWeight = pounds => `${displayWeight(Number(pounds)).toFixed(1)} ${weightUnit()}`;
+const formatDistance = miles => `${displayDistance(Number(miles)).toFixed(2)} ${distanceUnit()}`;
 const fields = {
   date: byId("entryDate"),
   weight: byId("weight"),
@@ -24,6 +57,19 @@ const fields = {
   noJunkFood: byId("noJunkFood"),
   oneTreat: byId("oneTreat")
 };
+
+function applyUnitSystem() {
+  byId("weightUnit").textContent = weightUnit();
+  byId("distanceUnit").textContent = distanceUnit();
+  byId("waistUnit").textContent = waistUnit();
+  byId("lineWeightUnit").textContent = weightUnit();
+  byId("goalWeightUnit").textContent = weightUnit();
+  document.querySelectorAll('input[name="unitSystem"]').forEach(input => {
+    input.checked = input.value === unitSystem;
+  });
+  if (fields.date.value) loadEntry(fields.date.value);
+  renderAll(fields.date.value || isoDate());
+}
 
 let state = loadState();
 syncLifestyleSummary();
@@ -202,8 +248,8 @@ function loadEntry(dateValue) {
   const entry = state.entries[dateValue];
   addingWalk = false;
   fields.date.value = dateValue;
-  fields.weight.value = entry?.weight ?? "";
-  fields.distance.value = entry?.distance ?? "";
+  fields.weight.value = entry?.weight ? displayWeight(Number(entry.weight)).toFixed(1) : "";
+  fields.distance.value = entry?.distance ? displayDistance(Number(entry.distance)).toFixed(2) : "";
   fields.minutes.value = entry?.minutes ?? "";
   fields.weightNote.value = entry?.weightNote ?? "";
   fields.observation.value = entry?.observation ?? "";
@@ -216,10 +262,20 @@ function loadEntry(dateValue) {
 }
 
 function readEntry() {
+  const existing = state.entries[fields.date.value];
+  const enteredWeight = fields.weight.value ? Number(fields.weight.value) : null;
+  const enteredDistance = fields.distance.value ? Number(fields.distance.value) : 0;
+  const unchangedWeight =
+    existing?.weight &&
+    enteredWeight === Number(displayWeight(Number(existing.weight)).toFixed(1));
+  const unchangedDistance =
+    existing?.distance &&
+    enteredDistance === Number(displayDistance(Number(existing.distance)).toFixed(2));
+
   return {
     date: fields.date.value,
-    weight: fields.weight.value ? Number(fields.weight.value) : null,
-    distance: fields.distance.value ? Number(fields.distance.value) : 0,
+    weight: enteredWeight === null ? null : unchangedWeight ? Number(existing.weight) : storedWeight(enteredWeight),
+    distance: unchangedDistance ? Number(existing.distance) : storedDistance(enteredDistance),
     minutes: fields.minutes.value ? Number(fields.minutes.value) : 0,
     weightNote: fields.weightNote.value.trim(),
     observation: fields.observation.value.trim(),
@@ -334,7 +390,7 @@ function renderCalendar(focusDateValue) {
     if (entry) {
       const score = scoreForEntry(entry);
       dot.classList.add(score.color);
-      const weightLabel = entry.weight ? ` · ${Number(entry.weight).toFixed(1)} lb` : "";
+      const weightLabel = entry.weight ? ` · ${formatWeight(entry.weight)}` : "";
       dot.title = `${score.percent}% · ${colorLabel(score.color)}${weightLabel}`;
       dot.addEventListener("click", () => openScore(value));
     } else {
@@ -390,11 +446,11 @@ function renderWeekly() {
   byId("weekRange").textContent = `${formatShortDate(isoDate(start))}–${formatShortDate(isoDate(end))}`;
   const summary = weeklySummary(start);
   const stats = [
-    ["Current weight", summary.weight ? `${summary.weight.toFixed(1)} lb` : "—"],
-    ["Weekly change", summary.change === 0 ? "No change" : `${summary.change < 0 ? "Down" : "Up"} ${Math.abs(summary.change).toFixed(1)} lb`],
-    ["Distance", `${summary.totalDistance.toFixed(2)} mi`],
+    ["Current weight", summary.weight ? formatWeight(summary.weight) : "—"],
+    ["Weekly change", summary.change === 0 ? "No change" : `${summary.change < 0 ? "Down" : "Up"} ${displayWeight(Math.abs(summary.change)).toFixed(1)} ${weightUnit()}`],
+    ["Distance", formatDistance(summary.totalDistance)],
     ["Walking streak", `${summary.streak} day${summary.streak === 1 ? "" : "s"}`],
-    ["Longest walk", summary.longest ? `${summary.longest.distance.toFixed(2)} mi` : "—"],
+    ["Longest walk", summary.longest ? formatDistance(summary.longest.distance) : "—"],
     ["Average dot", summary.average ? `${summary.average}%` : "—"]
   ];
   byId("weeklyStats").innerHTML = stats.map(([label, value]) =>
@@ -414,7 +470,7 @@ function renderWeekly() {
     const block = document.createElement("div");
     block.className = "previous-week";
     block.innerHTML = `<strong>${formatShortDate(isoDate(weekStart))}–${formatShortDate(isoDate(weekEnd))}</strong>
-      <p>${old.totalDistance.toFixed(2)} miles · ${old.average || 0}% average · ${old.entries.length} entries</p>`;
+      <p>${formatDistance(old.totalDistance)} · ${old.average || 0}% average · ${old.entries.length} entries</p>`;
     previous.append(block);
   }
 }
@@ -434,13 +490,38 @@ function renderMilestones() {
   const longest = longestWalk();
   const greenDays = entries.filter(item => ["green", "light-green"].includes(scoreForEntry(item).color)).length;
   const vibratoryLine = state.profile.vibratoryLine;
+  const displayedStart = displayWeight(startWeight);
+  const decadeBoundary = Math.floor(displayedStart / 10) * 10;
+  const decadeLabel = decadeBoundary - 10;
+  const decadeReached = lowest ? displayWeight(lowest) < decadeBoundary : false;
+  const totalDistance = displayDistance(totalMiles);
+  const longestDistance = displayDistance(Number(longest?.distance || 0));
+  const loss = displayWeight(Math.max(0, startWeight - (lowest || startWeight)));
+  const weightTiers = unitSystem === "metric" ? [2.5, 5, 10, 20, 30, 50] : [5, 10, 25, 50, 75, 100];
+  const distanceTiers = unitSystem === "metric" ? [50, 100, 250, 500, 1000] : [25, 50, 100, 250, 500, 1000];
+  const walkTiers = unitSystem === "metric" ? [1, 5, 10, 21.1, 42.2] : [1, 3, 5, 10, 13.1, 26.2];
+  const positiveTiers = [5, 10, 25, 50, 100, 250, 500];
+
+  function progressive(value, tiers, labelFor, detailFor) {
+    const completed = tiers.filter(tier => value >= tier);
+    const highest = completed.at(-1);
+    const next = tiers.find(tier => value < tier);
+    const labelTier = highest || next || tiers.at(-1);
+    const nextDetail = next ? ` · Next ${next}: ${Math.min(100, Math.round(value / next * 100))}%` : "";
+    return {
+      label: labelFor(labelTier),
+      reached: Boolean(highest),
+      detail: `${detailFor(value)}${nextDetail}`
+    };
+  }
+
   const milestoneData = [
-    { label: "First 5 pounds", reached: lowest <= startWeight - 5, detail: `${Math.max(0, startWeight - (lowest || startWeight)).toFixed(1)} lb down` },
-    { label: "Entered the 190s", reached: lowest < 200, detail: lowest ? `${lowest.toFixed(1)} lb` : "Not yet" },
-    { label: "Crossed the Vibratory Line", reached: lowest < vibratoryLine, detail: `${vibratoryLine} lb line` },
-    { label: "First 5-mile walk", reached: Number(longest?.distance || 0) >= 5, detail: longest ? `${longest.distance.toFixed(2)} mi` : "Not yet" },
-    { label: "50 cumulative miles", reached: totalMiles >= 50, detail: `${totalMiles.toFixed(1)} mi` },
-    { label: "Five positive dots", reached: greenDays >= 5, detail: `${greenDays} days` }
+    progressive(loss, weightTiers, tier => `${tier} ${weightUnit()} down`, value => `${value.toFixed(1)} ${weightUnit()} down`),
+    { label: `Entered the ${decadeLabel}s`, reached: decadeReached, detail: lowest ? formatWeight(lowest) : `Below ${decadeBoundary} ${weightUnit()}` },
+    { label: "Crossed the Vibratory Line", reached: lowest !== null && lowest < vibratoryLine, detail: `${formatWeight(vibratoryLine)} line` },
+    progressive(longestDistance, walkTiers, tier => `${tier} ${distanceUnit()} walk`, value => `${value.toFixed(2)} ${distanceUnit()} longest`),
+    progressive(totalDistance, distanceTiers, tier => `${tier} cumulative ${distanceUnit()}`, value => `${value.toFixed(1)} ${distanceUnit()} total`),
+    progressive(greenDays, positiveTiers, tier => `${tier} positive dots`, value => `${value} positive days`)
   ];
   const reached = milestoneData.filter(item => item.reached);
   byId("milestoneCount").textContent = `${reached.length} reached`;
@@ -469,7 +550,7 @@ function openScore(dateValue) {
     <div class="score-summary"><span class="dot ${score.color}"></span><div><h2>${score.percent}% · ${colorLabel(score.color)}</h2><span>${score.total}/30 points</span></div></div>
     <div class="daily-measurement">
       <span>Weight recorded</span>
-      <strong>${entry.weight ? `${Number(entry.weight).toFixed(1)} lb` : "Not recorded"}</strong>
+      <strong>${entry.weight ? formatWeight(entry.weight) : "Not recorded"}</strong>
       ${entry.weightNote ? `<small>${escapeHtml(entry.weightNote)}</small>` : ""}
     </div>
     <section class="score-section"><header><h3>Food</h3><strong>${score.food}/8</strong></header><ul>
@@ -480,7 +561,7 @@ function openScore(dateValue) {
     </ul><p class="impact">Impact: ${dailyImpact}</p></section>
     <section class="score-section"><header><h3>Movement</h3><strong>${score.movement}/12</strong></header><ul>
       <li><span>Walking time</span><strong>${entry.minutes || 0} min</strong></li>
-      <li><span>Distance</span><strong>${Number(entry.distance || 0).toFixed(2)} mi</strong></li>
+      <li><span>Distance</span><strong>${formatDistance(entry.distance || 0)}</strong></li>
     </ul><p class="impact">Impact: ${moveImpact}</p></section>
     <section class="score-section"><header><h3>Your lifestyle this week</h3><strong>${score.lifestyle}/10</strong></header>
       <p>${weak.length ? `Needs attention: ${escapeHtml(weak.slice(0, 3).join(", "))}.` : "Your weekly lifestyle is supporting today’s dot."}</p>
@@ -503,9 +584,9 @@ function buildLifestyleForm() {
         <option value="1" ${week.values?.[key] === 1 ? "selected" : ""}>Supporting me</option>
       </select>
     </label>`).join("");
-  byId("weeklyWaist").value = state.profile.waist;
-  byId("vibratoryLine").value = state.profile.vibratoryLine;
-  byId("motivationalGoal").value = state.profile.motivationalGoal;
+  byId("weeklyWaist").value = displayWaist(state.profile.waist).toFixed(1);
+  byId("vibratoryLine").value = displayWeight(state.profile.vibratoryLine).toFixed(1);
+  byId("motivationalGoal").value = displayWeight(state.profile.motivationalGoal).toFixed(1);
 }
 
 function saveWeekly() {
@@ -515,9 +596,9 @@ function saveWeekly() {
   const waistPoint = byId("weeklyWaist").value ? 1 : 0;
   const score = Math.min(9, roundHalf(lifestyleBase + waistPoint));
   state.weeks[weekKey(new Date())] = { values, score, scoreLogicVersion: 2, updatedAt: new Date().toISOString() };
-  state.profile.waist = Number(byId("weeklyWaist").value || state.profile.waist);
-  state.profile.vibratoryLine = Number(byId("vibratoryLine").value || state.profile.vibratoryLine);
-  state.profile.motivationalGoal = Number(byId("motivationalGoal").value || state.profile.motivationalGoal);
+  state.profile.waist = byId("weeklyWaist").value ? storedWaist(Number(byId("weeklyWaist").value)) : state.profile.waist;
+  state.profile.vibratoryLine = byId("vibratoryLine").value ? storedWeight(Number(byId("vibratoryLine").value)) : state.profile.vibratoryLine;
+  state.profile.motivationalGoal = byId("motivationalGoal").value ? storedWeight(Number(byId("motivationalGoal").value)) : state.profile.motivationalGoal;
   persist();
   byId("weeklyDialog").close();
   renderAll(fields.date.value);
@@ -563,8 +644,28 @@ window.addEventListener("storage", event => {
   if (event.key === LIFESTYLE_SUMMARY_STORAGE_KEY && syncLifestyleSummary()) {
     renderAll(fields.date.value);
   }
+  if (event.key === PREFERENCES_STORAGE_KEY) {
+    unitSystem = loadUnitSystem();
+    applyUnitSystem();
+  }
+});
+
+byId("preferencesToggle").addEventListener("click", event => {
+  event.preventDefault();
+  event.stopPropagation();
+  const menu = byId("preferencesMenu");
+  menu.hidden = !menu.hidden;
+  byId("preferencesToggle").setAttribute("aria-expanded", String(!menu.hidden));
+});
+
+document.querySelectorAll('input[name="unitSystem"]').forEach(input => {
+  input.addEventListener("change", () => {
+    saveUnitSystem(input.value);
+    applyUnitSystem();
+  });
 });
 
 persist();
 loadEntry(isoDate());
 renderAll();
+applyUnitSystem();
