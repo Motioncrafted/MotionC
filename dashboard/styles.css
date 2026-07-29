@@ -1343,6 +1343,8 @@ body {
     font-size: 29px;
     font-weight: 800;
     text-decoration: none;
+    padding: 0;
+    cursor: pointer;
 }
 
 .side-brand img {
@@ -1350,6 +1352,36 @@ body {
     height: 48px;
     object-fit: contain;
 }
+
+.side-preferences-menu {
+    position: fixed;
+    z-index: 60;
+    top: 18px;
+    left: 114px;
+    width: 225px;
+    padding: 16px;
+    border: 1px solid #d8e1db;
+    border-radius: 13px;
+    color: #17352c;
+    background: rgba(255,255,255,.98);
+    box-shadow: 0 14px 34px rgba(0,0,0,.24);
+}
+.side-preferences-menu[hidden] { display: none; }
+.side-preferences-menu > strong { display: block; font-size: 16px; }
+.side-preferences-menu > p { margin: 5px 0 12px; color: #687771; font-size: 11px; }
+.side-preferences-menu label {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    padding: 9px;
+    align-items: center;
+    border-radius: 8px;
+    background: #f2f6f2;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 800;
+}
+.side-preferences-menu label small { margin-left: auto; color: #728078; }
 
 .side-menu nav {
     display: grid;

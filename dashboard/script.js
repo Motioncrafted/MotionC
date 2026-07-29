@@ -1589,6 +1589,9 @@ function renderSummaryData() {
     const savedMcp = readSummaryStorage(summaryMcpStorageKey, null);
     const preferences = readSummaryStorage(summaryPreferencesStorageKey, {});
     summaryUnitSystem = preferences?.unitSystem === "metric" ? "metric" : "imperial";
+    document.querySelectorAll('input[name="summaryUnitSystem"]').forEach(input => {
+        input.checked = input.value === summaryUnitSystem;
+    });
     setText("walking-distance-legend", summaryUnitSystem === "metric" ? "Kilometres" : "Miles");
     const dates14 = recentDateKeys(14);
     const dates7 = dates14.slice(-7);
@@ -1810,6 +1813,26 @@ attachChartTooltip(
     "walking-chart-tooltip",
     point => `<strong>${fullChartDate(point.date)}</strong><span>${summaryUnitSystem === "metric" ? "Kilometres" : "Miles"}: ${point.miles.toFixed(2)}</span><span>Time: ${Math.round(point.minutes)} min</span>`
 );
+
+const summaryPreferencesToggle = document.getElementById("summaryPreferencesToggle");
+const summaryPreferencesMenu = document.getElementById("summaryPreferencesMenu");
+
+summaryPreferencesToggle?.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopPropagation();
+    summaryPreferencesMenu.hidden = !summaryPreferencesMenu.hidden;
+    summaryPreferencesToggle.setAttribute("aria-expanded", String(!summaryPreferencesMenu.hidden));
+});
+
+document.querySelectorAll('input[name="summaryUnitSystem"]').forEach(input => {
+    input.addEventListener("change", () => {
+        localStorage.setItem(summaryPreferencesStorageKey, JSON.stringify({
+            unitSystem: input.value,
+            updatedAt: new Date().toISOString()
+        }));
+        renderSummaryData();
+    });
+});
 
 window.addEventListener("DOMContentLoaded", renderSummaryData);
 window.addEventListener("pageshow", renderSummaryData);

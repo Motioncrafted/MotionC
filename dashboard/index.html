@@ -47,9 +47,15 @@
          ===================================== -->
 
     <aside class="side-menu" aria-label="Main navigation">
-        <a class="side-brand" href="/" aria-label="MotionC home">
+        <button class="side-brand" id="summaryPreferencesToggle" type="button" aria-label="Open preferences" aria-expanded="false" aria-controls="summaryPreferencesMenu">
             <img src="/images/nav/motionc-logo.png" alt="">
-        </a>
+        </button>
+        <div class="side-preferences-menu" id="summaryPreferencesMenu" hidden>
+            <strong>Preferences</strong>
+            <p>Measurement system</p>
+            <label><input type="radio" name="summaryUnitSystem" value="imperial"> Imperial <small>lb · mi · in</small></label>
+            <label><input type="radio" name="summaryUnitSystem" value="metric"> Metric <small>kg · km · cm</small></label>
+        </div>
         <nav>
             <a href="/" aria-label="Home"><img src="/images/nav/home.png" alt=""><small>Home</small></a>
             <a href="/walking/" aria-label="Walking"><img src="/images/nav/walking.png" alt=""><small>Walking</small></a>
