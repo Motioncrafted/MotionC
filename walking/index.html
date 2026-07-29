@@ -1,0 +1,1131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Walking</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&display=swap"
+    rel="stylesheet"
+  >
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #182326; }
+    body { display: grid; place-items: center; font-family: "Kalam", cursive; color: #26343a; }
+
+    .page {
+      position: relative;
+      width: min(100vw, 150vh);
+      aspect-ratio: 3 / 2;
+      background: url("../images/walking-page.png") center / 100% 100% no-repeat;
+    }
+
+    .panel {
+      position: absolute;
+      overflow: hidden;
+      padding: clamp(7px, 0.75vw, 15px);
+    }
+
+    .lifetime,
+    .entry,
+    .history,
+    .summary {
+      border-radius: 12px;
+      background: rgba(224, 214, 196, .82);
+    }
+
+    .route-marker {
+      position: absolute;
+      z-index: 4;
+      height: 10.5%;
+      width: auto;
+      pointer-events: none;
+      transform: translate(-50%, -92%);
+      filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .65));
+      transition: left 650ms ease, top 650ms ease;
+    }
+
+    .route-dot {
+      position: absolute;
+      z-index: 3;
+      width: 1.55%;
+      aspect-ratio: 1;
+      border: clamp(2px, .18vw, 4px) solid #fff;
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .55);
+      transition: background-color 450ms ease;
+    }
+
+    .route-dot.past { background: #2f9e44; }
+    .route-dot.current { background: #176fd1; }
+    .route-dot.future { background: #8b9297; }
+
+    .mc-finish-flag {
+      position: absolute;
+      z-index: 3;
+      left: 41.65%;
+      top: .65%;
+      width: 2.65%;
+      height: 4.15%;
+      pointer-events: none;
+    }
+
+    .mc-finish-flag::before {
+      content: "";
+      position: absolute;
+      left: 7%;
+      top: 8%;
+      width: clamp(2px, .14vw, 3px);
+      height: 70%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #5b3518, #d4a259 48%, #6e411d);
+      box-shadow:
+        1px 0 1px rgba(255, 255, 255, .45),
+        1px 1px 2px rgba(0, 0, 0, .5);
+    }
+
+    .mc-finish-flag::after {
+      content: "";
+      position: absolute;
+      left: 4.7%;
+      top: 0;
+      width: clamp(3px, .27vw, 5px);
+      height: clamp(5px, .48vw, 8px);
+      clip-path: polygon(50% 0, 100% 66%, 72% 100%, 28% 100%, 0 66%);
+      background: linear-gradient(90deg, #754619, #e2b45c 50%, #754619);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, .45);
+    }
+
+    .mc-flag-cloth {
+      position: absolute;
+      left: 9%;
+      top: 11%;
+      display: grid;
+      place-items: center;
+      width: 88%;
+      height: 43%;
+      padding-right: 4%;
+      color: #ed7d18;
+      background:
+        linear-gradient(105deg,
+          rgba(255,255,255,.98) 0%,
+          #e8e2d8 22%,
+          #fff 43%,
+          #ded7ca 65%,
+          #fff 86%);
+      clip-path: polygon(
+        0 7%, 22% 2%, 45% 10%, 68% 4%, 100% 13%,
+        94% 91%, 73% 84%, 50% 95%, 26% 87%, 0 94%
+      );
+      filter:
+        drop-shadow(0 1px 1px rgba(0, 0, 0, .5))
+        drop-shadow(1px 1px 1px rgba(0, 0, 0, .25));
+      font: 800 clamp(5px, .62vw, 11px) Arial, sans-serif;
+      letter-spacing: -.06em;
+      transform: rotate(2deg) skewY(-1deg);
+      transform-origin: left center;
+      animation: mc-flag-wave 2.7s ease-in-out infinite alternate;
+    }
+
+    @keyframes mc-flag-wave {
+      from {
+        transform: rotate(1.5deg) skewY(-.7deg) scaleX(.99);
+      }
+      to {
+        transform: rotate(2.5deg) skewY(.7deg) scaleX(1.015);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .mc-flag-cloth {
+        animation: none;
+      }
+    }
+
+    .nav-hotspot {
+      position: absolute;
+      z-index: 8;
+      left: 2.08%;
+      width: 5.6%;
+      border: 3px solid transparent;
+      border-radius: 10px;
+    }
+
+    .nav-hotspot:focus-visible,
+    .nav-hotspot:hover {
+      outline: none;
+      border-color: #f0b429;
+      background: rgba(240, 180, 41, .10);
+    }
+
+    .walking-location {
+      top: 23.8%;
+      height: 11.8%;
+      border-color: #f0b429;
+      background: rgba(240, 180, 41, .10);
+      pointer-events: none;
+    }
+
+    .mcp-link {
+      top: 37.3%;
+      height: 8.6%;
+    }
+
+    .lifetime {
+      left: 12.35%;
+      top: 3.8%;
+      width: 10.7%;
+      height: 14.2%;
+      display: grid;
+      place-content: center;
+      text-align: center;
+    }
+
+    .lifetime strong {
+      display: block;
+      font-size: clamp(17px, 2vw, 36px);
+      color: #1763a6;
+    }
+
+    .lifetime span { font-size: clamp(8px, 0.8vw, 14px); }
+
+    .entry {
+      left: 29.7%;
+      top: 78%;
+      width: 44.2%;
+      height: 18.3%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: clamp(5px, 0.55vw, 10px);
+    }
+
+    .entry h2, .history h2, .summary h2 {
+      margin: 0;
+      font-size: clamp(11px, 1.15vw, 20px);
+      color: #164e75;
+    }
+
+    .fields {
+      display: grid;
+      grid-template-columns: 1.05fr 1.25fr 1.1fr auto;
+      gap: clamp(5px, 0.55vw, 10px);
+      align-items: end;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      font-size: clamp(8px, 0.72vw, 13px);
+    }
+
+    input, button {
+      font-family: "Kalam", cursive;
+      border: 1px solid #9baab0;
+      border-radius: 6px;
+    }
+
+    input {
+      width: 100%;
+      min-width: 0;
+      height: clamp(25px, 2.4vw, 40px);
+      padding: 0 clamp(5px, 0.5vw, 9px);
+      background: rgba(255,255,255,.92);
+      font-size: clamp(10px, 0.9vw, 16px);
+    }
+
+    input[type="number"] {
+      appearance: textfield;
+      -moz-appearance: textfield;
+    }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      margin: 0;
+      -webkit-appearance: none;
+    }
+
+    .stepper {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+    }
+
+    .stepper input { border-radius: 0; text-align: center; }
+
+    button {
+      min-width: clamp(24px, 2.2vw, 38px);
+      height: clamp(25px, 2.4vw, 40px);
+      padding: 0 clamp(5px, 0.65vw, 11px);
+      cursor: pointer;
+      color: #fff;
+      background: #1763a6;
+      font-size: clamp(10px, 0.9vw, 16px);
+      font-weight: 700;
+    }
+
+    button:hover { background: #0f4e86; }
+    button:focus-visible, input:focus-visible { outline: 3px solid #f0b429; outline-offset: 1px; }
+    .stepper button:first-child { border-radius: 6px 0 0 6px; }
+    .stepper button:last-child { border-radius: 0 6px 6px 0; }
+    .add { background: #287a43; }
+    .add:hover { background: #1c6032; }
+
+    .message {
+      min-height: 1em;
+      margin: 0;
+      font-size: clamp(8px, 0.7vw, 12px);
+      color: #287a43;
+    }
+
+    .history {
+      left: 82.2%;
+      top: 21.6%;
+      width: 15.4%;
+      height: 51.9%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .walk-modal {
+      left: 82.2%;
+      top: 21.6%;
+      z-index: 7;
+      width: 15.4%;
+      height: 51.9%;
+      display: flex;
+      flex-direction: column;
+      border-radius: 12px;
+      background: rgba(224, 214, 196, .98);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .28);
+    }
+
+    .walk-modal[hidden] {
+      display: none;
+    }
+
+    .history-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 8px;
+    }
+
+    .history-head input {
+      width: 58%;
+      height: clamp(23px, 2vw, 34px);
+      font-size: clamp(8px, 0.7vw, 12px);
+    }
+
+    .view-toggle {
+      width: 100%;
+      height: clamp(23px, 2vw, 34px);
+      margin: 0;
+      background: #287a43;
+      font-size: clamp(8px, 0.72vw, 13px);
+    }
+
+    .view-toggle:hover { background: #1c6032; }
+
+    .entry-actions {
+      display: grid;
+      gap: clamp(4px, 0.4vw, 7px);
+    }
+
+    .entry-actions button {
+      width: 100%;
+      white-space: nowrap;
+    }
+
+    .walk-list {
+      flex: 1;
+      overflow: auto;
+      padding-right: 3px;
+    }
+
+    .empty {
+      text-align: center;
+      margin-top: 25%;
+      color: #68777d;
+      font-size: clamp(9px, 0.78vw, 14px);
+    }
+
+    .walk-card {
+      margin-bottom: clamp(5px, 0.5vw, 9px);
+      padding: clamp(6px, 0.55vw, 10px);
+      border-left: 4px solid #1763a6;
+      border-radius: 6px;
+      background: rgba(226, 239, 245, .78);
+      font-size: clamp(8px, 0.72vw, 13px);
+    }
+
+    .walk-card strong { font-size: clamp(10px, 0.9vw, 16px); }
+    .walk-card small { display: block; margin-top: 3px; color: #58686e; }
+
+    .station-card {
+      margin-bottom: clamp(6px, 0.6vw, 11px);
+      padding: clamp(7px, 0.65vw, 12px);
+      border-left: 4px solid #287a43;
+      border-radius: 6px;
+      background: rgba(230, 242, 233, .85);
+      font-size: clamp(8px, 0.72vw, 13px);
+    }
+
+    .station-card strong {
+      display: block;
+      color: #1c6032;
+      font-size: clamp(10px, 0.9vw, 16px);
+    }
+
+    .station-card span {
+      display: block;
+      margin-top: 4px;
+    }
+
+    .route-progress {
+      margin-top: clamp(7px, 0.7vw, 12px);
+      padding: clamp(7px, 0.65vw, 12px);
+      border-radius: 8px;
+      background: rgba(226, 239, 245, .88);
+      font-size: clamp(8px, 0.72vw, 13px);
+    }
+
+    .progress-heading {
+      display: flex;
+      justify-content: space-between;
+      gap: 5px;
+      margin-bottom: 5px;
+      color: #164e75;
+      font-weight: 700;
+    }
+
+    .progress-track {
+      height: clamp(8px, 0.75vw, 13px);
+      overflow: hidden;
+      border-radius: 999px;
+      background: #c7d4d9;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, .2);
+    }
+
+    .progress-fill {
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #1685d1, #21b86b, #f0b429);
+      transition: width 650ms ease;
+    }
+
+    .progress-detail {
+      display: block;
+      margin-top: 5px;
+      color: #52656d;
+    }
+
+    .delete {
+      float: right;
+      min-width: 0;
+      width: clamp(20px, 1.7vw, 28px);
+      height: clamp(20px, 1.7vw, 28px);
+      padding: 0;
+      background: #a93b3b;
+      font-size: clamp(10px, 0.85vw, 14px);
+    }
+
+    .summary {
+      left: 75.1%;
+      top: 78%;
+      width: 22.5%;
+      height: 18.3%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: clamp(4px, 0.45vw, 8px);
+    }
+
+    .jasper-celebration {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      display: grid;
+      place-items: center;
+      padding: 3%;
+      background: rgba(12, 20, 22, .48);
+      backdrop-filter: blur(2px);
+    }
+
+    .jasper-celebration[hidden] {
+      display: none;
+    }
+
+    .celebration-card {
+      position: relative;
+      z-index: 2;
+      width: min(36%, 500px);
+      overflow: hidden;
+      padding: clamp(24px, 3.4vw, 54px) clamp(20px, 3vw, 48px)
+        clamp(20px, 2.6vw, 42px);
+      border: clamp(2px, .18vw, 3px) solid rgba(240, 180, 41, .9);
+      border-radius: clamp(16px, 1.6vw, 26px);
+      color: #26343a;
+      background:
+        linear-gradient(rgba(255, 255, 255, .95), rgba(244, 238, 225, .97));
+      box-shadow: 0 18px 55px rgba(0, 0, 0, .55);
+      text-align: center;
+    }
+
+    .celebration-card h2 {
+      position: relative;
+      z-index: 2;
+      margin: 0 0 clamp(8px, .8vw, 14px);
+      color: #1763a6;
+      font-size: clamp(24px, 2.5vw, 43px);
+      line-height: 1.08;
+    }
+
+    .celebration-card p {
+      position: relative;
+      z-index: 2;
+      margin: 0 auto clamp(16px, 1.8vw, 28px);
+      max-width: 32ch;
+      font-size: clamp(13px, 1.15vw, 20px);
+      line-height: 1.45;
+    }
+
+    .celebration-card strong {
+      color: #287a43;
+    }
+
+    .celebration-dismiss {
+      position: relative;
+      z-index: 2;
+      min-width: clamp(120px, 11vw, 180px);
+      border-color: #0f5b9b;
+      background: #176fd1;
+      box-shadow: 0 5px 12px rgba(23, 111, 209, .28);
+    }
+
+    .celebration-dismiss:hover {
+      background: #0f5b9b;
+    }
+
+    .confetti {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      top: -4%;
+      left: var(--left);
+      width: var(--size);
+      height: calc(var(--size) * 1.7);
+      border-radius: 2px;
+      background: var(--color);
+      opacity: .9;
+      transform: rotate(var(--rotation));
+      animation: confetti-fall var(--duration) ease-in var(--delay) forwards;
+    }
+
+    @keyframes confetti-fall {
+      0% {
+        transform: translate3d(0, -8%, 0) rotate(var(--rotation));
+      }
+      100% {
+        transform:
+          translate3d(var(--drift), 105vh, 0)
+          rotate(calc(var(--rotation) + 540deg));
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .confetti-piece {
+        animation: none;
+        top: var(--resting-top);
+      }
+    }
+
+    .totals {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
+      text-align: center;
+    }
+
+    .total {
+      padding: clamp(4px, 0.4vw, 7px);
+      border-radius: 6px;
+      background: rgba(226, 239, 245, .78);
+    }
+
+    .total strong {
+      display: block;
+      color: #1763a6;
+      font-size: clamp(13px, 1.35vw, 23px);
+    }
+
+    .total span { font-size: clamp(7px, 0.65vw, 11px); }
+    .data-actions { display: flex; gap: 5px; }
+    .data-actions button, .file-label {
+      flex: 1;
+      height: clamp(22px, 2vw, 34px);
+      font-size: clamp(8px, 0.7vw, 12px);
+    }
+
+    .data-actions .reset {
+      background: #a93b3b;
+    }
+
+    .data-actions .reset:hover {
+      background: #862d2d;
+    }
+
+    .file-label {
+      display: grid;
+      place-items: center;
+      padding: 0 6px;
+      border-radius: 6px;
+      color: #fff;
+      background: #1763a6;
+      cursor: pointer;
+    }
+
+    .file-label input { display: none; }
+
+    @media (max-width: 700px), (max-height: 480px) {
+      .panel { padding: 5px; }
+      .entry { gap: 3px; }
+      .entry h2, .summary h2, .history h2 { font-size: 9px; }
+      label, .message, .walk-card, .total span { font-size: 6px; }
+      input, button { height: 20px; font-size: 7px; border-radius: 3px; }
+      .fields { gap: 3px; }
+      .history-head { margin-bottom: 3px; }
+      .walk-card { padding: 3px; margin-bottom: 3px; border-left-width: 2px; }
+      .walk-card strong { font-size: 7px; }
+      .delete { width: 14px; height: 14px; font-size: 7px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="mc-finish-flag" aria-hidden="true">
+      <span class="mc-flag-cloth">MC</span>
+    </div>
+    <div id="routeDots" aria-hidden="true"></div>
+
+    <span
+      class="nav-hotspot walking-location"
+      aria-label="Walking — current page"
+      aria-current="page"
+    ></span>
+    <a
+      class="nav-hotspot mcp-link"
+      href="/dashboard/"
+      aria-label="Open MCP page"
+      title="MCP"
+    ></a>
+
+    <img
+      class="route-marker"
+      id="routeMarker"
+      src="../images/walking-marker-motionc.png"
+      alt=""
+      aria-hidden="true"
+    >
+
+    <section class="panel lifetime" aria-label="Walking page total">
+      <strong id="walkingTotal">0.00</strong>
+      <span id="walkingTotalLabel">Total Walking Miles</span>
+    </section>
+
+    <section class="panel entry" aria-labelledby="entryTitle">
+      <h2 id="entryTitle">Add a Walk</h2>
+      <form id="walkForm">
+        <div class="fields">
+          <label>Date
+            <input id="walkDate" type="date" required>
+          </label>
+
+          <label><span id="walkDistanceLabel">Miles Walked</span>
+            <span class="stepper">
+              <button type="button" data-target="miles" data-change="-0.10" aria-label="Subtract 0.10 miles">−</button>
+              <input id="miles" type="number" min="0.01" step="0.01" value="1.00" required inputmode="decimal">
+              <button type="button" data-target="miles" data-change="0.10" aria-label="Add 0.10 miles">+</button>
+            </span>
+          </label>
+
+          <label>Minutes Walked
+            <span class="stepper">
+              <button type="button" data-target="minutes" data-change="-1" aria-label="Subtract one minute">−</button>
+              <input id="minutes" type="number" min="1" step="1" value="30" required inputmode="numeric">
+              <button type="button" data-target="minutes" data-change="1" aria-label="Add one minute">+</button>
+            </span>
+          </label>
+
+          <div class="entry-actions">
+            <button class="add" type="submit">Add Walk</button>
+            <button class="view-toggle" type="button" id="viewToggle">Walks</button>
+          </div>
+        </div>
+      </form>
+      <p class="message" id="message" aria-live="polite"></p>
+    </section>
+
+    <section class="panel history" aria-labelledby="upcomingTitle">
+      <div class="history-head">
+        <h2 id="upcomingTitle">Next Stops</h2>
+      </div>
+      <div class="walk-list" id="upcomingList"></div>
+      <div class="route-progress" aria-label="Progress to next station">
+        <div class="progress-heading">
+          <span id="progressLabel">To CP Tower</span>
+          <span id="progressPercent">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <small class="progress-detail" id="progressDetail">0.00 of 8 mi</small>
+      </div>
+    </section>
+
+    <section class="panel walk-modal" id="walkModal" aria-labelledby="historyTitle" hidden>
+      <div class="history-head">
+        <h2 id="historyTitle">Walks</h2>
+        <input id="filterDate" type="date" aria-label="Show walks for date">
+      </div>
+      <div class="walk-list" id="historyList"></div>
+    </section>
+
+    <section class="panel summary" aria-labelledby="summaryTitle">
+      <h2 id="summaryTitle">Selected Day</h2>
+      <div class="totals">
+        <div class="total"><strong id="dayWalks">0</strong><span>Walks</span></div>
+        <div class="total"><strong id="dayMiles">0.00</strong><span id="dayDistanceLabel">Miles</span></div>
+        <div class="total"><strong id="dayMinutes">0</strong><span>Minutes</span></div>
+      </div>
+      <div class="data-actions">
+        <button type="button" id="exportData">Export All</button>
+        <label class="file-label">Import JSON<input id="importData" type="file" accept=".json,application/json"></label>
+        <button class="reset" type="button" id="resetData">Reset Test</button>
+      </div>
+    </section>
+
+    <section
+      class="jasper-celebration"
+      id="jasperCelebration"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="jasperCelebrationTitle"
+      aria-describedby="jasperCelebrationMessage"
+      hidden
+    >
+      <div class="confetti" id="confetti" aria-hidden="true"></div>
+      <div class="celebration-card">
+        <h2 id="jasperCelebrationTitle">🎉 Welcome to Jasper!</h2>
+        <p id="jasperCelebrationMessage">
+          <strong>Congratulations—you made it!</strong><br>
+          You walked the full 244-mile route from Calgary to Jasper.
+        </p>
+        <button class="celebration-dismiss" id="celebrationDismiss" type="button">
+          Awesome!
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "walking_page_walks_v1";
+    const JASPER_CELEBRATION_KEY = "walking_page_jasper_celebrated_v1";
+    const PREFERENCES_STORAGE_KEY = "motionc-preferences-v1";
+    const KM_PER_MI = 1.609344;
+    let unitSystem = "imperial";
+    try {
+      unitSystem = JSON.parse(localStorage.getItem(PREFERENCES_STORAGE_KEY))?.unitSystem === "metric"
+        ? "metric"
+        : "imperial";
+    } catch {}
+    const displayDistance = miles => unitSystem === "metric" ? miles * KM_PER_MI : miles;
+    const storedDistance = value => unitSystem === "metric" ? value / KM_PER_MI : value;
+    const distanceUnit = () => unitSystem === "metric" ? "km" : "mi";
+    const distanceWord = () => unitSystem === "metric" ? "kilometres" : "miles";
+    const formatDistance = miles => `${displayDistance(Number(miles)).toFixed(2)} ${distanceUnit()}`;
+    const dateInput = document.getElementById("walkDate");
+    const filterDate = document.getElementById("filterDate");
+    const milesInput = document.getElementById("miles");
+    const minutesInput = document.getElementById("minutes");
+    const upcomingList = document.getElementById("upcomingList");
+    const historyList = document.getElementById("historyList");
+    const progressLabel = document.getElementById("progressLabel");
+    const progressPercent = document.getElementById("progressPercent");
+    const progressFill = document.getElementById("progressFill");
+    const progressDetail = document.getElementById("progressDetail");
+    const message = document.getElementById("message");
+    const routeMarker = document.getElementById("routeMarker");
+    const routeDots = document.getElementById("routeDots");
+    const viewToggle = document.getElementById("viewToggle");
+    const walkModal = document.getElementById("walkModal");
+    const jasperCelebration = document.getElementById("jasperCelebration");
+    const celebrationDismiss = document.getElementById("celebrationDismiss");
+    const confetti = document.getElementById("confetti");
+    let walks = loadWalks();
+    let walksOpen = false;
+
+    /*
+      Station positions are percentages of the walking-page image.
+      Miles are cumulative from Calgary City Limits.
+    */
+    const routeStations = [
+      { name: "Calgary City Limits", miles: 0,   x: 14.0,  y: 74.3 },
+      { name: "CP Tower",            miles: 8,   x: 17.55, y: 68.9 },
+      { name: "Canada Olympic Park", miles: 18,  x: 19.65, y: 60.6 },
+      { name: "Cochrane",            miles: 29,  x: 21.8,  y: 56.35 },
+      { name: "Morley",              miles: 43,  x: 23.25, y: 51.45 },
+      { name: "Dead Man's Flats",    miles: 79,  x: 25.25, y: 47.1 },
+      { name: "Banff Townsite",      miles: 93,  x: 23.25, y: 42.6 },
+      { name: "Castle Junction",     miles: 109, x: 26.7,  y: 37.8 },
+      { name: "Lake Louise",         miles: 130, x: 24.3,  y: 31.95 },
+      { name: "Bow Lake",            miles: 155, x: 27.15, y: 26.75 },
+      { name: "Saskatchewan River Crossing", miles: 177, x: 30.0, y: 21.4 },
+      { name: "Sunwapta Falls",      miles: 210, x: 32.75, y: 15.15 },
+      { name: "Jasper Townsite",     miles: 244, x: 38.15, y: 10.65 }
+    ];
+
+    const routeDotElements = routeStations.map(station => {
+      const dot = document.createElement("span");
+      dot.className = "route-dot future";
+      dot.style.left = station.x + "%";
+      dot.style.top = station.y + "%";
+      dot.title = station.name;
+      routeDots.appendChild(dot);
+      return dot;
+    });
+
+    function buildConfetti() {
+      const colors = ["#ed7d18", "#176fd1", "#2f9e44", "#f0b429", "#cf3f4f"];
+      confetti.replaceChildren();
+
+      for (let index = 0; index < 26; index++) {
+        const piece = document.createElement("span");
+        piece.className = "confetti-piece";
+        piece.style.setProperty("--left", (3 + Math.random() * 94) + "%");
+        piece.style.setProperty("--size", (5 + Math.random() * 6) + "px");
+        piece.style.setProperty("--color", colors[index % colors.length]);
+        piece.style.setProperty("--rotation", (Math.random() * 180) + "deg");
+        piece.style.setProperty("--duration", (3 + Math.random() * 1.6) + "s");
+        piece.style.setProperty("--delay", (Math.random() * .75) + "s");
+        piece.style.setProperty("--drift", (-35 + Math.random() * 70) + "px");
+        piece.style.setProperty("--resting-top", (5 + Math.random() * 82) + "%");
+        confetti.appendChild(piece);
+      }
+    }
+
+    function showJasperCelebration() {
+      buildConfetti();
+      jasperCelebration.hidden = false;
+      localStorage.setItem(JASPER_CELEBRATION_KEY, "true");
+      celebrationDismiss.focus();
+    }
+
+    function closeJasperCelebration() {
+      jasperCelebration.hidden = true;
+      document.querySelector(".add").focus();
+    }
+
+    function updateJasperCelebration(totalMiles) {
+      if (totalMiles < 244) {
+        localStorage.removeItem(JASPER_CELEBRATION_KEY);
+        return;
+      }
+
+      if (localStorage.getItem(JASPER_CELEBRATION_KEY) !== "true") {
+        showJasperCelebration();
+      }
+    }
+
+    function localToday() {
+      const now = new Date();
+      const offset = now.getTimezoneOffset() * 60000;
+      return new Date(now - offset).toISOString().slice(0, 10);
+    }
+
+    dateInput.value = localToday();
+    dateInput.max = localToday();
+    filterDate.value = localToday();
+    filterDate.max = localToday();
+    document.getElementById("walkingTotalLabel").textContent =
+      unitSystem === "metric" ? "Total Walking Kilometres" : "Total Walking Miles";
+    document.getElementById("walkDistanceLabel").textContent =
+      unitSystem === "metric" ? "Kilometres Walked" : "Miles Walked";
+    document.getElementById("dayDistanceLabel").textContent =
+      unitSystem === "metric" ? "Kilometres" : "Miles";
+    milesInput.value = unitSystem === "metric" ? "1.00" : "1.00";
+
+    function loadWalks() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        return Array.isArray(saved) ? saved : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveWalks() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(walks));
+    }
+
+    function formatDate(date) {
+      return new Date(date + "T12:00:00").toLocaleDateString(undefined, {
+        month: "short", day: "numeric", year: "numeric"
+      });
+    }
+
+    function updateRouteMarker(totalMiles) {
+      const routeMiles = Math.min(Math.max(totalMiles, 0), 244);
+      let reachedStation = routeStations[0];
+      let nextStation = routeStations[1];
+      let reachedIndex = 0;
+
+      for (let index = 0; index < routeStations.length; index++) {
+        if (routeMiles >= routeStations[index].miles) {
+          reachedStation = routeStations[index];
+          reachedIndex = index;
+          nextStation = routeStations[index + 1] || routeStations[index];
+        }
+      }
+
+      routeDotElements.forEach((dot, index) => {
+        dot.className = "route-dot " +
+          (index < reachedIndex ? "past" : index === reachedIndex ? "current" : "future");
+      });
+
+      routeMarker.style.left = reachedStation.x + "%";
+      routeMarker.style.top = reachedStation.y + "%";
+
+      const remaining = Math.max(0, nextStation.miles - routeMiles);
+        routeMarker.title = reachedStation.name +
+        (remaining
+          ? " · " + formatDistance(remaining) + " to " + nextStation.name
+          : " · Route complete");
+    }
+
+    function renderUpcoming(walkingTotal) {
+      const upcoming = routeStations
+        .filter(station => station.miles > walkingTotal)
+        .slice(0, 3);
+
+      if (!upcoming.length) {
+        upcomingList.innerHTML =
+          '<p class="empty">Route complete!<br>You reached Jasper.</p>';
+        progressLabel.textContent = "Route Complete";
+        progressPercent.textContent = "100%";
+        progressFill.style.width = "100%";
+        progressDetail.textContent = `${formatDistance(244)} of ${formatDistance(244)}`;
+        return;
+      }
+
+      upcomingList.innerHTML = upcoming.map((station, index) => {
+        const remaining = station.miles - walkingTotal;
+        return `
+          <article class="station-card">
+            <strong>${index + 1}. ${station.name}</strong>
+            <span>${formatDistance(remaining)} away</span>
+            <small>Route milestone: ${formatDistance(station.miles)}</small>
+          </article>
+        `;
+      }).join("");
+
+      let previous = routeStations[0];
+      const next = upcoming[0];
+      for (const station of routeStations) {
+        if (station.miles <= walkingTotal) previous = station;
+      }
+
+      const segmentDistance = next.miles - previous.miles;
+      const segmentProgress = walkingTotal - previous.miles;
+      const percent = segmentDistance
+        ? Math.min(100, Math.max(0, segmentProgress / segmentDistance * 100))
+        : 100;
+
+      progressLabel.textContent = "To " + next.name;
+      progressPercent.textContent = Math.round(percent) + "%";
+      progressFill.style.width = percent + "%";
+      progressDetail.textContent =
+        formatDistance(segmentProgress) + " of " + formatDistance(segmentDistance);
+    }
+
+    function renderWalkHistory(selected) {
+      if (!selected.length) {
+        historyList.innerHTML = '<p class="empty">No walks saved for<br>' +
+          formatDate(filterDate.value) + ".</p>";
+        return;
+      }
+
+      historyList.innerHTML = selected.map((walk, index) => `
+        <article class="walk-card">
+          <button class="delete" type="button" data-delete="${walk.id}" aria-label="Delete walk">×</button>
+          <strong>Walk ${index + 1}</strong>
+          <div>${formatDistance(walk.miles)} · ${walk.minutes} minutes</div>
+          <small>${formatDate(walk.date)}</small>
+        </article>
+      `).join("");
+    }
+
+    function render() {
+      const selected = walks
+        .filter(walk => walk.date === filterDate.value)
+        .sort((a, b) => a.created_at.localeCompare(b.created_at));
+      const dayMiles = selected.reduce((sum, walk) => sum + walk.miles, 0);
+      const dayMinutes = selected.reduce((sum, walk) => sum + walk.minutes, 0);
+      const walkingTotal = walks.reduce((sum, walk) => sum + walk.miles, 0);
+
+      document.getElementById("walkingTotal").textContent = displayDistance(walkingTotal).toFixed(2);
+      updateRouteMarker(walkingTotal);
+      document.getElementById("dayWalks").textContent = selected.length;
+      document.getElementById("dayMiles").textContent = displayDistance(dayMiles).toFixed(2);
+      document.getElementById("dayMinutes").textContent = dayMinutes;
+
+      renderUpcoming(walkingTotal);
+      renderWalkHistory(selected);
+      updateJasperCelebration(walkingTotal);
+    }
+
+    document.querySelectorAll("[data-change]").forEach(button => {
+      button.addEventListener("click", () => {
+        const input = document.getElementById(button.dataset.target);
+        const change = Number(button.dataset.change);
+        const decimals = input.id === "miles" ? 2 : 0;
+        const minimum = Number(input.min);
+        input.value = Math.max(minimum, Number(input.value || 0) + change).toFixed(decimals);
+      });
+    });
+
+    document.getElementById("walkForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const miles = storedDistance(Number(milesInput.value));
+      const minutes = Number(minutesInput.value);
+      if (!dateInput.value || miles <= 0 || minutes <= 0) return;
+
+      walks.push({
+        id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
+        user_id: "local_user",
+        date: dateInput.value,
+        miles: Number(miles.toFixed(2)),
+        minutes: Math.round(minutes),
+        source: "walking_page",
+        created_at: new Date().toISOString()
+      });
+
+      saveWalks();
+      filterDate.value = dateInput.value;
+      milesInput.value = "1.00";
+      minutesInput.value = "30";
+      message.textContent = "Walk saved.";
+      render();
+      setTimeout(() => message.textContent = "", 2500);
+    });
+
+    filterDate.addEventListener("change", render);
+
+    viewToggle.addEventListener("click", () => {
+      walksOpen = !walksOpen;
+      walkModal.hidden = !walksOpen;
+      viewToggle.textContent = walksOpen ? "Close Walks" : "Walks";
+    });
+
+    celebrationDismiss.addEventListener("click", closeJasperCelebration);
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && !jasperCelebration.hidden) {
+        closeJasperCelebration();
+      }
+    });
+
+    historyList.addEventListener("click", event => {
+      const id = event.target.dataset.delete;
+      if (!id || !confirm("Delete this walk?")) return;
+      walks = walks.filter(walk => walk.id !== id);
+      saveWalks();
+      render();
+    });
+
+    document.getElementById("exportData").addEventListener("click", () => {
+      const sortedDates = walks.map(walk => walk.date).sort();
+      const firstDate = sortedDates[0] || "no-walks";
+      const lastDate = sortedDates[sortedDates.length - 1] || "no-walks";
+      const now = new Date();
+      const exportTime = [
+        String(now.getHours()).padStart(2, "0"),
+        String(now.getMinutes()).padStart(2, "0"),
+        String(now.getSeconds()).padStart(2, "0")
+      ].join("");
+      const data = {
+        version: 1,
+        exported_at: now.toISOString(),
+        first_walk_date: sortedDates.length ? firstDate : null,
+        last_walk_date: sortedDates.length ? lastDate : null,
+        walk_count: walks.length,
+        walking_total: Number(walks.reduce((sum, walk) => sum + walk.miles, 0).toFixed(2)),
+        walks
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "walking-data-" + firstDate + "-to-" + lastDate +
+        "-exported-" + localToday() + "-" + exportTime + ".json";
+      link.click();
+      URL.revokeObjectURL(link.href);
+    });
+
+    document.getElementById("importData").addEventListener("change", async event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        const data = JSON.parse(await file.text());
+        const imported = Array.isArray(data) ? data : data.walks;
+        if (!Array.isArray(imported)) throw new Error();
+        walks = imported.map(walk => ({
+          id: String(walk.id || Date.now() + Math.random()),
+          user_id: String(walk.user_id || "local_user"),
+          date: String(walk.date),
+          miles: Number(Number(walk.miles).toFixed(2)),
+          minutes: Math.round(Number(walk.minutes)),
+          source: "walking_page",
+          created_at: String(walk.created_at || new Date().toISOString())
+        })).filter(walk => walk.date && walk.miles > 0 && walk.minutes > 0);
+        saveWalks();
+        message.textContent = walks.length + " walks imported.";
+        render();
+      } catch {
+        alert("That file is not a valid walking-data JSON file.");
+      }
+      event.target.value = "";
+    });
+
+    document.getElementById("resetData").addEventListener("click", () => {
+      const confirmed = confirm(
+        "Reset all walking test data?\n\n" +
+        "This removes every walk stored in this browser and returns the marker " +
+        "to Calgary. Downloaded JSON backup files will not be deleted."
+      );
+      if (!confirmed) return;
+
+      walks = [];
+      saveWalks();
+      dateInput.value = localToday();
+      filterDate.value = localToday();
+      milesInput.value = "1.00";
+      minutesInput.value = "30";
+      message.textContent = "Test data reset. The marker is back in Calgary.";
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
