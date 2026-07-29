@@ -176,6 +176,21 @@ main { min-width: 0; }
   font-weight: 800;
 }
 .preferences-menu label small { margin-left: auto; color: #728078; }
+.preferences-close {
+  position: absolute;
+  top: 7px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 7px;
+  color: #607069;
+  background: transparent;
+  font-size: 21px;
+  line-height: 1;
+}
+.preferences-close:hover,
+.preferences-close:focus-visible { color: #17352c; background: #e8efe9; outline: none; }
 
 .content {
   display: grid;
