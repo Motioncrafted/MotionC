@@ -1816,12 +1816,24 @@ attachChartTooltip(
 
 const summaryPreferencesToggle = document.getElementById("summaryPreferencesToggle");
 const summaryPreferencesMenu = document.getElementById("summaryPreferencesMenu");
+const summaryPreferencesClose = document.getElementById("summaryPreferencesClose");
+
+function closeSummaryPreferences() {
+    summaryPreferencesMenu.hidden = true;
+    summaryPreferencesToggle.setAttribute("aria-expanded", "false");
+}
 
 summaryPreferencesToggle?.addEventListener("click", event => {
     event.preventDefault();
     event.stopPropagation();
     summaryPreferencesMenu.hidden = !summaryPreferencesMenu.hidden;
     summaryPreferencesToggle.setAttribute("aria-expanded", String(!summaryPreferencesMenu.hidden));
+});
+summaryPreferencesMenu?.addEventListener("click", event => event.stopPropagation());
+summaryPreferencesClose?.addEventListener("click", closeSummaryPreferences);
+document.addEventListener("click", closeSummaryPreferences);
+document.addEventListener("keydown", event => {
+    if (event.key === "Escape") closeSummaryPreferences();
 });
 
 document.querySelectorAll('input[name="summaryUnitSystem"]').forEach(input => {
