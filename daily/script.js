@@ -650,12 +650,23 @@ window.addEventListener("storage", event => {
   }
 });
 
+function closePreferences() {
+  byId("preferencesMenu").hidden = true;
+  byId("preferencesToggle").setAttribute("aria-expanded", "false");
+}
+
 byId("preferencesToggle").addEventListener("click", event => {
   event.preventDefault();
   event.stopPropagation();
   const menu = byId("preferencesMenu");
   menu.hidden = !menu.hidden;
   byId("preferencesToggle").setAttribute("aria-expanded", String(!menu.hidden));
+});
+byId("preferencesMenu").addEventListener("click", event => event.stopPropagation());
+byId("preferencesClose").addEventListener("click", closePreferences);
+document.addEventListener("click", closePreferences);
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") closePreferences();
 });
 
 document.querySelectorAll('input[name="unitSystem"]').forEach(input => {
