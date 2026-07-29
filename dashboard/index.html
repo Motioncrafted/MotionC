@@ -46,120 +46,150 @@
          Main dashboard
          ===================================== -->
 
+    <aside class="side-menu" aria-label="Main navigation">
+        <a class="side-brand" href="/" aria-label="MotionC home">
+            <img src="/images/nav/motionc-logo.png" alt="">
+        </a>
+        <nav>
+            <a href="/" aria-label="Home"><img src="/images/nav/home.png" alt=""><small>Home</small></a>
+            <a href="/walking/" aria-label="Walking"><img src="/images/nav/walking.png" alt=""><small>Walking</small></a>
+            <a class="current" href="/dashboard/" aria-current="page" aria-label="MCP"><img src="/images/nav/mcp.png" alt=""><small>MCP</small></a>
+            <a href="/library/" aria-label="Library"><img src="/images/nav/library.png" alt=""><small>Library</small></a>
+            <a href="/drop-zone/" aria-label="Drop Zone"><img src="/images/nav/drop-zone.png" alt=""><small>Drop Zone</small></a>
+            <a href="/daily/" aria-label="Daily"><img src="/images/nav/daily.png" alt=""><small>Daily</small></a>
+        </nav>
+        <p>Move.<br>Track.<br>Improve.</p>
+    </aside>
+
     <main class="main-content">
-
-        <div class="dashboard-wrapper">
-
-            <img
-                class="dashboard-image"
-                src="/images/dashboard-master.png"
-                alt="MotionC Dashboard"
-            >
-
-            <a
-                class="walking-page-link"
-                href="/walking/"
-                aria-label="Open Walking page"
-                title="Walking"
-            ></a>
-
-
-            <!-- =====================================
-                 Live top-row metric overlays
-                 ===================================== -->
-
-            <div class="metric-overlay metric-weight">
-                <span id="display-weight">0.0</span>
-                <span id="display-weight-unit">lb</span>
+        <header class="summary-hero">
+            <nav class="summary-nav" aria-label="MotionC navigation">
+                <a class="brand" href="/" aria-label="MotionC home">
+                    <span class="brand-mark">M</span>
+                    <span><strong>Motion<span>C</span></strong><small>Motion Creates Change</small></span>
+                </a>
+                <div class="nav-links">
+                    <a href="/walking/">Walking</a>
+                    <a href="/daily/">Daily</a>
+                    <a href="/library/">Library</a>
+                </div>
+            </nav>
+            <div class="hero-copy">
+                <p class="eyebrow">YOUR HEALTH CONTROL CENTER</p>
+                <h1>Summary</h1>
+                <p>Your numbers tell a story. Keep moving it forward.</p>
             </div>
+        </header>
 
-            <div class="metric-overlay metric-waist">
-                <span id="display-waist">0.0</span>
-                <span id="display-waist-unit">in</span>
-            </div>
-
-            <div class="metric-overlay metric-bmi">
-                <span id="display-bmi">0.0</span>
-            </div>
-
-            <div class="metric-overlay metric-mcp">
-                <span id="display-mcp">0.0</span>
-            </div>
-
-
-            <!-- =====================================
-                 Live gauge overlays
-                 ===================================== -->
-
-            <!-- Your Trend gauge arrow -->
-            <div
-                class="gauge-arrow-position gauge-arrow-trend"
-                aria-hidden="true"
-            >
-                <div
-                    id="trend-gauge-arrow"
-                    class="gauge-arrow"
-                >
-                    <span class="gauge-arrow-head"></span>
-                    <span class="gauge-arrow-shaft"></span>
-                    <span class="gauge-arrow-pivot"></span>
+        <div class="summary-shell">
+            <div class="summary-heading">
+                <div>
+                    <p class="eyebrow">TODAY’S OVERVIEW</p>
+                    <h2>Your progress, all in one place</h2>
+                </div>
+                <div class="heading-actions">
+                    <a id="simulation-button" class="engine-room-button" href="/engine-room/">
+                        <span aria-hidden="true">⚙</span> Engine Room
+                    </a>
+                    <button id="kscore-button" class="edit-profile-button" type="button"
+                        aria-label="Update measurements and lifestyle" aria-expanded="false">
+                        Update my information
+                    </button>
                 </div>
             </div>
 
+            <section class="metric-grid" aria-label="Current measurements">
+                <article class="metric-card metric-card-blue">
+                    <div class="metric-icon" aria-hidden="true">⚖</div>
+                    <p>Current weight</p>
+                    <strong><span id="display-weight">—</span> <small id="display-weight-unit">lb</small></strong>
+                    <span id="weight-change" class="metric-change">Add a Daily entry to begin</span>
+                </article>
+                <article class="metric-card metric-card-gold">
+                    <div class="metric-icon" aria-hidden="true">⌁</div>
+                    <p>Waist</p>
+                    <strong><span id="display-waist">—</span> <small id="display-waist-unit">in</small></strong>
+                    <span class="metric-change">A key health indicator</span>
+                </article>
+                <article class="metric-card metric-card-coral">
+                    <div class="metric-icon" aria-hidden="true">♥</div>
+                    <p>BMI</p>
+                    <strong id="display-bmi">—</strong>
+                    <span id="bmi-status" class="metric-change">Calculated from your profile</span>
+                </article>
+                <article class="metric-card metric-card-green">
+                    <div class="metric-icon mountain-icon" aria-hidden="true">▲</div>
+                    <p>MCP score</p>
+                    <strong id="display-mcp">—</strong>
+                    <span id="mcp-status" class="metric-change">Your whole-health marker</span>
+                </article>
+            </section>
 
-            <!-- Lifestyle gauge arrow -->
-            <div
-                class="gauge-arrow-position gauge-arrow-lifestyle"
-                aria-hidden="true"
-            >
-                <div
-                    id="lifestyle-gauge-arrow"
-                    class="gauge-arrow"
-                >
-                    <span class="gauge-arrow-head"></span>
-                    <span class="gauge-arrow-shaft"></span>
-                    <span class="gauge-arrow-pivot"></span>
-                </div>
-            </div>
+            <section class="insight-grid">
+                <article class="panel score-panel">
+                    <div class="panel-heading">
+                        <div><p class="eyebrow">CURRENT MOMENTUM</p><h3>MCP & lifestyle</h3></div>
+                    </div>
+                    <div class="score-pair">
+                        <div class="score-ring mcp-ring" id="mcp-ring">
+                            <div><strong id="display-mcp-ring">—</strong><span>MCP</span></div>
+                        </div>
+                        <div class="score-ring lifestyle-ring" id="lifestyle-ring">
+                            <div>
+                                <strong><span id="display-lifestyle-score">—</span><small>/24</small></strong>
+                                <span>Lifestyle</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p id="momentum-message" class="momentum-message">Complete your information to reveal your current momentum.</p>
+                </article>
 
+                <article class="panel lifestyle-panel">
+                    <div class="panel-heading">
+                        <div><p class="eyebrow">LIFESTYLE CHECKLIST</p><h3>The habits behind the score</h3></div>
+                        <span id="display-lifestyle-percent" class="score-pill">—</span>
+                    </div>
+                    <div id="lifestyle-items" class="lifestyle-items" aria-live="polite"></div>
+                </article>
+            </section>
 
-            <!-- Lifestyle raw score -->
-            <div
-                class="lifestyle-score-overlay"
-                aria-live="polite"
-            >
-                <span id="display-lifestyle-score">--</span>
+            <section class="chart-grid">
+                <article class="panel chart-panel">
+                    <div class="panel-heading">
+                        <div><p class="eyebrow">LAST 14 DAYS</p><h3>Weight trend</h3></div>
+                        <div class="weight-chart-meta">
+                            <span id="weight-chart-summary" class="chart-summary">No entries yet</span>
+                            <span id="goal-weight-label" class="goal-weight-label">Goal: —</span>
+                        </div>
+                    </div>
+                    <div class="chart-wrap">
+                        <canvas id="weight-chart" aria-label="Weight over the last 14 days"></canvas>
+                        <p id="weight-chart-empty" class="chart-empty">Your saved Daily weights will appear here.</p>
+                    </div>
+                    <p class="goal-line-help">Drag the gold goal line up or down to change your goal weight.</p>
+                </article>
 
-                <span class="lifestyle-score-divider">
-                    /
-                </span>
+                <article class="panel chart-panel">
+                    <div class="panel-heading">
+                        <div><p class="eyebrow">WALKING / TIME</p><h3>Recent walks</h3></div>
+                        <span id="walking-chart-summary" class="chart-summary">No walks yet</span>
+                    </div>
+                    <div class="chart-wrap">
+                        <canvas id="walking-chart" aria-label="Walking miles and minutes by day"></canvas>
+                        <p id="walking-chart-empty" class="chart-empty">Walks saved on the Walking page will appear here.</p>
+                    </div>
+                    <div class="chart-legend"><span class="miles-key">Miles</span><span class="minutes-key">Minutes</span></div>
+                </article>
+            </section>
 
-                <span>24</span>
-            </div>
-
-
-            <!-- =====================================
-                 MCP hotspot
-                 ===================================== -->
-
-            <div
-                id="kscore-button"
-                role="button"
-                tabindex="0"
-                aria-label="Open MCP information form"
-                aria-expanded="false"
-            ></div>
-
+            <section class="weekly-strip" aria-label="Weekly summary">
+                <div><span>7-day distance</span><strong id="weekly-miles">0.00 mi</strong></div>
+                <div><span>Walking time</span><strong id="weekly-minutes">0 min</strong></div>
+                <div><span>Weight change</span><strong id="weekly-weight-change">—</strong></div>
+                <div><span>Lifestyle score</span><strong id="weekly-lifestyle">— / 24</strong></div>
+                <a href="/daily/">Open Daily Summary <span aria-hidden="true">→</span></a>
+            </section>
         </div>
-
-<!-- Simulation Lab hotspot -->
-<div
-    id="simulation-button"
-    role="button"
-    tabindex="0"
-    aria-label="Open Simulation Lab"
-></div>
-        
     </main>
 
 

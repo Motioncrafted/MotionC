@@ -1285,3 +1285,430 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
 });
+
+/* =========================================
+   Modern Summary data and chart layer
+   ========================================= */
+
+const summaryDailyStorageKey = "motionc-daily-prototype-v1";
+const summaryWalkingStorageKey = "walking_page_walks_v1";
+const summaryMcpStorageKey = "motionc-mcp-summary-v1";
+const summaryGoalStorageKey = "motionc-weight-goal-v1";
+let summaryGoalWeight = null;
+let summaryWeightPoints = [];
+
+const summaryLifestyleMeta = {
+    sleep: ["☾", "Sleep", ["Needs attention", "About 6 hours", "7–8 hours"]],
+    hydration: ["◒", "Hydration", ["Drink more water", "Improving", "Well hydrated"]],
+    nutrition: ["●", "Nutrition", ["Needs attention", "Mixed choices", "Healthy choices"]],
+    movement: ["↗", "Walking", ["Under 3,000 steps", "3,000–8,000 steps", "8,000+ steps"]],
+    stress: ["◇", "Stress", ["High stress", "Moderate stress", "Well managed"]],
+    alcohol: ["▽", "Alcohol", ["High intake", "Moderate intake", "Low intake"]],
+    smoking: ["⊘", "Smoking", ["Current smoker", "Former smoker", "Non-smoker"]],
+    activity: ["✦", "Activity", ["Rare exercise", "Occasional exercise", "Regular workouts"]]
+};
+
+function readSummaryStorage(key, fallback) {
+    try {
+        const parsed = JSON.parse(localStorage.getItem(key));
+        return parsed ?? fallback;
+    } catch {
+        return fallback;
+    }
+}
+
+function summaryDate(value) {
+    return new Date(`${value}T12:00:00`);
+}
+
+function summaryIso(date) {
+    const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0, 10);
+}
+
+function recentDateKeys(days) {
+    const dates = [];
+    const today = new Date();
+    today.setHours(12, 0, 0, 0);
+    for (let offset = days - 1; offset >= 0; offset -= 1) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - offset);
+        dates.push(summaryIso(date));
+    }
+    return dates;
+}
+
+function shortChartDate(value) {
+    return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" })
+        .format(summaryDate(value));
+}
+
+function setRingValue(id, percentage) {
+    const ring = document.getElementById(id);
+    if (ring) {
+        ring.style.setProperty("--ring-value", `${Math.max(0, Math.min(100, percentage)) * 3.6}deg`);
+    }
+}
+
+function renderLifestyleSummary(saved) {
+    const container = document.getElementById("lifestyle-items");
+    if (!container) return;
+
+    const values = saved?.values || {};
+    container.innerHTML = Object.entries(summaryLifestyleMeta).map(([key, meta]) => {
+        const numeric = Number(values[key]);
+        const level = Number.isFinite(numeric) ? Math.max(0, Math.min(2, Math.round(numeric * 2))) : -1;
+        const stateClass = level === 2 ? "good" : level === 1 ? "mid" : level === 0 ? "low" : "";
+        const detail = level >= 0 ? meta[2][level] : "Not answered";
+        return `
+            <div class="lifestyle-item">
+                <span class="lifestyle-item-icon" aria-hidden="true">${meta[0]}</span>
+                <span><strong>${meta[1]}</strong><small>${detail}</small></span>
+                <span class="lifestyle-level ${stateClass}" aria-label="${detail}"></span>
+            </div>
+        `;
+    }).join("");
+
+    const score = Number(saved?.score);
+    if (Number.isFinite(score)) {
+        setText("display-lifestyle-score", String(score));
+        setText("display-lifestyle-percent", `${Math.round(score / 24 * 100)}%`);
+        setText("weekly-lifestyle", `${score} / 24`);
+        setRingValue("lifestyle-ring", score / 24 * 100);
+    }
+}
+
+function roundedRect(context, x, y, width, height, radius) {
+    const safeRadius = Math.min(radius, Math.abs(width) / 2, Math.abs(height) / 2);
+    context.beginPath();
+    context.roundRect(x, y, width, height, safeRadius);
+}
+
+function prepareCanvas(canvas) {
+    const ratio = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = Math.max(1, Math.round(rect.width * ratio));
+    canvas.height = Math.max(1, Math.round(rect.height * ratio));
+    const context = canvas.getContext("2d");
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    return { context, width: rect.width, height: rect.height };
+}
+
+function drawGrid(context, width, height, padding) {
+    context.strokeStyle = "#e4e9e5";
+    context.lineWidth = 1;
+    for (let row = 0; row < 4; row += 1) {
+        const y = padding.top + (height - padding.top - padding.bottom) * row / 3;
+        context.beginPath();
+        context.moveTo(padding.left, y);
+        context.lineTo(width - padding.right, y);
+        context.stroke();
+    }
+}
+
+function drawWeightChart(points) {
+    const canvas = document.getElementById("weight-chart");
+    const empty = document.getElementById("weight-chart-empty");
+    if (!canvas || !empty) return;
+
+    if (points.length < 1) {
+        empty.hidden = false;
+        canvas.hidden = true;
+        return;
+    }
+
+    empty.hidden = true;
+    canvas.hidden = false;
+    const { context, width, height } = prepareCanvas(canvas);
+    const padding = { top: 18, right: 15, bottom: 34, left: 14 };
+    summaryWeightPoints = points;
+    const values = points.map(point => point.value);
+    if (Number.isFinite(summaryGoalWeight)) values.push(summaryGoalWeight);
+    const minimum = Math.min(...values) - .7;
+    const maximum = Math.max(...values) + .7;
+    const chartWidth = width - padding.left - padding.right;
+    const chartHeight = height - padding.top - padding.bottom;
+    drawGrid(context, width, height, padding);
+
+    const coordinates = points.map((point, index) => ({
+        x: padding.left + chartWidth * (points.length === 1 ? .5 : index / (points.length - 1)),
+        y: padding.top + chartHeight * (1 - (point.value - minimum) / (maximum - minimum)),
+        ...point
+    }));
+
+    const gradient = context.createLinearGradient(0, padding.top, 0, height - padding.bottom);
+    gradient.addColorStop(0, "rgba(52, 123, 80, .28)");
+    gradient.addColorStop(1, "rgba(52, 123, 80, 0)");
+    context.beginPath();
+    context.moveTo(coordinates[0].x, height - padding.bottom);
+    coordinates.forEach(point => context.lineTo(point.x, point.y));
+    context.lineTo(coordinates.at(-1).x, height - padding.bottom);
+    context.closePath();
+    context.fillStyle = gradient;
+    context.fill();
+
+    context.beginPath();
+    coordinates.forEach((point, index) => index ? context.lineTo(point.x, point.y) : context.moveTo(point.x, point.y));
+    context.strokeStyle = "#347b50";
+    context.lineWidth = 3;
+    context.lineJoin = "round";
+    context.lineCap = "round";
+    context.stroke();
+
+    coordinates.forEach(point => {
+        context.beginPath();
+        context.arc(point.x, point.y, 4, 0, Math.PI * 2);
+        context.fillStyle = "#fff";
+        context.fill();
+        context.strokeStyle = "#347b50";
+        context.lineWidth = 2;
+        context.stroke();
+    });
+
+    if (Number.isFinite(summaryGoalWeight)) {
+        const goalY = padding.top + chartHeight * (1 - (summaryGoalWeight - minimum) / (maximum - minimum));
+        context.save();
+        context.setLineDash([7, 5]);
+        context.beginPath();
+        context.moveTo(padding.left, goalY);
+        context.lineTo(width - padding.right, goalY);
+        context.strokeStyle = "#d19a2d";
+        context.lineWidth = 2;
+        context.stroke();
+        context.restore();
+
+        const goalText = `Goal ${summaryGoalWeight.toFixed(1)} lb`;
+        context.font = "bold 10px Arial";
+        const labelWidth = context.measureText(goalText).width + 14;
+        context.fillStyle = "#fff4d2";
+        roundedRect(context, width - padding.right - labelWidth, goalY - 20, labelWidth, 17, 7);
+        context.fill();
+        context.fillStyle = "#8c6415";
+        context.textAlign = "center";
+        context.fillText(goalText, width - padding.right - labelWidth / 2, goalY - 8);
+        canvas._goalScale = { minimum, maximum, top: padding.top, height: chartHeight, goalY };
+        setText("goal-weight-label", `Goal: ${summaryGoalWeight.toFixed(1)} lb`);
+    }
+
+    context.fillStyle = "#7a8782";
+    context.font = "10px Arial";
+    context.textAlign = "center";
+    coordinates.forEach((point, index) => {
+        if (index === 0 || index === coordinates.length - 1 || index % 3 === 0) {
+            context.fillText(shortChartDate(point.date), point.x, height - 11);
+        }
+    });
+}
+
+function drawWalkingChart(points) {
+    const canvas = document.getElementById("walking-chart");
+    const empty = document.getElementById("walking-chart-empty");
+    if (!canvas || !empty) return;
+
+    if (!points.some(point => point.miles > 0 || point.minutes > 0)) {
+        empty.hidden = false;
+        canvas.hidden = true;
+        return;
+    }
+
+    empty.hidden = true;
+    canvas.hidden = false;
+    const { context, width, height } = prepareCanvas(canvas);
+    const padding = { top: 18, right: 15, bottom: 34, left: 14 };
+    const chartWidth = width - padding.left - padding.right;
+    const chartHeight = height - padding.top - padding.bottom;
+    const maxMiles = Math.max(1, ...points.map(point => point.miles));
+    const maxMinutes = Math.max(10, ...points.map(point => point.minutes));
+    const slot = chartWidth / points.length;
+    const barWidth = Math.min(26, slot * .58);
+    drawGrid(context, width, height, padding);
+
+    points.forEach((point, index) => {
+        const center = padding.left + slot * (index + .5);
+        const milesHeight = chartHeight * point.miles / maxMiles;
+        context.fillStyle = "#5b8a54";
+        roundedRect(context, center - barWidth / 2, height - padding.bottom - milesHeight, barWidth, milesHeight, 5);
+        context.fill();
+
+        if (index === 0 || index === points.length - 1 || index % 2 === 0) {
+            context.fillStyle = "#7a8782";
+            context.font = "10px Arial";
+            context.textAlign = "center";
+            context.fillText(shortChartDate(point.date), center, height - 11);
+        }
+    });
+
+    const timeCoordinates = points.map((point, index) => ({
+        x: padding.left + slot * (index + .5),
+        y: padding.top + chartHeight * (1 - point.minutes / maxMinutes),
+        active: point.minutes > 0
+    }));
+    context.beginPath();
+    let lineStarted = false;
+    timeCoordinates.forEach(point => {
+        if (!point.active) {
+            lineStarted = false;
+            return;
+        }
+        if (lineStarted) context.lineTo(point.x, point.y);
+        else context.moveTo(point.x, point.y);
+        lineStarted = true;
+    });
+    context.strokeStyle = "#d79a30";
+    context.lineWidth = 3;
+    context.lineCap = "round";
+    context.lineJoin = "round";
+    context.stroke();
+    timeCoordinates.filter(point => point.active).forEach(point => {
+        context.beginPath();
+        context.arc(point.x, point.y, 3.5, 0, Math.PI * 2);
+        context.fillStyle = "#fff";
+        context.fill();
+        context.strokeStyle = "#d79a30";
+        context.lineWidth = 2;
+        context.stroke();
+    });
+}
+
+function renderSummaryData() {
+    const daily = readSummaryStorage(summaryDailyStorageKey, { entries: {}, profile: {} });
+    const walks = readSummaryStorage(summaryWalkingStorageKey, []);
+    const lifestyle = readSummaryStorage(lifestyleSummaryStorageKey, null);
+    const savedMcp = readSummaryStorage(summaryMcpStorageKey, null);
+    const dates14 = recentDateKeys(14);
+    const dates7 = dates14.slice(-7);
+    const entries = daily?.entries || {};
+    const savedGoal = Number(readSummaryStorage(summaryGoalStorageKey, null));
+    const profileGoal = Number(daily?.profile?.motivationalGoal);
+    summaryGoalWeight = savedGoal > 0 ? savedGoal : profileGoal > 0 ? profileGoal : 195;
+
+    if (savedMcp?.measurementData && savedMcp?.results) {
+        updateMcpDashboard({
+            system: savedMcp.measurementData.system,
+            enteredWeight: Number(savedMcp.measurementData.enteredWeight),
+            enteredWaist: Number(savedMcp.measurementData.enteredWaist),
+            results: savedMcp.results
+        });
+        document.dispatchEvent(new CustomEvent("motionc:mcp-summary-restored", {
+            detail: savedMcp
+        }));
+    }
+
+    const weightPoints = dates14
+        .filter(date => Number(entries[date]?.weight) > 0)
+        .map(date => ({ date, value: Number(entries[date].weight) }));
+    drawWeightChart(weightPoints);
+
+    if (weightPoints.length) {
+        const first = weightPoints[0].value;
+        const last = weightPoints.at(-1).value;
+        const change = last - first;
+        setText("display-weight", last.toFixed(1));
+        setText("display-weight-unit", "lb");
+        setText("weight-change", `${change <= 0 ? "▼" : "▲"} ${Math.abs(change).toFixed(1)} lb over 14 days`);
+        setText("weight-chart-summary", `${last.toFixed(1)} lb · ${change > 0 ? "+" : ""}${change.toFixed(1)} lb`);
+        setText("weekly-weight-change", `${change > 0 ? "+" : ""}${change.toFixed(1)} lb`);
+    }
+
+    const walkArray = Array.isArray(walks) ? walks : [];
+    const walkPoints = dates14.map(date => {
+        const savedWalks = walkArray.filter(walk => walk.date === date);
+        const dailyEntry = entries[date] || {};
+        const savedMiles = savedWalks.reduce((total, walk) => total + Number(walk.miles || 0), 0);
+        const savedMinutes = savedWalks.reduce((total, walk) => total + Number(walk.minutes || 0), 0);
+        return {
+            date,
+            miles: savedMiles || Number(dailyEntry.distance || 0),
+            minutes: savedMinutes || Number(dailyEntry.minutes || 0)
+        };
+    });
+    drawWalkingChart(walkPoints);
+
+    const recentWalks = walkPoints.filter(point => dates7.includes(point.date));
+    const weeklyMiles = recentWalks.reduce((total, point) => total + point.miles, 0);
+    const weeklyMinutes = recentWalks.reduce((total, point) => total + point.minutes, 0);
+    setText("weekly-miles", `${weeklyMiles.toFixed(2)} mi`);
+    setText("weekly-minutes", `${Math.round(weeklyMinutes)} min`);
+    setText("walking-chart-summary", `${weeklyMiles.toFixed(1)} mi · ${Math.round(weeklyMinutes)} min this week`);
+
+    const waist = Number(daily?.profile?.waist);
+    if (waist > 0) setText("display-waist", waist.toFixed(1));
+    renderLifestyleSummary(lifestyle);
+}
+
+function updateModernMcpDisplay(detail) {
+    const eventDetail = detail || {};
+    const mcp = Number(eventDetail.results?.mcp);
+    const bmi = Number(eventDetail.results?.bmi);
+    if (Number.isFinite(mcp)) {
+        setText("display-mcp-ring", mcp.toFixed(1));
+        setRingValue("mcp-ring", mcp / 50 * 100);
+        setText("mcp-status", mcp >= 45 ? "Core zone" : mcp >= 30 ? "Healthy zone" : mcp >= 20 ? "Caution zone" : "At-risk zone");
+        setText("momentum-message", mcp >= 30 ? "You’re building healthy momentum. Consistency is doing its quiet work." : "Every small improvement moves the score. Choose one habit to strengthen today.");
+    }
+    if (Number.isFinite(bmi)) {
+        setText("bmi-status", bmi < 18.5 ? "Below healthy range" : bmi < 25 ? "Healthy range" : bmi < 30 ? "Above healthy range" : "High range");
+    }
+}
+
+document.addEventListener("motionc:mcp-updated", event => {
+    if (event.detail?.measurementData && event.detail?.results) {
+        localStorage.setItem(summaryMcpStorageKey, JSON.stringify({
+            ...event.detail,
+            updatedAt: new Date().toISOString()
+        }));
+    }
+    updateModernMcpDisplay(event.detail);
+});
+
+document.addEventListener("motionc:mcp-summary-restored", event => {
+    updateModernMcpDisplay(event.detail);
+});
+
+document.addEventListener("motionc:lifestyle-updated", event => {
+    setRingValue("lifestyle-ring", Number(event.detail?.percentage) || 0);
+    renderLifestyleSummary(readSummaryStorage(lifestyleSummaryStorageKey, null));
+});
+
+window.addEventListener("resize", () => {
+    window.clearTimeout(window.motioncSummaryResize);
+    window.motioncSummaryResize = window.setTimeout(renderSummaryData, 120);
+});
+
+const summaryWeightCanvas = document.getElementById("weight-chart");
+let draggingWeightGoal = false;
+
+function updateGoalFromPointer(event) {
+    const scale = summaryWeightCanvas?._goalScale;
+    if (!scale) return;
+    const rect = summaryWeightCanvas.getBoundingClientRect();
+    const y = Math.max(scale.top, Math.min(scale.top + scale.height, event.clientY - rect.top));
+    const percentage = 1 - (y - scale.top) / scale.height;
+    summaryGoalWeight = Math.round((scale.minimum + percentage * (scale.maximum - scale.minimum)) * 10) / 10;
+    localStorage.setItem(summaryGoalStorageKey, String(summaryGoalWeight));
+    drawWeightChart(summaryWeightPoints);
+}
+
+summaryWeightCanvas?.addEventListener("pointerdown", event => {
+    const scale = summaryWeightCanvas._goalScale;
+    if (!scale) return;
+    const rect = summaryWeightCanvas.getBoundingClientRect();
+    if (Math.abs(event.clientY - rect.top - scale.goalY) > 18) return;
+    draggingWeightGoal = true;
+    summaryWeightCanvas.setPointerCapture(event.pointerId);
+    updateGoalFromPointer(event);
+});
+
+summaryWeightCanvas?.addEventListener("pointermove", event => {
+    if (draggingWeightGoal) updateGoalFromPointer(event);
+});
+
+summaryWeightCanvas?.addEventListener("pointerup", event => {
+    draggingWeightGoal = false;
+    if (summaryWeightCanvas.hasPointerCapture(event.pointerId)) {
+        summaryWeightCanvas.releasePointerCapture(event.pointerId);
+    }
+});
+
+window.addEventListener("DOMContentLoaded", renderSummaryData);
+window.addEventListener("pageshow", renderSummaryData);
