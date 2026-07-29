@@ -175,6 +175,64 @@
       height: 8.6%;
     }
 
+    .walking-preferences-toggle {
+      top: 2.1%;
+      height: 10.6%;
+      cursor: pointer;
+      background: transparent;
+    }
+
+    .daily-link {
+      top: 66.8%;
+      left: .45%;
+      display: grid;
+      width: 8.75%;
+      height: 12.3%;
+      padding: 6px 2px 4px;
+      place-items: center;
+      border: 0;
+      border-radius: 0;
+      color: white;
+      background: linear-gradient(165deg, #223035, #151f21);
+      font-size: clamp(7px, .72vw, 12px);
+      text-decoration: none;
+    }
+
+    .daily-link img {
+      width: 48%;
+      max-height: 68%;
+      object-fit: contain;
+    }
+
+    .walking-preferences-menu {
+      position: absolute;
+      z-index: 30;
+      top: 2%;
+      left: 9.8%;
+      width: min(225px, 20%);
+      padding: clamp(10px, 1.1vw, 17px);
+      border: 1px solid #d7dfda;
+      border-radius: 12px;
+      color: #17352c;
+      background: rgba(255,255,255,.98);
+      box-shadow: 0 14px 34px rgba(0,0,0,.28);
+      font-family: Arial, sans-serif;
+    }
+    .walking-preferences-menu[hidden] { display: none; }
+    .walking-preferences-menu > strong { display: block; font-size: clamp(12px, 1vw, 16px); }
+    .walking-preferences-menu > p { margin: 4px 0 10px; color: #687771; font-size: clamp(8px, .7vw, 11px); }
+    .walking-preferences-menu label {
+      display: flex;
+      gap: 7px;
+      margin-top: 7px;
+      padding: 7px;
+      align-items: center;
+      border-radius: 7px;
+      background: #f2f6f2;
+      font-size: clamp(8px, .72vw, 12px);
+    }
+    .walking-preferences-menu label small { margin-left: auto; color: #728078; }
+
     .lifetime {
       left: 12.35%;
       top: 3.8%;
@@ -619,6 +677,21 @@
     </div>
     <div id="routeDots" aria-hidden="true"></div>
 
+    <button
+      class="nav-hotspot walking-preferences-toggle"
+      id="walkingPreferencesToggle"
+      type="button"
+      aria-label="Open preferences"
+      aria-expanded="false"
+      aria-controls="walkingPreferencesMenu"
+    ></button>
+    <div class="walking-preferences-menu" id="walkingPreferencesMenu" hidden>
+      <strong>Preferences</strong>
+      <p>Measurement system</p>
+      <label><input type="radio" name="walkingUnitSystem" value="imperial"> Imperial <small>lb · mi · in</small></label>
+      <label><input type="radio" name="walkingUnitSystem" value="metric"> Metric <small>kg · km · cm</small></label>
+    </div>
+
     <span
       class="nav-hotspot walking-location"
       aria-label="Walking — current page"
@@ -630,6 +703,10 @@
       aria-label="Open MCP page"
       title="MCP"
     ></a>
+    <a class="nav-hotspot daily-link" href="/daily/" aria-label="Open Daily page">
+      <img src="/images/nav/daily.png" alt="">
+      <span>DAILY</span>
+    </a>
 
     <img
       class="route-marker"
@@ -865,6 +942,23 @@
     document.getElementById("dayDistanceLabel").textContent =
       unitSystem === "metric" ? "Kilometres" : "Miles";
     milesInput.value = unitSystem === "metric" ? "1.00" : "1.00";
+    document.querySelectorAll('input[name="walkingUnitSystem"]').forEach(input => {
+      input.checked = input.value === unitSystem;
+      input.addEventListener("change", () => {
+        localStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify({
+          unitSystem: input.value,
+          updatedAt: new Date().toISOString()
+        }));
+        window.location.reload();
+      });
+    });
+    document.getElementById("walkingPreferencesToggle").addEventListener("click", event => {
+      event.preventDefault();
+      event.stopPropagation();
+      const menu = document.getElementById("walkingPreferencesMenu");
+      menu.hidden = !menu.hidden;
+      event.currentTarget.setAttribute("aria-expanded", String(!menu.hidden));
+    });
 
     function loadWalks() {
       try {
