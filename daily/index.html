@@ -10,10 +10,10 @@
 <body>
   <div class="app-shell">
     <aside class="sidebar" aria-label="MotionC navigation">
-      <a class="brand" href="/landing-page/" aria-label="MotionC home">
+      <button class="brand" id="preferencesToggle" type="button" aria-label="Open preferences" aria-expanded="false" aria-controls="preferencesMenu">
         <span class="brand-mark">MC</span>
         <span>MotionC</span>
-      </a>
+      </button>
       <nav>
         <a href="/landing-page/"><span>⌂</span>Home</a>
         <a class="active" href="/daily/"><span>◉</span>Daily</a>
@@ -36,7 +36,6 @@
           <span id="heroWeekday"></span>
           <strong id="heroDate"></strong>
         </div>
-        <button class="preferences-toggle" id="preferencesToggle" type="button" aria-expanded="false" aria-controls="preferencesMenu" aria-label="Open preferences">☰</button>
         <div class="preferences-menu" id="preferencesMenu" hidden>
           <strong>Preferences</strong>
           <p>Measurement system</p>
