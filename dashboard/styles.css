@@ -1,0 +1,1497 @@
+/* =========================================
+   MotionC Dashboard
+   ========================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f3f4f6;
+    overflow-x: hidden;
+}
+
+
+/* =========================================
+   Dashboard image
+   ========================================= */
+
+.main-content {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.dashboard-wrapper {
+    position: relative;
+
+    /*
+       The dashboard image has a 3:2 aspect ratio.
+
+       This sizing allows it to:
+       - use the available browser width,
+       - fit within roughly 96% of browser height,
+       - stop enlarging at 1276px.
+    */
+    width: min(100vw, calc(96vh * 1.5), 1276px);
+
+    margin: 0 auto;
+}
+
+.dashboard-image {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+/* =========================================
+   Page Fade
+   ========================================= */
+
+body {
+    transition: opacity 0.25s ease;
+}
+
+body.page-fade-out {
+    opacity: 0;
+}
+
+
+/* =========================================
+   MCP hotspot
+   ========================================= */
+
+/*
+   These four percentage values can be
+   adjusted after viewing the deployed page:
+
+   top
+   left
+   width
+   height
+*/
+
+#kscore-button {
+    position: absolute;
+
+    top: 21.6%;
+    left: 68.5%;
+    width: 13.2%;
+    height: 4.5%;
+
+    /* Fully enclose the top edge of the Health Profile plate. */
+    transform: translateY(-5%);
+
+    padding: 0;
+
+    background: transparent;
+    border: 2px solid transparent;
+    border-radius: 10px;
+
+    cursor: pointer;
+    z-index: 25;
+
+    transition:
+        background 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+/* =========================================
+   Active Page Indicator
+   ========================================= */
+
+.active-page {
+
+    background: transparent;
+
+    border: 2px solid #D3AA3D;
+
+    box-shadow:
+        0 0 5px rgba(255, 239, 184, 0.78),
+        0 0 13px rgba(212, 175, 55, 0.54),
+        inset 0 0 6px rgba(255, 245, 180, 0.32);
+
+}
+
+.active-page:hover {
+
+    background: transparent;
+
+    box-shadow:
+        0 0 7px rgba(255, 242, 196, 0.92),
+        0 0 17px rgba(212, 175, 55, 0.68),
+        inset 0 0 8px rgba(255, 245, 180, 0.42);
+
+}
+
+#kscore-button:hover {
+    background: transparent;
+}
+
+#kscore-button:focus-visible {
+    outline: 3px solid rgba(59, 130, 246, 0.45);
+    outline-offset: 2px;
+}
+
+/* =========================================
+   Engine Room hotspot
+   ========================================= */
+
+#simulation-button {
+    position: absolute;
+
+    top: 21.6%;
+    left: 66.7%;
+    width: 5.95%;
+    height: 4.5%;
+
+    /*
+       Lift the hotspot so its border follows
+       the full Engine Room button plate.
+    */
+    transform: translateY(-25%);
+
+    padding: 0;
+
+    background: transparent;
+    border: 2px solid transparent;
+    border-radius: 8px;
+
+    cursor: pointer;
+    z-index: 25;
+}
+
+#simulation-button:hover {
+    background: transparent;
+}
+
+#simulation-button:focus-visible {
+    outline: 3px solid rgba(59, 130, 246, 0.45);
+    outline-offset: 2px;
+}
+
+/*
+   Steady, close-fitting outlines for the
+   Health Profile and Engine Room buttons.
+*/
+
+#kscore-button,
+#simulation-button {
+    border: 2px solid #D3AA3D;
+    border-radius: 6px;
+    box-shadow:
+        0 2px 4px -1px rgba(255, 232, 145, 0.48),
+        0 6px 9px -5px rgba(212, 175, 55, 0.58),
+        inset 0 -2px 3px rgba(255, 239, 176, 0.18);
+    animation: none;
+}
+
+#kscore-button:hover,
+#simulation-button:hover {
+    border-color: #D3AA3D;
+    box-shadow:
+        0 2px 4px -1px rgba(255, 232, 145, 0.48),
+        0 6px 9px -5px rgba(212, 175, 55, 0.58),
+        inset 0 -2px 3px rgba(255, 239, 176, 0.18);
+}
+/* =========================================
+   Drawer overlay
+   ========================================= */
+
+.drawer-overlay {
+    position: fixed;
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.48);
+
+    opacity: 0;
+    pointer-events: none;
+
+    transition: opacity 0.25s ease;
+
+    z-index: 20;
+}
+
+.drawer-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+
+/* =========================================
+   Input drawer
+   ========================================= */
+
+.input-drawer {
+    position: fixed;
+
+    top: 0;
+    right: -440px;
+
+    /*
+       Desktop maximum: 420px
+
+       On narrow screens, always leave an
+       88px strip visible outside the drawer.
+       This preserves access to the MCP button
+       and provides an easy outside-click area.
+    */
+    width: min(420px, calc(100vw - 88px));
+    height: 100vh;
+
+    padding: 24px;
+
+    overflow-y: auto;
+    overscroll-behavior: contain;
+
+    background: #ffffff;
+    color: #1f2937;
+
+    box-shadow: -5px 0 18px rgba(0, 0, 0, 0.28);
+
+    transition: right 0.3s ease;
+
+    z-index: 30;
+}
+
+.input-drawer.open {
+    right: 0;
+}
+
+
+/* =========================================
+   Drawer header
+   ========================================= */
+
+.drawer-header {
+    position: relative;
+
+    padding-right: 42px;
+    margin-bottom: 22px;
+}
+
+.drawer-header h1 {
+    margin: 0 0 6px;
+
+    color: #174f2c;
+
+    font-size: 23px;
+    line-height: 1.2;
+}
+
+.drawer-header p {
+    margin: 0;
+
+    color: #667085;
+
+    font-size: 15px;
+    line-height: 1.45;
+}
+
+.drawer-close-btn {
+    position: absolute;
+
+    top: -5px;
+    right: -4px;
+
+    width: 36px;
+    height: 36px;
+
+    padding: 0;
+
+    background: #eef2f6;
+    color: #374151;
+
+    border: none;
+    border-radius: 50%;
+
+    font-size: 21px;
+    line-height: 36px;
+
+    cursor: pointer;
+}
+
+.drawer-close-btn:hover {
+    background: #dde4ea;
+}
+
+.drawer-close-btn:focus-visible {
+    outline: 3px solid rgba(57, 120, 66, 0.22);
+}
+
+
+/* =========================================
+   Form basics
+   ========================================= */
+
+fieldset {
+    margin: 0 0 22px;
+    padding: 0;
+
+    border: none;
+}
+
+legend {
+    margin-bottom: 14px;
+
+    color: #174f2c;
+
+    font-size: 18px;
+    font-weight: 700;
+}
+
+
+/* =========================================
+   Measurement system
+   ========================================= */
+
+.ms-options {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 18px;
+
+    margin-bottom: 16px;
+}
+
+.ms-option {
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.ms-option input[type="radio"] {
+    width: 16px;
+    height: 16px;
+
+    margin: 0;
+}
+
+
+/* =========================================
+   Measurement fields
+   ========================================= */
+
+.two-column {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    gap: 14px;
+
+    margin-bottom: 14px;
+}
+
+.field {
+    min-width: 0;
+}
+
+.field label {
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: #344054;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.field input,
+.field select {
+    width: 100%;
+
+    padding: 10px 11px;
+
+    background: #ffffff;
+    color: #111827;
+
+    border: 1px solid #cfd6df;
+    border-radius: 8px;
+
+    font-family: inherit;
+    font-size: 15px;
+}
+
+.field input:focus,
+.field select:focus {
+    border-color: #397842;
+
+    outline: 3px solid rgba(57, 120, 66, 0.14);
+}
+
+
+/* =========================================
+   Divider
+   ========================================= */
+
+.form-divider {
+    margin: 22px 0;
+
+    border: none;
+    border-top: 1px solid #e2e7ec;
+}
+
+
+/* =========================================
+   Lifestyle checklist
+   ========================================= */
+
+.quiz-group {
+    margin-bottom: 16px;
+    padding: 14px;
+
+    background: #f8faf9;
+
+    border: 1px solid #e2e7ec;
+    border-radius: 10px;
+}
+
+.quiz-heading {
+    display: block;
+
+    margin: 0 0 9px;
+
+    color: #344054;
+
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.quiz-options {
+    display: grid;
+
+    gap: 7px;
+}
+
+.quiz-options label {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.quiz-options input[type="checkbox"],
+.quiz-options input[type="radio"] {
+    width: 16px;
+    height: 16px;
+
+    margin: 0;
+}
+
+
+/* =========================================
+   Submit button
+   ========================================= */
+
+.submit-btn {
+    width: 100%;
+
+    margin-top: 4px;
+    padding: 12px;
+
+    background: #397842;
+    color: #ffffff;
+
+    border: none;
+    border-radius: 9px;
+
+    font-size: 16px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.submit-btn:hover {
+    background: #2f6336;
+}
+
+.submit-btn:focus-visible {
+    outline: 3px solid rgba(57, 120, 66, 0.25);
+    outline-offset: 2px;
+}
+
+
+/* =========================================
+   Smaller screens
+   ========================================= */
+
+@media (max-width: 600px) {
+    .input-drawer {
+        /*
+           Keep enough of the dashboard visible
+           to reach the MCP hotspot and overlay.
+        */
+        width: calc(100vw - 82px);
+        padding: 19px;
+    }
+
+    .drawer-header {
+        padding-right: 38px;
+    }
+
+    .drawer-header h1 {
+        font-size: 20px;
+    }
+
+    .two-column {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    #kscore-button {
+        border-width: 1px;
+        border-radius: 6px;
+    }
+}
+/* =========================================
+   Live top-row metric overlays
+   ========================================= */
+
+.dashboard-wrapper {
+    position: relative;
+}
+
+.metric-overlay {
+    position: absolute;
+    z-index: 3;
+
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.18em;
+
+    font-family: Arial, sans-serif;
+    font-weight: 700;
+    line-height: 1;
+
+    color: #1f2933;
+
+    /*
+       Temporary development styling.
+       Keep this visible while positioning.
+    */
+    background: transparent;
+    outline: none;
+}
+
+.metric-overlay > span:first-child {
+    font-size: clamp(10px, 1.65vw, 25px);
+}
+
+/*
+   Apply the smaller font only to the
+   weight and waist unit labels.
+*/
+#display-weight-unit,
+#display-waist-unit {
+    font-size: clamp(7px, 0.72vw, 12px);
+    font-weight: 600;
+}
+
+
+/* Current Weight */
+
+.metric-weight {
+    top: 33.9%;
+    left: 16.5%;
+    width: 8%;
+    height: 3.5%;
+}
+
+
+/* Waist */
+
+.metric-waist {
+    top: 33.9%;
+    left: 32.5%;
+    width: 8%;
+    height: 3.5%;
+}
+
+
+/* BMI */
+
+.metric-bmi {
+    top: 33.9%;
+    left: 44.5%;
+    width: 8%;
+    height: 3.5%;
+}
+
+
+/* MCP */
+
+.metric-mcp {
+    top: 33.9%; 
+    left: 59.2%; 
+    width: 8%;
+    height: 3.5%;
+}
+/* =========================================
+   Gauge arrows
+   ========================================= */
+
+/*
+   Each positioning box marks the centre pivot
+   at the bottom-middle of its gauge.
+
+   The arrow itself rotates around that point.
+*/
+
+.gauge-arrow-position {
+    position: absolute;
+    z-index: 6;
+
+    width: 1px;
+    height: 1px;
+
+    pointer-events: none;
+}
+
+
+/* Your Trend pivot */
+
+.gauge-arrow-trend {
+    left: 76.57%;
+    top: 45.70%;
+}
+
+
+/* Lifestyle pivot */
+
+.gauge-arrow-lifestyle {
+    left: 91.15%;
+    top: 45.70%;
+}
+
+
+/*
+   Initial angle points toward the centre-top.
+
+   JavaScript changes --gauge-angle after a
+   calculation is completed.
+*/
+
+.gauge-arrow {
+    --gauge-angle: -90deg;
+
+    position: absolute;
+
+    left: 0;
+    bottom: 0;
+
+    width: clamp(3px, 0.32vw, 5px);
+    height: clamp(46px, 6.2vw, 79px);
+
+    transform:
+        translateX(-50%)
+        rotate(var(--gauge-angle));
+
+    transform-origin: 50% 100%;
+
+    transition:
+        transform 0.7s
+        cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+
+/* Arrow shaft */
+
+.gauge-arrow-shaft {
+    position: absolute;
+
+    left: 50%;
+    bottom: clamp(6px, 0.7vw, 10px);
+
+    width: clamp(2px, 0.22vw, 4px);
+    height: calc(100% - clamp(15px, 1.5vw, 22px));
+
+    transform: translateX(-50%);
+
+    background: #17202a;
+
+    border-radius: 999px;
+
+    box-shadow:
+        0 1px 2px rgba(255, 255, 255, 0.7),
+        0 2px 3px rgba(0, 0, 0, 0.28);
+}
+
+
+/* Arrow tip */
+
+.gauge-arrow-head {
+    position: absolute;
+
+    top: 0;
+    left: 50%;
+
+    width: 0;
+    height: 0;
+
+    transform: translateX(-50%);
+
+    border-left:
+        clamp(5px, 0.48vw, 8px) solid transparent;
+
+    border-right:
+        clamp(5px, 0.48vw, 8px) solid transparent;
+
+    border-bottom:
+        clamp(10px, 0.9vw, 15px) solid #17202a;
+
+    filter:
+        drop-shadow(0 2px 1px rgba(0, 0, 0, 0.25));
+}
+
+
+/* Centre pivot cap */
+
+.gauge-arrow-pivot {
+    position: absolute;
+
+    left: 50%;
+    bottom: 0;
+
+    width: clamp(10px, 0.95vw, 15px);
+    height: clamp(10px, 0.95vw, 15px);
+
+    transform: translate(-50%, 50%);
+
+    background: #f4f4f4;
+
+    border: clamp(2px, 0.17vw, 3px) solid #17202a;
+    border-radius: 50%;
+
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+
+/* =========================================
+   Lifestyle score overlay
+   ========================================= */
+
+.lifestyle-score-overlay {
+    position: absolute;
+    z-index: 7;
+
+    top: 42.1%;
+    left: 88.35%;
+
+    width: 6.25%;
+    height: 3.4%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.18em;
+
+    color: #17202a;
+
+    font-family: Arial, sans-serif;
+    font-size: clamp(9px, 1.2vw, 18px);
+    font-weight: 700;
+    line-height: 1;
+
+    /*
+       Temporary positioning guides.
+       Remove these two declarations once
+       placement has been confirmed.
+    */
+    background: transparent;
+    outline: none;
+
+    pointer-events: none;
+}
+
+.lifestyle-score-divider {
+    font-weight: 500;
+}
+
+/* =========================================
+   2026 Summary redesign
+   ========================================= */
+
+:root {
+    --summary-ink: #172d2b;
+    --summary-muted: #6a7874;
+    --summary-green: #2f7851;
+    --summary-lime: #8fb43e;
+    --summary-line: #dce4df;
+    --summary-paper: #f5f4ef;
+    --summary-card: rgba(255, 255, 255, 0.92);
+}
+
+body {
+    color: var(--summary-ink);
+    background:
+        radial-gradient(circle at 14% 34%, rgba(174, 194, 146, .22), transparent 26rem),
+        #edf1ec;
+}
+
+.summary-hero {
+    position: relative;
+    min-height: 310px;
+    overflow: hidden;
+    color: white;
+    background:
+        linear-gradient(90deg, rgba(9, 32, 29, .9), rgba(9, 32, 29, .46) 52%, rgba(9, 32, 29, .2)),
+        url("/images/landing-page.png") center 45% / cover;
+}
+
+.summary-hero::after {
+    position: absolute;
+    inset: auto 0 0;
+    height: 90px;
+    content: "";
+    background: linear-gradient(transparent, rgba(9, 32, 29, .42));
+}
+
+.summary-nav {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    width: min(1180px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 22px 0;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, .24);
+}
+
+.brand {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    color: white;
+    text-decoration: none;
+}
+
+.brand-mark {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, .5);
+    border-radius: 12px;
+    color: #e4bd45;
+    background: rgba(5, 27, 24, .72);
+    font-size: 23px;
+    font-weight: 900;
+}
+
+.brand strong {
+    display: block;
+    font-size: 26px;
+    font-style: italic;
+    line-height: 1;
+}
+
+.brand strong span { color: #eaa122; }
+.brand small {
+    display: block;
+    margin-top: 4px;
+    color: rgba(255, 255, 255, .75);
+    font-size: 10px;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+}
+
+.nav-links { display: flex; gap: 8px; }
+.nav-links a {
+    padding: 9px 13px;
+    border-radius: 999px;
+    color: rgba(255, 255, 255, .88);
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+}
+.nav-links a:hover,
+.nav-links a:focus-visible {
+    color: white;
+    background: rgba(255, 255, 255, .14);
+    outline: none;
+}
+
+.hero-copy {
+    position: relative;
+    z-index: 2;
+    width: min(1180px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 54px 0 66px;
+}
+
+.eyebrow {
+    margin: 0 0 6px;
+    color: var(--summary-green);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .16em;
+}
+
+.hero-copy .eyebrow { color: #c7da80; }
+.hero-copy h1 {
+    margin: 0;
+    font-family: Georgia, serif;
+    font-size: clamp(45px, 6vw, 76px);
+    font-weight: 500;
+    letter-spacing: -.04em;
+    line-height: .95;
+}
+.hero-copy > p:last-child {
+    margin: 15px 0 0;
+    color: rgba(255, 255, 255, .82);
+    font-size: clamp(15px, 2vw, 19px);
+}
+
+.summary-shell {
+    width: min(1180px, calc(100% - 40px));
+    margin: -34px auto 48px;
+    position: relative;
+    z-index: 3;
+}
+
+.summary-heading {
+    display: flex;
+    gap: 20px;
+    padding: 24px 27px;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid rgba(255, 255, 255, .72);
+    border-radius: 18px;
+    background: rgba(250, 250, 247, .94);
+    box-shadow: 0 14px 36px rgba(21, 49, 39, .12);
+    backdrop-filter: blur(16px);
+}
+
+.summary-heading h2 {
+    margin: 0;
+    font-family: Georgia, serif;
+    font-size: clamp(23px, 3vw, 34px);
+    font-weight: 500;
+}
+
+#kscore-button.edit-profile-button {
+    position: static;
+    width: auto;
+    height: auto;
+    transform: none;
+    padding: 12px 18px;
+    border: 0;
+    border-radius: 10px;
+    color: white;
+    background: #245f42;
+    box-shadow: 0 7px 17px rgba(36, 95, 66, .2);
+    font-weight: 800;
+}
+#kscore-button.edit-profile-button:hover { background: #194f34; }
+
+.metric-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-top: 16px;
+}
+
+.metric-card {
+    position: relative;
+    min-height: 154px;
+    overflow: hidden;
+    padding: 21px 20px 18px 76px;
+    border: 1px solid rgba(42, 74, 63, .11);
+    border-radius: 16px;
+    background: var(--summary-card);
+    box-shadow: 0 7px 22px rgba(27, 54, 45, .07);
+}
+
+.metric-card::after {
+    position: absolute;
+    inset: auto -25px -42px auto;
+    width: 100px;
+    height: 100px;
+    content: "";
+    border-radius: 50%;
+    background: var(--accent-soft);
+}
+
+.metric-icon {
+    position: absolute;
+    top: 22px;
+    left: 18px;
+    display: grid;
+    width: 43px;
+    height: 43px;
+    place-items: center;
+    border-radius: 13px;
+    color: var(--accent);
+    background: var(--accent-soft);
+    font-size: 23px;
+    font-weight: 900;
+}
+.metric-card p {
+    margin: 4px 0 10px;
+    color: var(--summary-muted);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+.metric-card > strong {
+    display: block;
+    font-family: Georgia, serif;
+    font-size: 34px;
+    font-weight: 500;
+    line-height: 1;
+}
+.metric-card > strong small { font: 600 13px Arial, sans-serif; }
+.metric-change {
+    display: block;
+    margin-top: 13px;
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 700;
+}
+.metric-card-blue { --accent: #1d6bb7; --accent-soft: #e5f1fb; }
+.metric-card-gold { --accent: #b77a12; --accent-soft: #fff4d8; }
+.metric-card-coral { --accent: #c94c4b; --accent-soft: #ffe9e5; }
+.metric-card-green { --accent: #317344; --accent-soft: #e3f2e6; }
+
+.insight-grid,
+.chart-grid {
+    display: grid;
+    grid-template-columns: .82fr 1.18fr;
+    gap: 16px;
+    margin-top: 16px;
+}
+.chart-grid { grid-template-columns: 1fr 1fr; }
+
+.panel {
+    padding: 22px;
+    border: 1px solid rgba(42, 74, 63, .11);
+    border-radius: 17px;
+    background: var(--summary-card);
+    box-shadow: 0 7px 22px rgba(27, 54, 45, .07);
+}
+
+.panel-heading {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+.panel-heading h3 {
+    margin: 0;
+    font-family: Georgia, serif;
+    font-size: 23px;
+    font-weight: 500;
+}
+.score-pill,
+.chart-summary {
+    padding: 7px 10px;
+    border-radius: 999px;
+    color: #326445;
+    background: #e8f1e5;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.score-pair {
+    display: flex;
+    gap: 24px;
+    margin: 25px 0 18px;
+    justify-content: center;
+}
+.score-ring {
+    --ring-value: 0deg;
+    display: grid;
+    width: 126px;
+    aspect-ratio: 1;
+    place-items: center;
+    border-radius: 50%;
+    background: conic-gradient(var(--ring-color) var(--ring-value), #e4e9e5 0);
+}
+.score-ring::before {
+    grid-area: 1/1;
+    width: 94px;
+    aspect-ratio: 1;
+    content: "";
+    border-radius: 50%;
+    background: white;
+}
+.score-ring > div { z-index: 1; text-align: center; }
+.score-ring strong {
+    display: block;
+    font-family: Georgia, serif;
+    font-size: 31px;
+    font-weight: 500;
+}
+.score-ring strong small { font: 600 12px Arial, sans-serif; }
+.score-ring span { color: var(--summary-muted); font-size: 10px; font-weight: 800; text-transform: uppercase; }
+.mcp-ring { --ring-color: #3f8050; }
+.lifestyle-ring { --ring-color: #d69b28; }
+.momentum-message {
+    margin: 0;
+    padding-top: 15px;
+    border-top: 1px solid var(--summary-line);
+    color: #41634f;
+    font-size: 13px;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.lifestyle-items {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 9px;
+    margin-top: 18px;
+}
+.lifestyle-item {
+    display: grid;
+    grid-template-columns: 32px 1fr auto;
+    gap: 9px;
+    padding: 10px;
+    align-items: center;
+    border: 1px solid #e2e7e3;
+    border-radius: 11px;
+    background: #fafbf9;
+}
+.lifestyle-item-icon {
+    display: grid;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    border-radius: 9px;
+    background: #edf2ea;
+}
+.lifestyle-item strong { display: block; font-size: 12px; }
+.lifestyle-item small { display: block; margin-top: 2px; color: var(--summary-muted); font-size: 10px; }
+.lifestyle-level {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #c9d0ca;
+}
+.lifestyle-level.good { background: #54a15e; box-shadow: 0 0 0 4px #e2f0e2; }
+.lifestyle-level.mid { background: #e0a72f; box-shadow: 0 0 0 4px #f9efd6; }
+.lifestyle-level.low { background: #d75c4d; box-shadow: 0 0 0 4px #fae5e2; }
+
+.chart-panel { min-width: 0; }
+.chart-wrap {
+    position: relative;
+    height: 235px;
+    margin-top: 16px;
+}
+.chart-wrap canvas { width: 100%; height: 100%; }
+.chart-empty {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    margin: 0;
+    place-items: center;
+    color: #87928e;
+    font-size: 13px;
+    text-align: center;
+}
+.chart-empty[hidden] { display: none; }
+.chart-tooltip {
+    position: absolute;
+    z-index: 5;
+    min-width: 126px;
+    padding: 9px 11px;
+    border: 1px solid rgba(255, 255, 255, .16);
+    border-radius: 9px;
+    color: white;
+    background: rgba(18, 45, 38, .96);
+    box-shadow: 0 8px 20px rgba(12, 34, 28, .22);
+    font-size: 11px;
+    line-height: 1.4;
+    pointer-events: none;
+    transform: translate(-50%, calc(-100% - 12px));
+    white-space: nowrap;
+}
+.chart-tooltip::after {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    content: "";
+    background: rgba(18, 45, 38, .96);
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+.chart-tooltip strong {
+    display: block;
+    margin-bottom: 3px;
+    color: #d9e89c;
+    font-size: 11px;
+}
+.chart-tooltip span {
+    display: block;
+    color: rgba(255, 255, 255, .86);
+}
+.chart-tooltip[hidden] { display: none; }
+.chart-legend {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    color: var(--summary-muted);
+    font-size: 11px;
+    font-weight: 700;
+}
+.chart-legend span::before {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    margin-right: 6px;
+    border-radius: 3px;
+    content: "";
+}
+.miles-key::before { background: #5b8a54; }
+.minutes-key::before { background: #d79a30; }
+
+.weekly-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr) auto;
+    margin-top: 16px;
+    overflow: hidden;
+    border-radius: 16px;
+    color: white;
+    background: #173d33;
+    box-shadow: 0 9px 25px rgba(20, 57, 47, .16);
+}
+.weekly-strip > div,
+.weekly-strip > a { padding: 18px 20px; }
+.weekly-strip > div { border-right: 1px solid rgba(255, 255, 255, .12); }
+.weekly-strip span { display: block; color: #a9c2b4; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+.weekly-strip strong { display: block; margin-top: 5px; font-family: Georgia, serif; font-size: 18px; font-weight: 500; }
+.weekly-strip > a {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    color: #e9c45e;
+    font-size: 12px;
+    font-weight: 800;
+    text-decoration: none;
+}
+.weekly-strip > a span { color: inherit; font-size: 18px; }
+
+@media (max-width: 900px) {
+    .metric-grid { grid-template-columns: repeat(2, 1fr); }
+    .insight-grid, .chart-grid { grid-template-columns: 1fr; }
+    .weekly-strip { grid-template-columns: repeat(2, 1fr); }
+    .weekly-strip > a { grid-column: 1 / -1; justify-content: center; }
+}
+
+@media (max-width: 640px) {
+    .summary-hero { min-height: 275px; }
+    .summary-nav { width: calc(100% - 28px); }
+    .nav-links { display: none; }
+    .hero-copy, .summary-shell { width: calc(100% - 24px); }
+    .hero-copy { padding-top: 48px; }
+    .summary-heading { align-items: stretch; flex-direction: column; }
+    .metric-grid { grid-template-columns: 1fr; }
+    .lifestyle-items { grid-template-columns: 1fr; }
+    .score-pair { gap: 12px; }
+    .score-ring { width: 116px; }
+    .weekly-strip { grid-template-columns: 1fr 1fr; }
+    .weekly-strip > div { padding: 16px; }
+}
+
+/* Attached navigation and dedicated Engine Room access */
+
+.side-menu {
+    position: fixed;
+    z-index: 40;
+    inset: 0 auto 0 0;
+    display: flex;
+    width: 104px;
+    padding: 18px 10px 22px;
+    align-items: center;
+    flex-direction: column;
+    color: white;
+    background: linear-gradient(180deg, #132522, #0a1716);
+    box-shadow: 8px 0 24px rgba(7, 24, 20, .16);
+}
+
+.side-brand {
+    display: grid;
+    width: 54px;
+    height: 54px;
+    margin-bottom: 26px;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, .24);
+    border-radius: 15px;
+    color: #eab640;
+    background: #183831;
+    font-family: Georgia, serif;
+    font-size: 29px;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.side-brand img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+}
+
+.side-menu nav {
+    display: grid;
+    width: 100%;
+    gap: 8px;
+}
+
+.side-menu nav a {
+    display: grid;
+    min-height: 67px;
+    padding: 9px 4px;
+    place-items: center;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    color: rgba(255, 255, 255, .7);
+    text-decoration: none;
+}
+
+.side-menu nav a img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+.side-menu nav a small {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.side-menu nav a:hover,
+.side-menu nav a:focus-visible,
+.side-menu nav a.current {
+    border-color: rgba(190, 218, 112, .2);
+    color: white;
+    background: linear-gradient(145deg, #315c3e, #244a34);
+    outline: none;
+}
+
+.side-menu > p {
+    margin: auto 0 0;
+    color: #a9c968;
+    font-family: Georgia, serif;
+    font-size: 12px;
+    font-style: italic;
+    line-height: 1.65;
+    text-align: center;
+}
+
+.main-content {
+    width: calc(100% - 104px);
+    margin-left: 104px;
+}
+
+.heading-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+#simulation-button.engine-room-button {
+    position: static;
+    display: inline-flex;
+    width: auto;
+    height: auto;
+    gap: 8px;
+    transform: none;
+    padding: 11px 16px;
+    align-items: center;
+    border: 1px solid #bd8d2e;
+    border-radius: 10px;
+    color: #694b0e;
+    background: #fff8e3;
+    box-shadow: none;
+    font-size: 13px;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+#simulation-button.engine-room-button:hover {
+    border-color: #9c701b;
+    background: #ffefbd;
+    box-shadow: 0 5px 14px rgba(169, 120, 28, .14);
+}
+
+.weight-chart-meta {
+    display: grid;
+    gap: 6px;
+    justify-items: end;
+}
+
+.goal-weight-label {
+    color: #a77516;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.goal-line-help {
+    margin: 2px 0 0;
+    color: #8b7650;
+    font-size: 10px;
+    text-align: center;
+}
+
+#weight-chart {
+    cursor: ns-resize;
+    touch-action: none;
+}
+
+@media (max-width: 900px) {
+    .side-menu {
+        position: sticky;
+        top: 0;
+        display: block;
+        width: 100%;
+        height: auto;
+        padding: 8px 12px;
+    }
+    .side-brand,
+    .side-menu > p { display: none; }
+    .side-menu nav {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 5px;
+    }
+    .side-menu nav a {
+        min-height: 48px;
+        padding: 5px 3px;
+    }
+    .side-menu nav a img { width: 24px; height: 24px; }
+    .side-menu nav a small { font-size: 8px; }
+    .main-content { width: 100%; margin-left: 0; }
+}
+
+@media (max-width: 640px) {
+    .heading-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+    #simulation-button.engine-room-button,
+    #kscore-button.edit-profile-button {
+        justify-content: center;
+        text-align: center;
+    }
+}
