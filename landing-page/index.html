@@ -68,8 +68,17 @@
   height: 7.2%;
 }
 
+.understand {
+  left: 17.2%;
+  top: 82.8%;
+  width: 14.2%;
+  height: 11.5%;
+  border-radius: 999px;
+}
+
 .get-started,
-.learn-more {
+.learn-more,
+.understand {
   z-index: 3;
 }
     
@@ -224,6 +233,39 @@
       line-height: 1.55;
     }
 
+    .disclaimer-copyright {
+      margin-bottom: 14px !important;
+      color: #d8bf91;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+
+    .disclaimer-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 26px;
+    }
+
+    .got-it {
+      min-width: 112px;
+      padding: 11px 24px;
+      border: 1px solid #f0b429;
+      border-radius: 999px;
+      color: #20160e;
+      background: #f0b429;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 7px 18px rgba(0, 0, 0, .28);
+    }
+
+    .got-it:hover,
+    .got-it:focus-visible {
+      background: #ffd36a;
+      outline: 2px solid #fff1c5;
+      outline-offset: 3px;
+    }
+
     .pillars {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -301,6 +343,16 @@
       title="Learn More"
     ></button>
 
+    <button
+      class="hotspot understand"
+      id="understand"
+      type="button"
+      aria-label="Read the MotionC disclaimer"
+      aria-controls="disclaimerOverlay"
+      aria-expanded="false"
+      title="Disclaimer"
+    ></button>
+
     <a
       class="hotspot walks-sign"
       href="/walking/"
@@ -360,12 +412,39 @@
         </div>
       </div>
     </section>
+
+    <section
+      class="info-overlay"
+      id="disclaimerOverlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="disclaimerTitle"
+      hidden
+    >
+      <div class="info-card">
+        <p class="disclaimer-copyright">© 2026 MotionC</p>
+        <h1 id="disclaimerTitle">Disclaimer</h1>
+        <p>
+          The MCP-Score™ is designed to provide personal insight and promote general
+          wellness awareness. It is <strong>not</strong> a medical device or diagnostic
+          tool and does not diagnose, treat, prevent, or predict any disease or health
+          condition. Always consult a qualified healthcare professional regarding
+          questions about your health, measurements, or personal risk factors.
+        </p>
+        <div class="disclaimer-actions">
+          <button class="got-it" id="closeDisclaimer" type="button">Got It</button>
+        </div>
+      </div>
+    </section>
   </main>
 
   <script>
     const learnMore = document.getElementById("learnMore");
     const infoOverlay = document.getElementById("infoOverlay");
     const closeInfo = document.getElementById("closeInfo");
+    const understand = document.getElementById("understand");
+    const disclaimerOverlay = document.getElementById("disclaimerOverlay");
+    const closeDisclaimer = document.getElementById("closeDisclaimer");
     const miraHotspot = document.getElementById("miraHotspot");
     const miraBubble = document.getElementById("miraBubble");
     const miraComment = document.getElementById("miraComment");
@@ -398,12 +477,27 @@
     learnMore.addEventListener("click", () => setInfoOpen(true));
     closeInfo.addEventListener("click", () => setInfoOpen(false));
 
+    function setDisclaimerOpen(open) {
+      disclaimerOverlay.hidden = !open;
+      understand.setAttribute("aria-expanded", String(open));
+      if (open) closeDisclaimer.focus();
+      else understand.focus();
+    }
+
+    understand.addEventListener("click", () => setDisclaimerOpen(true));
+    closeDisclaimer.addEventListener("click", () => setDisclaimerOpen(false));
+
     infoOverlay.addEventListener("click", event => {
       if (event.target === infoOverlay) setInfoOpen(false);
     });
 
+    disclaimerOverlay.addEventListener("click", event => {
+      if (event.target === disclaimerOverlay) setDisclaimerOpen(false);
+    });
+
     document.addEventListener("keydown", event => {
       if (event.key === "Escape" && !infoOverlay.hidden) setInfoOpen(false);
+      if (event.key === "Escape" && !disclaimerOverlay.hidden) setDisclaimerOpen(false);
       if (event.key === "Escape" && !miraBubble.hidden) setMiraOpen(false);
     });
 
