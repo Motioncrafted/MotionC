@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Daily | MotionC</title>
   <meta name="description" content="Your quick daily MotionC health check-in.">
-  <link rel="stylesheet" href="/daily/styles.css?v=20260730-1">
+  <link rel="stylesheet" href="/daily/styles.css?v=20260730-2">
 </head>
 <body>
   <div class="app-shell">
@@ -161,6 +161,61 @@
           <div class="milestone-list" id="milestoneList"></div>
         </section>
 
+        <section class="walk-calculator card" aria-labelledby="walkCalculatorTitle">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">PLAN YOUR NEXT MOVE</p>
+              <h2 id="walkCalculatorTitle">Walking Calculator</h2>
+            </div>
+            <span class="calculator-badge">Estimate</span>
+          </div>
+
+          <div class="calculator-modes" role="group" aria-label="Choose what to calculate">
+            <button class="calculator-mode active" type="button" data-calc-mode="distance">Distance</button>
+            <button class="calculator-mode" type="button" data-calc-mode="time">Time</button>
+            <button class="calculator-mode" type="button" data-calc-mode="speed">Speed</button>
+            <button class="calculator-mode" type="button" data-calc-mode="calories">Calories</button>
+          </div>
+
+          <div class="calculator-fields">
+            <label data-calc-field="distance">
+              <span>Distance</span>
+              <span class="calculator-input"><input id="calcDistance" type="number" min="0" step="0.01"><small id="calcDistanceUnit">mi</small></span>
+            </label>
+            <label data-calc-field="time">
+              <span>Walking time</span>
+              <span class="calculator-input"><input id="calcTime" type="number" min="0" step="1"><small>min</small></span>
+            </label>
+            <label data-calc-field="speed">
+              <span>Walking speed</span>
+              <span class="calculator-input"><input id="calcSpeed" type="number" min="0" step="0.01"><small id="calcSpeedUnit">mph</small></span>
+            </label>
+            <label data-calc-field="weight">
+              <span>Current weight</span>
+              <span class="calculator-input"><input id="calcWeight" type="number" min="0" step="0.1"><small id="calcWeightUnit">lb</small></span>
+            </label>
+          </div>
+
+          <div class="calculator-result" aria-live="polite">
+            <span id="calcResultLabel">Estimated distance</span>
+            <strong id="calcResult">Enter walking time</strong>
+          </div>
+
+          <details class="projection-panel">
+            <summary>Weight-loss walking projection</summary>
+            <label>
+              Desired weight loss
+              <span class="calculator-input"><input id="calcTargetLoss" type="number" min="0" step="0.1"><small id="calcLossUnit">lb</small></span>
+            </label>
+            <div class="projection-results" id="projectionResults">Enter a desired loss to see a planning estimate.</div>
+          </details>
+
+          <p class="calculator-note">
+            Planning estimates only. Energy use and weight change vary by person, pace,
+            terrain, and other factors.
+          </p>
+        </section>
+
       </div>
     </main>
   </div>
@@ -184,6 +239,6 @@
     <button class="save-button full" id="saveWeekly" type="button">Save weekly check-in</button>
   </dialog>
 
-  <script src="/daily/script.js?v=20260730-1"></script>
+  <script src="/daily/script.js?v=20260730-2"></script>
 </body>
 </html>

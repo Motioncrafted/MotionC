@@ -69,6 +69,7 @@ function applyUnitSystem() {
   });
   if (fields.date.value) loadEntry(fields.date.value);
   renderAll(fields.date.value || isoDate());
+  refreshWalkingCalculator(true);
 }
 
 let state = loadState();
@@ -512,6 +513,136 @@ function renderMilestones() {
   ).join("");
 }
 
+let calculatorMode = "distance";
+
+function latestRecordedWeight() {
+  return Object.values(state.entries)
+    .filter(entry => Number(entry.weight) > 0)
+    .sort((a, b) => b.date.localeCompare(a.date))[0]?.weight || state.profile.startWeight;
+}
+
+function recentWalkingSpeed() {
+  const walks = Object.values(state.entries).filter(entry =>
+    Number(entry.distance) > 0 && Number(entry.minutes) > 0
+  );
+  const miles = walks.reduce((sum, entry) => sum + Number(entry.distance), 0);
+  const minutes = walks.reduce((sum, entry) => sum + Number(entry.minutes), 0);
+  return minutes > 0 ? miles / (minutes / 60) : 3;
+}
+
+function calculatorValues() {
+  return {
+    distance: Number(byId("calcDistance").value),
+    time: Number(byId("calcTime").value),
+    speed: Number(byId("calcSpeed").value),
+    weight: Number(byId("calcWeight").value)
+  };
+}
+
+function refreshWalkingCalculator(resetValues = false) {
+  byId("calcDistanceUnit").textContent = distanceUnit();
+  byId("calcSpeedUnit").textContent = unitSystem === "metric" ? "km/h" : "mph";
+  byId("calcWeightUnit").textContent = weightUnit();
+  byId("calcLossUnit").textContent = weightUnit();
+
+  if (resetValues) {
+    byId("calcWeight").value = displayWeight(latestRecordedWeight()).toFixed(1);
+    byId("calcSpeed").value = displayDistance(recentWalkingSpeed()).toFixed(2);
+    byId("calcDistance").value = "";
+    byId("calcTime").value = "";
+    byId("calcTargetLoss").value = "";
+  }
+
+  calculateWalk();
+}
+
+function setCalculatorMode(mode) {
+  calculatorMode = ["distance", "time", "speed", "calories"].includes(mode) ? mode : "distance";
+  const requirements = {
+    distance: ["speed", "time"],
+    time: ["distance", "speed"],
+    speed: ["distance", "time"],
+    calories: ["distance", "weight"]
+  };
+
+  document.querySelectorAll("[data-calc-mode]").forEach(button => {
+    button.classList.toggle("active", button.dataset.calcMode === calculatorMode);
+  });
+  document.querySelectorAll("[data-calc-field]").forEach(label => {
+    const field = label.dataset.calcField;
+    label.classList.toggle("is-required", requirements[calculatorMode].includes(field));
+    label.classList.toggle("is-output", field === calculatorMode && calculatorMode !== "calories");
+  });
+  calculateWalk();
+}
+
+function calculateWalk() {
+  const values = calculatorValues();
+  const labels = {
+    distance: "Estimated distance",
+    time: "Estimated walking time",
+    speed: "Estimated walking speed",
+    calories: "Estimated energy used"
+  };
+  byId("calcResultLabel").textContent = labels[calculatorMode];
+
+  let result = "";
+  if (calculatorMode === "distance" && values.speed > 0 && values.time > 0) {
+    result = `${(values.speed * values.time / 60).toFixed(2)} ${distanceUnit()}`;
+  } else if (calculatorMode === "time" && values.distance > 0 && values.speed > 0) {
+    result = `${Math.round(values.distance / values.speed * 60)} minutes`;
+  } else if (calculatorMode === "speed" && values.distance > 0 && values.time > 0) {
+    result = `${(values.distance / (values.time / 60)).toFixed(2)} ${unitSystem === "metric" ? "km/h" : "mph"}`;
+  } else if (calculatorMode === "calories" && values.distance > 0 && values.weight > 0) {
+    const miles = storedDistance(values.distance);
+    const pounds = storedWeight(values.weight);
+    result = `${Math.round(.57 * pounds * miles)} kcal`;
+  }
+
+  const missing = {
+    distance: "Enter walking time",
+    time: "Enter distance",
+    speed: "Enter distance and time",
+    calories: "Enter distance and weight"
+  };
+  byId("calcResult").textContent = result || missing[calculatorMode];
+  renderWalkingProjection();
+}
+
+function renderWalkingProjection() {
+  const targetDisplay = Number(byId("calcTargetLoss").value);
+  const weightDisplay = Number(byId("calcWeight").value);
+  const output = byId("projectionResults");
+  if (!(targetDisplay > 0) || !(weightDisplay > 0)) {
+    output.textContent = "Enter a desired loss to see a planning estimate.";
+    return;
+  }
+
+  const targetPounds = storedWeight(targetDisplay);
+  const weightPounds = storedWeight(weightDisplay);
+  const estimatedCalories = targetPounds * 3500;
+  const caloriesPerMile = .57 * weightPounds;
+  const estimatedMiles = estimatedCalories / caloriesPerMile;
+  const recordedMiles = Object.values(state.entries).reduce((sum, entry) => sum + Number(entry.distance || 0), 0);
+  const progress = Math.min(100, recordedMiles / estimatedMiles * 100);
+
+  output.innerHTML = `
+    <strong>${displayDistance(estimatedMiles).toFixed(1)} ${distanceUnit()}</strong> estimated walking distance<br>
+    ${Math.round(estimatedCalories).toLocaleString()} estimated kcal<br>
+    ${displayDistance(recordedMiles).toFixed(1)} ${distanceUnit()} recorded · ${progress.toFixed(1)}% of distance estimate
+  `;
+}
+
+function setupWalkingCalculator() {
+  document.querySelectorAll("[data-calc-mode]").forEach(button => {
+    button.addEventListener("click", () => setCalculatorMode(button.dataset.calcMode));
+  });
+  ["calcDistance", "calcTime", "calcSpeed", "calcWeight", "calcTargetLoss"].forEach(id => {
+    byId(id).addEventListener("input", calculateWalk);
+  });
+  setCalculatorMode("distance");
+}
+
 function promiseLine(label, passed) {
   return `<li><span>${label}</span><strong>${passed ? "✓" : "✕"}</strong></li>`;
 }
@@ -659,4 +790,5 @@ document.querySelectorAll('input[name="unitSystem"]').forEach(input => {
 persist();
 loadEntry(isoDate());
 renderAll();
+setupWalkingCalculator();
 applyUnitSystem();
