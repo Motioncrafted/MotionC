@@ -292,6 +292,7 @@
     }
 
     .info-actions a,
+    .info-actions button,
     .close-info {
       min-height: 44px;
       padding: 0 20px;
@@ -304,10 +305,63 @@
       cursor: pointer;
     }
 
-    .info-actions a {
+    .info-actions a,
+    .info-actions button {
       display: grid;
       place-items: center;
       background: #287a43;
+    }
+
+    .reflection-card {
+      overflow: hidden;
+      border-color: #537c61;
+      color: #1d4032;
+      background:
+        radial-gradient(circle at 88% 15%, rgba(35,190,115,.16), transparent 34%),
+        linear-gradient(145deg, #fff, #edf6ef);
+    }
+
+    .reflection-card h1 {
+      color: #17613f;
+    }
+
+    .reflection-label {
+      margin-bottom: 8px !important;
+      color: #55816c;
+      font-size: 12px !important;
+      font-weight: 900;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    .reflection-quote {
+      position: relative;
+      margin: 34px 10px 18px !important;
+      color: #25483a;
+      font: italic 700 clamp(25px, 3vw, 39px)/1.35 Georgia, serif;
+    }
+
+    .reflection-quote::before {
+      content: "“";
+      position: absolute;
+      top: -38px;
+      left: -10px;
+      color: rgba(35,190,115,.22);
+      font-size: 82px;
+      line-height: 1;
+    }
+
+    .reflection-quote u {
+      text-decoration-color: #d39a13;
+      text-decoration-thickness: 3px;
+      text-underline-offset: 6px;
+    }
+
+    .reflection-dots {
+      margin: 0 !important;
+      color: #d39a13;
+      text-align: right;
+      letter-spacing: .2em;
     }
 
     .close-info {
@@ -408,8 +462,25 @@
         </div>
         <div class="info-actions">
           <a href="/dashboard/">Open Dashboard</a>
-          <a href="/daily/#reflectionPoint">Reflection Point...</a>
+          <button id="openReflection" type="button">Reflection Point...</button>
         </div>
+      </div>
+    </section>
+
+    <section
+      class="info-overlay"
+      id="reflectionOverlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="reflectionTitle"
+      hidden
+    >
+      <div class="info-card reflection-card">
+        <button class="close-info" id="closeReflection" type="button" aria-label="Close">×</button>
+        <p class="reflection-label">A THOUGHT FOR THIS WEEK</p>
+        <h1 id="reflectionTitle">Reflection Point...</h1>
+        <p class="reflection-quote" id="weeklyReflection"></p>
+        <p class="reflection-dots" aria-hidden="true">• · • · •</p>
       </div>
     </section>
 
@@ -442,6 +513,10 @@
     const learnMore = document.getElementById("learnMore");
     const infoOverlay = document.getElementById("infoOverlay");
     const closeInfo = document.getElementById("closeInfo");
+    const openReflection = document.getElementById("openReflection");
+    const reflectionOverlay = document.getElementById("reflectionOverlay");
+    const closeReflection = document.getElementById("closeReflection");
+    const weeklyReflection = document.getElementById("weeklyReflection");
     const understand = document.getElementById("understand");
     const disclaimerOverlay = document.getElementById("disclaimerOverlay");
     const closeDisclaimer = document.getElementById("closeDisclaimer");
@@ -477,6 +552,30 @@
     learnMore.addEventListener("click", () => setInfoOpen(true));
     closeInfo.addEventListener("click", () => setInfoOpen(false));
 
+    const reflections = [
+      "I may not be there yet, but I’m closer than I was yesterday.",
+      "Change Happens One Step at a Time.",
+      "All Truly Great Thoughts are Conceived While Walking.",
+      "Strive for <u>Progress</u>, not Perfection."
+    ];
+    const reflectionNow = new Date();
+    const reflectionYearStart = new Date(reflectionNow.getFullYear(), 0, 1);
+    const reflectionWeek = Math.floor((reflectionNow - reflectionYearStart) / 604800000);
+    weeklyReflection.innerHTML = reflections[reflectionWeek % reflections.length];
+
+    function setReflectionOpen(open) {
+      reflectionOverlay.hidden = !open;
+      if (open) closeReflection.focus();
+      else learnMore.focus();
+    }
+
+    openReflection.addEventListener("click", () => {
+      infoOverlay.hidden = true;
+      learnMore.setAttribute("aria-expanded", "false");
+      setReflectionOpen(true);
+    });
+    closeReflection.addEventListener("click", () => setReflectionOpen(false));
+
     function setDisclaimerOpen(open) {
       disclaimerOverlay.hidden = !open;
       understand.setAttribute("aria-expanded", String(open));
@@ -491,12 +590,17 @@
       if (event.target === infoOverlay) setInfoOpen(false);
     });
 
+    reflectionOverlay.addEventListener("click", event => {
+      if (event.target === reflectionOverlay) setReflectionOpen(false);
+    });
+
     disclaimerOverlay.addEventListener("click", event => {
       if (event.target === disclaimerOverlay) setDisclaimerOpen(false);
     });
 
     document.addEventListener("keydown", event => {
       if (event.key === "Escape" && !infoOverlay.hidden) setInfoOpen(false);
+      if (event.key === "Escape" && !reflectionOverlay.hidden) setReflectionOpen(false);
       if (event.key === "Escape" && !disclaimerOverlay.hidden) setDisclaimerOpen(false);
       if (event.key === "Escape" && !miraBubble.hidden) setMiraOpen(false);
     });
