@@ -489,46 +489,26 @@ function renderMilestones() {
   const totalMiles = entries.reduce((sum, item) => sum + Number(item.distance || 0), 0);
   const longest = longestWalk();
   const greenDays = entries.filter(item => ["green", "light-green"].includes(scoreForEntry(item).color)).length;
+  const availableDots = entries.length;
+  const positivePercentage = availableDots ? Math.round(greenDays / availableDots * 100) : 0;
   const vibratoryLine = state.profile.vibratoryLine;
-  const displayedStart = displayWeight(startWeight);
-  const decadeBoundary = Math.floor(displayedStart / 10) * 10;
-  const decadeLabel = decadeBoundary - 10;
-  const decadeReached = lowest ? displayWeight(lowest) < decadeBoundary : false;
   const totalDistance = displayDistance(totalMiles);
   const longestDistance = displayDistance(Number(longest?.distance || 0));
   const loss = displayWeight(Math.max(0, startWeight - (lowest || startWeight)));
-  const weightTiers = unitSystem === "metric" ? [2.5, 5, 10, 20, 30, 50] : [5, 10, 25, 50, 75, 100];
-  const distanceTiers = unitSystem === "metric" ? [50, 100, 250, 500, 1000] : [25, 50, 100, 250, 500, 1000];
-  const walkTiers = unitSystem === "metric" ? [1, 5, 10, 21.1, 42.2] : [1, 3, 5, 10, 13.1, 26.2];
-  const positiveTiers = [5, 10, 25, 50, 100, 250, 500];
-
-  function progressive(value, tiers, labelFor, detailFor) {
-    const completed = tiers.filter(tier => value >= tier);
-    const highest = completed.at(-1);
-    const next = tiers.find(tier => value < tier);
-    const labelTier = highest || next || tiers.at(-1);
-    const nextDetail = next ? ` · Next ${next}: ${Math.min(100, Math.round(value / next * 100))}%` : "";
-    return {
-      label: labelFor(labelTier),
-      reached: Boolean(highest),
-      detail: `${detailFor(value)}${nextDetail}`
-    };
-  }
 
   const milestoneData = [
-    progressive(loss, weightTiers, tier => `${tier} ${weightUnit()} down`, value => `${value.toFixed(1)} ${weightUnit()} down`),
-    { label: `Entered the ${decadeLabel}s`, reached: decadeReached, detail: lowest ? formatWeight(lowest) : `Below ${decadeBoundary} ${weightUnit()}` },
-    { label: "Crossed the Vibratory Line", reached: lowest !== null && lowest < vibratoryLine, detail: `${formatWeight(vibratoryLine)} line` },
-    progressive(longestDistance, walkTiers, tier => `${tier} ${distanceUnit()} walk`, value => `${value.toFixed(2)} ${distanceUnit()} longest`),
-    progressive(totalDistance, distanceTiers, tier => `${tier} cumulative ${distanceUnit()}`, value => `${value.toFixed(1)} ${distanceUnit()} total`),
-    progressive(greenDays, positiveTiers, tier => `${tier} positive dots`, value => `${value} positive days`)
+    { label: "Total Weight Lost", available: weights.length > 0, detail: `${loss.toFixed(1)} ${weightUnit()}` },
+    { label: "Lowest Recorded Weight", available: lowest !== null, detail: lowest !== null ? formatWeight(lowest) : "No weight recorded" },
+    { label: "Vibratory Set Line", available: Number.isFinite(Number(vibratoryLine)), detail: formatWeight(vibratoryLine) },
+    { label: "Longest Daily Walk", available: Boolean(longest), detail: longest ? `${longestDistance.toFixed(2)} ${distanceUnit()}` : "No walk recorded" },
+    { label: `Total Cumulative ${unitSystem === "metric" ? "Kilometres" : "Miles"}`, available: entries.length > 0, detail: `${totalDistance.toFixed(1)} ${distanceUnit()}` },
+    { label: "Total Positive Dots", available: availableDots > 0, detail: `${greenDays} / ${availableDots} (${positivePercentage}%)` }
   ];
-  const reached = milestoneData.filter(item => item.reached);
-  byId("milestoneCount").textContent = `${reached.length} reached`;
-  const latest = reached.at(-1) || milestoneData[0];
-  byId("latestMilestone").innerHTML = `<span>${latest.reached ? "LATEST ACHIEVEMENT" : "NEXT MILESTONE"}</span><strong>${latest.label}</strong><small>${latest.detail}</small>`;
+  const tracked = milestoneData.filter(item => item.available);
+  byId("milestoneCount").textContent = `${tracked.length} tracked`;
+  byId("latestMilestone").innerHTML = `<span>CURRENT PROGRESS</span><strong>${greenDays} / ${availableDots} Positive Dots</strong><small>${positivePercentage}% positive</small>`;
   byId("milestoneList").innerHTML = milestoneData.map(item =>
-    `<div class="milestone-item ${item.reached ? "" : "locked"}"><i>${item.reached ? "✓" : "·"}</i><span>${item.label}</span><small>${item.detail}</small></div>`
+    `<div class="milestone-item ${item.available ? "" : "locked"}"><i>${item.available ? "✓" : "·"}</i><span>${item.label}</span><small>${item.detail}</small></div>`
   ).join("");
 }
 
