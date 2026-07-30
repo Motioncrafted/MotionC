@@ -211,6 +211,8 @@
     .info-card {
       position: relative;
       width: min(620px, 92vw);
+      max-height: min(86vh, 820px);
+      overflow-y: auto;
       padding: clamp(24px, 4vw, 46px);
       border: 2px solid #9c6b31;
       border-radius: 16px;
@@ -219,6 +221,25 @@
         linear-gradient(rgba(38, 26, 17, .97), rgba(21, 15, 11, .98)),
         #21170f;
       box-shadow: 0 18px 55px rgba(0, 0, 0, .65);
+    }
+
+    .about-card {
+      width: min(760px, 92vw);
+    }
+
+    .about-card h2 {
+      margin: 25px 0 8px;
+      color: #7bd35a;
+      font-size: clamp(18px, 2vw, 24px);
+    }
+
+    .about-card .about-closing {
+      margin-top: 24px;
+      padding: 16px 18px;
+      border-left: 4px solid #f0b429;
+      color: #fff4d6;
+      background: rgba(240,180,41,.08);
+      font-weight: 800;
     }
 
     .info-card h1 {
@@ -447,19 +468,66 @@
       aria-labelledby="infoTitle"
       hidden
     >
-      <div class="info-card">
+      <div class="info-card about-card">
         <button class="close-info" id="closeInfo" type="button" aria-label="Close">×</button>
         <h1 id="infoTitle">See What Change Looks Like</h1>
         <p>
-          MotionC helps turn everyday health information into a journey you can
-          understand, track, and keep moving forward.
+          MotionC turns movement into meaning. Track your progress, explore your journey,
+          and discover how motion creates change.
         </p>
-        <div class="pillars">
-          <div class="pillar"><strong>Understand</strong>Know your numbers and what they mean.</div>
-          <div class="pillar"><strong>Track</strong>Monitor progress that matters.</div>
-          <div class="pillar"><strong>Move</strong>Build habits that strengthen your life.</div>
-          <div class="pillar"><strong>Live</strong>Live longer, live better, and live with purpose.</div>
-        </div>
+
+        <h2>You May Already Have a Fitness App</h2>
+        <p>
+          That’s perfectly fine. MotionC wasn’t created to imitate another step counter
+          or workout tracker.
+        </p>
+        <p>
+          Fitness apps are good at recording numbers. MotionC was designed to help you
+          understand those numbers, connect them, and experience the story they tell.
+        </p>
+
+        <h2>Apps Track Workouts. MotionC Tracks Destinations.</h2>
+        <p>
+          Most fitness apps show your steps, pace, calories, and the route you walked today.
+        </p>
+        <p>MotionC shows where all those walks are taking you.</p>
+        <p>
+          Each walk becomes part of a continuing journey toward a real destination. Your
+          progress doesn’t disappear when the day ends—it carries forward to the next
+          checkpoint, the next milestone, and eventually the finish.
+        </p>
+
+        <h2>Your Journey Continues</h2>
+        <p>
+          MotionC brings walking, weight, measurements, milestones, motivation, and
+          personal reflection together in one place.
+        </p>
+        <p>
+          Instead of treating every number as a separate statistic, MotionC helps you see
+          how the pieces work together and how small daily choices create meaningful
+          change over time.
+        </p>
+
+        <h2>Progress Should Feel Personal</h2>
+        <p>
+          MotionC isn’t only a collection of charts. It has destinations to explore,
+          milestones to reach, reflections to consider, and even a scale with a little
+          personality.
+        </p>
+        <p>It was designed to feel human—because lasting change is personal.</p>
+
+        <h2>A Place You Choose to Return To</h2>
+        <p>
+          Some people don’t want another app demanding their attention throughout the
+          day. They want a calm place where they can check in, understand their progress,
+          and leave feeling encouraged.
+        </p>
+        <p>MotionC can be that place.</p>
+        <p>Your other apps may show what you did.</p>
+        <p class="about-closing">
+          MotionC helps you see where you’re going—and why it matters.
+        </p>
+
         <div class="info-actions">
           <a href="/dashboard/">Open Dashboard</a>
           <button id="openReflection" type="button">Reflection Point...</button>
