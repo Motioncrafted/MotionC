@@ -1326,6 +1326,14 @@ function readSummaryStorage(key, fallback) {
     }
 }
 
+function saveSharedVibratoryLine(pounds) {
+    const daily = readSummaryStorage(summaryDailyStorageKey, { entries: {}, weeks: {}, profile: {} });
+    daily.profile = daily.profile || {};
+    daily.profile.vibratoryLine = pounds;
+    daily.profile.updatedAt = new Date().toISOString();
+    localStorage.setItem(summaryDailyStorageKey, JSON.stringify(daily));
+}
+
 function summaryDate(value) {
     return new Date(`${value}T12:00:00`);
 }
@@ -1487,7 +1495,7 @@ function drawWeightChart(points) {
         context.stroke();
         context.restore();
 
-        const goalText = `Goal ${summaryGoalWeight.toFixed(1)} ${summaryWeightUnit()}`;
+        const goalText = `Line ${summaryGoalWeight.toFixed(1)} ${summaryWeightUnit()}`;
         context.font = "bold 10px Arial";
         const labelWidth = context.measureText(goalText).width + 14;
         context.fillStyle = "#fff4d2";
@@ -1497,7 +1505,7 @@ function drawWeightChart(points) {
         context.textAlign = "center";
         context.fillText(goalText, width - padding.right - labelWidth / 2, goalY - 8);
         canvas._goalScale = { minimum, maximum, top: padding.top, height: chartHeight, goalY };
-        setText("goal-weight-label", `Goal: ${summaryGoalWeight.toFixed(1)} ${summaryWeightUnit()}`);
+        setText("goal-weight-label", `Vibratory Set Line: ${summaryGoalWeight.toFixed(1)} ${summaryWeightUnit()}`);
     }
 
     context.fillStyle = "#7a8782";
@@ -1597,8 +1605,9 @@ function renderSummaryData() {
     const dates7 = dates14.slice(-7);
     const entries = daily?.entries || {};
     const savedGoal = Number(readSummaryStorage(summaryGoalStorageKey, null));
+    const profileLine = Number(daily?.profile?.vibratoryLine);
     const profileGoal = Number(daily?.profile?.motivationalGoal);
-    const canonicalGoal = savedGoal > 0 ? savedGoal : profileGoal > 0 ? profileGoal : 195;
+    const canonicalGoal = savedGoal > 0 ? savedGoal : profileLine > 0 ? profileLine : profileGoal > 0 ? profileGoal : 195;
     summaryGoalWeight = summaryDisplayWeight(canonicalGoal);
 
     if (savedMcp?.measurementData && savedMcp?.results) {
@@ -1707,7 +1716,9 @@ function updateGoalFromPointer(event) {
     const y = Math.max(scale.top, Math.min(scale.top + scale.height, event.clientY - rect.top));
     const percentage = 1 - (y - scale.top) / scale.height;
     summaryGoalWeight = Math.round((scale.minimum + percentage * (scale.maximum - scale.minimum)) * 10) / 10;
-    localStorage.setItem(summaryGoalStorageKey, String(summaryStoredWeight(summaryGoalWeight)));
+    const canonicalLine = summaryStoredWeight(summaryGoalWeight);
+    localStorage.setItem(summaryGoalStorageKey, String(canonicalLine));
+    saveSharedVibratoryLine(canonicalLine);
     drawWeightChart(summaryWeightPoints);
 }
 
