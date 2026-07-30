@@ -532,19 +532,6 @@ function renderMilestones() {
   ).join("");
 }
 
-function renderWeeklyReflection() {
-  const reflections = [
-    "I may not be there yet, but I’m closer than I was yesterday.",
-    "Change Happens One Step at a Time.",
-    "All Truly Great Thoughts are Conceived While Walking.",
-    "Strive for <u>Progress</u>, not Perfection."
-  ];
-  const now = new Date();
-  const startOfYear = new Date(now.getFullYear(), 0, 1);
-  const calendarWeek = Math.floor((now - startOfYear) / 604800000);
-  byId("weeklyReflection").innerHTML = reflections[calendarWeek % reflections.length];
-}
-
 function promiseLine(label, passed) {
   return `<li><span>${label}</span><strong>${passed ? "✓" : "✕"}</strong></li>`;
 }
@@ -692,5 +679,4 @@ document.querySelectorAll('input[name="unitSystem"]').forEach(input => {
 persist();
 loadEntry(isoDate());
 renderAll();
-renderWeeklyReflection();
 applyUnitSystem();
