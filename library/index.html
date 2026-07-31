@@ -8,12 +8,21 @@
     name="description"
     content="Explore the MotionC Library: walking, health, recovery, mindset, and MotionC guides."
   >
+  <link rel="preload" as="image" href="../images/library.webp" fetchpriority="high">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Libre+Baskerville:wght@400;700&display=swap"
-    rel="stylesheet"
+    rel="preload"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
   >
+  <noscript>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Libre+Baskerville:wght@400;700&display=swap"
+      rel="stylesheet"
+    >
+  </noscript>
 
   <style>
     * { box-sizing: border-box; }
@@ -58,7 +67,7 @@
       width: min(100vw, 150vh);
       aspect-ratio: 3 / 2;
       overflow: hidden;
-      background: url("../images/library.png") center / 100% 100% no-repeat;
+      background: url("../images/library.webp") center / 100% 100% no-repeat;
       isolation: isolate;
     }
 
@@ -67,7 +76,7 @@
       position: absolute;
       inset: 0;
       z-index: 0;
-      background: url("../images/library-results.png") center / 100% 100% no-repeat;
+      background: url("../images/library-results.webp") center / 100% 100% no-repeat;
       opacity: 0;
       pointer-events: none;
       transition: opacity 240ms ease;
