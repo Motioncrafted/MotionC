@@ -354,6 +354,25 @@
     .stepper button:last-child { border-radius: 0 6px 6px 0; }
     .add { background: #287a43; }
     .add:hover { background: #1c6032; }
+    .entry > .add {
+      display: inline-grid;
+      width: 100%;
+      min-height: clamp(25px, 2.4vw, 40px);
+      place-items: center;
+      border-radius: 6px;
+      padding: 0 clamp(8px, 0.8vw, 13px);
+      color: #fff;
+      font-size: clamp(9px, 0.82vw, 14px);
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .journey-reset {
+      width: 100%;
+      margin-top: clamp(5px, 0.55vw, 9px);
+      background: #52666c;
+      font-size: clamp(9px, 0.78vw, 13px);
+    }
+    .journey-reset:hover { background: #394b50; }
 
     .message {
       min-height: 1em;
@@ -746,8 +765,11 @@
     </section>
 
     <section class="panel entry" aria-labelledby="entryTitle">
-      <h2 id="entryTitle">Add a Walk</h2>
-      <form id="walkForm">
+      <h2 id="entryTitle">Walking Progress</h2>
+      <p class="message">Your route updates automatically from walks recorded on the Daily page.</p>
+      <a class="add" href="/daily/">Record todayâ€™s walk</a>
+      <button class="journey-reset" id="resetJourney" type="button">Start New Journey</button>
+      <form id="walkForm" hidden aria-hidden="true">
         <div class="fields">
           <label>Date
             <input id="walkDate" type="date" required>
@@ -775,7 +797,7 @@
           </div>
         </div>
       </form>
-      <p class="message" id="message" aria-live="polite"></p>
+      <p class="message" id="message" aria-live="polite" hidden></p>
     </section>
 
     <section class="panel history" aria-labelledby="upcomingTitle">
@@ -806,11 +828,11 @@
     <section class="panel summary" aria-labelledby="summaryTitle">
       <h2 id="summaryTitle">Selected Day</h2>
       <div class="totals">
-        <div class="total"><strong id="dayWalks">0</strong><span>Walks</span></div>
+        <div class="total"><strong id="dayWalks">0</strong><span>Daily Entries</span></div>
         <div class="total"><strong id="dayMiles">0.00</strong><span id="dayDistanceLabel">Miles</span></div>
         <div class="total"><strong id="dayMinutes">0</strong><span>Minutes</span></div>
       </div>
-      <div class="data-actions">
+      <div class="data-actions" hidden aria-hidden="true">
         <button type="button" id="exportData">Export All</button>
         <label class="file-label">Import JSON<input id="importData" type="file" accept=".json,application/json"></label>
         <button class="reset" type="button" id="resetData">Reset Test</button>
@@ -841,7 +863,8 @@
   </main>
 
   <script>
-    const STORAGE_KEY = "walking_page_walks_v1";
+    const DAILY_STORAGE_KEY = "motionc-daily-prototype-v1";
+    const JOURNEY_BASELINE_KEY = "walking_page_journey_baseline_v1";
     const JASPER_CELEBRATION_KEY = "walking_page_jasper_celebrated_v1";
     const PREFERENCES_STORAGE_KEY = "motionc-preferences-v1";
     const KM_PER_MI = 1.609344;
@@ -875,6 +898,7 @@
     const celebrationDismiss = document.getElementById("celebrationDismiss");
     const confetti = document.getElementById("confetti");
     let walks = loadWalks();
+    let journeyBaselineMiles = loadJourneyBaseline();
     let walksOpen = false;
 
     /*
@@ -960,7 +984,7 @@
     filterDate.value = localToday();
     filterDate.max = localToday();
     document.getElementById("walkingTotalLabel").textContent =
-      unitSystem === "metric" ? "Total Walking Kilometres" : "Total Walking Miles";
+      unitSystem === "metric" ? "Current Journey Kilometres" : "Current Journey Miles";
     document.getElementById("walkDistanceLabel").textContent =
       unitSystem === "metric" ? "Kilometres Walked" : "Miles Walked";
     document.getElementById("dayDistanceLabel").textContent =
@@ -996,15 +1020,34 @@
 
     function loadWalks() {
       try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-        return Array.isArray(saved) ? saved : [];
+        const daily = JSON.parse(localStorage.getItem(DAILY_STORAGE_KEY) || "{}");
+        return Object.values(daily?.entries || {})
+          .filter(entry => entry?.date && Number(entry.distance || 0) > 0)
+          .map(entry => ({
+            id: `daily-${entry.date}`,
+            user_id: "local_user",
+            date: String(entry.date),
+            miles: Number(entry.distance || 0),
+            minutes: Math.round(Number(entry.minutes || 0)),
+            source: "daily_page",
+            created_at: String(entry.updatedAt || `${entry.date}T12:00:00`)
+          }));
       } catch {
         return [];
       }
     }
 
+    function loadJourneyBaseline() {
+      const saved = Number(localStorage.getItem(JOURNEY_BASELINE_KEY));
+      return Number.isFinite(saved) && saved > 0 ? saved : 0;
+    }
+
+    function totalRecordedMiles() {
+      return walks.reduce((sum, walk) => sum + Number(walk.miles || 0), 0);
+    }
+
     function saveWalks() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(walks));
+      // Walking is read-only. Daily is the single source of truth.
     }
 
     function formatDate(date) {
@@ -1110,11 +1153,12 @@
         .sort((a, b) => a.created_at.localeCompare(b.created_at));
       const dayMiles = selected.reduce((sum, walk) => sum + walk.miles, 0);
       const dayMinutes = selected.reduce((sum, walk) => sum + walk.minutes, 0);
-      const walkingTotal = walks.reduce((sum, walk) => sum + walk.miles, 0);
+      const lifetimeMiles = totalRecordedMiles();
+      const walkingTotal = Math.max(0, lifetimeMiles - journeyBaselineMiles);
 
       document.getElementById("walkingTotal").textContent = displayDistance(walkingTotal).toFixed(2);
       updateRouteMarker(walkingTotal);
-      document.getElementById("dayWalks").textContent = selected.length;
+      document.getElementById("dayWalks").textContent = selected.length ? "1" : "0";
       document.getElementById("dayMiles").textContent = displayDistance(dayMiles).toFixed(2);
       document.getElementById("dayMinutes").textContent = dayMinutes;
 
@@ -1167,6 +1211,19 @@
     });
 
     celebrationDismiss.addEventListener("click", closeJasperCelebration);
+
+    document.getElementById("resetJourney").addEventListener("click", () => {
+      const confirmed = confirm(
+        "Start a new Calgary-to-Jasper journey from your current walking total?\n\n" +
+        "Your Daily walking history will not be changed."
+      );
+      if (!confirmed) return;
+
+      journeyBaselineMiles = totalRecordedMiles();
+      localStorage.setItem(JOURNEY_BASELINE_KEY, String(journeyBaselineMiles));
+      localStorage.removeItem(JASPER_CELEBRATION_KEY);
+      render();
+    });
 
     document.addEventListener("keydown", event => {
       if (event.key === "Escape" && !jasperCelebration.hidden) {
@@ -1250,6 +1307,17 @@
       milesInput.value = "1.00";
       minutesInput.value = "30";
       message.textContent = "Test data reset. The marker is back in Calgary.";
+      render();
+    });
+
+    window.addEventListener("storage", event => {
+      if (event.key !== DAILY_STORAGE_KEY) return;
+      walks = loadWalks();
+      render();
+    });
+
+    window.addEventListener("pageshow", () => {
+      walks = loadWalks();
       render();
     });
 
