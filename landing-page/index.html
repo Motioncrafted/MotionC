@@ -55,11 +55,55 @@
     }
 
     .get-started {
-  left: 51.1%;
-  top: 52.4%;
-  width: 13.5%;
-  height: 7.2%;
-}
+      left: 51.1%;
+      top: 52.4%;
+      width: 13.5%;
+      height: 7.2%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7%;
+      overflow: hidden;
+      border-color: #1e6d3a;
+      border-radius: 9px;
+      color: #fff;
+      background: linear-gradient(180deg, #3b9b59, #287a43);
+      box-shadow: 0 4px 10px rgba(20, 74, 41, .28);
+      font-size: clamp(9px, 1vw, 17px);
+      font-weight: 800;
+      letter-spacing: .01em;
+      text-decoration: none;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, .3);
+    }
+
+    .get-started::before {
+      content: "\21BB";
+      display: grid;
+      flex: 0 0 auto;
+      width: 20%;
+      aspect-ratio: 1;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, .48);
+      border-radius: 50%;
+      color: #fff;
+      background: #1f6939;
+      font-size: 1.05em;
+      line-height: 1;
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, .18);
+    }
+
+    .get-started:hover,
+    .get-started:focus-visible {
+      border-color: #f0b429;
+      background: linear-gradient(180deg, #43a861, #2d8148);
+      box-shadow: 0 0 12px rgba(240, 180, 41, .45), 0 4px 10px rgba(20, 74, 41, .28);
+    }
+
+    .get-started:active {
+      background: linear-gradient(180deg, #226c3c, #1b5b32);
+      box-shadow: inset 0 3px 6px rgba(0, 0, 0, .3);
+      transform: translateY(1px);
+    }
 
 .learn-more {
   left: 65.8%;
@@ -68,17 +112,8 @@
   height: 7.2%;
 }
 
-.understand {
-  left: 17.2%;
-  top: 82.8%;
-  width: 14.2%;
-  height: 11.5%;
-  border-radius: 999px;
-}
-
 .get-started,
-.learn-more,
-.understand {
+.learn-more {
   z-index: 3;
 }
     
@@ -211,8 +246,6 @@
     .info-card {
       position: relative;
       width: min(620px, 92vw);
-      max-height: min(86vh, 820px);
-      overflow-y: auto;
       padding: clamp(24px, 4vw, 46px);
       border: 2px solid #9c6b31;
       border-radius: 16px;
@@ -221,25 +254,6 @@
         linear-gradient(rgba(38, 26, 17, .97), rgba(21, 15, 11, .98)),
         #21170f;
       box-shadow: 0 18px 55px rgba(0, 0, 0, .65);
-    }
-
-    .about-card {
-      width: min(760px, 92vw);
-    }
-
-    .about-card h2 {
-      margin: 25px 0 8px;
-      color: #7bd35a;
-      font-size: clamp(18px, 2vw, 24px);
-    }
-
-    .about-card .about-closing {
-      margin-top: 24px;
-      padding: 16px 18px;
-      border-left: 4px solid #f0b429;
-      color: #fff4d6;
-      background: rgba(240,180,41,.08);
-      font-weight: 800;
     }
 
     .info-card h1 {
@@ -313,7 +327,6 @@
     }
 
     .info-actions a,
-    .info-actions button,
     .close-info {
       min-height: 44px;
       padding: 0 20px;
@@ -326,63 +339,10 @@
       cursor: pointer;
     }
 
-    .info-actions a,
-    .info-actions button {
+    .info-actions a {
       display: grid;
       place-items: center;
       background: #287a43;
-    }
-
-    .reflection-card {
-      overflow: hidden;
-      border-color: #537c61;
-      color: #1d4032;
-      background:
-        radial-gradient(circle at 88% 15%, rgba(35,190,115,.16), transparent 34%),
-        linear-gradient(145deg, #fff, #edf6ef);
-    }
-
-    .reflection-card h1 {
-      color: #17613f;
-    }
-
-    .reflection-label {
-      margin-bottom: 8px !important;
-      color: #55816c;
-      font-size: 12px !important;
-      font-weight: 900;
-      letter-spacing: .13em;
-      text-transform: uppercase;
-    }
-
-    .reflection-quote {
-      position: relative;
-      margin: 34px 10px 18px !important;
-      color: #25483a;
-      font: italic 700 clamp(25px, 3vw, 39px)/1.35 Georgia, serif;
-    }
-
-    .reflection-quote::before {
-      content: "“";
-      position: absolute;
-      top: -38px;
-      left: -10px;
-      color: rgba(35,190,115,.22);
-      font-size: 82px;
-      line-height: 1;
-    }
-
-    .reflection-quote u {
-      text-decoration-color: #d39a13;
-      text-decoration-thickness: 3px;
-      text-underline-offset: 6px;
-    }
-
-    .reflection-dots {
-      margin: 0 !important;
-      color: #d39a13;
-      text-align: right;
-      letter-spacing: .2em;
     }
 
     .close-info {
@@ -404,26 +364,16 @@
     <a
       class="hotspot get-started"
       href="/daily/"
-      aria-label="Get started — open Daily"
-      title="Get Started"
-    ></a>
+      aria-label="Daily Update — open Daily"
+      title="Daily Update"
+    ><span>Daily Update</span></a>
 
     <button
       class="hotspot learn-more"
       id="learnMore"
       type="button"
-      aria-label="Learn more about MotionC"
-      aria-controls="infoOverlay"
-      aria-expanded="false"
-      title="Learn More"
-    ></button>
-
-    <button
-      class="hotspot understand"
-      id="understand"
-      type="button"
       aria-label="Read the MotionC disclaimer"
-      aria-controls="disclaimerOverlay"
+      aria-controls="infoOverlay"
       aria-expanded="false"
       title="Disclaimer"
     ></button>
@@ -468,101 +418,9 @@
       aria-labelledby="infoTitle"
       hidden
     >
-      <div class="info-card about-card">
-        <button class="close-info" id="closeInfo" type="button" aria-label="Close">×</button>
-        <h1 id="infoTitle">See What Change Looks Like</h1>
-        <p>
-          MotionC turns movement into meaning. Track your progress, explore your journey,
-          and discover how motion creates change.
-        </p>
-
-        <h2>You May Already Have a Fitness App</h2>
-        <p>
-          That’s perfectly fine. MotionC wasn’t created to imitate another step counter
-          or workout tracker.
-        </p>
-        <p>
-          Fitness apps are good at recording numbers. MotionC was designed to help you
-          understand those numbers, connect them, and experience the story they tell.
-        </p>
-
-        <h2>Apps Track Workouts. MotionC Tracks Destinations.</h2>
-        <p>
-          Most fitness apps show your steps, pace, calories, and the route you walked today.
-        </p>
-        <p>MotionC shows where all those walks are taking you.</p>
-        <p>
-          Each walk becomes part of a continuing journey toward a real destination. Your
-          progress doesn’t disappear when the day ends—it carries forward to the next
-          checkpoint, the next milestone, and eventually the finish.
-        </p>
-
-        <h2>Your Journey Continues</h2>
-        <p>
-          MotionC brings walking, weight, measurements, milestones, motivation, and
-          personal reflection together in one place.
-        </p>
-        <p>
-          Instead of treating every number as a separate statistic, MotionC helps you see
-          how the pieces work together and how small daily choices create meaningful
-          change over time.
-        </p>
-
-        <h2>Progress Should Feel Personal</h2>
-        <p>
-          MotionC isn’t only a collection of charts. It has destinations to explore,
-          milestones to reach, reflections to consider, and even a scale with a little
-          personality.
-        </p>
-        <p>It was designed to feel human—because lasting change is personal.</p>
-
-        <h2>A Place You Choose to Return To</h2>
-        <p>
-          Some people don’t want another app demanding their attention throughout the
-          day. They want a calm place where they can check in, understand their progress,
-          and leave feeling encouraged.
-        </p>
-        <p>MotionC can be that place.</p>
-        <p>Your other apps may show what you did.</p>
-        <p class="about-closing">
-          MotionC helps you see where you’re going—and why it matters.
-        </p>
-
-        <div class="info-actions">
-          <a href="/dashboard/">Open Dashboard</a>
-          <button id="openReflection" type="button">Reflection Point...</button>
-        </div>
-      </div>
-    </section>
-
-    <section
-      class="info-overlay"
-      id="reflectionOverlay"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="reflectionTitle"
-      hidden
-    >
-      <div class="info-card reflection-card">
-        <button class="close-info" id="closeReflection" type="button" aria-label="Close">×</button>
-        <p class="reflection-label">A THOUGHT FOR THIS WEEK</p>
-        <h1 id="reflectionTitle">Reflection Point...</h1>
-        <p class="reflection-quote" id="weeklyReflection"></p>
-        <p class="reflection-dots" aria-hidden="true">• · • · •</p>
-      </div>
-    </section>
-
-    <section
-      class="info-overlay"
-      id="disclaimerOverlay"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="disclaimerTitle"
-      hidden
-    >
       <div class="info-card">
         <p class="disclaimer-copyright">© 2026 MotionC</p>
-        <h1 id="disclaimerTitle">Disclaimer</h1>
+        <h1 id="infoTitle">Disclaimer</h1>
         <p>
           The MCP-Score™ is designed to provide personal insight and promote general
           wellness awareness. It is <strong>not</strong> a medical device or diagnostic
@@ -571,7 +429,7 @@
           questions about your health, measurements, or personal risk factors.
         </p>
         <div class="disclaimer-actions">
-          <button class="got-it" id="closeDisclaimer" type="button">Got It</button>
+          <button class="got-it" id="closeInfo" type="button">Got It</button>
         </div>
       </div>
     </section>
@@ -581,13 +439,6 @@
     const learnMore = document.getElementById("learnMore");
     const infoOverlay = document.getElementById("infoOverlay");
     const closeInfo = document.getElementById("closeInfo");
-    const openReflection = document.getElementById("openReflection");
-    const reflectionOverlay = document.getElementById("reflectionOverlay");
-    const closeReflection = document.getElementById("closeReflection");
-    const weeklyReflection = document.getElementById("weeklyReflection");
-    const understand = document.getElementById("understand");
-    const disclaimerOverlay = document.getElementById("disclaimerOverlay");
-    const closeDisclaimer = document.getElementById("closeDisclaimer");
     const miraHotspot = document.getElementById("miraHotspot");
     const miraBubble = document.getElementById("miraBubble");
     const miraComment = document.getElementById("miraComment");
@@ -620,56 +471,12 @@
     learnMore.addEventListener("click", () => setInfoOpen(true));
     closeInfo.addEventListener("click", () => setInfoOpen(false));
 
-    const reflections = [
-      "I may not be there yet, but I’m closer than I was yesterday.",
-      "Change Happens One Step at a Time.",
-      "All Truly Great Thoughts are Conceived While Walking.",
-      "Strive for <u>Progress</u>, not Perfection."
-    ];
-    const reflectionNow = new Date();
-    const reflectionYearStart = new Date(reflectionNow.getFullYear(), 0, 1);
-    const reflectionWeek = Math.floor((reflectionNow - reflectionYearStart) / 604800000);
-    weeklyReflection.innerHTML = reflections[reflectionWeek % reflections.length];
-
-    function setReflectionOpen(open) {
-      reflectionOverlay.hidden = !open;
-      if (open) closeReflection.focus();
-      else learnMore.focus();
-    }
-
-    openReflection.addEventListener("click", () => {
-      infoOverlay.hidden = true;
-      learnMore.setAttribute("aria-expanded", "false");
-      setReflectionOpen(true);
-    });
-    closeReflection.addEventListener("click", () => setReflectionOpen(false));
-
-    function setDisclaimerOpen(open) {
-      disclaimerOverlay.hidden = !open;
-      understand.setAttribute("aria-expanded", String(open));
-      if (open) closeDisclaimer.focus();
-      else understand.focus();
-    }
-
-    understand.addEventListener("click", () => setDisclaimerOpen(true));
-    closeDisclaimer.addEventListener("click", () => setDisclaimerOpen(false));
-
     infoOverlay.addEventListener("click", event => {
       if (event.target === infoOverlay) setInfoOpen(false);
     });
 
-    reflectionOverlay.addEventListener("click", event => {
-      if (event.target === reflectionOverlay) setReflectionOpen(false);
-    });
-
-    disclaimerOverlay.addEventListener("click", event => {
-      if (event.target === disclaimerOverlay) setDisclaimerOpen(false);
-    });
-
     document.addEventListener("keydown", event => {
       if (event.key === "Escape" && !infoOverlay.hidden) setInfoOpen(false);
-      if (event.key === "Escape" && !reflectionOverlay.hidden) setReflectionOpen(false);
-      if (event.key === "Escape" && !disclaimerOverlay.hidden) setDisclaimerOpen(false);
       if (event.key === "Escape" && !miraBubble.hidden) setMiraOpen(false);
     });
 
