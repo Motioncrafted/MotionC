@@ -18,7 +18,8 @@
 */
 
 document.addEventListener("DOMContentLoaded", () => {
-    const profile = {
+    const summaryMcpStorageKey = "motionc-mcp-summary-v1";
+    const fallbackProfile = {
         age: 65,
         sex: "M",
         heightFeet: 5,
@@ -27,6 +28,51 @@ document.addEventListener("DOMContentLoaded", () => {
         waistInches: 40
     };
 
+    function readSummaryProfile() {
+        try {
+            const saved = JSON.parse(
+                localStorage.getItem(summaryMcpStorageKey)
+            );
+            const measurementData = saved?.measurementData;
+
+            if (!measurementData) {
+                return { ...fallbackProfile };
+            }
+
+            const totalHeightInches = Number(measurementData.heightInches);
+            const weightPounds = Number(measurementData.weightLbs);
+            const waistInches = Number(measurementData.waistInches);
+            const age = Number(measurementData.age);
+
+            if (
+                !Number.isFinite(totalHeightInches) ||
+                totalHeightInches <= 0 ||
+                !Number.isFinite(weightPounds) ||
+                weightPounds <= 0 ||
+                !Number.isFinite(waistInches) ||
+                waistInches <= 0 ||
+                !Number.isFinite(age) ||
+                age <= 0
+            ) {
+                return { ...fallbackProfile };
+            }
+
+            const heightFeet = Math.floor(totalHeightInches / 12);
+
+            return {
+                age,
+                sex: String(measurementData.sex || "M"),
+                heightFeet,
+                heightInches: totalHeightInches - (heightFeet * 12),
+                weightPounds,
+                waistInches
+            };
+        } catch {
+            return { ...fallbackProfile };
+        }
+    }
+
+    const profile = readSummaryProfile();
     const baseline = Object.freeze({ ...profile });
 
     const displays = {
@@ -127,9 +173,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function getSexAdjustment(sex) {
-        return String(sex)
+        const normalizedSex = String(sex)
             .trim()
-            .toUpperCase() === "F"
+            .toLowerCase();
+
+        return normalizedSex === "f" || normalizedSex === "female"
             ? 1
             : 0;
     }
