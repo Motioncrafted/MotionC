@@ -69,7 +69,6 @@ function applyUnitSystem() {
   });
   if (fields.date.value) loadEntry(fields.date.value);
   renderAll(fields.date.value || isoDate());
-  refreshWalkingCalculator(true);
 }
 
 let state = loadState();
@@ -484,163 +483,64 @@ function longestWalk() {
 
 function renderMilestones() {
   const entries = Object.values(state.entries).sort((a, b) => a.date.localeCompare(b.date));
+  const walkingDays = entries.filter(entry => Number(entry.distance || 0) > 0);
+  const timedWalkingDays = walkingDays.filter(entry => Number(entry.minutes || 0) > 0);
   const weights = entries.filter(item => item.weight).map(item => item.weight);
   const lowest = weights.length ? Math.min(...weights) : null;
   const startWeight = state.profile.startWeight;
   const totalMiles = entries.reduce((sum, item) => sum + Number(item.distance || 0), 0);
   const longest = longestWalk();
   const greenDays = entries.filter(item => ["green", "light-green"].includes(scoreForEntry(item).color)).length;
-  const availableDots = entries.length;
-  const positivePercentage = availableDots ? Math.round(greenDays / availableDots * 100) : 0;
   const vibratoryLine = state.profile.vibratoryLine;
+  const displayedStart = displayWeight(startWeight);
+  const decadeBoundary = Math.floor(displayedStart / 10) * 10;
+  const decadeLabel = decadeBoundary - 10;
+  const decadeReached = lowest ? displayWeight(lowest) < decadeBoundary : false;
   const totalDistance = displayDistance(totalMiles);
   const longestDistance = displayDistance(Number(longest?.distance || 0));
+  const averageDailyDistance = walkingDays.length
+    ? displayDistance(walkingDays.reduce((sum, entry) => sum + Number(entry.distance || 0), 0) / walkingDays.length)
+    : 0;
+  const averageDailyMinutes = timedWalkingDays.length
+    ? timedWalkingDays.reduce((sum, entry) => sum + Number(entry.minutes || 0), 0) / timedWalkingDays.length
+    : 0;
   const loss = displayWeight(Math.max(0, startWeight - (lowest || startWeight)));
+  const weightTiers = unitSystem === "metric" ? [2.5, 5, 10, 20, 30, 50] : [5, 10, 25, 50, 75, 100];
+  const distanceTiers = unitSystem === "metric" ? [50, 100, 250, 500, 1000] : [25, 50, 100, 250, 500, 1000];
+  const walkTiers = unitSystem === "metric" ? [1, 5, 10, 21.1, 42.2] : [1, 3, 5, 10, 13.1, 26.2];
+  const positiveTiers = [5, 10, 25, 50, 100, 250, 500];
+
+  function progressive(value, tiers, labelFor, detailFor) {
+    const completed = tiers.filter(tier => value >= tier);
+    const highest = completed.at(-1);
+    const next = tiers.find(tier => value < tier);
+    const labelTier = highest || next || tiers.at(-1);
+    const nextDetail = next ? ` · Next ${next}: ${Math.min(100, Math.round(value / next * 100))}%` : "";
+    return {
+      label: labelFor(labelTier),
+      reached: Boolean(highest),
+      detail: `${detailFor(value)}${nextDetail}`
+    };
+  }
 
   const milestoneData = [
-    { label: "Total Weight Lost", available: weights.length > 0, detail: `${loss.toFixed(1)} ${weightUnit()}` },
-    { label: "Lowest Recorded Weight", available: lowest !== null, detail: lowest !== null ? formatWeight(lowest) : "No weight recorded" },
-    { label: "Vibratory Set Line", available: Number.isFinite(Number(vibratoryLine)), detail: formatWeight(vibratoryLine) },
-    { label: "Longest Daily Walk", available: Boolean(longest), detail: longest ? `${longestDistance.toFixed(2)} ${distanceUnit()}` : "No walk recorded" },
-    { label: `Total Cumulative ${unitSystem === "metric" ? "Kilometres" : "Miles"}`, available: entries.length > 0, detail: `${totalDistance.toFixed(1)} ${distanceUnit()}` },
-    { label: "Total Positive Dots", available: availableDots > 0, detail: `${greenDays} / ${availableDots} (${positivePercentage}%)` }
+    progressive(loss, weightTiers, tier => `${tier} ${weightUnit()} down`, value => `${value.toFixed(1)} ${weightUnit()} down`),
+    { label: `Entered the ${decadeLabel}s`, reached: decadeReached, detail: lowest ? formatWeight(lowest) : `Below ${decadeBoundary} ${weightUnit()}` },
+    { label: "Crossed the Vibratory Line", reached: lowest !== null && lowest < vibratoryLine, detail: `${formatWeight(vibratoryLine)} line` },
+    progressive(longestDistance, walkTiers, tier => `${tier} ${distanceUnit()} walk`, value => `${value.toFixed(2)} ${distanceUnit()} longest`),
+    progressive(totalDistance, distanceTiers, tier => `${tier} cumulative ${distanceUnit()}`, value => `${value.toFixed(1)} ${distanceUnit()} total`),
+    progressive(greenDays, positiveTiers, tier => `${tier} positive dots`, value => `${value} positive days`)
   ];
-  const tracked = milestoneData.filter(item => item.available);
-  byId("milestoneCount").textContent = `${tracked.length} tracked`;
-  byId("latestMilestone").innerHTML = `<span>CURRENT PROGRESS</span><strong>${greenDays} / ${availableDots} Positive Dots</strong><small>${positivePercentage}% positive</small>`;
+  const reached = milestoneData.filter(item => item.reached);
+  byId("milestoneCount").textContent = `${reached.length} reached`;
+  const latest = reached.at(-1) || milestoneData[0];
+  byId("latestMilestone").innerHTML = `<span>${latest.reached ? "LATEST ACHIEVEMENT" : "NEXT MILESTONE"}</span><strong>${latest.label}</strong><small>${latest.detail}</small>`;
+  byId("dailyWalkAverage").innerHTML = walkingDays.length
+    ? `<span>DAILY WALK AVERAGE</span><strong>${averageDailyDistance.toFixed(2)} ${distanceUnit()}</strong>${averageDailyMinutes ? `<small>${Math.round(averageDailyMinutes)} min per walking day</small>` : `<small>Per walking day</small>`}`
+    : `<span>DAILY WALK AVERAGE</span><strong>â€”</strong><small>Record a walk to begin</small>`;
   byId("milestoneList").innerHTML = milestoneData.map(item =>
-    `<div class="milestone-item ${item.available ? "" : "locked"}"><i>${item.available ? "✓" : "·"}</i><span>${item.label}</span><small>${item.detail}</small></div>`
+    `<div class="milestone-item ${item.reached ? "" : "locked"}"><i>${item.reached ? "✓" : "·"}</i><span>${item.label}</span><small>${item.detail}</small></div>`
   ).join("");
-}
-
-let calculatorMode = "distance";
-
-function latestRecordedWeight() {
-  return Object.values(state.entries)
-    .filter(entry => Number(entry.weight) > 0)
-    .sort((a, b) => b.date.localeCompare(a.date))[0]?.weight || state.profile.startWeight;
-}
-
-function recentWalkingSpeed() {
-  const walks = Object.values(state.entries).filter(entry =>
-    Number(entry.distance) > 0 && Number(entry.minutes) > 0
-  );
-  const miles = walks.reduce((sum, entry) => sum + Number(entry.distance), 0);
-  const minutes = walks.reduce((sum, entry) => sum + Number(entry.minutes), 0);
-  return minutes > 0 ? miles / (minutes / 60) : 3;
-}
-
-function calculatorValues() {
-  return {
-    distance: Number(byId("calcDistance").value),
-    time: Number(byId("calcTime").value),
-    speed: Number(byId("calcSpeed").value),
-    weight: Number(byId("calcWeight").value)
-  };
-}
-
-function refreshWalkingCalculator(resetValues = false) {
-  byId("calcDistanceUnit").textContent = distanceUnit();
-  byId("calcSpeedUnit").textContent = unitSystem === "metric" ? "km/h" : "mph";
-  byId("calcWeightUnit").textContent = weightUnit();
-  byId("calcLossUnit").textContent = weightUnit();
-
-  if (resetValues) {
-    byId("calcWeight").value = displayWeight(latestRecordedWeight()).toFixed(1);
-    byId("calcSpeed").value = displayDistance(recentWalkingSpeed()).toFixed(2);
-    byId("calcDistance").value = "";
-    byId("calcTime").value = "";
-    byId("calcTargetLoss").value = "";
-  }
-
-  calculateWalk();
-}
-
-function setCalculatorMode(mode) {
-  calculatorMode = ["distance", "time", "speed", "calories"].includes(mode) ? mode : "distance";
-  const requirements = {
-    distance: ["speed", "time"],
-    time: ["distance", "speed"],
-    speed: ["distance", "time"],
-    calories: ["distance", "weight"]
-  };
-
-  document.querySelectorAll("[data-calc-mode]").forEach(button => {
-    button.classList.toggle("active", button.dataset.calcMode === calculatorMode);
-  });
-  document.querySelectorAll("[data-calc-field]").forEach(label => {
-    const field = label.dataset.calcField;
-    label.classList.toggle("is-required", requirements[calculatorMode].includes(field));
-    label.classList.toggle("is-output", field === calculatorMode && calculatorMode !== "calories");
-  });
-  calculateWalk();
-}
-
-function calculateWalk() {
-  const values = calculatorValues();
-  const labels = {
-    distance: "Estimated distance",
-    time: "Estimated walking time",
-    speed: "Estimated walking speed",
-    calories: "Estimated energy used"
-  };
-  byId("calcResultLabel").textContent = labels[calculatorMode];
-
-  let result = "";
-  if (calculatorMode === "distance" && values.speed > 0 && values.time > 0) {
-    result = `${(values.speed * values.time / 60).toFixed(2)} ${distanceUnit()}`;
-  } else if (calculatorMode === "time" && values.distance > 0 && values.speed > 0) {
-    result = `${Math.round(values.distance / values.speed * 60)} minutes`;
-  } else if (calculatorMode === "speed" && values.distance > 0 && values.time > 0) {
-    result = `${(values.distance / (values.time / 60)).toFixed(2)} ${unitSystem === "metric" ? "km/h" : "mph"}`;
-  } else if (calculatorMode === "calories" && values.distance > 0 && values.weight > 0) {
-    const miles = storedDistance(values.distance);
-    const pounds = storedWeight(values.weight);
-    result = `${Math.round(.57 * pounds * miles)} kcal`;
-  }
-
-  const missing = {
-    distance: "Enter walking time",
-    time: "Enter distance",
-    speed: "Enter distance and time",
-    calories: "Enter distance and weight"
-  };
-  byId("calcResult").textContent = result || missing[calculatorMode];
-  renderWalkingProjection();
-}
-
-function renderWalkingProjection() {
-  const targetDisplay = Number(byId("calcTargetLoss").value);
-  const weightDisplay = Number(byId("calcWeight").value);
-  const output = byId("projectionResults");
-  if (!(targetDisplay > 0) || !(weightDisplay > 0)) {
-    output.textContent = "Enter a desired loss to see a planning estimate.";
-    return;
-  }
-
-  const targetPounds = storedWeight(targetDisplay);
-  const weightPounds = storedWeight(weightDisplay);
-  const estimatedCalories = targetPounds * 3500;
-  const caloriesPerMile = .57 * weightPounds;
-  const estimatedMiles = estimatedCalories / caloriesPerMile;
-  const recordedMiles = Object.values(state.entries).reduce((sum, entry) => sum + Number(entry.distance || 0), 0);
-  const progress = Math.min(100, recordedMiles / estimatedMiles * 100);
-
-  output.innerHTML = `
-    <strong>${displayDistance(estimatedMiles).toFixed(1)} ${distanceUnit()}</strong> estimated walking distance<br>
-    ${Math.round(estimatedCalories).toLocaleString()} estimated kcal<br>
-    ${displayDistance(recordedMiles).toFixed(1)} ${distanceUnit()} recorded · ${progress.toFixed(1)}% of distance estimate
-  `;
-}
-
-function setupWalkingCalculator() {
-  document.querySelectorAll("[data-calc-mode]").forEach(button => {
-    button.addEventListener("click", () => setCalculatorMode(button.dataset.calcMode));
-  });
-  ["calcDistance", "calcTime", "calcSpeed", "calcWeight", "calcTargetLoss"].forEach(id => {
-    byId(id).addEventListener("input", calculateWalk);
-  });
-  setCalculatorMode("distance");
 }
 
 function promiseLine(label, passed) {
@@ -790,5 +690,4 @@ document.querySelectorAll('input[name="unitSystem"]').forEach(input => {
 persist();
 loadEntry(isoDate());
 renderAll();
-setupWalkingCalculator();
 applyUnitSystem();
