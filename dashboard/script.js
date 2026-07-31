@@ -1291,7 +1291,6 @@ document.addEventListener("DOMContentLoaded", () => {
    ========================================= */
 
 const summaryDailyStorageKey = "motionc-daily-prototype-v1";
-const summaryWalkingStorageKey = "walking_page_walks_v1";
 const summaryMcpStorageKey = "motionc-mcp-summary-v1";
 const summaryGoalStorageKey = "motionc-weight-goal-v1";
 const summaryPreferencesStorageKey = "motionc-preferences-v1";
@@ -1324,14 +1323,6 @@ function readSummaryStorage(key, fallback) {
     } catch {
         return fallback;
     }
-}
-
-function saveSharedVibratoryLine(pounds) {
-    const daily = readSummaryStorage(summaryDailyStorageKey, { entries: {}, weeks: {}, profile: {} });
-    daily.profile = daily.profile || {};
-    daily.profile.vibratoryLine = pounds;
-    daily.profile.updatedAt = new Date().toISOString();
-    localStorage.setItem(summaryDailyStorageKey, JSON.stringify(daily));
 }
 
 function summaryDate(value) {
@@ -1495,7 +1486,7 @@ function drawWeightChart(points) {
         context.stroke();
         context.restore();
 
-        const goalText = `Line ${summaryGoalWeight.toFixed(1)} ${summaryWeightUnit()}`;
+        const goalText = `Goal ${summaryGoalWeight.toFixed(1)} ${summaryWeightUnit()}`;
         context.font = "bold 10px Arial";
         const labelWidth = context.measureText(goalText).width + 14;
         context.fillStyle = "#fff4d2";
@@ -1505,7 +1496,7 @@ function drawWeightChart(points) {
         context.textAlign = "center";
         context.fillText(goalText, width - padding.right - labelWidth / 2, goalY - 8);
         canvas._goalScale = { minimum, maximum, top: padding.top, height: chartHeight, goalY };
-        setText("goal-weight-label", `Vibratory Set Line: ${summaryGoalWeight.toFixed(1)} ${summaryWeightUnit()}`);
+        setText("goal-weight-label", `Goal: ${summaryGoalWeight.toFixed(1)} ${summaryWeightUnit()}`);
     }
 
     context.fillStyle = "#7a8782";
@@ -1592,7 +1583,6 @@ function drawWalkingChart(points) {
 
 function renderSummaryData() {
     const daily = readSummaryStorage(summaryDailyStorageKey, { entries: {}, profile: {} });
-    const walks = readSummaryStorage(summaryWalkingStorageKey, []);
     const lifestyle = readSummaryStorage(lifestyleSummaryStorageKey, null);
     const savedMcp = readSummaryStorage(summaryMcpStorageKey, null);
     const preferences = readSummaryStorage(summaryPreferencesStorageKey, {});
@@ -1605,9 +1595,8 @@ function renderSummaryData() {
     const dates7 = dates14.slice(-7);
     const entries = daily?.entries || {};
     const savedGoal = Number(readSummaryStorage(summaryGoalStorageKey, null));
-    const profileLine = Number(daily?.profile?.vibratoryLine);
     const profileGoal = Number(daily?.profile?.motivationalGoal);
-    const canonicalGoal = savedGoal > 0 ? savedGoal : profileLine > 0 ? profileLine : profileGoal > 0 ? profileGoal : 195;
+    const canonicalGoal = savedGoal > 0 ? savedGoal : profileGoal > 0 ? profileGoal : 195;
     summaryGoalWeight = summaryDisplayWeight(canonicalGoal);
 
     if (savedMcp?.measurementData && savedMcp?.results) {
@@ -1638,16 +1627,12 @@ function renderSummaryData() {
         setText("weekly-weight-change", `${change > 0 ? "+" : ""}${change.toFixed(1)} ${summaryWeightUnit()}`);
     }
 
-    const walkArray = Array.isArray(walks) ? walks : [];
     const walkPoints = dates14.map(date => {
-        const savedWalks = walkArray.filter(walk => walk.date === date);
         const dailyEntry = entries[date] || {};
-        const savedMiles = savedWalks.reduce((total, walk) => total + Number(walk.miles || 0), 0);
-        const savedMinutes = savedWalks.reduce((total, walk) => total + Number(walk.minutes || 0), 0);
         return {
             date,
-            miles: summaryDisplayDistance(savedMiles || Number(dailyEntry.distance || 0)),
-            minutes: savedMinutes || Number(dailyEntry.minutes || 0)
+            miles: summaryDisplayDistance(Number(dailyEntry.distance || 0)),
+            minutes: Number(dailyEntry.minutes || 0)
         };
     });
     drawWalkingChart(walkPoints);
@@ -1716,9 +1701,7 @@ function updateGoalFromPointer(event) {
     const y = Math.max(scale.top, Math.min(scale.top + scale.height, event.clientY - rect.top));
     const percentage = 1 - (y - scale.top) / scale.height;
     summaryGoalWeight = Math.round((scale.minimum + percentage * (scale.maximum - scale.minimum)) * 10) / 10;
-    const canonicalLine = summaryStoredWeight(summaryGoalWeight);
-    localStorage.setItem(summaryGoalStorageKey, String(canonicalLine));
-    saveSharedVibratoryLine(canonicalLine);
+    localStorage.setItem(summaryGoalStorageKey, String(summaryStoredWeight(summaryGoalWeight)));
     drawWeightChart(summaryWeightPoints);
 }
 
