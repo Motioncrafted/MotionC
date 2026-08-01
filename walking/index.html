@@ -352,20 +352,6 @@
     button:focus-visible, input:focus-visible { outline: 3px solid #f0b429; outline-offset: 1px; }
     .stepper button:first-child { border-radius: 6px 0 0 6px; }
     .stepper button:last-child { border-radius: 0 6px 6px 0; }
-    .add { background: #287a43; }
-    .add:hover { background: #1c6032; }
-    .entry > .add {
-      display: inline-grid;
-      width: 100%;
-      min-height: clamp(25px, 2.4vw, 40px);
-      place-items: center;
-      border-radius: 6px;
-      padding: 0 clamp(8px, 0.8vw, 13px);
-      color: #fff;
-      font-size: clamp(9px, 0.82vw, 14px);
-      font-weight: 700;
-      text-decoration: none;
-    }
     .journey-reset {
       width: 100%;
       margin-top: clamp(5px, 0.55vw, 9px);
@@ -767,7 +753,6 @@
     <section class="panel entry" aria-labelledby="entryTitle">
       <h2 id="entryTitle">Walking Progress</h2>
       <p class="message">Your route updates automatically from walks recorded on the Daily page.</p>
-      <a class="add" href="/daily/">Record todayâ€™s walk</a>
       <button class="journey-reset" id="resetJourney" type="button">Start New Journey</button>
       <form id="walkForm" hidden aria-hidden="true">
         <div class="fields">
@@ -959,7 +944,7 @@
 
     function closeJasperCelebration() {
       jasperCelebration.hidden = true;
-      document.querySelector(".add").focus();
+      document.getElementById("resetJourney").focus();
     }
 
     function updateJasperCelebration(totalMiles) {
