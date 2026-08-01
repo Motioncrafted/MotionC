@@ -174,16 +174,17 @@
     <button class="dialog-close" id="closeWeekly" type="button" aria-label="Close">×</button>
     <p class="eyebrow">YOUR LIFESTYLE THIS WEEK</p>
     <h2>Weekly check-in</h2>
-    <p class="dialog-intro">A quick background check that influences all seven daily dots.</p>
+    <p class="dialog-intro">A quick background check plus the personal measurements used throughout MotionC.</p>
     <div class="lifestyle-grid" id="lifestyleGrid"></div>
     <div class="weekly-measures">
+      <label>Starting Weight <span class="input-with-unit"><input id="startingWeight" type="number" step="0.1" min="20" max="700"><small id="startWeightUnit">lb</small></span></label>
       <label>Waist <span class="input-with-unit"><input id="weeklyWaist" type="number" step="0.1" min="15" max="300"><small id="waistUnit">in</small></span></label>
-      <label>Vibratory Line <span class="input-with-unit"><input id="vibratoryLine" type="number" step="0.1" min="20" max="700"><small id="lineWeightUnit">lb</small></span></label>
+      <label>Vibratory Set Line <span class="input-with-unit"><input id="vibratoryLine" type="number" step="0.1" min="20" max="700"><small id="lineWeightUnit">lb</small></span></label>
       <label>Motivational goal <span class="input-with-unit"><input id="motivationalGoal" type="number" step="0.1" min="20" max="700"><small id="goalWeightUnit">lb</small></span></label>
     </div>
     <button class="save-button full" id="saveWeekly" type="button">Save weekly check-in</button>
   </dialog>
 
-  <script src="/daily/script.js?v=20260729-2"></script>
+  <script src="/daily/script.js?v=20260801-2"></script>
 </body>
 </html>

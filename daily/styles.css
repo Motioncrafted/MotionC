@@ -475,7 +475,7 @@ dialog::backdrop { background: rgba(9,18,20,.66); backdrop-filter: blur(3px); }
 .lifestyle-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 18px; }
 .lifestyle-grid label { display: grid; gap: 5px; color: #33464d; font-size: 13px; font-weight: 800; }
 .lifestyle-grid select { min-height: 42px; border: 1px solid var(--line); border-radius: 8px; padding: 0 9px; background: #fbfdfc; }
-.weekly-measures { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
+.weekly-measures { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 18px; }
 .weekly-measures .input-with-unit input { font-size: 18px; padding: 10px; }
 
 @media (max-width: 1000px) {
