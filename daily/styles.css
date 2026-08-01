@@ -212,6 +212,35 @@ main { min-width: 0; }
   gap: 18px;
 }
 .section-heading h2 { margin: 0; font-size: 25px; }
+.entry-card > .section-heading { align-items: center; }
+.weekly-reflection {
+  flex: 1 1 420px;
+  max-width: 560px;
+  margin-inline: auto;
+  padding-left: 18px;
+  border-left: 2px solid rgba(211, 154, 19, .42);
+  color: var(--muted);
+}
+.weekly-reflection span {
+  display: block;
+  margin-bottom: 4px;
+  color: #a96e00;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+.weekly-reflection q {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(14px, 1.15vw, 18px);
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.weekly-reflection q u {
+  text-decoration-color: #d39a13;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+}
 .date-field {
   display: grid;
   gap: 5px;
@@ -500,6 +529,13 @@ dialog::backdrop { background: rgba(9,18,20,.66); backdrop-filter: blur(3px); }
   .hero-date { display: none; }
   .content { padding: 12px; }
   .entry-card, .calendar-card, .weekly-card, .milestones-card { padding: 16px; }
+  .entry-card > .section-heading { flex-wrap: wrap; }
+  .weekly-reflection {
+    order: 3;
+    flex-basis: 100%;
+    max-width: none;
+    margin-top: 4px;
+  }
   .number-grid, .promises, .notes-grid, .weekly-measures { grid-template-columns: 1fr; }
   .promise-grid, .lifestyle-grid { grid-template-columns: 1fr; }
   .weekly-stats { grid-template-columns: repeat(2, 1fr); }

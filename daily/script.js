@@ -15,6 +15,12 @@ const LIFESTYLE_ITEMS = [
   ["smoking", "Smoking"],
   ["movement", "Daily movement"]
 ];
+const WEEKLY_REFLECTIONS = [
+  "I may not be there yet, but I’m closer than I was yesterday.",
+  "Change Happens One Step at a Time.",
+  "All Truly Great Thoughts are Conceived While Walking.",
+  "Strive for <u>Progress</u>, not Perfection."
+];
 
 const byId = id => document.getElementById(id);
 let unitSystem = loadUnitSystem();
@@ -633,6 +639,9 @@ function renderAll(dateValue = isoDate()) {
   const now = new Date();
   byId("heroWeekday").textContent = new Intl.DateTimeFormat(undefined, { weekday: "long" }).format(now);
   byId("heroDate").textContent = new Intl.DateTimeFormat(undefined, { month: "long", day: "numeric", year: "numeric" }).format(now);
+  const yearStart = new Date(now.getFullYear(), 0, 1);
+  const weekNumber = Math.floor((now - yearStart) / 604800000);
+  byId("weeklyReflection").innerHTML = WEEKLY_REFLECTIONS[weekNumber % WEEKLY_REFLECTIONS.length];
   renderToday(dateValue);
   renderCalendar(dateValue);
   renderWeekly();
