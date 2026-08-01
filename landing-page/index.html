@@ -54,6 +54,46 @@
       box-shadow: 0 0 12px rgba(240, 180, 41, .45);
     }
 
+    .routes-lock {
+      position: absolute;
+      z-index: 4;
+      left: 17.4%;
+      top: 25.5%;
+      width: clamp(12px, 1.45vw, 25px);
+      aspect-ratio: .78;
+      border: 1px solid rgba(79, 48, 12, .82);
+      border-radius: 18% 18% 24% 24%;
+      background: linear-gradient(145deg, #ffe29a 0%, #d99a25 48%, #8c5712 100%);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, .55), inset 0 1px 1px rgba(255, 255, 255, .7);
+      transform: rotate(1deg);
+      pointer-events: none;
+    }
+
+    .routes-lock::before {
+      content: "";
+      position: absolute;
+      left: 19%;
+      top: -55%;
+      width: 62%;
+      height: 76%;
+      border: clamp(2px, .22vw, 4px) solid #d49a2c;
+      border-bottom: 0;
+      border-radius: 50% 50% 0 0;
+      filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .65));
+    }
+
+    .routes-lock::after {
+      content: "";
+      position: absolute;
+      left: 42%;
+      top: 34%;
+      width: 16%;
+      height: 35%;
+      border-radius: 999px;
+      background: #5c390e;
+      box-shadow: 0 -2px 0 rgba(255, 255, 255, .2);
+    }
+
     .get-started {
       left: 50.9%;
       top: 52%;
@@ -415,6 +455,14 @@
       aria-expanded="false"
       title="Understand"
     ></button>
+
+    <span
+      class="routes-lock"
+      data-registration-lock
+      role="img"
+      aria-label="Routes unlock after registration"
+      title="Routes unlock after registration"
+    ></span>
 
     <a
       class="hotspot walks-sign"
