@@ -1,6 +1,7 @@
 const STORAGE_KEY = "motionc-daily-prototype-v1";
 const LIFESTYLE_SUMMARY_STORAGE_KEY = "motionc-lifestyle-summary-v1";
 const PREFERENCES_STORAGE_KEY = "motionc-preferences-v1";
+const WEIGHT_GOAL_STORAGE_KEY = "motionc-weight-goal-v1";
 const KG_PER_LB = 0.45359237;
 const KM_PER_MI = 1.609344;
 const CM_PER_IN = 2.54;
@@ -191,7 +192,13 @@ function weeklyTemplate(score) {
 function loadState() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : seedState();
+    const loaded = saved ? JSON.parse(saved) : seedState();
+    const sharedVibratoryLine = Number(localStorage.getItem(WEIGHT_GOAL_STORAGE_KEY));
+    if (sharedVibratoryLine > 0) {
+      loaded.profile = loaded.profile || {};
+      loaded.profile.vibratoryLine = sharedVibratoryLine;
+    }
+    return loaded;
   } catch {
     return seedState();
   }
@@ -615,6 +622,7 @@ function saveWeekly() {
   state.profile.startWeight = byId("startingWeight").value ? storedWeight(Number(byId("startingWeight").value)) : state.profile.startWeight;
   state.profile.waist = byId("weeklyWaist").value ? storedWaist(Number(byId("weeklyWaist").value)) : state.profile.waist;
   state.profile.vibratoryLine = byId("vibratoryLine").value ? storedWeight(Number(byId("vibratoryLine").value)) : state.profile.vibratoryLine;
+  localStorage.setItem(WEIGHT_GOAL_STORAGE_KEY, String(state.profile.vibratoryLine));
   state.profile.motivationalGoal = byId("motivationalGoal").value ? storedWeight(Number(byId("motivationalGoal").value)) : state.profile.motivationalGoal;
   persist();
   byId("weeklyDialog").close();
