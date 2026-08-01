@@ -1653,11 +1653,6 @@ function renderSummaryData() {
     setText("weekly-minutes", `${Math.round(weeklyMinutes)} min`);
     setText("walking-chart-summary", `${weeklyMiles.toFixed(1)} ${summaryDistanceUnit()} · ${Math.round(weeklyMinutes)} min this week`);
 
-    const waist = Number(daily?.profile?.waist);
-    if (waist > 0) {
-        setText("display-waist", (summaryUnitSystem === "metric" ? waist * 2.54 : waist).toFixed(1));
-        setText("display-waist-unit", summaryUnitSystem === "metric" ? "cm" : "in");
-    }
     renderLifestyleSummary(lifestyle);
 }
 
