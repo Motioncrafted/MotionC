@@ -255,6 +255,10 @@
     .info-card {
       position: relative;
       width: min(620px, 92vw);
+      max-height: 86%;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-gutter: stable;
       padding: clamp(24px, 4vw, 46px);
       border: 2px solid #9c6b31;
       border-radius: 16px;
