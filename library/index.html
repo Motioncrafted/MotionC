@@ -449,6 +449,9 @@
 
     .reader-sheet {
       position: relative;
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr);
+      align-content: start;
       width: 84%;
       height: 88%;
       overflow: hidden;
@@ -487,7 +490,10 @@
     .reader-heading {
       position: relative;
       z-index: 1;
-      margin: 0 auto 1%;
+      display: grid;
+      align-content: end;
+      min-height: 2.2em;
+      margin: 0 auto .6%;
       max-width: 26ch;
       color: #4d301a;
       font-size: clamp(25px, 2.8vw, 48px);
@@ -498,7 +504,8 @@
     .reader-category {
       position: relative;
       z-index: 1;
-      margin: 0 0 2.5%;
+      min-height: 1.35em;
+      margin: 0 0 1.8%;
       color: #287a43;
       font: 700 clamp(11px, 1vw, 17px) "Kalam", cursive;
       text-align: center;
@@ -507,14 +514,28 @@
     .reader-content {
       position: relative;
       z-index: 1;
+      width: 100%;
       max-width: 76ch;
+      min-height: 0;
+      max-height: 100%;
+      overflow: auto;
+      scrollbar-gutter: stable;
       margin: 0 auto;
+      padding: 0 clamp(2px, .8vw, 14px) .75rem;
       font-size: clamp(12px, 1.12vw, 19px);
       line-height: 1.72;
     }
 
     .reader-content p {
       margin: 0 0 1em;
+    }
+
+    .reader-content > :first-child {
+      margin-top: 0;
+    }
+
+    .reader-content > :last-child {
+      margin-bottom: 0;
     }
 
     .reader-content p:first-child::first-letter {
