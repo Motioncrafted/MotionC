@@ -1217,6 +1217,7 @@
       readerHeading.textContent = activeArticle.title;
       readerCategory.textContent = categoryMap.get(activeArticle.category)?.title || "MotionC Library";
       readerContent.innerHTML = activeArticle.pages[activeArticlePage];
+      readerContent.scrollTop = 0;
       readerPageNumber.textContent =
         `Page ${activeArticlePage + 1} of ${activeArticle.pages.length}`;
       readerPrevious.disabled = activeArticlePage === 0;
