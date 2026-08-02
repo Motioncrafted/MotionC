@@ -5,23 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Daily | MotionC</title>
   <meta name="description" content="Your quick daily MotionC health check-in.">
-  <link rel="stylesheet" href="/daily/styles.css?v=20260802-1">
+  <link rel="stylesheet" href="/daily/styles.css?v=20260802-nav1">
 </head>
-<body>
+<body class="nav-visualization">
   <div class="app-shell">
     <aside class="sidebar" aria-label="MotionC navigation">
       <button class="brand" id="preferencesToggle" type="button" aria-label="Open preferences" aria-expanded="false" aria-controls="preferencesMenu">
-        <span class="brand-mark">MC</span>
-        <span>MotionC</span>
+        <img src="/images/nav/motionc-logo.png" alt="">
       </button>
       <nav>
-        <a href="/landing-page/"><span>⌂</span>Home</a>
-        <a class="active" href="/daily/"><span>◉</span>Daily</a>
-        <a href="/walking/"><span>♟</span>Walking</a>
-        <a href="/dashboard/"><span>◴</span>MCP</a>
-        <a href="/library/"><span>▥</span>Library</a>
-        <a href="/drop-zone/"><span>▦</span>Drop Zone</a>
+        <a class="nav-home" href="/landing-page/"><img src="/images/nav/home.png" alt=""><small>Home</small></a>
+        <a class="nav-daily active" href="/daily/" aria-current="page"><img src="/images/nav/daily.png" alt=""><small>Daily</small></a>
+        <a class="nav-mcp" href="/dashboard/"><img src="/images/nav/mcp.png" alt=""><small>MCP</small></a>
+        <a class="nav-library" href="/library/"><img src="/images/nav/library.png" alt=""><small>Library</small></a>
+        <a class="nav-walking" href="/walking/"><img src="/images/nav/walking.png" alt=""><small>Walking</small></a>
+        <a class="nav-drop-zone" href="/drop-zone/"><img src="/images/nav/drop-zone.png" alt=""><small>Drop Zone</small></a>
+        <button class="mobile-more-toggle" id="mobileMoreToggle" type="button"
+          aria-label="Open more navigation" aria-expanded="false" aria-controls="mobileMoreMenu">
+          <span class="more-glyph" aria-hidden="true">•••</span>
+          <small>More</small>
+        </button>
       </nav>
+      <div class="mobile-more-menu" id="mobileMoreMenu" hidden>
+        <a href="/walking/"><img src="/images/nav/walking.png" alt=""><span>Walking</span></a>
+        <a href="/drop-zone/"><img src="/images/nav/drop-zone.png" alt=""><span>Drop Zone</span></a>
+      </div>
       <p class="sidebar-motto">One day.<br>One choice.<br>Always forward.</p>
     </aside>
 
@@ -245,5 +253,32 @@
   </dialog>
 
   <script src="/daily/script.js?v=20260802-1"></script>
+  <script>
+    (() => {
+      const moreToggle = document.getElementById("mobileMoreToggle");
+      const moreMenu = document.getElementById("mobileMoreMenu");
+
+      function setMoreMenu(open) {
+        moreMenu.hidden = !open;
+        moreToggle.setAttribute("aria-expanded", String(open));
+        moreToggle.setAttribute("aria-label", open ? "Close more navigation" : "Open more navigation");
+      }
+
+      moreToggle.addEventListener("click", () => setMoreMenu(moreMenu.hidden));
+      document.addEventListener("click", event => {
+        if (moreMenu.hidden || moreMenu.contains(event.target) || moreToggle.contains(event.target)) return;
+        setMoreMenu(false);
+      });
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && !moreMenu.hidden) {
+          setMoreMenu(false);
+          moreToggle.focus();
+        }
+      });
+      window.addEventListener("resize", () => {
+        if (window.innerWidth > 700 && !moreMenu.hidden) setMoreMenu(false);
+      });
+    })();
+  </script>
 </body>
 </html>
