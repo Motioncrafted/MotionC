@@ -200,7 +200,7 @@
       100% { opacity: 0; transform: rotateY(88deg) scale(.97); }
     }
 
-    /* Comparison version: keep the book still while its contents change. */
+    /* Keep the book still while its contents change. */
     .book-transition { display: none; }
 
     /* Results text sits directly over the authentic blank book artwork. */
@@ -242,7 +242,10 @@
     }
 
     .book-title {
-      margin: 0 0 6%;
+      display: grid;
+      min-height: 2.2em;
+      margin: 0 0 4%;
+      align-content: end;
       color: #51331c;
       font-size: clamp(12px, 1.28vw, 21px);
       line-height: 1.1;
@@ -250,30 +253,37 @@
     }
 
     .book-subtitle {
-      margin: 0 0 3%;
+      min-height: 1.35em;
+      margin: 0 0 4%;
       color: #80552a;
       font: 700 clamp(7px, .62vw, 11px) "Kalam", cursive;
+      line-height: 1.2;
       text-align: center;
     }
 
     .book-list {
       display: grid;
-      gap: 8%;
+      gap: clamp(4px, .4vw, 7px);
       margin: 0;
       padding: 0;
+      align-content: start;
       list-style: none;
     }
 
+    .book-list li { min-width: 0; }
+
     .book-choice {
+      display: flex;
       width: 100%;
-      min-height: clamp(25px, 2.4vw, 42px);
-      padding: 5% 3%;
+      height: clamp(38px, 3vw, 52px);
+      padding: clamp(6px, .55vw, 9px) 3%;
+      align-items: flex-start;
       border: 0;
       border-bottom: 1px solid rgba(126, 79, 34, .38);
       color: #38271b;
       background: rgba(255, 244, 218, .06);
       font-size: clamp(9px, .9vw, 15px);
-      line-height: 1.22;
+      line-height: 1.15;
       text-align: inherit;
     }
 
