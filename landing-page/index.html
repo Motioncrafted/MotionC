@@ -162,7 +162,10 @@
 
 .get-started,
 .learn-more,
-.understand {
+.understand,
+.track-circle,
+.move-circle,
+.live-circle {
   z-index: 3;
 }
     
@@ -180,6 +183,45 @@
   width: 15.4%;
   height: 8.3%;
   transform: rotate(-1deg);
+}
+
+.drop-zone-sign {
+  left: 4.8%;
+  top: 51.3%;
+  width: 15.6%;
+  height: 8.6%;
+  transform: rotate(.5deg);
+}
+
+.live-well-sign {
+  left: 4.9%;
+  top: 61.2%;
+  width: 15.3%;
+  height: 8.5%;
+  transform: rotate(-1deg);
+}
+
+.track-circle,
+.move-circle,
+.live-circle {
+  top: 82.8%;
+  height: 11.5%;
+  border-radius: 999px;
+}
+
+.track-circle {
+  left: 38.3%;
+  width: 15.4%;
+}
+
+.move-circle {
+  left: 56.6%;
+  width: 14.2%;
+}
+
+.live-circle {
+  left: 73.7%;
+  width: 13.4%;
 }
 
 .mira-hotspot {
@@ -476,6 +518,41 @@
       href="/dashboard/"
       aria-label="Open the MotionC Dashboard"
       title="Progress"
+    ></a>
+
+    <a
+      class="hotspot drop-zone-sign"
+      href="/drop-zone/"
+      aria-label="Open the Drop Zone page"
+      title="Drop Zone"
+    ></a>
+
+    <a
+      class="hotspot live-well-sign"
+      href="/library/"
+      aria-label="Open the MotionC Library"
+      title="Live Well"
+    ></a>
+
+    <a
+      class="hotspot track-circle"
+      href="/dashboard/"
+      aria-label="Track — open the Summary page"
+      title="Track"
+    ></a>
+
+    <a
+      class="hotspot move-circle"
+      href="/walking/"
+      aria-label="Move — open the Walking page"
+      title="Move"
+    ></a>
+
+    <a
+      class="hotspot live-circle"
+      href="/library/"
+      aria-label="Live — open the Library page"
+      title="Live"
     ></a>
 
     <button
