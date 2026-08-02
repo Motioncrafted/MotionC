@@ -852,7 +852,7 @@ body {
     background:
         linear-gradient(180deg, rgba(7, 25, 23, .46), transparent 52%),
         linear-gradient(90deg, rgba(9, 32, 29, .92), rgba(9, 32, 29, .5) 48%, rgba(9, 32, 29, .16) 76%, rgba(9, 32, 29, .3)),
-        url("/images/summary-header-looking-back.png") center 30% / cover;
+        url("/images/summary-header-looking-back-v2.png") center 30% / cover;
 }
 
 .summary-hero::after {
