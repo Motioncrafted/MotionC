@@ -13,7 +13,7 @@
 
     <link
         rel="stylesheet"
-        href="/dashboard/styles.css?v=20260802-1"
+        href="/dashboard/styles.css?v=20260802-2"
     >
 
     <style>
@@ -145,7 +145,7 @@
                                     <span>Higher central</span>
                                 </div>
                             </div>
-                            <p class="whr-caution">This indicates body-fat distribution. It does not directly measure visceral fat or diagnose a health condition.</p>
+                            <p class="whr-caution">This indicates body-fat distribution. It does not directly measure visceral fat or diagnose a health condition. Your optional hip measurement is used only to calculate this WHR result.</p>
                         </div>
                     </div>
                     <strong id="display-whr">&mdash;</strong>
@@ -272,6 +272,15 @@
                     Weight, waist, height, age and sex calculate your MCP. Hip measurement adds your optional WHR body-shape metric.
                 </p>
 
+                <div class="measurement-privacy-note" role="note" aria-label="MotionC privacy promise">
+                    <span class="privacy-note-icon" aria-hidden="true">✓</span>
+                    <div>
+                        <strong>Your health information belongs to you.</strong>
+                        <p>MotionC uses these measurements only to provide your calculations, trends and personalized experience. We do not sell your personal information or use your health measurements for advertising.</p>
+                        <small>This version stores your measurements in this browser on this device. Hip measurement is optional.</small>
+                    </div>
+                </div>
+
 
                 <!-- Measurement system -->
                 <div class="ms-options">
@@ -353,7 +362,7 @@
                             inputmode="decimal"
                             aria-describedby="hip-help"
                         >
-                        <small id="hip-help" class="field-help">Optional — measure around the widest part of your hips.</small>
+                        <small id="hip-help" class="field-help">Optional — measure around the widest part of your hips; used only for WHR.</small>
 
                     </div>
 
@@ -918,7 +927,7 @@
          Dashboard JavaScript
          ===================================== -->
 
-    <script src="/dashboard/script.js?v=20260802-1"></script>
+    <script src="/dashboard/script.js?v=20260802-2"></script>
 </body>
 
 </html>

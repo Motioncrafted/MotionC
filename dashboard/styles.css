@@ -407,6 +407,46 @@ legend {
     line-height: 1.35;
 }
 
+.measurement-privacy-note {
+    display: grid;
+    grid-template-columns: 30px 1fr;
+    gap: 10px;
+    margin: 13px 0 17px;
+    padding: 12px;
+    border: 1px solid #cfe3d6;
+    border-radius: 11px;
+    color: #28483a;
+    background: #f1f8f3;
+}
+.privacy-note-icon {
+    display: grid;
+    width: 28px;
+    height: 28px;
+    place-items: center;
+    border-radius: 50%;
+    color: white;
+    background: #347b50;
+    font-size: 13px;
+    font-weight: 900;
+}
+.measurement-privacy-note strong {
+    display: block;
+    font-size: 13px;
+}
+.measurement-privacy-note p {
+    margin: 4px 0 0;
+    color: #4e6259;
+    font-size: 11px;
+    line-height: 1.45;
+}
+.measurement-privacy-note small {
+    display: block;
+    margin-top: 5px;
+    color: #6a776f;
+    font-size: 9px;
+    line-height: 1.4;
+}
+
 .field {
     min-width: 0;
 }
