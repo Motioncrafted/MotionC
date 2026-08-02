@@ -850,13 +850,43 @@ body {
     overflow: hidden;
     color: white;
     background:
-        linear-gradient(90deg, #09201d 0%, #09201d 43%, rgba(9, 32, 29, .98) 50%, rgba(9, 32, 29, .78) 58%, rgba(9, 32, 29, .3) 73%, rgba(9, 32, 29, .12)),
-        url("/images/summary-header-grounded-path.png") right center / auto 125% no-repeat,
+        radial-gradient(circle at 72% 46%, rgba(56, 89, 61, .18), transparent 36rem),
         #09201d;
+}
+
+.summary-hero::before {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    content: "";
+    pointer-events: none;
+    background: url("/images/summary-header-grounded-path.png") right center / auto 125% no-repeat;
+    filter: brightness(.76) saturate(.9);
+    -webkit-mask-image: linear-gradient(
+        90deg,
+        transparent 30%,
+        rgba(0, 0, 0, .04) 40%,
+        rgba(0, 0, 0, .16) 50%,
+        rgba(0, 0, 0, .4) 61%,
+        rgba(0, 0, 0, .7) 72%,
+        rgba(0, 0, 0, .9) 83%,
+        #000 92%
+    );
+    mask-image: linear-gradient(
+        90deg,
+        transparent 30%,
+        rgba(0, 0, 0, .04) 40%,
+        rgba(0, 0, 0, .16) 50%,
+        rgba(0, 0, 0, .4) 61%,
+        rgba(0, 0, 0, .7) 72%,
+        rgba(0, 0, 0, .9) 83%,
+        #000 92%
+    );
 }
 
 .summary-hero::after {
     position: absolute;
+    z-index: 1;
     inset: auto 0 0;
     height: 90px;
     content: "";
