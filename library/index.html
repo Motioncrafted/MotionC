@@ -67,7 +67,7 @@
       width: min(100vw, 150vh);
       aspect-ratio: 3 / 2;
       overflow: hidden;
-      background: url("../images/library.webp") center / 100% 100% no-repeat;
+      background: url("../images/library-index-ornament.png") center / 100% 100% no-repeat;
       isolation: isolate;
     }
 
@@ -257,8 +257,16 @@
       text-align: center;
     }
 
-    .book-title.explore-title {
-      transform: translateX(-4%);
+    .book-page-label {
+      display: grid;
+      min-height: 2.3em;
+      margin: 0 0 3%;
+      padding: 0 6%;
+      align-content: center;
+      color: #80552a;
+      font: 700 clamp(8px, .72vw, 12px) "Kalam", cursive;
+      line-height: 1.15;
+      text-align: center;
     }
 
     .book-subtitle {
@@ -534,6 +542,28 @@
       padding: 0 clamp(2px, .8vw, 14px) .75rem;
       font-size: clamp(12px, 1.12vw, 19px);
       line-height: 1.72;
+      scrollbar-color: #c49558 #ead8b4;
+      scrollbar-width: auto;
+    }
+
+    .reader-content::-webkit-scrollbar {
+      width: 14px;
+    }
+
+    .reader-content::-webkit-scrollbar-track {
+      border-radius: 999px;
+      background: #ead8b4;
+      box-shadow: inset 0 0 0 1px rgba(116, 76, 35, .18);
+    }
+
+    .reader-content::-webkit-scrollbar-thumb {
+      border: 3px solid #ead8b4;
+      border-radius: 999px;
+      background: #c49558;
+    }
+
+    .reader-content::-webkit-scrollbar-thumb:hover {
+      background: #ae7940;
     }
 
     .reader-content p {
@@ -630,8 +660,19 @@
     }
 
     .reader-page-number {
+      padding: .55em .9em;
+      border: 1px solid rgba(140, 91, 40, .35);
+      border-radius: 999px;
       color: #765638;
+      background: rgba(247, 225, 182, .72);
+      box-shadow: 0 2px 7px rgba(87, 52, 22, .12);
       font: 700 clamp(9px, .8vw, 14px) "Kalam", cursive;
+      white-space: nowrap;
+    }
+
+    .reader-page-number.more-pages {
+      color: #5c391d;
+      background: #f0d5a4;
     }
 
     .reader-page-buttons {
@@ -642,6 +683,11 @@
 
     .reader-page-buttons button {
       min-width: clamp(42px, 4vw, 68px);
+    }
+
+    .reader-page-buttons #readerNext {
+      min-width: clamp(92px, 8vw, 132px);
+      padding: 0 1em;
     }
 
     @media (max-width: 800px), (max-height: 560px) {
@@ -782,7 +828,7 @@
               ←
             </button>
             <button id="readerNext" type="button" aria-label="Next article page">
-              →
+              Next Page →
             </button>
           </div>
         </div>
@@ -1143,12 +1189,24 @@
       const leftArticles = spreadArticles.slice(0, splitAt);
       const rightArticles = spreadArticles.slice(splitAt);
       const totalSpreads = Math.max(1, Math.ceil(currentResults.length / perSpread));
+      const completeSpreads = Math.floor(currentResults.length / perSpread);
+      const remainingArticles = currentResults.length % perSpread;
+      const totalListingPages = Math.max(
+        1,
+        completeSpreads * 2 + (remainingArticles === 0 ? 0 : remainingArticles === 1 ? 1 : 2)
+      );
+      const leftListingPage = resultSpread * 2 + 1;
+      const rightListingPage = leftListingPage + 1;
+      const leftHeading = resultSpread === 0
+        ? `<h2 class="book-title">${escapeHtml(currentResultTitle)}</h2>`
+        : `<h2 class="book-page-label">Page ${leftListingPage} of ${totalListingPages}</h2>`;
+      const leftSubtitle = resultSpread === 0
+        ? `${currentResults.length} ${currentResults.length === 1 ? "article" : "articles"} found`
+        : "";
 
       leftBookPage.innerHTML = `
-        <h2 class="book-title">${escapeHtml(currentResultTitle)}</h2>
-        <p class="book-subtitle">
-          ${currentResults.length} ${currentResults.length === 1 ? "article" : "articles"} found
-        </p>
+        ${leftHeading}
+        <p class="book-subtitle">${leftSubtitle}</p>
         ${
           leftArticles.length
             ? `<ul class="book-list">${leftArticles.map(articleButton).join("")}</ul>`
@@ -1157,8 +1215,10 @@
       `;
 
       rightBookPage.innerHTML = `
-        <h2 class="book-title explore-title">${rightArticles.length ? "More to Explore" : ""}</h2>
-        <p class="book-subtitle">Spread ${resultSpread + 1} of ${totalSpreads}</p>
+        <h2 class="book-page-label">
+          ${rightArticles.length ? `Page ${rightListingPage} of ${totalListingPages}` : ""}
+        </h2>
+        <p class="book-subtitle"></p>
         ${
           rightArticles.length
             ? `<ul class="book-list">${rightArticles.map(articleButton).join("")}</ul>`
@@ -1218,10 +1278,14 @@
       readerCategory.textContent = categoryMap.get(activeArticle.category)?.title || "MotionC Library";
       readerContent.innerHTML = activeArticle.pages[activeArticlePage];
       readerContent.scrollTop = 0;
-      readerPageNumber.textContent =
-        `Page ${activeArticlePage + 1} of ${activeArticle.pages.length}`;
+      const isLastPage = activeArticlePage >= activeArticle.pages.length - 1;
+      readerPageNumber.textContent = isLastPage
+        ? `Page ${activeArticlePage + 1} of ${activeArticle.pages.length} • End of article`
+        : `Page ${activeArticlePage + 1} of ${activeArticle.pages.length} • More to read`;
+      readerPageNumber.classList.toggle("more-pages", !isLastPage);
       readerPrevious.disabled = activeArticlePage === 0;
-      readerNext.disabled = activeArticlePage >= activeArticle.pages.length - 1;
+      readerNext.disabled = isLastPage;
+      readerNext.textContent = isLastPage ? "Finished" : "Next Page →";
     }
 
     function openArticle(articleId) {
