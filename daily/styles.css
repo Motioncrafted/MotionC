@@ -108,7 +108,7 @@ main { min-width: 0; }
   color: white;
   background:
     linear-gradient(90deg, rgba(8,24,25,.86), rgba(8,24,25,.18) 54%, rgba(8,24,25,.48)),
-    url("../images/daily-header-lacing-mc-v2.png") center 66% / cover;
+    url("../images/daily-header-lacing-mc-v2.png") center 42% / cover;
 }
 .hero::after {
   content: "";
@@ -525,7 +525,7 @@ dialog::backdrop { background: rgba(9,18,20,.66); backdrop-filter: blur(3px); }
   .sidebar nav { display: flex; margin: 0; }
   .sidebar nav a { min-width: 72px; min-height: 58px; }
   .sidebar nav a span { font-size: 23px; }
-  .hero { min-height: 205px; padding: 25px 20px; background-position: center, center 58%; }
+  .hero { min-height: 205px; padding: 25px 20px; background-position: center, center 48%; }
   .hero-date { display: none; }
   .content { padding: 12px; }
   .entry-card, .calendar-card, .weekly-card, .milestones-card { padding: 16px; }
