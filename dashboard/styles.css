@@ -850,9 +850,9 @@ body {
     overflow: hidden;
     color: white;
     background:
-        linear-gradient(180deg, rgba(7, 25, 23, .46), transparent 52%),
-        linear-gradient(90deg, rgba(9, 32, 29, .92), rgba(9, 32, 29, .5) 48%, rgba(9, 32, 29, .16) 76%, rgba(9, 32, 29, .3)),
-        url("/images/summary-header-full-path.png") center 62% / cover;
+        linear-gradient(90deg, #09201d 0%, #09201d 46%, rgba(9, 32, 29, .9) 55%, rgba(9, 32, 29, .3) 76%, rgba(9, 32, 29, .16)),
+        url("/images/summary-header-grounded-path.png") right center / auto 100% no-repeat,
+        #09201d;
 }
 
 .summary-hero::after {
