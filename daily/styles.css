@@ -108,7 +108,7 @@ main { min-width: 0; }
   color: white;
   background:
     linear-gradient(90deg, rgba(8,24,25,.86), rgba(8,24,25,.18) 54%, rgba(8,24,25,.48)),
-    url("../images/daily-header-lacing-mc-v2.png") center 42% / cover;
+    url("../images/daily-header-lacing-mc-v3.png") center 42% / cover;
 }
 .hero::after {
   content: "";
