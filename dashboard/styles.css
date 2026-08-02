@@ -850,8 +850,9 @@ body {
     overflow: hidden;
     color: white;
     background:
-        linear-gradient(90deg, rgba(9, 32, 29, .9), rgba(9, 32, 29, .46) 52%, rgba(9, 32, 29, .2)),
-        url("/images/landing-page.png") center 45% / cover;
+        linear-gradient(180deg, rgba(7, 25, 23, .46), transparent 52%),
+        linear-gradient(90deg, rgba(9, 32, 29, .92), rgba(9, 32, 29, .5) 48%, rgba(9, 32, 29, .16) 76%, rgba(9, 32, 29, .3)),
+        url("/images/summary-header-looking-back.png") center 30% / cover;
 }
 
 .summary-hero::after {
