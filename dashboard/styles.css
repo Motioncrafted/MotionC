@@ -864,23 +864,23 @@ body {
     filter: brightness(.76) saturate(.9);
     -webkit-mask-image: linear-gradient(
         90deg,
-        transparent 30%,
-        rgba(0, 0, 0, .04) 40%,
-        rgba(0, 0, 0, .16) 50%,
-        rgba(0, 0, 0, .4) 61%,
-        rgba(0, 0, 0, .7) 72%,
-        rgba(0, 0, 0, .9) 83%,
-        #000 92%
+        transparent 58%,
+        rgba(0, 0, 0, .03) 63%,
+        rgba(0, 0, 0, .14) 68%,
+        rgba(0, 0, 0, .35) 74%,
+        rgba(0, 0, 0, .65) 81%,
+        rgba(0, 0, 0, .88) 87%,
+        #000 93%
     );
     mask-image: linear-gradient(
         90deg,
-        transparent 30%,
-        rgba(0, 0, 0, .04) 40%,
-        rgba(0, 0, 0, .16) 50%,
-        rgba(0, 0, 0, .4) 61%,
-        rgba(0, 0, 0, .7) 72%,
-        rgba(0, 0, 0, .9) 83%,
-        #000 92%
+        transparent 58%,
+        rgba(0, 0, 0, .03) 63%,
+        rgba(0, 0, 0, .14) 68%,
+        rgba(0, 0, 0, .35) 74%,
+        rgba(0, 0, 0, .65) 81%,
+        rgba(0, 0, 0, .88) 87%,
+        #000 93%
     );
 }
 
