@@ -200,6 +200,9 @@
       100% { opacity: 0; transform: rotateY(88deg) scale(.97); }
     }
 
+    /* Comparison version: keep the book still while its contents change. */
+    .book-transition { display: none; }
+
     /* Results text sits directly over the authentic blank book artwork. */
     .book-interface {
       position: absolute;
@@ -936,8 +939,6 @@
     let resultSpread = 0;
     let activeArticle = null;
     let activeArticlePage = 0;
-    let turnTimer = null;
-    let turnCleanupTimer = null;
 
     function escapeHtml(value) {
       return String(value)
@@ -949,19 +950,8 @@
     }
 
     function turnBook(update) {
-      window.clearTimeout(turnTimer);
-      window.clearTimeout(turnCleanupTimer);
       page.classList.remove("turning-book");
-      void page.offsetWidth;
-      page.classList.add("turning-book");
-
-      turnTimer = window.setTimeout(() => {
-        update();
-      }, 220);
-
-      turnCleanupTimer = window.setTimeout(() => {
-        page.classList.remove("turning-book");
-      }, 460);
+      update();
     }
 
     function categoryButton(category, index) {
