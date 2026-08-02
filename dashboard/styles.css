@@ -850,8 +850,8 @@ body {
     overflow: hidden;
     color: white;
     background:
-        linear-gradient(90deg, #09201d 0%, #09201d 46%, rgba(9, 32, 29, .9) 55%, rgba(9, 32, 29, .3) 76%, rgba(9, 32, 29, .16)),
-        url("/images/summary-header-grounded-path.png") right center / auto 100% no-repeat,
+        linear-gradient(90deg, #09201d 0%, #09201d 43%, rgba(9, 32, 29, .98) 50%, rgba(9, 32, 29, .78) 58%, rgba(9, 32, 29, .3) 73%, rgba(9, 32, 29, .12)),
+        url("/images/summary-header-grounded-path.png") right center / auto 125% no-repeat,
         #09201d;
 }
 
