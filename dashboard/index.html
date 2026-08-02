@@ -13,7 +13,7 @@
 
     <link
         rel="stylesheet"
-        href="/dashboard/styles.css?v=9"
+        href="/dashboard/styles.css?v=20260802-1"
     >
 
     <style>
@@ -124,6 +124,32 @@
                     <p>MCP score</p>
                     <strong id="display-mcp">—</strong>
                     <span id="mcp-status" class="metric-change">Your whole-health marker</span>
+                </article>
+                <article class="metric-card metric-card-violet whr-card">
+                    <div class="metric-icon" aria-hidden="true">WHR</div>
+                    <div class="metric-label-line">
+                        <p>WHR / body shape</p>
+                        <button id="whr-info-button" class="metric-info-button" type="button"
+                            aria-label="Explain waist-to-hip ratio" aria-expanded="false">i</button>
+                        <div id="whr-info-popover" class="whr-info-popover" role="tooltip">
+                            <strong>Understanding your WHR</strong>
+                            <p id="whr-explainer-text">Waist-to-hip ratio compares your waist with your hips and helps describe where your body tends to carry weight.</p>
+                            <div class="whr-reference-chart" aria-label="Waist-to-hip ratio reference scale">
+                                <div id="whr-reference-track" class="whr-reference-track">
+                                    <span id="whr-threshold-marker" class="whr-threshold-marker"></span>
+                                    <span id="whr-user-marker" class="whr-user-marker" hidden></span>
+                                </div>
+                                <div class="whr-reference-labels">
+                                    <span>Lower central</span>
+                                    <strong id="whr-threshold-label">Reference depends on sex</strong>
+                                    <span>Higher central</span>
+                                </div>
+                            </div>
+                            <p class="whr-caution">This indicates body-fat distribution. It does not directly measure visceral fat or diagnose a health condition.</p>
+                        </div>
+                    </div>
+                    <strong id="display-whr">&mdash;</strong>
+                    <span id="whr-status" class="metric-change">Add a hip measurement</span>
                 </article>
             </section>
 
@@ -243,7 +269,7 @@
                 <legend>My Measurements</legend>
 
                 <p class="section-note">
-                    Required to calculate your MCP, BMI, weight and waist metrics.
+                    Weight, waist, height, age and sex calculate your MCP. Hip measurement adds your optional WHR body-shape metric.
                 </p>
 
 
@@ -278,8 +304,8 @@
                 </div>
 
 
-                <!-- Weight and waist -->
-                <div class="two-column">
+                <!-- Weight, waist and hip -->
+                <div class="measurement-three-column">
 
                     <div class="field">
 
@@ -310,6 +336,24 @@
                             min="1"
                             inputmode="decimal"
                         >
+
+                    </div>
+
+                    <div class="field">
+
+                        <label for="hip">
+                            Hip
+                        </label>
+
+                        <input
+                            id="hip"
+                            type="number"
+                            step="0.1"
+                            min="1"
+                            inputmode="decimal"
+                            aria-describedby="hip-help"
+                        >
+                        <small id="hip-help" class="field-help">Optional — measure around the widest part of your hips.</small>
 
                     </div>
 
@@ -874,7 +918,7 @@
          Dashboard JavaScript
          ===================================== -->
 
-    <script src="/dashboard/script.js?v=20260801-2"></script>
+    <script src="/dashboard/script.js?v=20260802-1"></script>
 </body>
 
 </html>

@@ -392,6 +392,21 @@ legend {
     margin-bottom: 14px;
 }
 
+.measurement-three-column {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.field-help {
+    display: block;
+    margin-top: 5px;
+    color: #69766f;
+    font-size: 10px;
+    line-height: 1.35;
+}
+
 .field {
     min-width: 0;
 }
@@ -548,6 +563,11 @@ legend {
     }
 
     .two-column {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .measurement-three-column {
         grid-template-columns: 1fr;
         gap: 12px;
     }
@@ -1041,9 +1061,9 @@ body {
 
 .metric-card {
     position: relative;
-    min-height: 154px;
+    min-height: 92px;
     overflow: hidden;
-    padding: 21px 20px 18px 76px;
+    padding: 13px 14px 12px 61px;
     border: 1px solid rgba(42, 74, 63, .11);
     border-radius: 16px;
     background: var(--summary-card);
@@ -1052,9 +1072,9 @@ body {
 
 .metric-card::after {
     position: absolute;
-    inset: auto -25px -42px auto;
-    width: 100px;
-    height: 100px;
+    inset: auto -20px -48px auto;
+    width: 82px;
+    height: 82px;
     content: "";
     border-radius: 50%;
     background: var(--accent-soft);
@@ -1062,20 +1082,20 @@ body {
 
 .metric-icon {
     position: absolute;
-    top: 22px;
-    left: 18px;
+    top: 14px;
+    left: 13px;
     display: grid;
-    width: 43px;
-    height: 43px;
+    width: 36px;
+    height: 36px;
     place-items: center;
-    border-radius: 13px;
+    border-radius: 11px;
     color: var(--accent);
     background: var(--accent-soft);
-    font-size: 23px;
+    font-size: 19px;
     font-weight: 900;
 }
 .metric-card p {
-    margin: 4px 0 10px;
+    margin: 1px 0 5px;
     color: var(--summary-muted);
     font-size: 11px;
     font-weight: 800;
@@ -1085,14 +1105,14 @@ body {
 .metric-card > strong {
     display: block;
     font-family: Georgia, serif;
-    font-size: 34px;
+    font-size: 28px;
     font-weight: 500;
     line-height: 1;
 }
 .metric-card > strong small { font: 600 13px Arial, sans-serif; }
 .metric-change {
     display: block;
-    margin-top: 13px;
+    margin-top: 6px;
     color: var(--accent);
     font-size: 11px;
     font-weight: 700;
@@ -1101,6 +1121,108 @@ body {
 .metric-card-gold { --accent: #b77a12; --accent-soft: #fff4d8; }
 .metric-card-coral { --accent: #c94c4b; --accent-soft: #ffe9e5; }
 .metric-card-green { --accent: #317344; --accent-soft: #e3f2e6; }
+.metric-card-violet { --accent: #70518e; --accent-soft: #f0e8f7; }
+
+.whr-card { overflow: visible; }
+.whr-card:hover,
+.whr-card:focus-within { z-index: 8; }
+.metric-label-line {
+    position: relative;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+.metric-label-line p { margin-right: auto; }
+.metric-info-button {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    width: 22px;
+    height: 22px;
+    margin: -3px 0 0;
+    place-items: center;
+    border: 1px solid #cbb9dc;
+    border-radius: 50%;
+    color: #70518e;
+    background: #f7f2fb;
+    font: 800 12px Georgia, serif;
+    cursor: pointer;
+}
+.metric-info-button:hover,
+.metric-info-button:focus-visible {
+    border-color: #70518e;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(112,81,142,.13);
+}
+.whr-info-popover {
+    position: absolute;
+    z-index: 20;
+    top: 29px;
+    left: -2px;
+    display: none;
+    width: min(360px, calc(100vw - 42px));
+    padding: 15px;
+    border: 1px solid #d8cde2;
+    border-radius: 13px;
+    color: #263b34;
+    background: #fff;
+    box-shadow: 0 16px 38px rgba(32,42,38,.2);
+    text-transform: none;
+}
+.metric-info-button:hover + .whr-info-popover,
+.metric-info-button:focus-visible + .whr-info-popover,
+.metric-info-button[aria-expanded="true"] + .whr-info-popover,
+.whr-info-popover:hover { display: block; }
+.whr-info-popover > strong {
+    display: block;
+    color: #4f3568;
+    font: 700 17px Georgia, serif;
+}
+.whr-info-popover p {
+    margin: 7px 0 0;
+    color: #56665f;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0;
+    line-height: 1.45;
+    text-transform: none;
+}
+.whr-reference-chart { margin-top: 13px; }
+.whr-reference-track {
+    --whr-threshold-position: 50%;
+    position: relative;
+    height: 9px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #dcefe3 0 var(--whr-threshold-position), #f7dfb0 var(--whr-threshold-position) 76%, #efb8ad 100%);
+}
+.whr-threshold-marker,
+.whr-user-marker {
+    position: absolute;
+    top: 50%;
+    width: 2px;
+    height: 17px;
+    transform: translate(-50%, -50%);
+    background: #805c16;
+}
+.whr-user-marker {
+    width: 11px;
+    height: 11px;
+    border: 2px solid white;
+    border-radius: 50%;
+    background: #70518e;
+    box-shadow: 0 1px 5px rgba(0,0,0,.25);
+}
+.whr-reference-labels {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 6px;
+    margin-top: 7px;
+    color: #738078;
+    font-size: 9px;
+}
+.whr-reference-labels strong { color: #805c16; text-align: center; }
+.whr-reference-labels span:last-child { text-align: right; }
+.whr-info-popover .whr-caution { color: #7a6b55; font-size: 10px; }
 
 .insight-grid,
 .chart-grid {

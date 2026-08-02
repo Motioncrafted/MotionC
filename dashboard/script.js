@@ -52,6 +52,7 @@ const metricHeightFields =
 
 const weightInput = document.getElementById("weight");
 const waistInput = document.getElementById("waist");
+const hipInput = document.getElementById("hip");
 
 const heightFeetInput =
     document.getElementById("height-feet");
@@ -302,6 +303,11 @@ function updateUnitLabels(system) {
             'label[for="waist"]'
         );
 
+    const hipLabel =
+        document.querySelector(
+            'label[for="hip"]'
+        );
+
     if (system === "metric") {
         if (weightLabel) {
             weightLabel.textContent = "Weight — kg";
@@ -315,8 +321,16 @@ function updateUnitLabels(system) {
             weightInput.placeholder = "kg";
         }
 
+        if (hipLabel) {
+            hipLabel.textContent = "Hip — cm";
+        }
+
         if (waistInput) {
             waistInput.placeholder = "cm";
+        }
+
+        if (hipInput) {
+            hipInput.placeholder = "cm";
         }
     } else {
         if (weightLabel) {
@@ -331,8 +345,16 @@ function updateUnitLabels(system) {
             weightInput.placeholder = "lb";
         }
 
+        if (hipLabel) {
+            hipLabel.textContent = "Hip — in";
+        }
+
         if (waistInput) {
             waistInput.placeholder = "in";
+        }
+
+        if (hipInput) {
+            hipInput.placeholder = "in";
         }
     }
 }
@@ -410,6 +432,10 @@ function getMeasurementData() {
 
     const enteredWeight = readNumber(weightInput);
     const enteredWaist = readNumber(waistInput);
+    const enteredHipValue = readNumber(hipInput);
+    const enteredHip = Number.isFinite(enteredHipValue) && enteredHipValue > 0
+        ? enteredHipValue
+        : null;
     const age = readNumber(ageInput);
     const sex = sexInput?.value ?? "";
 
@@ -419,6 +445,9 @@ function getMeasurementData() {
 
     let waistCm;
     let waistInches;
+
+    let hipCm = null;
+    let hipInches = null;
 
     let weightKg;
     let weightLbs;
@@ -430,6 +459,11 @@ function getMeasurementData() {
 
         waistCm = enteredWaist;
         waistInches = waistCm / 2.54;
+
+        if (enteredHip !== null) {
+            hipCm = enteredHip;
+            hipInches = hipCm / 2.54;
+        }
 
         weightKg = enteredWeight;
         weightLbs = weightKg / 0.453592;
@@ -443,6 +477,11 @@ function getMeasurementData() {
 
         waistInches = enteredWaist;
         waistCm = waistInches * 2.54;
+
+        if (enteredHip !== null) {
+            hipInches = enteredHip;
+            hipCm = hipInches * 2.54;
+        }
 
         weightLbs = enteredWeight;
         weightKg = weightLbs * 0.453592;
@@ -491,6 +530,7 @@ function getMeasurementData() {
         system,
         enteredWeight,
         enteredWaist,
+        enteredHip,
         age,
         sex,
 
@@ -500,6 +540,9 @@ function getMeasurementData() {
 
         waistCm,
         waistInches,
+
+        hipCm,
+        hipInches,
 
         weightKg,
         weightLbs
@@ -553,6 +596,7 @@ function calculateMcp({
     heightCm,
     heightMetres,
     waistCm,
+    hipCm,
     weightKg,
     age,
     sex
@@ -567,6 +611,11 @@ function calculateMcp({
 
     const whtr =
         waistCm / heightCm;
+
+    const whr =
+        Number.isFinite(hipCm) && hipCm > 0
+            ? waistCm / hipCm
+            : null;
 
     const bodyK50 =
         (bmi * whtr) * 2;
@@ -596,6 +645,7 @@ function calculateMcp({
     return {
         bmi,
         whtr,
+        whr,
         bodyK50,
         sexAdjustment,
         ageAdjustment,
@@ -730,7 +780,8 @@ calculateMcpButton?.addEventListener(
             alert(
                 `Your MCP is ${results.mcp.toFixed(1)}.\n` +
                 `Your BMI is ${results.bmi.toFixed(1)}.\n` +
-                `Your WHtR is ${results.whtr.toFixed(2)}.`
+                `Your WHtR is ${results.whtr.toFixed(2)}.` +
+                (Number.isFinite(results.whr) ? `\nYour WHR is ${results.whr.toFixed(2)}.` : "")
             );
 
             /*
@@ -1669,7 +1720,57 @@ function updateModernMcpDisplay(detail) {
     if (Number.isFinite(bmi)) {
         setText("bmi-status", bmi < 18.5 ? "Below healthy range" : bmi < 25 ? "Healthy range" : bmi < 30 ? "Above healthy range" : "High range");
     }
+    updateWhrMetric(eventDetail);
 }
+
+function updateWhrMetric(detail) {
+    const whr = Number(detail?.results?.whr);
+    const sex = String(detail?.measurementData?.sex || "").toLowerCase();
+    const threshold = sex === "female" ? .85 : sex === "male" ? .90 : null;
+    const userMarker = document.getElementById("whr-user-marker");
+    const thresholdMarker = document.getElementById("whr-threshold-marker");
+    const referenceTrack = document.getElementById("whr-reference-track");
+
+    if (!Number.isFinite(whr) || !(threshold > 0)) {
+        setText("display-whr", "—");
+        setText("whr-status", "Add a hip measurement");
+        setText("whr-threshold-label", "Reference depends on sex");
+        setText("whr-explainer-text", "Waist-to-hip ratio compares your waist with your hips and helps describe where your body tends to carry weight.");
+        if (userMarker) userMarker.hidden = true;
+        if (thresholdMarker) thresholdMarker.style.left = "50%";
+        if (referenceTrack) referenceTrack.style.setProperty("--whr-threshold-position", "50%");
+        return;
+    }
+
+    const scalePosition = value => Math.max(4, Math.min(96, (value - .65) / .5 * 100));
+    const higherCentral = whr >= threshold;
+    setText("display-whr", whr.toFixed(2));
+    setText("whr-status", higherCentral ? "More central (apple) pattern" : "Lower central distribution");
+    setText("whr-threshold-label", `${threshold.toFixed(2)} reference`);
+    setText("whr-explainer-text", `Your waist is ${Math.round(whr * 100)}% of your hip circumference. This ${higherCentral ? "is above" : "is below"} the commonly used ${threshold.toFixed(2)} reference point for ${sex === "female" ? "women" : "men"}.`);
+    if (thresholdMarker) thresholdMarker.style.left = `${scalePosition(threshold)}%`;
+    if (referenceTrack) referenceTrack.style.setProperty("--whr-threshold-position", `${scalePosition(threshold)}%`);
+    if (userMarker) {
+        userMarker.hidden = false;
+        userMarker.style.left = `${scalePosition(whr)}%`;
+        userMarker.setAttribute("aria-label", `Your WHR is ${whr.toFixed(2)}`);
+    }
+}
+
+const whrInfoButton = document.getElementById("whr-info-button");
+whrInfoButton?.addEventListener("click", event => {
+    event.stopPropagation();
+    const expanded = whrInfoButton.getAttribute("aria-expanded") === "true";
+    whrInfoButton.setAttribute("aria-expanded", String(!expanded));
+});
+document.addEventListener("click", event => {
+    if (!event.target.closest(".whr-card")) {
+        whrInfoButton?.setAttribute("aria-expanded", "false");
+    }
+});
+document.addEventListener("keydown", event => {
+    if (event.key === "Escape") whrInfoButton?.setAttribute("aria-expanded", "false");
+});
 
 document.addEventListener("motionc:mcp-updated", event => {
     if (event.detail?.measurementData && event.detail?.results) {
