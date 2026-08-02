@@ -257,6 +257,10 @@
       text-align: center;
     }
 
+    .book-title.explore-title {
+      transform: translateX(-4%);
+    }
+
     .book-subtitle {
       min-height: 1.35em;
       margin: 0 0 3%;
@@ -1051,7 +1055,7 @@
       `;
 
       rightBookPage.innerHTML = `
-        <h2 class="book-title">${rightArticles.length ? "More to Explore" : ""}</h2>
+        <h2 class="book-title explore-title">${rightArticles.length ? "More to Explore" : ""}</h2>
         <p class="book-subtitle">Spread ${resultSpread + 1} of ${totalSpreads}</p>
         ${
           rightArticles.length
