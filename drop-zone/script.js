@@ -24,6 +24,12 @@ const emojiMenu = document.getElementById("emojiMenu");
 const mistTarget = document.getElementById("mistTarget");
 const sprayStream = document.getElementById("sprayStream");
 const purpleCan = document.getElementById("purpleCan");
+const preferencesStorageKey = "motionc-preferences-v1";
+const preferencesToggle = document.getElementById("preferencesToggle");
+const preferencesMenu = document.getElementById("preferencesMenu");
+const preferencesClose = document.getElementById("preferencesClose");
+const mobileMoreToggle = document.getElementById("mobileMoreToggle");
+const mobileMoreMenu = document.getElementById("mobileMoreMenu");
 
 let selectedColor = COLORS[0];
 let selectedFont = FONTS[0];
@@ -255,5 +261,94 @@ function spray() {
   }, 3150);
 }
 
+function loadUnitSystem() {
+  try {
+    return JSON.parse(localStorage.getItem(preferencesStorageKey))?.unitSystem === "metric"
+      ? "metric"
+      : "imperial";
+  } catch {
+    return "imperial";
+  }
+}
+
+function syncUnitChoices() {
+  const selected = loadUnitSystem();
+  document.querySelectorAll('input[name="unitSystem"]').forEach(input => {
+    input.checked = input.value === selected;
+  });
+}
+
+function closePreferences() {
+  preferencesMenu.hidden = true;
+  preferencesToggle.setAttribute("aria-expanded", "false");
+}
+
+preferencesToggle.addEventListener("click", event => {
+  event.preventDefault();
+  event.stopPropagation();
+  const willOpen = preferencesMenu.hidden;
+  if (willOpen) syncUnitChoices();
+  preferencesMenu.hidden = !willOpen;
+  preferencesToggle.setAttribute("aria-expanded", String(willOpen));
+});
+
+preferencesMenu.addEventListener("click", event => event.stopPropagation());
+preferencesClose.addEventListener("click", closePreferences);
+
+document.querySelectorAll('input[name="unitSystem"]').forEach(input => {
+  input.addEventListener("change", () => {
+    const unitSystem = input.value === "metric" ? "metric" : "imperial";
+    localStorage.setItem(
+      preferencesStorageKey,
+      JSON.stringify({ unitSystem, updatedAt: new Date().toISOString() })
+    );
+    window.dispatchEvent(new CustomEvent("motionc:preferences-updated", { detail: { unitSystem } }));
+  });
+});
+
+window.addEventListener("storage", event => {
+  if (event.key === preferencesStorageKey) syncUnitChoices();
+});
+
+function setMobileMoreMenu(open) {
+  mobileMoreMenu.hidden = !open;
+  mobileMoreToggle.setAttribute("aria-expanded", String(open));
+  mobileMoreToggle.setAttribute(
+    "aria-label",
+    open ? "Close more navigation" : "Open more navigation"
+  );
+}
+
+mobileMoreToggle.addEventListener("click", event => {
+  event.stopPropagation();
+  setMobileMoreMenu(mobileMoreMenu.hidden);
+});
+
+document.addEventListener("click", event => {
+  if (!preferencesMenu.hidden && !preferencesMenu.contains(event.target)) closePreferences();
+  if (
+    !mobileMoreMenu.hidden &&
+    !mobileMoreMenu.contains(event.target) &&
+    !mobileMoreToggle.contains(event.target)
+  ) setMobileMoreMenu(false);
+});
+
+document.addEventListener("keydown", event => {
+  if (event.key !== "Escape") return;
+  if (!preferencesMenu.hidden) {
+    closePreferences();
+    preferencesToggle.focus();
+  }
+  if (!mobileMoreMenu.hidden) {
+    setMobileMoreMenu(false);
+    mobileMoreToggle.focus();
+  }
+});
+
+window.addEventListener("resize", () => {
+  if (window.innerWidth > 760 && !mobileMoreMenu.hidden) setMobileMoreMenu(false);
+});
+
+syncUnitChoices();
 sprayButton.addEventListener("click", spray);
 loadHistory();

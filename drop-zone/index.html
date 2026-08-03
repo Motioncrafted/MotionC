@@ -7,10 +7,42 @@
   <meta name="description" content="Leave your mark and celebrate progress in the MotionC Drop Zone.">
   <link rel="stylesheet" href="/drop-zone/styles.css">
 </head>
-<body>
+<body class="nav-visualization">
   <main class="prototype-shell">
     <section class="wall-stage" aria-label="MotionC Drop Zone">
       <img class="wall-art" src="../images/drop-zone.png" alt="">
+
+      <button class="motionc-brand" id="preferencesToggle" type="button"
+        aria-label="Open preferences" aria-expanded="false" aria-controls="preferencesMenu">
+        <img src="/images/nav/motionc-logo.png" alt="">
+      </button>
+
+      <nav class="top-navigation" aria-label="MotionC navigation">
+        <a class="nav-home" href="/landing-page/"><img src="/images/nav/home.png" alt=""><small>Home</small></a>
+        <a class="nav-daily" href="/daily/"><img src="/images/nav/daily.png" alt=""><small>Daily</small></a>
+        <a class="nav-mcp" href="/dashboard/"><img src="/images/nav/mcp.png" alt=""><small>MCP</small></a>
+        <a class="nav-library" href="/library/"><img src="/images/nav/library.png" alt=""><small>Library</small></a>
+        <a class="nav-walking" href="/walking/"><img src="/images/nav/walking.png" alt=""><small>Walking</small></a>
+        <a class="nav-drop-zone active" href="/drop-zone/" aria-current="page"><img src="/images/nav/drop-zone.png" alt=""><small>Drop Zone</small></a>
+        <button class="mobile-more-toggle section-active" id="mobileMoreToggle" type="button"
+          aria-label="Open more navigation" aria-expanded="false" aria-controls="mobileMoreMenu">
+          <span class="more-glyph" aria-hidden="true">•••</span>
+          <small>More</small>
+        </button>
+      </nav>
+
+      <div class="mobile-more-menu" id="mobileMoreMenu" hidden>
+        <a href="/walking/"><img src="/images/nav/walking.png" alt=""><span>Walking</span></a>
+        <a class="active" href="/drop-zone/" aria-current="page"><img src="/images/nav/drop-zone.png" alt=""><span>Drop Zone</span></a>
+      </div>
+
+      <div class="preferences-menu" id="preferencesMenu" hidden>
+        <button class="preferences-close" id="preferencesClose" type="button" aria-label="Close preferences">×</button>
+        <strong>Preferences</strong>
+        <p>Measurement system</p>
+        <label><input type="radio" name="unitSystem" value="imperial"> Imperial <small>lb · mi · in</small></label>
+        <label><input type="radio" name="unitSystem" value="metric"> Metric <small>kg · km · cm</small></label>
+      </div>
 
       <div class="permanent-tag mira-tag">MIRA was here 💖</div>
       <div class="permanent-tag steps-tag">small steps still move you →</div>
