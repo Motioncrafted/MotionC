@@ -10,17 +10,17 @@
       "destination": "/dashboard/index.html"
     },
     {
-      "source": "/daily",
-      "destination": "/daily/index.html"
+      "source": "/drop-zone",
+      "destination": "/drop-zone/index.html"
     },
     {
-      "source": "/daily/",
-      "destination": "/daily/index.html"
+      "source": "/drop-zone/",
+      "destination": "/drop-zone/index.html"
     }
   ],
   "headers": [
     {
-      "source": "/dashboard/index.html",
+      "source": "/dashboard/:path*",
       "headers": [
         {
           "key": "Cache-Control",
@@ -29,7 +29,7 @@
       ]
     },
     {
-      "source": "/dashboard/styles.css",
+      "source": "/drop-zone/:path*",
       "headers": [
         {
           "key": "Cache-Control",
@@ -38,16 +38,7 @@
       ]
     },
     {
-      "source": "/dashboard/script.js",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-store"
-        }
-      ]
-    },
-    {
-      "source": "/daily/:path*",
+      "source": "/api/tags",
       "headers": [
         {
           "key": "Cache-Control",
