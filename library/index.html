@@ -86,43 +86,129 @@
       opacity: 1;
     }
 
-    /* Wider Library version of the standard MotionC menu. */
-    .library-sidebar {
+    /* Shared MotionC navigation, rebuilt over the artwork's original rail. */
+    .motionc-sidebar {
       position: absolute;
       inset: 0 auto 0 0;
-      z-index: 8;
+      z-index: 20;
+      display: flex;
       width: var(--rail-width);
-      overflow: hidden;
-      background: transparent;
+      padding: 1.6% .7% 1.5%;
+      flex-direction: column;
+      overflow: visible;
+      background: linear-gradient(180deg, #132522, #0a1716);
+      box-shadow: 6px 0 18px rgba(0, 0, 0, .12);
+      font-family: Arial, sans-serif;
     }
 
-    .sidebar-link {
-      position: absolute;
-      z-index: 2;
-      left: 50%;
-      width: 67%;
-      height: 9.7%;
-      border: 3px solid transparent;
+    .motionc-brand {
+      display: grid;
+      width: clamp(42px, 5.4vw, 68px);
+      aspect-ratio: 1;
+      margin: 0 auto clamp(10px, 1.35vh, 18px);
+      padding: 3px;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, .24);
+      border-radius: 17px;
+      background: #183831;
+      box-shadow: inset 0 1px rgba(255, 255, 255, .1), 0 7px 18px rgba(0, 0, 0, .2);
+    }
+
+    .motionc-brand img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .motionc-nav {
+      display: grid;
+      min-height: 0;
+      flex: 1;
+      grid-template-rows: repeat(6, minmax(0, 1fr));
+      gap: 2px;
+    }
+
+    .motionc-nav a,
+    .mobile-more-toggle {
+      position: relative;
+      display: grid;
+      min-height: 0;
+      padding: 3px 1px;
+      place-items: center;
+      align-content: center;
+      gap: 3px;
+      border: 1px solid transparent;
       border-radius: 12px;
-      transform: translateX(-50%);
+      color: rgba(255, 255, 255, .74);
       background: transparent;
+      text-decoration: none;
     }
 
-    .sidebar-link:hover,
-    .sidebar-link:focus-visible,
-    .sidebar-link.active {
+    .motionc-nav a img {
+      width: clamp(26px, 3.2vw, 42px);
+      height: clamp(26px, 3.2vw, 42px);
+      object-fit: contain;
+    }
+
+    .motionc-nav a small,
+    .mobile-more-toggle small {
+      font-size: clamp(7px, .76vw, 11px);
+      font-weight: 800;
+      letter-spacing: .05em;
+      line-height: 1;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .motionc-nav a:hover,
+    .motionc-nav a:focus-visible,
+    .motionc-nav a.active {
+      border-color: transparent;
+      color: #fff;
+      background: transparent;
       outline: none;
-      border-color: #f0b429;
-      background: rgba(240, 180, 41, .10);
-      box-shadow: 0 0 15px rgba(240, 180, 41, .45);
     }
 
-    .sidebar-link.home { top: 14.3%; }
-    .sidebar-link.walking { top: 25.1%; }
-    .sidebar-link.mcp { top: 36.7%; }
-    .sidebar-link.library { top: 47.2%; }
-    .sidebar-link.drop-zone { top: 57.3%; }
-    .sidebar-link.settings { top: 67%; }
+    .motionc-nav a.active img {
+      box-sizing: border-box;
+      width: clamp(40px, 4.55vw, 58px);
+      height: clamp(40px, 4.55vw, 58px);
+      padding: clamp(6px, .7vw, 9px);
+      border: 1px solid rgba(183, 221, 199, .42);
+      border-radius: 15px;
+      background: linear-gradient(145deg, rgba(53, 102, 73, .96), rgba(31, 73, 52, .96));
+      box-shadow: inset 0 1px rgba(255, 255, 255, .14), 0 7px 14px rgba(0, 0, 0, .24);
+    }
+
+    .motionc-nav a.active small { color: #eef8ef; }
+
+    .motionc-nav a::before,
+    .mobile-more-toggle::before {
+      position: absolute;
+      z-index: 3;
+      top: 1px;
+      left: 50%;
+      width: clamp(43px, 4.9vw, 64px);
+      height: clamp(43px, 4.9vw, 64px);
+      border: 3px solid #f0b429;
+      border-radius: 14px;
+      content: "";
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(-50%);
+    }
+
+    .nav-visualization .motionc-nav a:hover::before,
+    .nav-visualization .motionc-nav a:focus-visible::before,
+    .nav-visualization .mobile-more-toggle:hover::before,
+    .nav-visualization .mobile-more-toggle:focus-visible::before,
+    .nav-visualization .mobile-more-toggle:active::before {
+      opacity: 1;
+      box-shadow: 0 0 14px rgba(240, 180, 41, .6);
+    }
+
+    .mobile-more-toggle,
+    .mobile-more-menu { display: none; }
 
     /* Invisible category targets over the printed Library Index artwork. */
     .index-hotspots {
@@ -697,6 +783,138 @@
       .reader-sheet { padding-top: 24px; }
     }
 
+    @media (max-width: 700px) {
+      .page {
+        /* Crop the retired sidebar that is baked into the Library artwork. */
+        left: -16.8vw;
+        width: calc(100vw / .856);
+        max-width: none;
+      }
+
+      .motionc-sidebar {
+        position: fixed;
+        z-index: 60;
+        inset: auto 0 0;
+        display: block;
+        width: 100%;
+        height: 70px;
+        padding: 5px 8px max(5px, env(safe-area-inset-bottom));
+        overflow: visible;
+        border-top: 1px solid rgba(255, 255, 255, .16);
+        background: rgba(10, 27, 24, .97);
+        box-shadow: 0 -8px 24px rgba(7, 24, 20, .28);
+        /* Keep the top-left logo anchored to the viewport, not this bottom rail. */
+        backdrop-filter: none;
+      }
+
+      .motionc-brand {
+        position: fixed;
+        z-index: 62;
+        top: 10px;
+        left: 10px;
+        width: 48px;
+        height: 48px;
+        margin: 0;
+        border-radius: 14px;
+      }
+
+      .motionc-nav {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-template-rows: 1fr;
+        gap: 3px;
+      }
+
+      .motionc-nav a,
+      .mobile-more-toggle {
+        display: grid;
+        min-width: 0;
+        min-height: 58px;
+        padding: 3px 1px;
+        font-size: inherit;
+      }
+
+      .motionc-nav a img { width: 25px; height: 25px; }
+      .motionc-nav a.active img { width: 38px; height: 38px; padding: 7px; border-radius: 12px; }
+
+      .motionc-nav a small,
+      .mobile-more-toggle small { font-size: 7px; }
+
+      .motionc-nav a::before,
+      .mobile-more-toggle::before { top: 1px; width: 42px; height: 42px; border-radius: 11px; }
+
+      .nav-home { order: 1; }
+      .nav-daily { order: 2; }
+      .nav-mcp { order: 3; }
+      .nav-library { order: 4; }
+      .mobile-more-toggle { order: 5; }
+
+      .motionc-nav .nav-walking,
+      .motionc-nav .nav-drop-zone { display: none; }
+
+      .mobile-more-toggle {
+        border: 0;
+        color: rgba(255, 255, 255, .74);
+      }
+
+      .more-glyph {
+        display: grid;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        border: 1px solid rgba(255, 255, 255, .38);
+        border-radius: 11px;
+        color: #fff;
+        font-size: 15px;
+        font-weight: 900;
+        letter-spacing: 1px;
+        line-height: 1;
+      }
+
+      .mobile-more-toggle[aria-expanded="true"] .more-glyph {
+        border-color: rgba(183, 221, 199, .46);
+        background: linear-gradient(145deg, #356649, #1f4934);
+        box-shadow: 0 7px 14px rgba(0, 0, 0, .24);
+      }
+
+      .mobile-more-menu {
+        position: fixed;
+        z-index: 61;
+        right: 10px;
+        bottom: calc(78px + env(safe-area-inset-bottom));
+        display: grid;
+        width: min(230px, calc(100vw - 20px));
+        gap: 6px;
+        padding: 10px;
+        border: 1px solid rgba(255, 255, 255, .2);
+        border-radius: 15px;
+        background: rgba(13, 37, 32, .98);
+        box-shadow: 0 16px 38px rgba(0, 0, 0, .34);
+        backdrop-filter: blur(16px);
+      }
+
+      .mobile-more-menu[hidden] { display: none; }
+
+      .mobile-more-menu a {
+        display: flex;
+        gap: 12px;
+        padding: 11px 12px;
+        align-items: center;
+        border-radius: 10px;
+        color: #fff;
+        font-family: Arial, sans-serif;
+        text-decoration: none;
+      }
+
+      .mobile-more-menu a:hover,
+      .mobile-more-menu a:focus-visible {
+        outline: 2px solid #f0b429;
+        background: rgba(255, 255, 255, .08);
+      }
+
+      .mobile-more-menu img { width: 30px; height: 30px; object-fit: contain; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *,
       *::before,
@@ -710,25 +928,30 @@
   </style>
 </head>
 
-<body>
+<body class="nav-visualization">
   <main class="page">
-    <nav class="library-sidebar" aria-label="MotionC sections">
-      <a class="sidebar-link home" href="/landing-page/" aria-label="Open Home"></a>
-      <a class="sidebar-link walking" href="/walking/" aria-label="Open Walking"></a>
-      <a class="sidebar-link mcp" href="/dashboard/" aria-label="Open MCP"></a>
-      <span
-        class="sidebar-link library active"
-        aria-label="Library — current page"
-        aria-current="page"
-      ></span>
-      <a class="sidebar-link drop-zone" href="/drop-zone/" aria-label="Open Drop Zone"></a>
-      <button
-        class="sidebar-link settings"
-        type="button"
-        aria-label="Open Settings"
-        title="Settings"
-      ></button>
-    </nav>
+    <aside class="motionc-sidebar" aria-label="MotionC navigation">
+      <a class="motionc-brand" href="/landing-page/" aria-label="Open MotionC home">
+        <img src="/images/nav/motionc-logo.png" alt="">
+      </a>
+      <nav class="motionc-nav">
+        <a class="nav-home" href="/landing-page/"><img src="/images/nav/home.png" alt=""><small>Home</small></a>
+        <a class="nav-daily" href="/daily/"><img src="/images/nav/daily.png" alt=""><small>Daily</small></a>
+        <a class="nav-mcp" href="/dashboard/"><img src="/images/nav/mcp.png" alt=""><small>MCP</small></a>
+        <a class="nav-library active" href="/library/" aria-current="page"><img src="/images/nav/library.png" alt=""><small>Library</small></a>
+        <a class="nav-walking" href="/walking/"><img src="/images/nav/walking.png" alt=""><small>Walking</small></a>
+        <a class="nav-drop-zone" href="/drop-zone/"><img src="/images/nav/drop-zone.png" alt=""><small>Drop Zone</small></a>
+        <button class="mobile-more-toggle" id="mobileMoreToggle" type="button"
+          aria-label="Open more navigation" aria-expanded="false" aria-controls="mobileMoreMenu">
+          <span class="more-glyph" aria-hidden="true">•••</span>
+          <small>More</small>
+        </button>
+      </nav>
+      <div class="mobile-more-menu" id="mobileMoreMenu" hidden>
+        <a href="/walking/"><img src="/images/nav/walking.png" alt=""><span>Walking</span></a>
+        <a href="/drop-zone/"><img src="/images/nav/drop-zone.png" alt=""><span>Drop Zone</span></a>
+      </div>
+    </aside>
 
     <section class="index-hotspots" id="indexHotspots" aria-label="Library sections">
       <button
@@ -1557,6 +1780,42 @@
         magnifierHotspot.setAttribute("aria-expanded", "false");
         magnifierHotspot.focus();
       }
+    });
+
+    const mobileMoreToggle = document.getElementById("mobileMoreToggle");
+    const mobileMoreMenu = document.getElementById("mobileMoreMenu");
+
+    function setMobileMoreMenu(open) {
+      mobileMoreMenu.hidden = !open;
+      mobileMoreToggle.setAttribute("aria-expanded", String(open));
+      mobileMoreToggle.setAttribute(
+        "aria-label",
+        open ? "Close more navigation" : "Open more navigation"
+      );
+    }
+
+    mobileMoreToggle.addEventListener("click", () => {
+      setMobileMoreMenu(mobileMoreMenu.hidden);
+    });
+
+    document.addEventListener("click", event => {
+      if (
+        mobileMoreMenu.hidden ||
+        mobileMoreMenu.contains(event.target) ||
+        mobileMoreToggle.contains(event.target)
+      ) return;
+      setMobileMoreMenu(false);
+    });
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && !mobileMoreMenu.hidden) {
+        setMobileMoreMenu(false);
+        mobileMoreToggle.focus();
+      }
+    });
+
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 700 && !mobileMoreMenu.hidden) setMobileMoreMenu(false);
     });
 
     renderIndex();
