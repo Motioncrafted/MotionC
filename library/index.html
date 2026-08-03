@@ -210,6 +210,62 @@
     .mobile-more-toggle,
     .mobile-more-menu { display: none; }
 
+    .preferences-menu {
+      position: absolute;
+      z-index: 70;
+      top: 2%;
+      left: calc(var(--rail-width) + 1.2%);
+      width: 225px;
+      padding: 16px;
+      border: 1px solid rgba(255, 255, 255, .2);
+      border-radius: 13px;
+      color: #17352c;
+      background: rgba(255, 255, 255, .97);
+      box-shadow: 0 14px 32px rgba(0, 0, 0, .24);
+      font-family: Arial, sans-serif;
+    }
+
+    .preferences-menu[hidden] { display: none; }
+    .preferences-menu > strong { display: block; font-size: 16px; }
+    .preferences-menu > p { margin: 5px 0 12px; color: #687771; font-size: 11px; }
+
+    .preferences-menu label {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      padding: 9px;
+      align-items: center;
+      border-radius: 8px;
+      background: #f2f6f2;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .preferences-menu label small { margin-left: auto; color: #728078; }
+
+    .preferences-close {
+      position: absolute;
+      top: 7px;
+      right: 8px;
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border: 0;
+      border-radius: 7px;
+      color: #607069;
+      background: transparent;
+      font-size: 21px;
+      line-height: 1;
+    }
+
+    .preferences-close:hover,
+    .preferences-close:focus-visible {
+      color: #17352c;
+      background: #e8efe9;
+      outline: none;
+    }
+
     /* Invisible category targets over the printed Library Index artwork. */
     .index-hotspots {
       position: absolute;
@@ -818,6 +874,13 @@
         border-radius: 14px;
       }
 
+      .preferences-menu {
+        position: fixed;
+        top: 66px;
+        left: 10px;
+        width: min(260px, calc(100vw - 20px));
+      }
+
       .motionc-nav {
         display: grid;
         grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -931,9 +994,10 @@
 <body class="nav-visualization">
   <main class="page">
     <aside class="motionc-sidebar" aria-label="MotionC navigation">
-      <a class="motionc-brand" href="/landing-page/" aria-label="Open MotionC home">
+      <button class="motionc-brand" id="preferencesToggle" type="button"
+        aria-label="Open preferences" aria-expanded="false" aria-controls="preferencesMenu">
         <img src="/images/nav/motionc-logo.png" alt="">
-      </a>
+      </button>
       <nav class="motionc-nav">
         <a class="nav-home" href="/landing-page/"><img src="/images/nav/home.png" alt=""><small>Home</small></a>
         <a class="nav-daily" href="/daily/"><img src="/images/nav/daily.png" alt=""><small>Daily</small></a>
@@ -952,6 +1016,14 @@
         <a href="/drop-zone/"><img src="/images/nav/drop-zone.png" alt=""><span>Drop Zone</span></a>
       </div>
     </aside>
+
+    <div class="preferences-menu" id="preferencesMenu" hidden>
+      <button class="preferences-close" id="preferencesClose" type="button" aria-label="Close preferences">×</button>
+      <strong>Preferences</strong>
+      <p>Measurement system</p>
+      <label><input type="radio" name="unitSystem" value="imperial"> Imperial <small>lb · mi · in</small></label>
+      <label><input type="radio" name="unitSystem" value="metric"> Metric <small>kg · km · cm</small></label>
+    </div>
 
     <section class="index-hotspots" id="indexHotspots" aria-label="Library sections">
       <button
@@ -1782,6 +1854,61 @@
       }
     });
 
+    const preferencesStorageKey = "motionc-preferences-v1";
+    const preferencesToggle = document.getElementById("preferencesToggle");
+    const preferencesMenu = document.getElementById("preferencesMenu");
+    const preferencesClose = document.getElementById("preferencesClose");
+
+    function loadLibraryUnitSystem() {
+      try {
+        return JSON.parse(localStorage.getItem(preferencesStorageKey))?.unitSystem === "metric"
+          ? "metric"
+          : "imperial";
+      } catch {
+        return "imperial";
+      }
+    }
+
+    function syncLibraryUnitChoices() {
+      const selected = loadLibraryUnitSystem();
+      document.querySelectorAll('input[name="unitSystem"]').forEach(input => {
+        input.checked = input.value === selected;
+      });
+    }
+
+    function closeLibraryPreferences() {
+      preferencesMenu.hidden = true;
+      preferencesToggle.setAttribute("aria-expanded", "false");
+    }
+
+    preferencesToggle.addEventListener("click", event => {
+      event.preventDefault();
+      event.stopPropagation();
+      const willOpen = preferencesMenu.hidden;
+      if (willOpen) syncLibraryUnitChoices();
+      preferencesMenu.hidden = !willOpen;
+      preferencesToggle.setAttribute("aria-expanded", String(willOpen));
+    });
+
+    preferencesMenu.addEventListener("click", event => event.stopPropagation());
+    preferencesClose.addEventListener("click", closeLibraryPreferences);
+    document.addEventListener("click", closeLibraryPreferences);
+
+    document.querySelectorAll('input[name="unitSystem"]').forEach(input => {
+      input.addEventListener("change", () => {
+        const unitSystem = input.value === "metric" ? "metric" : "imperial";
+        localStorage.setItem(
+          preferencesStorageKey,
+          JSON.stringify({ unitSystem, updatedAt: new Date().toISOString() })
+        );
+        window.dispatchEvent(new CustomEvent("motionc:preferences-updated", { detail: { unitSystem } }));
+      });
+    });
+
+    window.addEventListener("storage", event => {
+      if (event.key === preferencesStorageKey) syncLibraryUnitChoices();
+    });
+
     const mobileMoreToggle = document.getElementById("mobileMoreToggle");
     const mobileMoreMenu = document.getElementById("mobileMoreMenu");
 
@@ -1812,12 +1939,17 @@
         setMobileMoreMenu(false);
         mobileMoreToggle.focus();
       }
+      if (event.key === "Escape" && !preferencesMenu.hidden) {
+        closeLibraryPreferences();
+        preferencesToggle.focus();
+      }
     });
 
     window.addEventListener("resize", () => {
       if (window.innerWidth > 700 && !mobileMoreMenu.hidden) setMobileMoreMenu(false);
     });
 
+    syncLibraryUnitChoices();
     renderIndex();
   </script>
 </body>
