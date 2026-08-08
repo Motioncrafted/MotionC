@@ -549,7 +549,7 @@ document.addEventListener("DOMContentLoaded", () => {
         function classify(value) {
             if (value <= -2) {
                 return {
-                    arrow: "â†“â†“",
+                    arrow: "&darr;&darr;",
                     color: "#51cf66",
                     label: "strong improvement"
                 };
@@ -557,7 +557,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (value < 0) {
                 return {
-                    arrow: "â†“",
+                    arrow: "&darr;",
                     color: "#51cf66",
                     label: "improvement"
                 };
@@ -565,7 +565,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (value === 0) {
                 return {
-                    arrow: "â†’",
+                    arrow: "&rarr;",
                     color: "#f2c94c",
                     label: "no change"
                 };
@@ -573,14 +573,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (value <= 2) {
                 return {
-                    arrow: "â†‘",
+                    arrow: "&uarr;",
                     color: "#ff6b6b",
                     label: "increase"
                 };
             }
 
             return {
-                arrow: "â†‘â†‘",
+                arrow: "&uarr;&uarr;",
                 color: "#ff6b6b",
                 label: "strong increase"
             };
@@ -596,7 +596,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function impactMarkup(impact) {
         return [
             `<span style="color:${impact.color};`,
-            `text-shadow:0 0 7px ${impact.color};">â—</span>`,
+            `text-shadow:0 0 7px ${impact.color};">&#9679;</span>`,
             `<span style="color:${impact.color};">${impact.arrow}</span>`
         ].join(" ");
     }
@@ -777,5 +777,4 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPopulationSummary();
     runSimulation();
 });
-
 
