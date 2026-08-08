@@ -13,11 +13,11 @@
 
     <link
         rel="stylesheet"
-        href="/engine-room/styles.css?v=26"
+        href="/engine-room/styles.css?v=20260808-1"
     >
 
     <script
-        src="/engine-room/script.js?v=20260801-1"
+        src="/engine-room/script.js?v=20260808-2"
         defer
     ></script>
 
@@ -32,6 +32,53 @@
             alt="MotionC Engine Room"
             class="engine-room-image"
         >
+
+        <aside class="engine-side-rail" aria-label="Engine Room controls">
+            <button
+                class="engine-preferences-toggle"
+                id="enginePreferencesToggle"
+                type="button"
+                aria-label="Open MotionC preferences"
+                aria-expanded="false"
+                aria-controls="enginePreferencesMenu"
+            >
+                <img src="/images/nav/motionc-logo.png" alt="">
+            </button>
+
+            <div class="engine-preferences-menu" id="enginePreferencesMenu" hidden>
+                <button class="engine-preferences-close" id="enginePreferencesClose" type="button" aria-label="Close preferences">&times;</button>
+                <strong>Preferences</strong>
+                <p>Measurement system</p>
+                <label><input type="radio" name="engineUnitSystem" value="imperial"> Imperial <small>lb &middot; in</small></label>
+                <label><input type="radio" name="engineUnitSystem" value="metric"> Metric <small>kg &middot; cm</small></label>
+            </div>
+
+            <div class="equipment-bay equipment-bay-sealed" aria-hidden="true">
+                <span class="equipment-bay-screw screw-one"></span>
+                <span class="equipment-bay-screw screw-two"></span>
+                <span class="equipment-bay-screw screw-three"></span>
+                <span class="equipment-bay-screw screw-four"></span>
+            </div>
+
+            <div class="equipment-bay equipment-bay-open" aria-hidden="true">
+                <span class="exposed-wire wire-blue"></span>
+                <span class="exposed-wire wire-red"></span>
+                <span class="exposed-wire wire-yellow"></span>
+                <span class="loose-cover"></span>
+            </div>
+
+            <a
+                href="/dashboard/"
+                class="engine-exit-control"
+                aria-label="Exit Engine Room and return to MCP Control"
+                title="Exit Engine Room"
+            >
+                <span class="engine-exit-symbol" aria-hidden="true">&larr;</span>
+                <img src="/images/nav/walking.png" alt="">
+                <strong>EXIT</strong>
+                <small>MCP CONTROL</small>
+            </a>
+        </aside>
 
         <!-- =====================================
              LIVE TOP DISPLAYS
@@ -208,16 +255,6 @@
                 <tbody id="population-summary-body"></tbody>
             </table>
         </section>
-
-        <!-- =====================================
-             EXIT
-        ====================================== -->
-
-        <a
-            href="/dashboard/"
-            class="exit-hotspot"
-            aria-label="Exit Engine Room and return to MCP Control"
-        ></a>
 
     </main>
 

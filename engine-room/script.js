@@ -19,6 +19,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
     const summaryMcpStorageKey = "motionc-mcp-summary-v1";
+    const preferencesStorageKey = "motionc-preferences-v1";
     const fallbackProfile = {
         age: 65,
         sex: "M",
@@ -74,6 +75,52 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const profile = readSummaryProfile();
     let baseline = Object.freeze({ ...profile });
+
+    const preferencesToggle = document.querySelector("#enginePreferencesToggle");
+    const preferencesMenu = document.querySelector("#enginePreferencesMenu");
+    const preferencesClose = document.querySelector("#enginePreferencesClose");
+
+    function readUnitSystem() {
+        try {
+            const preferences = JSON.parse(localStorage.getItem(preferencesStorageKey));
+            return preferences?.unitSystem === "metric" ? "metric" : "imperial";
+        } catch {
+            return "imperial";
+        }
+    }
+
+    let unitSystem = readUnitSystem();
+
+    function closePreferences() {
+        if (!preferencesMenu || !preferencesToggle) return;
+        preferencesMenu.hidden = true;
+        preferencesToggle.setAttribute("aria-expanded", "false");
+    }
+
+    preferencesToggle?.addEventListener("click", (event) => {
+        event.stopPropagation();
+        preferencesMenu.hidden = !preferencesMenu.hidden;
+        preferencesToggle.setAttribute("aria-expanded", String(!preferencesMenu.hidden));
+    });
+    preferencesMenu?.addEventListener("click", (event) => event.stopPropagation());
+    preferencesClose?.addEventListener("click", closePreferences);
+    document.addEventListener("click", closePreferences);
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") closePreferences();
+    });
+
+    document.querySelectorAll('input[name="engineUnitSystem"]').forEach((input) => {
+        input.checked = input.value === unitSystem;
+        input.addEventListener("change", () => {
+            unitSystem = input.value === "metric" ? "metric" : "imperial";
+            localStorage.setItem(preferencesStorageKey, JSON.stringify({
+                unitSystem,
+                updatedAt: new Date().toISOString()
+            }));
+            renderPopulationSummary();
+            runSimulation();
+        });
+    });
 
     const displays = {
         mcp: document.querySelector("#mcp-display"),
@@ -159,6 +206,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function inchesToCentimetres(inches) {
         return Number(inches) * 2.54;
+    }
+
+    function displayWeight(pounds) {
+        return unitSystem === "metric"
+            ? Number(pounds) * 0.453592
+            : Number(pounds);
+    }
+
+    function displayWaist(inches) {
+        return unitSystem === "metric"
+            ? Number(inches) * 2.54
+            : Number(inches);
+    }
+
+    function weightUnit() {
+        return unitSystem === "metric" ? "kg" : "lb";
+    }
+
+    function waistUnit() {
+        return unitSystem === "metric" ? "cm" : '"';
     }
 
     function getAgeAdjustment(age) {
@@ -443,8 +510,8 @@ document.addEventListener("DOMContentLoaded", () => {
             selectedPeople.map((person) => {
                 return `
                     <tr>
-                        <td>${person.weight.toFixed(0)} lb</td>
-                        <td>${person.waist.toFixed(1)}"</td>
+                        <td>${displayWeight(person.weight).toFixed(unitSystem === "metric" ? 1 : 0)} ${weightUnit()}</td>
+                        <td>${displayWaist(person.waist).toFixed(1)}${waistUnit()}</td>
                         <td>${person.mcp.toFixed(1)}</td>
                         <td
                             class="population-result"
@@ -469,10 +536,10 @@ document.addEventListener("DOMContentLoaded", () => {
             metrics.bmi.toFixed(1);
 
         displays.weightTest.textContent =
-            profile.weightPounds.toFixed(1);
+            `${displayWeight(profile.weightPounds).toFixed(1)} ${weightUnit()}`;
 
         displays.waistTest.textContent =
-            `${profile.waistInches.toFixed(1)}"`;
+            `${displayWaist(profile.waistInches).toFixed(1)}${waistUnit()}`;
     }
 
     function updateSliderHandle() {
@@ -610,7 +677,7 @@ document.addEventListener("DOMContentLoaded", () => {
             computeImpactArrows(weightChange, waistChange);
 
         displays.combinedChange.innerHTML =
-            `${signed(weightChange)} lb<br>${signed(waistChange)}"`;
+            `${signed(displayWeight(weightChange))} ${weightUnit()}<br>${signed(displayWaist(waistChange))}${waistUnit()}`;
         displays.combinedImpact.innerHTML =
             impactMarkup(arrows.combined);
         displays.weightImpact.innerHTML =
@@ -777,4 +844,3 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPopulationSummary();
     runSimulation();
 });
-
