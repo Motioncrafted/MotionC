@@ -13,7 +13,7 @@
 
     <link
         rel="stylesheet"
-        href="/dashboard/styles.css?v=20260802-nav2"
+        href="/dashboard/styles.css?v=20260808-1"
     >
 
     <style>
@@ -40,7 +40,7 @@
     </style>
 </head>
 
-<body class="nav-visualization">
+<body>
 
     <!-- =====================================
          Main dashboard
@@ -58,22 +58,13 @@
             <label><input type="radio" name="summaryUnitSystem" value="metric"> Metric <small>kg · km · cm</small></label>
         </div>
         <nav>
-            <a class="nav-home" href="/landing-page/" aria-label="Home"><img src="/images/nav/home.png" alt=""><small>Home</small></a>
-            <a class="nav-daily" href="/daily/" aria-label="Daily"><img src="/images/nav/daily.png" alt=""><small>Daily</small></a>
-            <a class="nav-mcp current" href="/dashboard/" aria-current="page" aria-label="MCP"><img src="/images/nav/mcp.png" alt=""><small>MCP</small></a>
-            <a class="nav-library" href="/library/" aria-label="Library"><img src="/images/nav/library.png" alt=""><small>Library</small></a>
-            <a class="nav-walking" href="/walking/" aria-label="Walking"><img src="/images/nav/walking.png" alt=""><small>Walking</small></a>
-            <a class="nav-drop-zone" href="/drop-zone/" aria-label="Drop Zone"><img src="/images/nav/drop-zone.png" alt=""><small>Drop Zone</small></a>
-            <button class="mobile-more-toggle" id="mobileMoreToggle" type="button"
-                aria-label="Open more navigation" aria-expanded="false" aria-controls="mobileMoreMenu">
-                <span class="more-glyph" aria-hidden="true">•••</span>
-                <small>More</small>
-            </button>
+            <a href="/landing-page/" aria-label="Home"><img src="/images/nav/home.png" alt=""><small>Home</small></a>
+            <a href="/walking/" aria-label="Walking"><img src="/images/nav/walking.png" alt=""><small>Walking</small></a>
+            <a class="current" href="/dashboard/" aria-current="page" aria-label="MCP"><img src="/images/nav/mcp.png" alt=""><small>MCP</small></a>
+            <a href="/library/" aria-label="Library"><img src="/images/nav/library.png" alt=""><small>Library</small></a>
+            <a href="/drop-zone/" aria-label="Drop Zone"><img src="/images/nav/drop-zone.png" alt=""><small>Drop Zone</small></a>
+            <a href="/daily/" aria-label="Daily"><img src="/images/nav/daily.png" alt=""><small>Daily</small></a>
         </nav>
-        <div class="mobile-more-menu" id="mobileMoreMenu" hidden>
-            <a href="/walking/"><img src="/images/nav/walking.png" alt=""><span>Walking</span></a>
-            <a href="/drop-zone/"><img src="/images/nav/drop-zone.png" alt=""><span>Drop Zone</span></a>
-        </div>
         <p>Move.<br>Track.<br>Improve.</p>
     </aside>
 
@@ -936,39 +927,7 @@
          Dashboard JavaScript
          ===================================== -->
 
-    <script src="/dashboard/script.js?v=20260802-2"></script>
-    <script>
-        (() => {
-            const moreToggle = document.getElementById("mobileMoreToggle");
-            const moreMenu = document.getElementById("mobileMoreMenu");
-
-            function setMoreMenu(open) {
-                moreMenu.hidden = !open;
-                moreToggle.setAttribute("aria-expanded", String(open));
-                moreToggle.setAttribute("aria-label", open ? "Close more navigation" : "Open more navigation");
-            }
-
-            moreToggle.addEventListener("click", () => {
-                setMoreMenu(moreMenu.hidden);
-            });
-
-            document.addEventListener("click", event => {
-                if (moreMenu.hidden || moreMenu.contains(event.target) || moreToggle.contains(event.target)) return;
-                setMoreMenu(false);
-            });
-
-            document.addEventListener("keydown", event => {
-                if (event.key === "Escape" && !moreMenu.hidden) {
-                    setMoreMenu(false);
-                    moreToggle.focus();
-                }
-            });
-
-            window.addEventListener("resize", () => {
-                if (window.innerWidth > 640 && !moreMenu.hidden) setMoreMenu(false);
-            });
-        })();
-    </script>
+    <script src="/dashboard/script.js?v=20260808-1"></script>
 </body>
 
 </html>

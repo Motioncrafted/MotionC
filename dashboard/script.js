@@ -379,14 +379,17 @@ function updateMeasurementFields() {
 
     if (heightFeetInput) {
         heightFeetInput.required = !useMetric;
+        heightFeetInput.disabled = useMetric;
     }
 
     if (heightInchesInput) {
         heightInchesInput.required = !useMetric;
+        heightInchesInput.disabled = useMetric;
     }
 
     if (heightCmInput) {
         heightCmInput.required = useMetric;
+        heightCmInput.disabled = !useMetric;
     }
 
     updateUnitLabels(system);
