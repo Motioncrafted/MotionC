@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const profile = readSummaryProfile();
-    const baseline = Object.freeze({ ...profile });
+    let baseline = Object.freeze({ ...profile });
 
     const displays = {
         mcp: document.querySelector("#mcp-display"),
@@ -549,7 +549,7 @@ document.addEventListener("DOMContentLoaded", () => {
         function classify(value) {
             if (value <= -2) {
                 return {
-                    arrow: "↓↓",
+                    arrow: "â†“â†“",
                     color: "#51cf66",
                     label: "strong improvement"
                 };
@@ -557,7 +557,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (value < 0) {
                 return {
-                    arrow: "↓",
+                    arrow: "â†“",
                     color: "#51cf66",
                     label: "improvement"
                 };
@@ -565,7 +565,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (value === 0) {
                 return {
-                    arrow: "→",
+                    arrow: "â†’",
                     color: "#f2c94c",
                     label: "no change"
                 };
@@ -573,14 +573,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (value <= 2) {
                 return {
-                    arrow: "↑",
+                    arrow: "â†‘",
                     color: "#ff6b6b",
                     label: "increase"
                 };
             }
 
             return {
-                arrow: "↑↑",
+                arrow: "â†‘â†‘",
                 color: "#ff6b6b",
                 label: "strong increase"
             };
@@ -596,7 +596,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function impactMarkup(impact) {
         return [
             `<span style="color:${impact.color};`,
-            `text-shadow:0 0 7px ${impact.color};">●</span>`,
+            `text-shadow:0 0 7px ${impact.color};">â—</span>`,
             `<span style="color:${impact.color};">${impact.arrow}</span>`
         ].join(" ");
     }
@@ -721,6 +721,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
         runSimulation();
     });
+
+    /*
+        Keep the Engine Room synchronized with measurements saved by the
+        Summary page. A changed saved profile replaces the simulator baseline;
+        returning to the page without a data change preserves slider work.
+    */
+    function profilesMatch(first, second) {
+        return (
+            first.age === second.age &&
+            first.sex === second.sex &&
+            first.heightFeet === second.heightFeet &&
+            first.heightInches === second.heightInches &&
+            first.weightPounds === second.weightPounds &&
+            first.waistInches === second.waistInches
+        );
+    }
+
+    function synchronizeSummaryProfile() {
+        const savedProfile = readSummaryProfile();
+
+        if (profilesMatch(savedProfile, baseline)) {
+            return;
+        }
+
+        baseline = Object.freeze({ ...savedProfile });
+        Object.assign(profile, savedProfile);
+
+        weightSlider.value = String(profile.weightPounds);
+        waistSlider.value = String(profile.waistInches);
+        combinedSlider.value = "0";
+
+        runSimulation();
+    }
+
+    window.addEventListener("storage", (event) => {
+        if (event.key === summaryMcpStorageKey) {
+            synchronizeSummaryProfile();
+        }
+    });
+
+    window.addEventListener("pageshow", () => {
+        synchronizeSummaryProfile();
+    });
     
     /*
         Starting state.
@@ -734,3 +777,5 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPopulationSummary();
     runSimulation();
 });
+
+
