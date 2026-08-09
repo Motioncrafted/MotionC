@@ -1168,6 +1168,9 @@ body {
 .metric-card-coral { --accent: #c94c4b; --accent-soft: #ffe9e5; }
 .metric-card-green { --accent: #317344; --accent-soft: #e3f2e6; }
 .metric-card-violet { --accent: #70518e; --accent-soft: #f0e8f7; }
+.metric-card-sky { --accent: #16758e; --accent-soft: #e3f4f7; }
+.metric-card-amber { --accent: #a96e00; --accent-soft: #fff2d5; }
+.metric-card-rose { --accent: #a85466; --accent-soft: #f9e8ec; }
 
 .whr-card { overflow: visible; }
 .whr-card:hover,

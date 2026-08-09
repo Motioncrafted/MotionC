@@ -1408,6 +1408,101 @@ function recentDateKeys(days) {
     return dates;
 }
 
+function median(values) {
+    if (!values.length) return null;
+    const ordered = [...values].sort((a, b) => a - b);
+    const middle = Math.floor(ordered.length / 2);
+    return ordered.length % 2 ? ordered[middle] : (ordered[middle - 1] + ordered[middle]) / 2;
+}
+
+function personalStepsPerMile(entries) {
+    const samples = Object.values(entries)
+        .flatMap(entry => Array.isArray(entry.walks) && entry.walks.length ? entry.walks : [entry])
+        .filter(walk => Number(walk.steps) > 0 && Number(walk.distance) > 0)
+        .map(walk => Number(walk.steps) / Number(walk.distance))
+        .filter(rate => rate >= 1400 && rate <= 3000);
+    return samples.length >= 3 ? median(samples) : 2050;
+}
+
+function stepResult(entry, entries) {
+    const walks = Array.isArray(entry?.walks) ? entry.walks : [];
+    if (walks.length) {
+        const rate = personalStepsPerMile(entries);
+        const measured = walks.every(walk => Number(walk.steps) > 0);
+        const value = walks.reduce((total, walk) => total + (Number(walk.steps) > 0
+            ? Math.round(Number(walk.steps))
+            : Math.round(Number(walk.distance || 0) * rate / 10) * 10), 0);
+        return value > 0 ? { value, measured } : null;
+    }
+    if (Number(entry?.steps) > 0) return { value: Math.round(Number(entry.steps)), measured: true };
+    const miles = Number(entry?.distance || 0);
+    if (!(miles > 0)) return null;
+    return { value: Math.round(miles * personalStepsPerMile(entries) / 10) * 10, measured: false };
+}
+
+function latestRecorded(entries, field, beforeDate) {
+    return Object.values(entries)
+        .filter(entry => entry.date <= beforeDate && Number(entry[field]) > 0)
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .at(-1) || null;
+}
+
+function estimatedWalkingHr(entry, restingBaseline) {
+    const miles = Number(entry?.distance || 0);
+    const minutes = Number(entry?.minutes || 0);
+    if (!(miles > 0 && minutes > 0)) return null;
+    const pace = minutes / miles;
+    const resting = Number(restingBaseline) > 0 ? Number(restingBaseline) : 72;
+    const effort = pace >= 20 ? [15, 30] : pace >= 18 ? [20, 36] : pace >= 16 ? [28, 45] : pace >= 14 ? [38, 58] : [48, 72];
+    return {
+        low: Math.max(70, Math.round(resting + effort[0])),
+        high: Math.min(160, Math.round(resting + effort[1])),
+        pace
+    };
+}
+
+function renderWalkingMetrics(entries, dates14) {
+    const walks = Object.values(entries)
+        .filter(entry => entry.date <= summaryIso(new Date()) && Number(entry.distance) > 0)
+        .sort((a, b) => a.date.localeCompare(b.date));
+    const latest = walks.at(-1);
+    if (!latest) return;
+
+    const steps = stepResult(latest, entries);
+    if (steps) {
+        setText("display-steps", steps.value.toLocaleString());
+        setText("steps-label", steps.measured ? "Steps" : "Estimated steps");
+        const recent = walks.filter(entry => dates14.includes(entry.date) && entry.date !== latest.date)
+            .map(entry => stepResult(entry, entries)?.value).filter(Number.isFinite);
+        const average = recent.length ? Math.round(recent.reduce((sum, value) => sum + value, 0) / recent.length) : null;
+        const comparison = average ? `${steps.value >= average ? "▲" : "▼"} ${Math.abs(steps.value - average).toLocaleString()} vs your recent average` : "Your personal walking total";
+        setText("steps-status", `${steps.measured ? "Measured" : "Personal estimate"} · ${comparison}`);
+    }
+
+    const restingEntry = latestRecorded(entries, "restingHr", latest.date);
+    const resting = Number(restingEntry?.restingHr);
+    const walkingHr = Number(latest.walkingHr);
+    if (walkingHr > 0) {
+        setText("display-walking-hr", Math.round(walkingHr));
+        setText("walking-hr-label", "Average walking HR");
+        setText("walking-hr-status", "Measured · from your latest walk");
+    } else {
+        const estimate = estimatedWalkingHr(latest, resting);
+        if (estimate) {
+            setText("display-walking-hr", `${estimate.low}–${estimate.high}`);
+            setText("walking-hr-label", "Likely walking HR");
+            setText("walking-hr-status", `Estimated range · based on pace${resting > 0 ? " + your resting baseline" : ""}`);
+        }
+    }
+
+    if (resting > 0) {
+        setText("display-resting-hr", Math.round(resting));
+        setText("resting-hr-status", restingEntry.date === latest.date ? "Measured · latest entry" : `Last measured ${shortChartDate(restingEntry.date)}`);
+    } else {
+        setText("resting-hr-status", "Not recorded · add it for recovery context");
+    }
+}
+
 function shortChartDate(value) {
     return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" })
         .format(summaryDate(value));
@@ -1706,6 +1801,8 @@ function renderSummaryData() {
     setText("weekly-miles", `${weeklyMiles.toFixed(2)} ${summaryDistanceUnit()}`);
     setText("weekly-minutes", `${Math.round(weeklyMinutes)} min`);
     setText("walking-chart-summary", `${weeklyMiles.toFixed(1)} ${summaryDistanceUnit()} · ${Math.round(weeklyMinutes)} min this week`);
+
+    renderWalkingMetrics(entries, dates14);
 
     renderLifestyleSummary(lifestyle);
 }
