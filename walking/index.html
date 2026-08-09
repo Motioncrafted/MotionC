@@ -256,6 +256,51 @@
     .walking-preferences-close:hover,
     .walking-preferences-close:focus-visible { color: #17352c; background: #e8efe9; outline: none; }
 
+    /* Standard MotionC navigation rail */
+    .walking-side-menu {
+      position: absolute; z-index: 20; inset: 0 auto 0 0;
+      display: flex; width: 9.25%; padding: 1.35% .65% 1.4%;
+      align-items: center; flex-direction: column; color: white;
+      background: linear-gradient(180deg, rgba(16,35,33,.99), rgba(7,20,19,.99));
+      box-shadow: inset -5px 0 10px rgba(0,0,0,.38), 5px 0 12px rgba(0,0,0,.16);
+      font-family: Arial, sans-serif;
+    }
+    .walking-side-brand {
+      display: grid; width: 58%; aspect-ratio: 1; margin: 0 0 9%; padding: 2%;
+      place-items: center; border: 1px solid rgba(255,255,255,.24); border-radius: 19%;
+      background: #183831; cursor: pointer;
+    }
+    .walking-side-brand img { width: 94%; height: 94%; object-fit: contain; }
+    .walking-side-menu nav {
+      display: flex; width: 100%; flex: 1; align-items: center;
+      flex-direction: column; justify-content: space-evenly;
+    }
+    .walking-side-menu nav a {
+      display: grid; width: 82%; min-height: 12.5%; padding: 4% 2%;
+      place-items: center; border: 2px solid transparent; border-radius: 13%;
+      color: #fff; text-decoration: none;
+    }
+    .walking-side-menu nav a img {
+      width: 48%; max-height: 62%; object-fit: contain;
+      filter: grayscale(1) brightness(2.2);
+    }
+    .walking-side-menu nav a small {
+      font-size: clamp(5px, .58vw, 10px); font-weight: 700;
+      letter-spacing: .015em; line-height: 1; text-transform: uppercase;
+    }
+    .walking-side-menu nav a:hover,
+    .walking-side-menu nav a:focus-visible,
+    .walking-side-menu nav a.current {
+      border-color: #eab640; background: rgba(234,182,64,.16); outline: none;
+    }
+    .walking-side-menu nav a.current img {
+      filter: grayscale(1) brightness(2.5) drop-shadow(0 0 4px rgba(234,182,64,.72));
+    }
+    .walking-side-menu > p {
+      margin: 7% 0 0; color: #eab640;
+      font: 700 clamp(5px, .5vw, 8px)/1.25 "Kalam", cursive; text-align: center;
+    }
+
     .lifetime {
       left: 12.35%;
       top: 3.8%;
@@ -705,14 +750,27 @@
     </div>
     <div id="routeDots" aria-hidden="true"></div>
 
-    <button
-      class="nav-hotspot walking-preferences-toggle"
-      id="walkingPreferencesToggle"
-      type="button"
-      aria-label="Open preferences"
-      aria-expanded="false"
-      aria-controls="walkingPreferencesMenu"
-    ></button>
+    <aside class="walking-side-menu" aria-label="Main navigation">
+      <button
+        class="walking-side-brand"
+        id="walkingPreferencesToggle"
+        type="button"
+        aria-label="Open preferences"
+        aria-expanded="false"
+        aria-controls="walkingPreferencesMenu"
+      >
+        <img src="/images/nav/motionc-logo.png" alt="">
+      </button>
+      <nav>
+        <a href="/landing-page/" aria-label="Home"><img src="/images/nav/home.png" alt=""><small>Home</small></a>
+        <a href="/daily/" aria-label="Daily"><img src="/images/nav/daily.png" alt=""><small>Daily</small></a>
+        <a href="/dashboard/" aria-label="MCP"><img src="/images/nav/mcp.png" alt=""><small>MCP</small></a>
+        <a href="/library/" aria-label="Library"><img src="/images/nav/library.png" alt=""><small>Library</small></a>
+        <a class="current" href="/walking/" aria-current="page" aria-label="Walking"><img src="/images/nav/walking.png" alt=""><small>Walking</small></a>
+        <a href="/drop-zone/" aria-label="Drop Zone"><img src="/images/nav/drop-zone.png" alt=""><small>Drop Zone</small></a>
+      </nav>
+      <p>Move. Track. Improve.</p>
+    </aside>
     <div class="walking-preferences-menu" id="walkingPreferencesMenu" hidden>
       <button class="walking-preferences-close" id="walkingPreferencesClose" type="button" aria-label="Close preferences">×</button>
       <strong>Preferences</strong>
@@ -720,22 +778,6 @@
       <label><input type="radio" name="walkingUnitSystem" value="imperial"> Imperial <small>lb · mi · in</small></label>
       <label><input type="radio" name="walkingUnitSystem" value="metric"> Metric <small>kg · km · cm</small></label>
     </div>
-
-    <span
-      class="nav-hotspot walking-location"
-      aria-label="Walking — current page"
-      aria-current="page"
-    ></span>
-    <a
-      class="nav-hotspot mcp-link"
-      href="/dashboard/"
-      aria-label="Open MCP page"
-      title="MCP"
-    ></a>
-    <a class="nav-hotspot daily-link" href="/daily/" aria-label="Open Daily page">
-      <img src="/images/nav/daily.png" alt="">
-      <span>DAILY</span>
-    </a>
 
     <img
       class="route-marker"
