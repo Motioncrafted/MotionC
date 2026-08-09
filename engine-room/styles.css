@@ -334,7 +334,7 @@ body {
     width: 9.15%;
     overflow: visible;
     background:
-        linear-gradient(90deg, rgba(4, 7, 8, .99), rgba(17, 21, 22, .99) 72%, rgba(5, 8, 9, .98)),
+        linear-gradient(90deg, #040708, #111516 72%, #050809),
         repeating-linear-gradient(0deg, transparent 0 12%, rgba(255,255,255,.025) 12.1% 12.3%);
     border-right: clamp(2px, .22vw, 4px) solid #3c4243;
     box-shadow: inset -8px 0 14px rgba(0,0,0,.82), 5px 0 12px rgba(0,0,0,.48);
