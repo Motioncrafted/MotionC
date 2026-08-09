@@ -5,31 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Daily | MotionC</title>
   <meta name="description" content="Your quick daily MotionC health check-in.">
-  <link rel="stylesheet" href="/daily/styles.css?v=20260802-nav1">
+  <link rel="stylesheet" href="/daily/styles.css?v=20260802-1">
 </head>
-<body class="nav-visualization">
+<body>
   <div class="app-shell">
     <aside class="sidebar" aria-label="MotionC navigation">
       <button class="brand" id="preferencesToggle" type="button" aria-label="Open preferences" aria-expanded="false" aria-controls="preferencesMenu">
-        <img src="/images/nav/motionc-logo.png" alt="">
+        <span class="brand-mark">MC</span>
+        <span>MotionC</span>
       </button>
       <nav>
-        <a class="nav-home" href="/landing-page/"><img src="/images/nav/home.png" alt=""><small>Home</small></a>
-        <a class="nav-daily active" href="/daily/" aria-current="page"><img src="/images/nav/daily.png" alt=""><small>Daily</small></a>
-        <a class="nav-mcp" href="/dashboard/"><img src="/images/nav/mcp.png" alt=""><small>MCP</small></a>
-        <a class="nav-library" href="/library/"><img src="/images/nav/library.png" alt=""><small>Library</small></a>
-        <a class="nav-walking" href="/walking/"><img src="/images/nav/walking.png" alt=""><small>Walking</small></a>
-        <a class="nav-drop-zone" href="/drop-zone/"><img src="/images/nav/drop-zone.png" alt=""><small>Drop Zone</small></a>
-        <button class="mobile-more-toggle" id="mobileMoreToggle" type="button"
-          aria-label="Open more navigation" aria-expanded="false" aria-controls="mobileMoreMenu">
-          <span class="more-glyph" aria-hidden="true">•••</span>
-          <small>More</small>
-        </button>
+        <a href="/landing-page/"><span>⌂</span>Home</a>
+        <a class="active" href="/daily/"><span>◉</span>Daily</a>
+        <a href="/walking/"><span>♟</span>Walking</a>
+        <a href="/dashboard/"><span>◴</span>MCP</a>
+        <a href="/library/"><span>▥</span>Library</a>
+        <a href="/drop-zone/"><span>▦</span>Drop Zone</a>
       </nav>
-      <div class="mobile-more-menu" id="mobileMoreMenu" hidden>
-        <a href="/walking/"><img src="/images/nav/walking.png" alt=""><span>Walking</span></a>
-        <a href="/drop-zone/"><img src="/images/nav/drop-zone.png" alt=""><span>Drop Zone</span></a>
-      </div>
       <p class="sidebar-motto">One day.<br>One choice.<br>Always forward.</p>
     </aside>
 
@@ -94,6 +86,45 @@
             </label>
           </div>
 
+          <div class="number-grid optional-metrics-grid">
+            <label>
+              <span>Average walking HR <em>Optional</em></span>
+              <span class="input-with-unit">
+                <input id="walkingHr" inputmode="numeric" min="40" max="220" step="1" type="number" placeholder="—">
+                <small>bpm</small>
+              </span>
+            </label>
+            <label>
+              <span>Steps <em>Optional</em></span>
+              <span class="input-with-unit">
+                <input id="steps" inputmode="numeric" min="0" max="200000" step="1" type="number" placeholder="—">
+                <small>steps</small>
+              </span>
+            </label>
+            <label>
+              <span>Resting HR <em>Optional</em></span>
+              <span class="input-with-unit">
+                <input id="restingHr" inputmode="numeric" min="30" max="220" step="1" type="number" placeholder="—">
+                <small>bpm</small>
+              </span>
+            </label>
+          </div>
+          <details class="optional-metrics-help">
+            <summary>Why add these optional measurements?</summary>
+            <p><strong>Steps</strong> makes your comparisons exact and teaches MotionC your personal steps per mile. <strong>Walking HR</strong> adds effort context. <strong>Resting HR</strong> adds a measured recovery baseline. Leave any of them blank and MotionC will clearly label what it can estimate.</p>
+          </details>
+
+          <section class="walk-breakdown" id="walkBreakdown" hidden aria-labelledby="walkBreakdownTitle">
+            <div class="walk-breakdown-heading">
+              <div>
+                <p class="eyebrow">TODAY’S WALKS</p>
+                <h3 id="walkBreakdownTitle">Your walks</h3>
+              </div>
+              <strong id="walkBreakdownTotal"></strong>
+            </div>
+            <div class="walk-list" id="walkList"></div>
+          </section>
+
           <div class="promises">
             <div class="promises-copy">
               <p class="eyebrow">TODAY’S PROMISES</p>
@@ -115,17 +146,20 @@
           <div class="entry-actions">
             <button class="secondary-button" id="weeklyButton" type="button">Weekly check-in</button>
             <button class="secondary-button" id="addWalk" type="button" hidden>+ Add another walk</button>
-            <button class="save-button" id="saveEntry" type="button">Save today</button>
+            <button class="save-button" id="saveEntry" type="button">Save walk</button>
           </div>
           <p class="save-status" id="saveStatus" aria-live="polite"></p>
         </section>
 
         <section class="today-score card" aria-live="polite">
-          <p class="eyebrow">TODAY’S HEALTH SCORE</p>
-          <button class="score-orb green" id="todayOrb" type="button" aria-label="Open today’s score explanation"></button>
-          <strong id="todayPercent">—</strong>
-          <span id="todayColor">Save today to create your dot</span>
-          <button class="text-button" id="explainToday" type="button">Why this colour?</button>
+          <div class="today-score-content">
+            <p class="eyebrow">TODAY’S HEALTH SCORE</p>
+            <button class="score-orb green" id="todayOrb" type="button" aria-label="Open today’s score explanation"></button>
+            <strong id="todayPercent">—</strong>
+            <span id="todayColor">Save this entry to create your dot</span>
+            <button class="text-button" id="explainToday" type="button">Why this colour?</button>
+          </div>
+          <div class="score-layout-spacer" aria-hidden="true"></div>
         </section>
 
         <section class="calendar-card card">
@@ -253,32 +287,5 @@
   </dialog>
 
   <script src="/daily/script.js?v=20260802-1"></script>
-  <script>
-    (() => {
-      const moreToggle = document.getElementById("mobileMoreToggle");
-      const moreMenu = document.getElementById("mobileMoreMenu");
-
-      function setMoreMenu(open) {
-        moreMenu.hidden = !open;
-        moreToggle.setAttribute("aria-expanded", String(open));
-        moreToggle.setAttribute("aria-label", open ? "Close more navigation" : "Open more navigation");
-      }
-
-      moreToggle.addEventListener("click", () => setMoreMenu(moreMenu.hidden));
-      document.addEventListener("click", event => {
-        if (moreMenu.hidden || moreMenu.contains(event.target) || moreToggle.contains(event.target)) return;
-        setMoreMenu(false);
-      });
-      document.addEventListener("keydown", event => {
-        if (event.key === "Escape" && !moreMenu.hidden) {
-          setMoreMenu(false);
-          moreToggle.focus();
-        }
-      });
-      window.addEventListener("resize", () => {
-        if (window.innerWidth > 700 && !moreMenu.hidden) setMoreMenu(false);
-      });
-    })();
-  </script>
 </body>
 </html>
