@@ -46,11 +46,23 @@ export default async function handler(request, response) {
       return reply(response, 400, { error: "That tag style is unavailable." });
     }
 
+    const requestedId = String(request.body?.id || "");
+    const numericLayout = (value, minimum, maximum, fallback) => {
+      const numeric = Number(value);
+      return Number.isFinite(numeric) && numeric >= minimum && numeric <= maximum ? numeric : fallback;
+    };
+    const safeCssSize = /^\d+(?:\.\d+)?vw$/.test(String(request.body?.size || "")) ? String(request.body.size) : "2.2vw";
+    const safeCssWidth = /^\d+(?:\.\d+)?%$/.test(String(request.body?.width || "")) ? String(request.body.width) : "20%";
     const tag = {
-      id: crypto.randomUUID(),
+      id: /^[0-9a-f-]{20,40}$/i.test(requestedId) ? requestedId : crypto.randomUUID(),
       text,
       color,
       font,
+      left: numericLayout(request.body?.left, 3, 65, 12),
+      top: numericLayout(request.body?.top, 12, 65, 24),
+      rotation: numericLayout(request.body?.rotation, -45, 45, 0),
+      size: safeCssSize,
+      width: safeCssWidth,
       createdAt: new Date().toISOString()
     };
 
