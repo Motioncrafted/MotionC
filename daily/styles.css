@@ -56,17 +56,7 @@ button { cursor: pointer; }
   background: none;
   cursor: pointer;
 }
-.brand-mark {
-  display: grid;
-  width: 61px;
-  aspect-ratio: 1;
-  place-items: center;
-  border: 4px solid #62d09a;
-  border-radius: 50%;
-  color: #ffbf22;
-  background: #082d3e;
-  font-size: 20px;
-}
+.brand > img { width: 78px; height: 78px; object-fit: contain; }
 .sidebar nav { display: grid; gap: 6px; margin-top: 30px; }
 .sidebar nav a {
   display: grid;
@@ -80,7 +70,8 @@ button { cursor: pointer; }
   text-decoration: none;
   text-transform: uppercase;
 }
-.sidebar nav a span { font-size: 31px; line-height: 1; }
+.sidebar nav a img { width: 34px; height: 34px; object-fit: contain; }
+.sidebar nav a small { font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
 .sidebar nav a:hover,
 .sidebar nav a:focus-visible,
 .sidebar nav a.active {
