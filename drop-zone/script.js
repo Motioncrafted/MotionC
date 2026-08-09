@@ -12,6 +12,7 @@ const SAFE_SPOTS = [
 ];
 const WALL_CAPACITY = SAFE_SPOTS.length;
 const MIN_VISIBLE_POSTS = 8;
+const WALL_STORAGE_KEY = "motionc-drop-zone-wall-v1";
 
 const message = document.getElementById("message");
 const messageCount = document.getElementById("messageCount");
@@ -118,6 +119,64 @@ function createWallTag(tag) {
   return element;
 }
 
+function storableTag(tag) {
+  const { element, ...stored } = tag;
+  return stored;
+}
+
+function saveLocalWall() {
+  try {
+    localStorage.setItem(WALL_STORAGE_KEY, JSON.stringify(wallTags.map(storableTag)));
+  } catch {
+    // The shared database remains the source of truth when browser storage is unavailable.
+  }
+}
+
+function validStoredTag(tag) {
+  return tag && typeof tag.text === "string" && tag.text.trim() &&
+    COLORS.includes(tag.color) && FONTS.includes(tag.font) &&
+    Number.isFinite(Number(tag.left)) && Number.isFinite(Number(tag.top));
+}
+
+function renderWall(tags) {
+  tagLayer.replaceChildren();
+  wallTags = tags.slice(-WALL_CAPACITY).map(tag => {
+    const normalized = { ...tag, size: tag.size || sizeFor(tag.text), width: tag.width || widthFor(tag.text) };
+    normalized.element = createWallTag(normalized);
+    return normalized;
+  });
+  spraySequence = wallTags.length;
+  saveLocalWall();
+}
+
+function restoreLocalWall() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(WALL_STORAGE_KEY));
+    if (Array.isArray(stored)) renderWall(stored.filter(validStoredTag));
+  } catch {
+    localStorage.removeItem(WALL_STORAGE_KEY);
+  }
+}
+
+function layoutForHistoryTag(tag, index) {
+  const existing = wallTags.find(item => item.id === tag.id);
+  if (existing) return { ...existing, ...tag };
+  const spot = SAFE_SPOTS[index % SAFE_SPOTS.length];
+  return {
+    ...tag,
+    left: Number.isFinite(Number(tag.left)) ? Number(tag.left) : spot.left,
+    top: Number.isFinite(Number(tag.top)) ? Number(tag.top) : spot.top,
+    rotation: Number.isFinite(Number(tag.rotation)) ? Number(tag.rotation) : -8 + index * 3.5,
+    size: tag.size || sizeFor(tag.text),
+    width: tag.width || widthFor(tag.text)
+  };
+}
+
+function restoreSharedWall(tags) {
+  const visible = tags.slice(0, WALL_CAPACITY).reverse();
+  if (visible.length) renderWall(visible.map(layoutForHistoryTag));
+}
+
 function formatTime(createdAt) {
   const date = new Date(createdAt);
   if (Number.isNaN(date.getTime())) return "";
@@ -158,6 +217,7 @@ async function loadHistory() {
     const payload = await response.json();
     historyTags = payload.tags || [];
     renderHistory();
+    restoreSharedWall(historyTags);
   } catch {
     historyState.classList.add("error");
     historyState.textContent = "Commons will be available after its database is connected.";
@@ -195,7 +255,17 @@ async function saveHistory(tag) {
     const response = await fetch("/api/tags", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ text: tag.text, color: tag.color, font: tag.font })
+      body: JSON.stringify({
+        id: tag.id,
+        text: tag.text,
+        color: tag.color,
+        font: tag.font,
+        left: tag.left,
+        top: tag.top,
+        rotation: tag.rotation,
+        size: tag.size,
+        width: tag.width
+      })
     });
     if (!response.ok) throw new Error("Save failed");
     const payload = await response.json();
@@ -206,7 +276,7 @@ async function saveHistory(tag) {
       text: tag.text,
       color: tag.color,
       font: tag.font,
-      createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString()
     }, ...historyTags];
   }
   renderHistory();
@@ -235,6 +305,7 @@ function spray() {
     size: sizeFor(text),
     width: widthFor(text)
   };
+  tag.createdAt = new Date().toISOString();
 
   buildMist(tag);
   buildSpray(tag.color);
@@ -249,6 +320,7 @@ function spray() {
     }
     tag.element = createWallTag(tag);
     wallTags.push(tag);
+    saveLocalWall();
   }, 850);
 
   window.setTimeout(() => mistTarget.classList.remove("active"), 2700);
@@ -351,4 +423,5 @@ window.addEventListener("resize", () => {
 
 syncUnitChoices();
 sprayButton.addEventListener("click", spray);
+restoreLocalWall();
 loadHistory();
