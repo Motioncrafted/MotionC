@@ -10,6 +10,14 @@
       "destination": "/dashboard/index.html"
     },
     {
+      "source": "/daily",
+      "destination": "/daily/index.html"
+    },
+    {
+      "source": "/daily/",
+      "destination": "/daily/index.html"
+    },
+    {
       "source": "/drop-zone",
       "destination": "/drop-zone/index.html"
     },
@@ -30,6 +38,15 @@
     },
     {
       "source": "/drop-zone/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    },
+    {
+      "source": "/daily/:path*",
       "headers": [
         {
           "key": "Cache-Control",
