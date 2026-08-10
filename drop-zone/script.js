@@ -4,14 +4,13 @@ const FONTS = [
   "'Comic Sans MS', cursive"
 ];
 const SIZE_SCALES = { small: 0.52, medium: 0.76, large: 1 };
-const SAFE_SPOTS = [
-  { left: 8, top: 18 }, { left: 27, top: 20 },
-  { left: 48, top: 18 }, { left: 53, top: 27 },
-  { left: 12, top: 34 }, { left: 34, top: 37 },
-  { left: 56, top: 40 }, { left: 7, top: 49 },
-  { left: 29, top: 52 }, { left: 51, top: 54 }
+const PLACEMENT_SPOTS = [
+  { left: 5, top: 14 }, { left: 29, top: 14 }, { left: 53, top: 14 },
+  { left: 5, top: 28 }, { left: 29, top: 28 }, { left: 53, top: 28 },
+  { left: 5, top: 42 }, { left: 29, top: 42 }, { left: 53, top: 42 },
+  { left: 5, top: 55 }, { left: 29, top: 55 }, { left: 53, top: 55 }
 ];
-const WALL_CAPACITY = SAFE_SPOTS.length;
+const WALL_CAPACITY = 10;
 const MIN_VISIBLE_POSTS = 8;
 const WALL_STORAGE_KEY = "motionc-drop-zone-wall-v1";
 
@@ -116,9 +115,7 @@ function widthFor(text) {
   return "20%";
 }
 
-function createWallTag(tag) {
-  const element = document.createElement("span");
-  element.className = "wall-tag revealed";
+function applyWallTagStyles(element, tag) {
   element.style.setProperty("--tag-color", tag.color);
   element.style.setProperty("--tag-left", `${tag.left}%`);
   element.style.setProperty("--tag-top", `${tag.top}%`);
@@ -126,9 +123,17 @@ function createWallTag(tag) {
   element.style.setProperty("--tag-font", tag.font);
   element.style.setProperty("--tag-size", tag.size);
   element.style.setProperty("--tag-width", tag.width);
+  element.style.setProperty("--tag-shift-x", "0px");
+  element.style.setProperty("--tag-shift-y", "0px");
+}
+
+function createWallTag(tag, reveal = true) {
+  const element = document.createElement("span");
+  element.className = `wall-tag${reveal ? " revealed" : ""}`;
+  applyWallTagStyles(element, tag);
   element.textContent = tag.text;
   tagLayer.append(element);
-  requestAnimationFrame(() => fitTagToWall(element));
+  if (reveal) requestAnimationFrame(() => fitTagToWall(element));
   return element;
 }
 
@@ -153,6 +158,68 @@ function fitTagToWall(element) {
   element.style.setProperty("--tag-shift-y", `${shiftY}px`);
 }
 
+function overlapScore(box, occupiedBoxes) {
+  const padding = Math.max(8, tagLayer.getBoundingClientRect().width * 0.008);
+  return occupiedBoxes.reduce((score, occupied) => {
+    const overlapWidth = Math.max(
+      0,
+      Math.min(box.right + padding, occupied.right) - Math.max(box.left - padding, occupied.left)
+    );
+    const overlapHeight = Math.max(
+      0,
+      Math.min(box.bottom + padding, occupied.bottom) - Math.max(box.top - padding, occupied.top)
+    );
+    return score + overlapWidth * overlapHeight;
+  }, 0);
+}
+
+function chooseTagPlacement(tag, element, occupiedBoxes, startIndex = 0) {
+  let best = null;
+
+  PLACEMENT_SPOTS.forEach((spot, offset) => {
+    const candidateIndex = (startIndex + offset) % PLACEMENT_SPOTS.length;
+    const candidate = PLACEMENT_SPOTS[candidateIndex];
+    tag.left = candidate.left;
+    tag.top = candidate.top;
+    applyWallTagStyles(element, tag);
+    fitTagToWall(element);
+    const box = element.getBoundingClientRect();
+    const score = overlapScore(box, occupiedBoxes) + offset * 0.01;
+    if (!best || score < best.score) {
+      best = { left: candidate.left, top: candidate.top, score };
+    }
+  });
+
+  tag.left = best.left;
+  tag.top = best.top;
+  applyWallTagStyles(element, tag);
+  fitTagToWall(element);
+  return element.getBoundingClientRect();
+}
+
+function arrangeWallTags() {
+  const occupiedBoxes = [];
+  wallTags.forEach((tag, index) => {
+    const box = chooseTagPlacement(tag, tag.element, occupiedBoxes, index * 3);
+    occupiedBoxes.push(box);
+  });
+  saveLocalWall();
+}
+
+function placeNewTag(tag) {
+  const measuringTag = createWallTag(tag, false);
+  measuringTag.style.visibility = "hidden";
+  chooseTagPlacement(
+    tag,
+    measuringTag,
+    wallTags
+      .slice(wallTags.length >= WALL_CAPACITY ? 1 : 0)
+      .map(item => item.element.getBoundingClientRect()),
+    spraySequence * 3
+  );
+  measuringTag.remove();
+}
+
 function storableTag(tag) {
   const { element, ...stored } = tag;
   return stored;
@@ -175,12 +242,17 @@ function validStoredTag(tag) {
 function renderWall(tags) {
   tagLayer.replaceChildren();
   wallTags = tags.slice(-WALL_CAPACITY).map(tag => {
-    const normalized = { ...tag, size: tag.size || sizeFor(tag.text), width: tag.width || widthFor(tag.text) };
-    normalized.element = createWallTag(normalized);
+    const normalized = {
+      ...tag,
+      rotation: Math.max(-18, Math.min(18, Number(tag.rotation) || 0)),
+      size: tag.size || sizeFor(tag.text),
+      width: tag.width || widthFor(tag.text)
+    };
+    normalized.element = createWallTag(normalized, false);
     return normalized;
   });
   spraySequence = wallTags.length;
-  saveLocalWall();
+  requestAnimationFrame(arrangeWallTags);
 }
 
 function restoreLocalWall() {
@@ -195,7 +267,7 @@ function restoreLocalWall() {
 function layoutForHistoryTag(tag, index) {
   const existing = wallTags.find(item => item.id === tag.id);
   if (existing) return { ...existing, ...tag };
-  const spot = SAFE_SPOTS[index % SAFE_SPOTS.length];
+  const spot = PLACEMENT_SPOTS[index % PLACEMENT_SPOTS.length];
   return {
     ...tag,
     left: Number.isFinite(Number(tag.left)) ? Number(tag.left) : spot.left,
@@ -324,22 +396,22 @@ function spray() {
   sprayButton.disabled = true;
   sprayButton.textContent = "SPRAYING…";
 
-  const spot = SAFE_SPOTS[spraySequence % SAFE_SPOTS.length];
   spraySequence += 1;
   const tag = {
     id: crypto.randomUUID(),
     text,
     color: selectedColor,
     font: selectedFont,
-    left: spot.left + (-1.8 + Math.random() * 3.6),
-    top: spot.top + (-1.4 + Math.random() * 2.8),
+    left: 5,
+    top: 14,
     rotation: wallTags.length % 5 === 4
-      ? (Math.random() > .5 ? 1 : -1) * (20 + Math.random() * 17)
+      ? (Math.random() > .5 ? 1 : -1) * (13 + Math.random() * 5)
       : -11 + Math.random() * 22,
     size: sizeFor(text, selectedSize),
     width: widthFor(text)
   };
   tag.createdAt = new Date().toISOString();
+  placeNewTag(tag);
 
   buildMist(tag);
   buildSpray(tag.color);
