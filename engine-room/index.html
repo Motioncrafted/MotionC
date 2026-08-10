@@ -13,7 +13,7 @@
 
     <link
         rel="stylesheet"
-        href="/engine-room/styles.css?v=20260809-3"
+        href="/engine-room/styles.css?v=20260810-1"
     >
 
     <script
@@ -205,6 +205,19 @@
         <div class="change-heading waist-change-heading">WAIST</div>
 
         <div id="waist-impact-display" class="impact-display waist-impact-display">0.0</div>
+
+        <!-- Rough shop note: keeps the MCP scoring thresholds visible at all times. -->
+        <aside class="mcp-zone-note" aria-labelledby="mcp-zone-note-title">
+            <span class="note-tape note-tape-left" aria-hidden="true"></span>
+            <span class="note-tape note-tape-right" aria-hidden="true"></span>
+            <h2 id="mcp-zone-note-title">MCP ZONES</h2>
+            <ul>
+                <li class="zone-core"><span>Core Zone</span><strong>&lt;25</strong></li>
+                <li class="zone-healthy"><span>Healthy</span><strong>25–35</strong></li>
+                <li class="zone-elevated"><span>Elevated</span><strong>35–43</strong></li>
+                <li class="zone-watch"><span>Watch Zone</span><strong>&gt;43</strong></li>
+            </ul>
+        </aside>
 
         <!-- Active MCP tier outline: Core, Healthy, Elevated, Watch -->
         <div
