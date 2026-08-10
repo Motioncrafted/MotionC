@@ -665,12 +665,10 @@
       "You bring the effort. I’ll bring the unsolicited commentary."
     ];
     let miraCommentIndex = 0;
-    const miraDisplayDuration = 3000;
+    const miraDisplayDuration = 2500;
     const miraFadeDuration = 700;
     let miraDismissTimer = null;
     let miraFadeTimer = null;
-    let miraTimerStartedAt = 0;
-    let miraTimeRemaining = miraDisplayDuration;
 
     function setInfoOpen(open) {
       infoOverlay.hidden = !open;
@@ -715,8 +713,6 @@
 
     function startMiraDismissTimer(duration = miraDisplayDuration) {
       window.clearTimeout(miraDismissTimer);
-      miraTimeRemaining = duration;
-      miraTimerStartedAt = Date.now();
       miraDismissTimer = window.setTimeout(() => setMiraOpen(false), duration);
     }
 
@@ -750,19 +746,13 @@
     miraHotspot.addEventListener("click", showNextMiraComment);
     miraClose.addEventListener("click", () => setMiraOpen(false));
 
-    miraBubble.addEventListener("mouseenter", () => {
-      if (miraDismissTimer === null) return;
-      miraTimeRemaining = Math.max(
-        0,
-        miraTimeRemaining - (Date.now() - miraTimerStartedAt)
-      );
-      window.clearTimeout(miraDismissTimer);
-      miraDismissTimer = null;
-    });
-
-    miraBubble.addEventListener("mouseleave", () => {
-      if (!miraBubble.hidden && !miraBubble.classList.contains("is-closing")) {
-        startMiraDismissTimer(miraTimeRemaining);
+    document.addEventListener("click", event => {
+      if (
+        !miraBubble.hidden &&
+        !miraBubble.contains(event.target) &&
+        !miraHotspot.contains(event.target)
+      ) {
+        setMiraOpen(false);
       }
     });
 
