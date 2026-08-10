@@ -516,6 +516,7 @@
       inset: 7%;
       border: 3px solid transparent;
       border-radius: 50%;
+      transform: translateX(-22%);
       transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
     }
 
@@ -523,7 +524,7 @@
     .magnifier-hotspot:focus-visible::after {
       border-color: rgba(255, 211, 111, .8);
       box-shadow: 0 0 18px rgba(255, 202, 73, .78);
-      transform: translateY(-2px);
+      transform: translate(-22%, -2px);
     }
 
     .magnifier-hotspot:focus-visible {
