@@ -3,7 +3,7 @@ const FONTS = [
   "'Segoe Print', 'Comic Sans MS', cursive",
   "'Comic Sans MS', cursive"
 ];
-const SIZE_SCALES = { small: 0.7, medium: 0.85, large: 1 };
+const SIZE_SCALES = { small: 0.52, medium: 0.76, large: 1 };
 const SAFE_SPOTS = [
   { left: 8, top: 18 }, { left: 27, top: 20 },
   { left: 48, top: 18 }, { left: 53, top: 27 },
