@@ -310,7 +310,7 @@ textarea {
   text-shadow:
     1px 2px 0 color-mix(in srgb, var(--tag-color), #000 40%),
     0 0 8px color-mix(in srgb, var(--tag-color), transparent 55%);
-  transform: rotate(var(--tag-angle));
+  transform: translate(var(--tag-shift-x, 0), var(--tag-shift-y, 0)) rotate(var(--tag-angle));
   transform-origin: center;
 }
 
@@ -319,9 +319,9 @@ textarea {
 }
 
 @keyframes tagReveal {
-  0% { filter: blur(5px); opacity: 0; transform: rotate(var(--tag-angle)) scale(.94); }
+  0% { filter: blur(5px); opacity: 0; transform: translate(var(--tag-shift-x, 0), var(--tag-shift-y, 0)) rotate(var(--tag-angle)) scale(.94); }
   55% { filter: blur(2px); opacity: .55; }
-  100% { filter: blur(0); opacity: .96; transform: rotate(var(--tag-angle)) scale(1); }
+  100% { filter: blur(0); opacity: .96; transform: translate(var(--tag-shift-x, 0), var(--tag-shift-y, 0)) rotate(var(--tag-angle)) scale(1); }
 }
 
 .permanent-tag {

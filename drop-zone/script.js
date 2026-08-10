@@ -128,7 +128,29 @@ function createWallTag(tag) {
   element.style.setProperty("--tag-width", tag.width);
   element.textContent = tag.text;
   tagLayer.append(element);
+  requestAnimationFrame(() => fitTagToWall(element));
   return element;
+}
+
+function fitTagToWall(element) {
+  const layer = tagLayer.getBoundingClientRect();
+  const tag = element.getBoundingClientRect();
+  const safe = {
+    left: layer.left + layer.width * 0.025,
+    right: layer.left + layer.width * 0.79,
+    top: layer.top + layer.height * 0.12,
+    bottom: layer.top + layer.height * 0.71
+  };
+  let shiftX = 0;
+  let shiftY = 0;
+
+  if (tag.left < safe.left) shiftX += safe.left - tag.left;
+  if (tag.right + shiftX > safe.right) shiftX -= tag.right + shiftX - safe.right;
+  if (tag.top < safe.top) shiftY += safe.top - tag.top;
+  if (tag.bottom + shiftY > safe.bottom) shiftY -= tag.bottom + shiftY - safe.bottom;
+
+  element.style.setProperty("--tag-shift-x", `${shiftX}px`);
+  element.style.setProperty("--tag-shift-y", `${shiftY}px`);
 }
 
 function storableTag(tag) {
