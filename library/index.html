@@ -585,11 +585,124 @@
       background: #60401e;
     }
 
-    /* Large reading page. It grows out of the book instead of appearing abruptly. */
-    .reader-overlay {
+    /* Scrollable section catalogue: a cool MotionC sage layer between book and article. */
+    .section-overlay {
       position: absolute;
       inset: 0;
       z-index: 20;
+      display: grid;
+      place-items: center;
+      padding: 3.2%;
+      background: rgba(12, 27, 23, .62);
+      backdrop-filter: blur(3px);
+      opacity: 0;
+      transition: opacity 420ms ease;
+    }
+
+    .section-overlay[hidden] { display: none; }
+    .section-overlay.open { opacity: 1; }
+
+    .section-sheet {
+      position: relative;
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr) auto;
+      width: 88%;
+      height: 91%;
+      overflow: hidden;
+      padding: clamp(24px, 3.3vw, 54px) clamp(28px, 5vw, 82px) clamp(22px, 2.8vw, 46px);
+      border: 3px solid #6f9b82;
+      border-radius: 18px 30px 20px 28px;
+      color: #18372d;
+      background:
+        linear-gradient(105deg, rgba(34, 92, 65, .10), transparent 18%, transparent 82%, rgba(34, 92, 65, .10)),
+        repeating-linear-gradient(0deg, rgba(25, 72, 53, .025) 0 1px, transparent 1px 5px),
+        #edf4ef;
+      box-shadow: 0 22px 70px rgba(0, 0, 0, .66);
+      opacity: 0;
+      transform: translateY(14%) scale(.78);
+      transition: opacity 420ms ease, transform 520ms cubic-bezier(.2, .78, .2, 1);
+    }
+
+    .section-overlay.open .section-sheet { opacity: 1; transform: none; }
+    .section-kicker {
+      margin: 0 0 .25em;
+      color: #287a43;
+      font: 700 clamp(10px, .9vw, 15px) "Kalam", cursive;
+      letter-spacing: .12em;
+      text-align: center;
+      text-transform: uppercase;
+    }
+    .section-heading {
+      margin: 0;
+      color: #173f30;
+      font-size: clamp(25px, 2.8vw, 48px);
+      line-height: 1.1;
+      text-align: center;
+    }
+    .section-description {
+      margin: .35em 0 1.1em;
+      color: #557166;
+      font: 700 clamp(11px, 1vw, 17px) "Kalam", cursive;
+      text-align: center;
+    }
+    .section-content {
+      min-height: 0;
+      overflow-y: auto;
+      scrollbar-gutter: stable;
+      padding: 0 clamp(4px, 1vw, 18px) 1rem;
+      scrollbar-color: #71a085 #d7e6dc;
+    }
+    .section-content::-webkit-scrollbar { width: 14px; }
+    .section-content::-webkit-scrollbar-track { border-radius: 999px; background: #d7e6dc; }
+    .section-content::-webkit-scrollbar-thumb { border: 3px solid #d7e6dc; border-radius: 999px; background: #71a085; }
+    .section-article-list { display: grid; gap: 10px; max-width: 78ch; margin: 0 auto; padding: 0; list-style: none; }
+    .section-article {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 5px 18px;
+      width: 100%;
+      padding: clamp(13px, 1.25vw, 20px);
+      border: 1px solid #bdd2c5;
+      border-radius: 12px;
+      color: #18372d;
+      background: rgba(255,255,255,.72);
+      text-align: left;
+      box-shadow: 0 4px 12px rgba(25, 70, 51, .07);
+    }
+    .section-article:hover,
+    .section-article:focus-visible { border-color: #287a43; outline: 3px solid rgba(240,180,41,.75); background: #fff; }
+    .section-article strong { font-size: clamp(15px, 1.3vw, 22px); }
+    .section-article small { grid-column: 1; color: #5b756b; font-size: clamp(11px, .9vw, 15px); line-height: 1.4; }
+    .section-article i { grid-column: 2; grid-row: 1 / span 2; align-self: center; color: #287a43; font-size: 1.4em; font-style: normal; }
+    .section-empty { color: #557166; font-style: italic; text-align: center; }
+    .section-controls {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 12px;
+      padding-top: 14px;
+    }
+    .section-controls button {
+      min-height: clamp(36px, 3vw, 50px);
+      border: 1px solid #4e8067;
+      border-radius: 8px;
+      padding: 0 1em;
+      color: #fff;
+      background: #287a43;
+      font: 700 clamp(9px, .9vw, 15px) "Kalam", cursive;
+    }
+    .section-controls button:hover,
+    .section-controls button:focus-visible { outline: 3px solid #f0b429; background: #1f6035; }
+    .section-controls button:disabled { opacity: .3; }
+    #sectionPrevious { justify-self: start; }
+    #sectionNext { justify-self: end; }
+    .section-count { color: #557166; font: 700 clamp(9px, .8vw, 14px) "Kalam", cursive; }
+
+    /* Large warm reading page above the cool catalogue layer. */
+    .reader-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 30;
       display: grid;
       place-items: center;
       padding: 4%;
@@ -1100,6 +1213,32 @@
     </form>
 
     <section
+      class="section-overlay"
+      id="sectionOverlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="sectionHeading"
+      hidden
+    >
+      <article class="section-sheet">
+        <p class="section-kicker">Library catalogue</p>
+        <div>
+          <h1 class="section-heading" id="sectionHeading"></h1>
+          <p class="section-description" id="sectionDescription"></p>
+        </div>
+        <div class="section-content" id="sectionContent"></div>
+        <div class="section-controls">
+          <button id="sectionPrevious" type="button">← Previous Section</button>
+          <div>
+            <button id="sectionIndex" type="button">Library Index</button>
+            <span class="section-count" id="sectionCount"></span>
+          </div>
+          <button id="sectionNext" type="button">Next Section →</button>
+        </div>
+      </article>
+    </section>
+
+    <section
       class="reader-overlay"
       id="readerOverlay"
       role="dialog"
@@ -1114,7 +1253,7 @@
 
         <div class="reader-controls">
           <button class="reader-index" id="readerIndex" type="button">
-            ← Library Index
+            ← Section Titles
           </button>
 
           <span class="reader-page-number" id="readerPageNumber"></span>
@@ -1586,6 +1725,14 @@
     const magnifierHotspot = document.getElementById("magnifierHotspot");
     const searchPanel = document.getElementById("searchPanel");
     const librarySearch = document.getElementById("librarySearch");
+    const sectionOverlay = document.getElementById("sectionOverlay");
+    const sectionHeading = document.getElementById("sectionHeading");
+    const sectionDescription = document.getElementById("sectionDescription");
+    const sectionContent = document.getElementById("sectionContent");
+    const sectionPrevious = document.getElementById("sectionPrevious");
+    const sectionNext = document.getElementById("sectionNext");
+    const sectionIndex = document.getElementById("sectionIndex");
+    const sectionCount = document.getElementById("sectionCount");
     const readerOverlay = document.getElementById("readerOverlay");
     const readerHeading = document.getElementById("readerHeading");
     const readerCategory = document.getElementById("readerCategory");
@@ -1601,6 +1748,9 @@
     let resultSpread = 0;
     let activeArticle = null;
     let activeArticlePage = 0;
+    let activeSectionId = null;
+    let sectionResultArticles = [];
+    const sectionScrollPositions = new Map();
 
     function escapeHtml(value) {
       return String(value)
@@ -1708,11 +1858,11 @@
       const category = categoryMap.get(categoryId);
       if (!category) return;
 
-      currentMode = "results";
-      currentResults = articles.filter(article => article.category === categoryId);
-      currentResultTitle = category.title;
-      resultSpread = 0;
-      turnBook(renderResults);
+      openSection(categoryId, {
+        title: category.title,
+        description: category.description,
+        results: articles.filter(article => article.category === categoryId)
+      });
     }
 
     function searchArticles(query) {
@@ -1722,14 +1872,9 @@
         .split(/\s+/)
         .filter(Boolean);
 
-      if (!words.length) {
-        turnBook(renderIndex);
-        return;
-      }
+      if (!words.length) return;
 
-      currentMode = "results";
-      currentResultTitle = `Search: “${query.trim()}”`;
-      currentResults = articles.filter(article => {
+      const results = articles.filter(article => {
         const category = categoryMap.get(article.category);
         const searchable = [
           article.title,
@@ -1741,8 +1886,76 @@
 
         return words.every(word => searchable.includes(word));
       });
-      resultSpread = 0;
-      turnBook(renderResults);
+
+      openSection("search", {
+        title: `Search: “${query.trim()}”`,
+        description: "Results from every Library section.",
+        results
+      });
+    }
+
+    function sectionArticleButton(article) {
+      const category = categoryMap.get(article.category);
+      return `<li>
+        <button class="section-article" type="button" data-article="${article.id}">
+          <strong>${escapeHtml(article.title)}</strong>
+          <small>${escapeHtml(article.summary)}${activeSectionId === "search" ? ` · ${escapeHtml(category?.title || "")}` : ""}</small>
+          <i aria-hidden="true">→</i>
+        </button>
+      </li>`;
+    }
+
+    function renderSection(scrollTop = 0) {
+      sectionHeading.textContent = activeSectionId === "search"
+        ? currentResultTitle
+        : categoryMap.get(activeSectionId)?.title || "Library";
+      sectionDescription.textContent = activeSectionId === "search"
+        ? "Results from every Library section."
+        : categoryMap.get(activeSectionId)?.description || "";
+      sectionContent.innerHTML = sectionResultArticles.length
+        ? `<ul class="section-article-list">${sectionResultArticles.map(sectionArticleButton).join("")}</ul>`
+        : '<p class="section-empty">No matching articles were found. Try another word or subject.</p>';
+      sectionCount.textContent = `${sectionResultArticles.length} ${sectionResultArticles.length === 1 ? "article" : "articles"}`;
+      const categoryIndex = categories.findIndex(category => category.id === activeSectionId);
+      sectionPrevious.disabled = categoryIndex < 0;
+      sectionNext.disabled = categoryIndex < 0;
+      requestAnimationFrame(() => { sectionContent.scrollTop = scrollTop; });
+    }
+
+    function openSection(sectionId, options = {}) {
+      if (activeSectionId) sectionScrollPositions.set(activeSectionId, sectionContent.scrollTop);
+      const changingSection = activeSectionId !== sectionId;
+      activeSectionId = sectionId;
+      currentResultTitle = options.title || categoryMap.get(sectionId)?.title || "Library";
+      sectionResultArticles = options.results || articles.filter(article => article.category === sectionId);
+      renderSection(changingSection ? 0 : sectionScrollPositions.get(sectionId) || 0);
+      sectionOverlay.hidden = false;
+      requestAnimationFrame(() => {
+        sectionOverlay.classList.add("open");
+        sectionIndex.focus();
+      });
+    }
+
+    function closeSectionToIndex() {
+      if (activeSectionId) sectionScrollPositions.set(activeSectionId, sectionContent.scrollTop);
+      sectionOverlay.classList.remove("open");
+      window.setTimeout(() => {
+        sectionOverlay.hidden = true;
+        activeSectionId = null;
+        renderIndex();
+      }, 440);
+    }
+
+    function moveSection(direction) {
+      const currentIndex = categories.findIndex(category => category.id === activeSectionId);
+      if (currentIndex < 0) return;
+      const nextIndex = (currentIndex + direction + categories.length) % categories.length;
+      const next = categories[nextIndex];
+      openSection(next.id, {
+        title: next.title,
+        description: next.description,
+        results: articles.filter(article => article.category === next.id)
+      });
     }
 
     function renderReaderPage() {
@@ -1765,6 +1978,7 @@
       activeArticle = articles.find(article => article.id === articleId);
       if (!activeArticle) return;
 
+      if (activeSectionId) sectionScrollPositions.set(activeSectionId, sectionContent.scrollTop);
       activeArticlePage = 0;
       renderReaderPage();
       readerOverlay.hidden = false;
@@ -1774,12 +1988,16 @@
       });
     }
 
-    function closeReaderToIndex() {
+    function closeReaderToSection() {
       readerOverlay.classList.remove("open");
       window.setTimeout(() => {
         readerOverlay.hidden = true;
         activeArticle = null;
-        turnBook(renderIndex);
+        const savedPosition = sectionScrollPositions.get(activeSectionId) || 0;
+        requestAnimationFrame(() => {
+          sectionContent.scrollTop = savedPosition;
+          sectionIndex.focus();
+        });
       }, 540);
     }
 
@@ -1825,7 +2043,10 @@
       magnifierHotspot.setAttribute("aria-expanded", "false");
     });
 
-    readerIndex.addEventListener("click", closeReaderToIndex);
+    sectionIndex.addEventListener("click", closeSectionToIndex);
+    sectionPrevious.addEventListener("click", () => moveSection(-1));
+    sectionNext.addEventListener("click", () => moveSection(1));
+    readerIndex.addEventListener("click", closeReaderToSection);
 
     readerPrevious.addEventListener("click", () => {
       if (activeArticlePage <= 0) return;
@@ -1843,7 +2064,12 @@
       if (event.key !== "Escape") return;
 
       if (!readerOverlay.hidden) {
-        closeReaderToIndex();
+        closeReaderToSection();
+        return;
+      }
+
+      if (!sectionOverlay.hidden) {
+        closeSectionToIndex();
         return;
       }
 
