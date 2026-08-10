@@ -3,6 +3,7 @@ const FONTS = [
   "'Segoe Print', 'Comic Sans MS', cursive",
   "'Comic Sans MS', cursive"
 ];
+const SIZE_SCALES = { small: 0.7, medium: 0.85, large: 1 };
 const SAFE_SPOTS = [
   { left: 8, top: 18 }, { left: 27, top: 20 },
   { left: 48, top: 18 }, { left: 53, top: 27 },
@@ -34,6 +35,7 @@ const mobileMoreMenu = document.getElementById("mobileMoreMenu");
 
 let selectedColor = COLORS[0];
 let selectedFont = FONTS[0];
+let selectedSize = "large";
 let spraying = false;
 let spraySequence = 0;
 let wallTags = [];
@@ -73,6 +75,15 @@ document.querySelectorAll("[data-color]").forEach(button => {
   });
 });
 
+document.querySelectorAll("[data-size]").forEach(button => {
+  button.addEventListener("click", () => {
+    selectedSize = button.dataset.size;
+    document.querySelectorAll("[data-size]").forEach(item =>
+      item.classList.toggle("selected", item === button)
+    );
+  });
+});
+
 emojiToggle.addEventListener("click", () => {
   const open = emojiMenu.hidden;
   emojiMenu.hidden = !open;
@@ -91,11 +102,12 @@ document.querySelectorAll("[data-emoji]").forEach(button => {
   });
 });
 
-function sizeFor(text) {
-  if (text.length <= 18) return "2.65vw";
-  if (text.length <= 38) return "2.2vw";
-  if (text.length <= 60) return "1.8vw";
-  return "1.48vw";
+function sizeFor(text, sizeChoice = "large") {
+  const baseSize = text.length <= 18 ? 2.65
+    : text.length <= 38 ? 2.2
+    : text.length <= 60 ? 1.8
+    : 1.48;
+  return `${(baseSize * (SIZE_SCALES[sizeChoice] || 1)).toFixed(3)}vw`;
 }
 
 function widthFor(text) {
@@ -302,7 +314,7 @@ function spray() {
     rotation: wallTags.length % 5 === 4
       ? (Math.random() > .5 ? 1 : -1) * (20 + Math.random() * 17)
       : -11 + Math.random() * 22,
-    size: sizeFor(text),
+    size: sizeFor(text, selectedSize),
     width: widthFor(text)
   };
   tag.createdAt = new Date().toISOString();
