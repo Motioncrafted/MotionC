@@ -572,6 +572,22 @@ function weeklySummary(start) {
   };
 }
 
+function weekNotesHtml(entries, emptyMessage) {
+  const notes = entries.filter(entry => entry.weightNote || entry.observation);
+  if (!notes.length) return `<p class="no-week-notes">${emptyMessage}</p>`;
+
+  return notes.map(entry => {
+    const comments = [];
+    if (entry.weightNote) {
+      comments.push(`<span><b>Weight note:</b> ${escapeHtml(entry.weightNote)}</span>`);
+    }
+    if (entry.observation) {
+      comments.push(`<span><b>Observation:</b> ${escapeHtml(entry.observation)}</span>`);
+    }
+    return `<p class="week-note"><strong>${formatShortDate(entry.date)}:</strong>${comments.join("")}</p>`;
+  }).join("");
+}
+
 function renderWeekly() {
   const start = startOfWeek(new Date());
   const end = addDays(start, 6);
@@ -588,23 +604,34 @@ function renderWeekly() {
   byId("weeklyStats").innerHTML = stats.map(([label, value]) =>
     `<div class="weekly-stat"><span>${label}</span><strong>${value}</strong></div>`
   ).join("");
-  const notes = summary.entries.filter(entry => entry.weightNote || entry.observation);
-  byId("weeklyNotes").innerHTML = notes.length
-    ? notes.map(entry => `<p><strong>${formatShortDate(entry.date)}:</strong> ${escapeHtml(entry.weightNote || entry.observation)}</p>`).join("")
-    : "<p>No notes recorded this week.</p>";
+  byId("weeklyNotes").innerHTML = weekNotesHtml(summary.entries, "No notes recorded this week.");
 
   const previous = byId("previousWeeks");
   previous.replaceChildren();
-  for (let offset = 1; offset <= 3; offset += 1) {
-    const weekStart = addDays(start, -7 * offset);
+  const previousWeekKeys = [...new Set(
+    Object.values(state.entries)
+      .filter(entry => dateFromIso(entry.date) < start)
+      .map(entry => weekKey(dateFromIso(entry.date)))
+  )].sort((a, b) => b.localeCompare(a));
+
+  if (!previousWeekKeys.length) {
+    previous.innerHTML = '<p class="no-week-notes">No previous weeks recorded yet.</p>';
+  }
+
+  previousWeekKeys.forEach(key => {
+    const weekStart = dateFromIso(key);
     const weekEnd = addDays(weekStart, 6);
     const old = weeklySummary(weekStart);
     const block = document.createElement("div");
     block.className = "previous-week";
     block.innerHTML = `<strong>${formatShortDate(isoDate(weekStart))}–${formatShortDate(isoDate(weekEnd))}</strong>
-      <p>${formatDistance(old.totalDistance)} · ${old.average || 0}% average · ${old.entries.length} entries</p>`;
+      <p>${formatDistance(old.totalDistance)} · ${old.average || 0}% average · ${old.entries.length} entries</p>
+      <div class="previous-week-notes">
+        <span class="previous-week-notes-title">Notes</span>
+        ${weekNotesHtml(old.entries, "No notes recorded.")}
+      </div>`;
     previous.append(block);
-  }
+  });
 }
 
 function longestWalk() {
