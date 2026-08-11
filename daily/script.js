@@ -320,12 +320,26 @@ function loadEntry(dateValue) {
   renderWalkBreakdown();
   renderToday(dateValue);
   loadDailyGauges(dateValue);
+  renderDailyInsights(dateValue);
 }
 
 const DAILY_GAUGE_CONFIG = {
   hydration: { input: "hydrationInput", value: "hydrationValue", status: "hydrationStatus" },
   stress: { input: "stressInput", value: "stressValue", status: "stressStatus" },
   sleep: { input: "sleepInput", value: "sleepValue", status: "sleepStatus" }
+};
+
+const INSIGHT_RULES = {
+  hydrationLitresPerHour: 0.4,
+  litresPerGlass: 0.236588,
+  hydrationMinimumGlasses: 1,
+  sleepLookbackDays: 7,
+  sleepMinimumEntries: 4,
+  sleepAverageThreshold: 5,
+  stressRecordedDays: 5,
+  stressMinimumHighDays: 3,
+  stressHighLevel: 4,
+  maximumMessages: 2
 };
 
 function displayGaugeValue(key, value) {
@@ -379,6 +393,71 @@ function saveDailyGauge(key) {
   state.dailyGauges[dateValue][key] = { value, updatedAt: new Date().toISOString() };
   persist();
   loadDailyGauges(dateValue);
+  renderDailyInsights(dateValue);
+}
+
+function completedGaugeSamples(key, beforeDate, calendarDays = null) {
+  const before = dateFromIso(beforeDate);
+  const earliest = calendarDays === null ? null : addDays(before, -calendarDays);
+  return Object.entries(state.dailyGauges || {})
+    .filter(([date, gauges]) => {
+      const sampleDate = dateFromIso(date);
+      return date < beforeDate && (!earliest || sampleDate >= earliest) && Number.isFinite(Number(gauges?.[key]?.value));
+    })
+    .sort(([dateA], [dateB]) => dateB.localeCompare(dateA));
+}
+
+function estimatedHydrationDeficit(dateValue) {
+  const entry = state.entries[dateValue];
+  const walkingMinutes = walksForEntry(entry).reduce((sum, walk) => sum + Number(walk.minutes || 0), 0);
+  if (walkingMinutes <= 0) return 0;
+  const glasses = ((walkingMinutes / 60) * INSIGHT_RULES.hydrationLitresPerHour) / INSIGHT_RULES.litresPerGlass;
+  return Math.round(glasses * 2) / 2;
+}
+
+function buildDailyInsights(dateValue) {
+  if (dateValue !== isoDate()) return [];
+  const immediate = [];
+  const patterns = [];
+  const hydrationDeficit = estimatedHydrationDeficit(dateValue);
+
+  if (hydrationDeficit >= INSIGHT_RULES.hydrationMinimumGlasses) {
+    immediate.push({
+      priority: 100 + hydrationDeficit,
+      html: `<strong>Estimated hydration deficit: ${displayGaugeValue("sleep", hydrationDeficit)} ${hydrationDeficit === 1 ? "glass" : "glasses"}.</strong>`
+    });
+  }
+
+  const sleepSamples = completedGaugeSamples("sleep", dateValue, INSIGHT_RULES.sleepLookbackDays);
+  if (sleepSamples.length >= INSIGHT_RULES.sleepMinimumEntries) {
+    const sleepValues = sleepSamples.map(([, gauges]) => Number(gauges.sleep.value));
+    const sleepAverage = sleepValues.reduce((sum, value) => sum + value, 0) / sleepValues.length;
+    if (sleepAverage < INSIGHT_RULES.sleepAverageThreshold) {
+      patterns.push({
+        priority: INSIGHT_RULES.sleepAverageThreshold - sleepAverage,
+        html: `<strong>A pattern worth noticing:</strong> Your sleep averaged ${displayGaugeValue("sleep", sleepAverage)} hours across ${sleepValues.length} recorded nights. <a href="/library/">Explore sleep articles in the MotionC Library</a>.`
+      });
+    }
+  }
+
+  const stressSamples = completedGaugeSamples("stress", dateValue).slice(0, INSIGHT_RULES.stressRecordedDays);
+  if (stressSamples.length === INSIGHT_RULES.stressRecordedDays) {
+    const highStressDays = stressSamples.filter(([, gauges]) => Number(gauges.stress.value) >= INSIGHT_RULES.stressHighLevel).length;
+    if (highStressDays >= INSIGHT_RULES.stressMinimumHighDays) {
+      patterns.push({
+        priority: highStressDays / INSIGHT_RULES.stressRecordedDays,
+        html: `<strong>Stress has remained elevated:</strong> ${highStressDays} of your last ${INSIGHT_RULES.stressRecordedDays} recorded days were level 4 or 5. <a href="/library/">Explore stress articles in the MotionC Library</a>.`
+      });
+    }
+  }
+
+  patterns.sort((a, b) => b.priority - a.priority);
+  return [...immediate, ...patterns].slice(0, INSIGHT_RULES.maximumMessages);
+}
+
+function renderDailyInsights(dateValue) {
+  const messages = buildDailyInsights(dateValue);
+  byId("gaugeMessages").innerHTML = messages.map(message => `<p class="gauge-message">${message.html}</p>`).join("");
 }
 
 function readDayFields(existing = {}) {
@@ -983,6 +1062,7 @@ function renderAll(dateValue = isoDate()) {
   renderCalendar(dateValue);
   renderWeekly();
   renderMilestones();
+  renderDailyInsights(dateValue);
 }
 
 fields.date.addEventListener("change", () => loadEntry(fields.date.value));

@@ -430,7 +430,7 @@ main { min-width: 0; }
 .text-button { border: 0; margin-top: 12px; color: #087eb8; background: none; font-weight: 800; }
 
 .daily-gauges { width: 100%; }
-.daily-gauges-card { grid-column: 2; grid-row: 2; align-self: start; padding: 20px 16px 14px; text-align: center; }
+.daily-gauges-card { display: flex; grid-column: 2; grid-row: 2; flex-direction: column; padding: 20px 16px 14px; text-align: center; }
 .calendar-card { grid-column: 1; grid-row: 2; }
 .weekly-card { grid-column: 2; grid-row: 3; }
 .milestones-card { grid-column: 1; grid-row: 3; }
@@ -456,6 +456,12 @@ main { min-width: 0; }
 .gauge-stepper button:hover, .gauge-stepper button:focus-visible { border-color: #158d58; color: #0d7045; background: #eff9f4; outline: none; }
 .gauge-save { min-height: 27px; margin-top: 5px; border: 0; border-radius: 7px; padding: 0 9px; color: #fff; background: #1b8f5a; font-size: 10px; font-weight: 850; }
 .daily-gauge small { min-height: 24px; margin-top: 4px; color: var(--muted); font-size: 8px; line-height: 1.2; }
+.gauge-message-area { flex: 1; min-height: 108px; margin-top: 12px; border-top: 0; border-radius: 10px; padding: 10px 11px; text-align: left; background: #f5f8f6; }
+.gauge-message-title { margin: 0; color: #28704f; font-size: 12px; font-weight: 900; }
+.gauge-messages { display: grid; gap: 8px; margin-top: 7px; }
+.gauge-message { margin: 0; border-left: 3px solid #75b794; padding: 6px 0 6px 9px; color: #43565a; font-size: 11px; line-height: 1.4; }
+.gauge-message strong { color: #20383d; }
+.gauge-message a { color: #087eb8; font-weight: 800; }
 
 .calendar-card { padding: 22px; }
 .calendar-key { display: flex; gap: 6px; }
