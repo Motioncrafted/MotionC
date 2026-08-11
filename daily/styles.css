@@ -417,9 +417,8 @@ main { min-width: 0; }
   text-align: center;
 }
 .today-score-content { display: grid; align-content: center; justify-items: center; }
-.score-layout-spacer { height: 105px; }
 .score-orb {
-  width: 88px;
+  width: 82px;
   aspect-ratio: 1;
   margin: 7px 0 10px;
   border: 0;
@@ -429,6 +428,27 @@ main { min-width: 0; }
 .today-score strong { font-size: 31px; }
 .today-score-content > span { margin-top: 2px; color: var(--muted); }
 .text-button { border: 0; margin-top: 12px; color: #087eb8; background: none; font-weight: 800; }
+
+.daily-gauges { width: 100%; margin-top: 18px; border-top: 1px solid var(--line); padding-top: 13px; }
+.daily-gauges-heading { display: flex; align-items: center; justify-content: center; gap: 7px; }
+.daily-gauges-heading .eyebrow { margin: 0; }
+.gauge-info-button { display: grid; width: 20px; aspect-ratio: 1; place-items: center; border: 1px solid #9eafad; border-radius: 50%; color: #496064; background: #fff; font: 850 12px/1 Georgia, serif; }
+.gauge-info { margin: 9px 0; border-radius: 9px; padding: 10px; color: #3f5357; background: #f2f7f5; font-size: 11px; line-height: 1.35; text-align: left; }
+.gauge-info strong, .gauge-info span { display: block; }
+.gauge-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+.daily-gauge { display: grid; justify-items: center; min-width: 0; }
+.daily-gauge output { min-height: 28px; color: var(--ink); font-size: 24px; font-weight: 900; line-height: 1; }
+.gauge-unit { min-height: 14px; color: var(--muted); font-size: 9px; }
+.gauge-tube { display: grid; height: 105px; place-items: center; margin: 3px 0 5px; }
+.gauge-tube input { --gauge-fill: 0%; width: 92px; height: 18px; margin: 0; transform: rotate(-90deg); border-radius: 999px; outline: none; background: linear-gradient(to right, var(--gauge-low) 0, var(--gauge-high) var(--gauge-fill), #e5e9e8 var(--gauge-fill), #e5e9e8 100%); appearance: none; }
+.gauge-tube input::-webkit-slider-thumb { width: 21px; height: 21px; border: 3px solid #fff; border-radius: 50%; background: var(--gauge-high); box-shadow: 0 1px 5px rgba(0,0,0,.35); appearance: none; }
+.gauge-tube input::-moz-range-thumb { width: 17px; height: 17px; border: 3px solid #fff; border-radius: 50%; background: var(--gauge-high); box-shadow: 0 1px 5px rgba(0,0,0,.35); }
+.hydration-gauge { --gauge-low: #dc4545; --gauge-high: #075da8; }
+.stress-gauge { --gauge-low: #24b56f; --gauge-high: #dc4545; }
+.sleep-gauge { --gauge-low: #dc4545; --gauge-high: #315fa8; }
+.daily-gauge > strong { font-size: 12px; }
+.gauge-save { min-height: 27px; margin-top: 5px; border: 0; border-radius: 7px; padding: 0 9px; color: #fff; background: #1b8f5a; font-size: 10px; font-weight: 850; }
+.daily-gauge small { min-height: 24px; margin-top: 4px; color: var(--muted); font-size: 8px; line-height: 1.2; }
 
 .calendar-card { padding: 22px; }
 .calendar-key { display: flex; gap: 6px; }
@@ -718,9 +738,10 @@ dialog::backdrop { background: rgba(9,18,20,.66); backdrop-filter: blur(3px); }
   .content { grid-template-columns: 1fr; }
   .today-score { display: block; text-align: left; }
   .today-score-content { grid-template-columns: auto auto 1fr auto; justify-items: start; gap: 12px; }
-  .score-layout-spacer { display: none; }
   .today-score .eyebrow { display: none; }
   .score-orb { width: 52px; margin: 0; }
+  .daily-gauges { grid-column: 1 / -1; }
+  .daily-gauges-heading .eyebrow { display: block; }
   .calendar-card, .weekly-card, .walk-calculator { grid-column: 1; }
   .preferences-menu { left: 104px; }
 }

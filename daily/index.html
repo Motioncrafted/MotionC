@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Daily | MotionC</title>
   <meta name="description" content="Your quick daily MotionC health check-in.">
-  <link rel="stylesheet" href="/daily/styles.css?v=20260809-2">
+  <link rel="stylesheet" href="/daily/styles.css?v=20260811-1">
 </head>
 <body>
   <div class="app-shell">
@@ -158,7 +158,34 @@
             <span id="todayColor">Save this entry to create your dot</span>
             <button class="text-button" id="explainToday" type="button">Why this colour?</button>
           </div>
-          <div class="score-layout-spacer" aria-hidden="true"></div>
+          <section class="daily-gauges" aria-labelledby="dailyGaugesTitle">
+            <div class="daily-gauges-heading">
+              <p class="eyebrow" id="dailyGaugesTitle">DAILY GAUGES</p>
+              <button class="gauge-info-button" id="gaugeInfoButton" type="button" aria-expanded="false" aria-controls="gaugeInfo">i</button>
+            </div>
+            <div class="gauge-info" id="gaugeInfo" hidden>
+              <strong>Your Lifestyle Profile shows your typical habits.</strong>
+              <span>Your Daily Gauges show what happened today.</span>
+              <span>When the two don't match, MotionC highlights the gap—because that's where real progress begins.</span>
+            </div>
+            <div class="gauge-grid">
+              <article class="daily-gauge hydration-gauge">
+                <output id="hydrationValue" for="hydrationInput">—</output><span class="gauge-unit">glasses</span>
+                <div class="gauge-tube"><input id="hydrationInput" type="range" min="0" max="16" step="1" value="0" aria-label="Glasses of water today"></div>
+                <strong>Hydration</strong><button class="gauge-save" id="saveHydration" type="button">Update</button><small id="hydrationStatus">Not recorded today</small>
+              </article>
+              <article class="daily-gauge stress-gauge">
+                <output id="stressValue" for="stressInput">—</output><span class="gauge-unit">of 5</span>
+                <div class="gauge-tube"><input id="stressInput" type="range" min="0" max="5" step="1" value="0" aria-label="Stress today from zero to five"></div>
+                <strong>Stress</strong><button class="gauge-save" id="saveStress" type="button">Update</button><small id="stressStatus">Not recorded today</small>
+              </article>
+              <article class="daily-gauge sleep-gauge">
+                <output id="sleepValue" for="sleepInput">—</output><span class="gauge-unit">hours</span>
+                <div class="gauge-tube"><input id="sleepInput" type="range" min="0" max="12" step="0.25" value="0" aria-label="Hours of sleep"></div>
+                <strong>Sleep</strong><button class="gauge-save" id="saveSleep" type="button">Update</button><small id="sleepStatus">Not recorded today</small>
+              </article>
+            </div>
+          </section>
         </section>
 
         <section class="calendar-card card">
@@ -285,6 +312,6 @@
     <button class="save-button full" id="saveWeekly" type="button">Save weekly check-in</button>
   </dialog>
 
-  <script src="/daily/script.js?v=20260802-1"></script>
+  <script src="/daily/script.js?v=20260811-1"></script>
 </body>
 </html>

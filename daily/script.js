@@ -209,6 +209,7 @@ function loadState() {
       loaded.profile = loaded.profile || {};
       loaded.profile.vibratoryLine = sharedVibratoryLine;
     }
+    loaded.dailyGauges = loaded.dailyGauges || {};
     return loaded;
   } catch {
     return seedState();
@@ -318,6 +319,58 @@ function loadEntry(dateValue) {
   updateWalkEntryMode();
   renderWalkBreakdown();
   renderToday(dateValue);
+  loadDailyGauges(dateValue);
+}
+
+const DAILY_GAUGE_CONFIG = {
+  hydration: { input: "hydrationInput", value: "hydrationValue", status: "hydrationStatus" },
+  stress: { input: "stressInput", value: "stressValue", status: "stressStatus" },
+  sleep: { input: "sleepInput", value: "sleepValue", status: "sleepStatus" }
+};
+
+function displayGaugeValue(key, value) {
+  if (key !== "sleep") return String(Number(value));
+  return Number(value).toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
+}
+
+function setGaugeAppearance(key, value) {
+  const input = byId(DAILY_GAUGE_CONFIG[key].input);
+  const percent = ((Number(value) - Number(input.min)) / (Number(input.max) - Number(input.min))) * 100;
+  input.style.setProperty("--gauge-fill", `${Math.max(0, Math.min(100, percent))}%`);
+}
+
+function loadDailyGauges(dateValue) {
+  const gauges = state.dailyGauges?.[dateValue] || {};
+  Object.entries(DAILY_GAUGE_CONFIG).forEach(([key, config]) => {
+    const input = byId(config.input);
+    const saved = gauges[key];
+    const recorded = saved && Number.isFinite(Number(saved.value));
+    input.value = recorded ? saved.value : 0;
+    byId(config.value).textContent = recorded ? displayGaugeValue(key, saved.value) : "—";
+    byId(config.status).textContent = recorded
+      ? `Updated ${new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" }).format(new Date(saved.updatedAt))}`
+      : "Not recorded today";
+    input.closest(".daily-gauge").classList.toggle("is-recorded", Boolean(recorded));
+    setGaugeAppearance(key, input.value);
+  });
+}
+
+function previewDailyGauge(key) {
+  const config = DAILY_GAUGE_CONFIG[key];
+  const value = Number(byId(config.input).value);
+  byId(config.value).textContent = displayGaugeValue(key, value);
+  setGaugeAppearance(key, value);
+}
+
+function saveDailyGauge(key) {
+  const dateValue = fields.date.value || isoDate();
+  const config = DAILY_GAUGE_CONFIG[key];
+  const value = Number(byId(config.input).value);
+  state.dailyGauges = state.dailyGauges || {};
+  state.dailyGauges[dateValue] = state.dailyGauges[dateValue] || {};
+  state.dailyGauges[dateValue][key] = { value, updatedAt: new Date().toISOString() };
+  persist();
+  loadDailyGauges(dateValue);
 }
 
 function readDayFields(existing = {}) {
@@ -925,6 +978,17 @@ function renderAll(dateValue = isoDate()) {
 }
 
 fields.date.addEventListener("change", () => loadEntry(fields.date.value));
+Object.keys(DAILY_GAUGE_CONFIG).forEach(key => {
+  byId(DAILY_GAUGE_CONFIG[key].input).addEventListener("input", () => previewDailyGauge(key));
+});
+byId("saveHydration").addEventListener("click", () => saveDailyGauge("hydration"));
+byId("saveStress").addEventListener("click", () => saveDailyGauge("stress"));
+byId("saveSleep").addEventListener("click", () => saveDailyGauge("sleep"));
+byId("gaugeInfoButton").addEventListener("click", () => {
+  const info = byId("gaugeInfo");
+  info.hidden = !info.hidden;
+  byId("gaugeInfoButton").setAttribute("aria-expanded", String(!info.hidden));
+});
 byId("saveEntry").addEventListener("click", saveEntry);
 byId("addWalk").addEventListener("click", toggleAddWalk);
 byId("walkList").addEventListener("click", event => {
@@ -993,8 +1057,23 @@ document.querySelectorAll('input[name="unitSystem"]').forEach(input => {
   });
 });
 
+function scheduleDailyGaugeReset() {
+  const scheduledDate = isoDate();
+  const now = new Date();
+  const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 50);
+  window.setTimeout(() => {
+    if (fields.date.value === scheduledDate) {
+      fields.date.value = isoDate();
+      loadEntry(fields.date.value);
+      renderAll(fields.date.value);
+    }
+    scheduleDailyGaugeReset();
+  }, nextMidnight.getTime() - now.getTime());
+}
+
 persist();
 loadEntry(isoDate());
 renderAll();
 setupWalkingCalculator();
 applyUnitSystem();
+scheduleDailyGaugeReset();
