@@ -443,7 +443,7 @@ main { min-width: 0; }
 .daily-gauge { display: grid; justify-items: center; min-width: 0; }
 .daily-gauge output { min-height: 28px; color: var(--ink); font-size: 24px; font-weight: 900; line-height: 1; }
 .gauge-unit { min-height: 14px; color: var(--muted); font-size: 9px; }
-.gauge-tube { display: grid; height: 105px; place-items: center; margin: 3px 0 5px; }
+.gauge-tube { position: relative; display: grid; height: 105px; place-items: center; margin: 3px 0 5px; }
 .gauge-tube input { --gauge-fill: 0%; width: 92px; height: 18px; margin: 0; transform: rotate(-90deg); border-radius: 999px; outline: none; background: linear-gradient(to right, var(--gauge-low) 0, var(--gauge-high) var(--gauge-fill), #e5e9e8 var(--gauge-fill), #e5e9e8 100%); appearance: none; }
 .gauge-tube input::-webkit-slider-thumb { width: 21px; height: 21px; border: 3px solid #fff; border-radius: 50%; background: var(--gauge-high); box-shadow: 0 1px 5px rgba(0,0,0,.35); appearance: none; }
 .gauge-tube input::-moz-range-thumb { width: 17px; height: 17px; border: 3px solid #fff; border-radius: 50%; background: var(--gauge-high); box-shadow: 0 1px 5px rgba(0,0,0,.35); }
@@ -462,6 +462,17 @@ main { min-width: 0; }
 .gauge-message { margin: 0; border-left: 3px solid #75b794; padding: 6px 0 6px 9px; color: #43565a; font-size: 11px; line-height: 1.4; }
 .gauge-message strong { color: #20383d; }
 .gauge-message a { color: #087eb8; font-weight: 800; }
+.mini-gauge-chart { position: absolute; z-index: 20; left: 50%; bottom: calc(100% + 10px); width: 214px; min-height: 112px; transform: translateX(-50%) translateY(4px); border: 1px solid #cad8d3; border-radius: 11px; padding: 10px 11px 8px; color: #32484c; background: rgba(255,255,255,.98); box-shadow: 0 12px 30px rgba(24,46,42,.18); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .15s ease, transform .15s ease; }
+.daily-gauge:first-child .mini-gauge-chart { left: -12px; transform: translateY(4px); }
+.daily-gauge:last-child .mini-gauge-chart { right: -12px; left: auto; transform: translateY(4px); }
+.gauge-tube:hover .mini-gauge-chart, .gauge-tube:focus-within .mini-gauge-chart { transform: translateX(-50%) translateY(0); opacity: 1; visibility: visible; }
+.daily-gauge:first-child .gauge-tube:hover .mini-gauge-chart, .daily-gauge:first-child .gauge-tube:focus-within .mini-gauge-chart, .daily-gauge:last-child .gauge-tube:hover .mini-gauge-chart, .daily-gauge:last-child .gauge-tube:focus-within .mini-gauge-chart { transform: translateY(0); }
+.mini-gauge-chart > strong { display: block; font-size: 11px; }
+.mini-gauge-chart > span { display: block; margin-top: 23px; color: var(--muted); font-size: 11px; text-align: center; }
+.mini-gauge-chart svg { display: block; width: 100%; height: 75px; margin-top: 4px; overflow: visible; }
+.mini-gauge-chart text { fill: #758387; font-size: 8px; }
+.mini-chart-axis { stroke: #d9e2df; stroke-width: 1; }
+.mini-chart-missing { fill: #cbd4d1; }
 
 .calendar-card { padding: 22px; }
 .calendar-key { display: flex; gap: 6px; }

@@ -324,9 +324,9 @@ function loadEntry(dateValue) {
 }
 
 const DAILY_GAUGE_CONFIG = {
-  hydration: { input: "hydrationInput", value: "hydrationValue", status: "hydrationStatus" },
-  stress: { input: "stressInput", value: "stressValue", status: "stressStatus" },
-  sleep: { input: "sleepInput", value: "sleepValue", status: "sleepStatus" }
+  hydration: { input: "hydrationInput", value: "hydrationValue", status: "hydrationStatus", miniChart: "hydrationMiniChart", label: "Hydration", unit: "glasses", maximum: 16, color: "#075da8" },
+  stress: { input: "stressInput", value: "stressValue", status: "stressStatus", miniChart: "stressMiniChart", label: "Stress", unit: "of 5", maximum: 5, color: "#dc4545" },
+  sleep: { input: "sleepInput", value: "sleepValue", status: "sleepStatus", miniChart: "sleepMiniChart", label: "Sleep", unit: "hours", maximum: 12, color: "#315fa8" }
 };
 
 const INSIGHT_RULES = {
@@ -394,6 +394,38 @@ function saveDailyGauge(key) {
   persist();
   loadDailyGauges(dateValue);
   renderDailyInsights(dateValue);
+  renderMiniGaugeCharts();
+}
+
+function miniChartDateLabel(dateValue) {
+  return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(dateFromIso(dateValue));
+}
+
+function renderMiniGaugeChart(key) {
+  const config = DAILY_GAUGE_CONFIG[key];
+  const chart = byId(config.miniChart);
+  const today = dateFromIso(isoDate());
+  const dates = Array.from({ length: 7 }, (_, index) => isoDate(addDays(today, index - 7)));
+  const values = dates.map(date => {
+    const saved = state.dailyGauges?.[date]?.[key];
+    return saved && Number.isFinite(Number(saved.value)) ? Number(saved.value) : null;
+  });
+  const hasData = values.some(value => value !== null);
+  const width = 190;
+  const height = 72;
+  const chartTop = 8;
+  const chartBottom = 56;
+  const slotWidth = width / dates.length;
+  const bars = values.map((value, index) => {
+    if (value === null) return `<rect class="mini-chart-missing" x="${(index * slotWidth + 7).toFixed(1)}" y="${chartBottom - 2}" width="${(slotWidth - 12).toFixed(1)}" height="2" rx="1"></rect>`;
+    const barHeight = Math.max(3, (Math.min(config.maximum, value) / config.maximum) * (chartBottom - chartTop));
+    return `<rect x="${(index * slotWidth + 7).toFixed(1)}" y="${(chartBottom - barHeight).toFixed(1)}" width="${(slotWidth - 12).toFixed(1)}" height="${barHeight.toFixed(1)}" rx="3" fill="${config.color}"><title>${miniChartDateLabel(dates[index])}: ${displayGaugeValue(key, value)} ${config.unit}</title></rect>`;
+  }).join("");
+  chart.innerHTML = `<strong>${config.label} · previous 7 completed days</strong>${hasData ? `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${config.label} over the previous seven completed days"><line x1="0" y1="${chartBottom}" x2="${width}" y2="${chartBottom}" class="mini-chart-axis"></line>${bars}<text x="2" y="70">${miniChartDateLabel(dates[0])}</text><text x="188" y="70" text-anchor="end">${miniChartDateLabel(dates.at(-1))}</text></svg>` : `<span>No completed data yet</span>`}`;
+}
+
+function renderMiniGaugeCharts() {
+  Object.keys(DAILY_GAUGE_CONFIG).forEach(renderMiniGaugeChart);
 }
 
 function completedGaugeSamples(key, beforeDate, calendarDays = null) {
@@ -1063,6 +1095,7 @@ function renderAll(dateValue = isoDate()) {
   renderWeekly();
   renderMilestones();
   renderDailyInsights(dateValue);
+  renderMiniGaugeCharts();
 }
 
 fields.date.addEventListener("change", () => loadEntry(fields.date.value));
