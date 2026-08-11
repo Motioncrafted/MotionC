@@ -462,9 +462,9 @@ main { min-width: 0; }
 .gauge-message { margin: 0; border-left: 3px solid #75b794; padding: 6px 0 6px 9px; color: #43565a; font-size: 11px; line-height: 1.4; }
 .gauge-message strong { color: #20383d; }
 .gauge-message a { color: #087eb8; font-weight: 800; }
-.mini-gauge-chart { position: absolute; z-index: 20; left: 50%; bottom: calc(100% + 10px); width: 214px; min-height: 112px; transform: translateX(-50%) translateY(4px); border: 1px solid #cad8d3; border-radius: 11px; padding: 10px 11px 8px; color: #32484c; background: rgba(255,255,255,.98); box-shadow: 0 12px 30px rgba(24,46,42,.18); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .15s ease, transform .15s ease; }
-.daily-gauge:first-child .mini-gauge-chart { left: -12px; transform: translateY(4px); }
-.daily-gauge:last-child .mini-gauge-chart { right: -12px; left: auto; transform: translateY(4px); }
+.mini-gauge-chart { position: absolute; z-index: 20; top: calc(100% + 118px); bottom: auto; left: 50%; width: 214px; min-height: 112px; transform: translateX(-50%) translateY(-4px); border: 1px solid #cad8d3; border-radius: 11px; padding: 10px 11px 8px; color: #32484c; background: rgba(255,255,255,.98); box-shadow: 0 12px 30px rgba(24,46,42,.18); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .15s ease, transform .15s ease; }
+.daily-gauge:first-child .mini-gauge-chart { left: -12px; transform: translateY(-4px); }
+.daily-gauge:last-child .mini-gauge-chart { right: -12px; left: auto; transform: translateY(-4px); }
 .gauge-tube:hover .mini-gauge-chart, .gauge-tube:focus-within .mini-gauge-chart { transform: translateX(-50%) translateY(0); opacity: 1; visibility: visible; }
 .daily-gauge:first-child .gauge-tube:hover .mini-gauge-chart, .daily-gauge:first-child .gauge-tube:focus-within .mini-gauge-chart, .daily-gauge:last-child .gauge-tube:hover .mini-gauge-chart, .daily-gauge:last-child .gauge-tube:focus-within .mini-gauge-chart { transform: translateY(0); }
 .mini-gauge-chart > strong { display: block; font-size: 11px; }
