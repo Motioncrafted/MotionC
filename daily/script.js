@@ -424,7 +424,7 @@ function buildDailyInsights(dateValue) {
   if (hydrationDeficit >= INSIGHT_RULES.hydrationMinimumGlasses) {
     immediate.push({
       priority: 100 + hydrationDeficit,
-      html: `<strong>Estimated hydration deficit: ${displayGaugeValue("sleep", hydrationDeficit)} ${hydrationDeficit === 1 ? "glass" : "glasses"}.</strong>`
+      html: `<strong>Estimated hydration deficit from today's walking: ${displayGaugeValue("sleep", hydrationDeficit)} ${hydrationDeficit === 1 ? "glass" : "glasses"}.</strong>`
     });
   }
 
