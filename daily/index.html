@@ -158,7 +158,9 @@
             <span id="todayColor">Save this entry to create your dot</span>
             <button class="text-button" id="explainToday" type="button">Why this colour?</button>
           </div>
-          <section class="daily-gauges" aria-labelledby="dailyGaugesTitle">
+        </section>
+
+        <section class="daily-gauges daily-gauges-card card" aria-labelledby="dailyGaugesTitle">
             <div class="daily-gauges-heading">
               <p class="eyebrow" id="dailyGaugesTitle">DAILY GAUGES</p>
               <button class="gauge-info-button" id="gaugeInfoButton" type="button" aria-expanded="false" aria-controls="gaugeInfo">i</button>
@@ -172,20 +174,22 @@
               <article class="daily-gauge hydration-gauge">
                 <output id="hydrationValue" for="hydrationInput">—</output><span class="gauge-unit">glasses</span>
                 <div class="gauge-tube"><input id="hydrationInput" type="range" min="0" max="16" step="1" value="0" aria-label="Glasses of water today"></div>
-                <strong>Hydration</strong><button class="gauge-save" id="saveHydration" type="button">Update</button><small id="hydrationStatus">Not recorded today</small>
+                <div class="gauge-stepper"><button type="button" data-gauge-step="hydration" data-direction="-1" aria-label="Decrease hydration">−</button><strong>Hydration</strong><button type="button" data-gauge-step="hydration" data-direction="1" aria-label="Increase hydration">+</button></div>
+                <button class="gauge-save" id="saveHydration" type="button">Update</button><small id="hydrationStatus">Not recorded today</small>
               </article>
               <article class="daily-gauge stress-gauge">
                 <output id="stressValue" for="stressInput">—</output><span class="gauge-unit">of 5</span>
                 <div class="gauge-tube"><input id="stressInput" type="range" min="0" max="5" step="1" value="0" aria-label="Stress today from zero to five"></div>
-                <strong>Stress</strong><button class="gauge-save" id="saveStress" type="button">Update</button><small id="stressStatus">Not recorded today</small>
+                <div class="gauge-stepper"><button type="button" data-gauge-step="stress" data-direction="-1" aria-label="Decrease stress">−</button><strong>Stress</strong><button type="button" data-gauge-step="stress" data-direction="1" aria-label="Increase stress">+</button></div>
+                <button class="gauge-save" id="saveStress" type="button">Update</button><small id="stressStatus">Not recorded today</small>
               </article>
               <article class="daily-gauge sleep-gauge">
                 <output id="sleepValue" for="sleepInput">—</output><span class="gauge-unit">hours</span>
                 <div class="gauge-tube"><input id="sleepInput" type="range" min="0" max="12" step="0.25" value="0" aria-label="Hours of sleep"></div>
-                <strong>Sleep</strong><button class="gauge-save" id="saveSleep" type="button">Update</button><small id="sleepStatus">Not recorded today</small>
+                <div class="gauge-stepper"><button type="button" data-gauge-step="sleep" data-direction="-1" aria-label="Decrease sleep">−</button><strong>Sleep</strong><button type="button" data-gauge-step="sleep" data-direction="1" aria-label="Increase sleep">+</button></div>
+                <button class="gauge-save" id="saveSleep" type="button">Update</button><small id="sleepStatus">Not recorded today</small>
               </article>
             </div>
-          </section>
         </section>
 
         <section class="calendar-card card">

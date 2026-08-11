@@ -362,6 +362,14 @@ function previewDailyGauge(key) {
   setGaugeAppearance(key, value);
 }
 
+function stepDailyGauge(key, direction) {
+  const input = byId(DAILY_GAUGE_CONFIG[key].input);
+  const step = Number(input.step) || 1;
+  const next = Math.max(Number(input.min), Math.min(Number(input.max), Number(input.value) + (step * direction)));
+  input.value = String(next);
+  previewDailyGauge(key);
+}
+
 function saveDailyGauge(key) {
   const dateValue = fields.date.value || isoDate();
   const config = DAILY_GAUGE_CONFIG[key];
@@ -984,6 +992,9 @@ Object.keys(DAILY_GAUGE_CONFIG).forEach(key => {
 byId("saveHydration").addEventListener("click", () => saveDailyGauge("hydration"));
 byId("saveStress").addEventListener("click", () => saveDailyGauge("stress"));
 byId("saveSleep").addEventListener("click", () => saveDailyGauge("sleep"));
+document.querySelectorAll("[data-gauge-step]").forEach(button => {
+  button.addEventListener("click", () => stepDailyGauge(button.dataset.gaugeStep, Number(button.dataset.direction)));
+});
 byId("gaugeInfoButton").addEventListener("click", () => {
   const info = byId("gaugeInfo");
   info.hidden = !info.hidden;
