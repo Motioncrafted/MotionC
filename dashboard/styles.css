@@ -1484,6 +1484,17 @@ body {
 .miles-key::before { background: #5b8a54; }
 .minutes-key::before { background: #d79a30; }
 
+.daily-trends-section { margin-top: 16px; }
+.daily-trends-heading { display: flex; align-items: end; justify-content: space-between; gap: 24px; padding: 0 4px 10px; }
+.daily-trends-heading h2 { margin: 2px 0 0; font: 500 28px/1.1 Georgia, serif; }
+.daily-trends-heading > p { max-width: 460px; margin: 0; color: var(--summary-muted); font-size: 11px; text-align: right; }
+.daily-trends-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.daily-trend-panel { padding: 18px; }
+.daily-trend-panel .panel-heading { gap: 10px; }
+.daily-trend-panel .panel-heading h3 { font-size: 20px; }
+.daily-trend-panel .chart-summary { max-width: 135px; font-size: 9px; text-align: right; }
+.daily-trend-wrap { height: 185px; margin-top: 10px; }
+
 .weekly-strip {
     display: grid;
     grid-template-columns: repeat(4, 1fr) auto;
@@ -1512,7 +1523,9 @@ body {
 
 @media (max-width: 900px) {
     .metric-grid { grid-template-columns: repeat(2, 1fr); }
-    .insight-grid, .chart-grid { grid-template-columns: 1fr; }
+    .insight-grid, .chart-grid, .daily-trends-grid { grid-template-columns: 1fr; }
+    .daily-trends-heading { align-items: flex-start; flex-direction: column; gap: 6px; }
+    .daily-trends-heading > p { text-align: left; }
     .weekly-strip { grid-template-columns: repeat(2, 1fr); }
     .weekly-strip > a { grid-column: 1 / -1; justify-content: center; }
 }

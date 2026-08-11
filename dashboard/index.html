@@ -13,7 +13,7 @@
 
     <link
         rel="stylesheet"
-        href="/dashboard/styles.css?v=20260811-1"
+        href="/dashboard/styles.css?v=20260811-2"
     >
 
     <style>
@@ -228,6 +228,27 @@
                     </div>
                     <div class="chart-legend"><span class="miles-key" id="walking-distance-legend">Miles</span><span class="minutes-key">Minutes</span></div>
                 </article>
+            </section>
+
+            <section class="daily-trends-section" aria-labelledby="dailyTrendsTitle">
+                <div class="daily-trends-heading">
+                    <div><p class="eyebrow">PREVIOUS 14 COMPLETED DAYS</p><h2 id="dailyTrendsTitle">Daily gauge trends</h2></div>
+                    <p>Today stays live on the Daily page and joins these graphs at midnight.</p>
+                </div>
+                <div class="daily-trends-grid">
+                    <article class="panel chart-panel daily-trend-panel">
+                        <div class="panel-heading"><div><p class="eyebrow">HYDRATION</p><h3>Glasses recorded</h3></div><span id="hydration-trend-summary" class="chart-summary">No completed entries</span></div>
+                        <div class="chart-wrap daily-trend-wrap"><canvas id="hydration-trend-chart" aria-label="Hydration over the previous 14 completed days"></canvas><div id="hydration-trend-tooltip" class="chart-tooltip" role="status" hidden></div><p id="hydration-trend-empty" class="chart-empty">Completed Hydration entries will appear here.</p></div>
+                    </article>
+                    <article class="panel chart-panel daily-trend-panel">
+                        <div class="panel-heading"><div><p class="eyebrow">STRESS</p><h3>Daily level</h3></div><span id="stress-trend-summary" class="chart-summary">No completed entries</span></div>
+                        <div class="chart-wrap daily-trend-wrap"><canvas id="stress-trend-chart" aria-label="Stress over the previous 14 completed days"></canvas><div id="stress-trend-tooltip" class="chart-tooltip" role="status" hidden></div><p id="stress-trend-empty" class="chart-empty">Completed Stress entries will appear here.</p></div>
+                    </article>
+                    <article class="panel chart-panel daily-trend-panel">
+                        <div class="panel-heading"><div><p class="eyebrow">SLEEP</p><h3>Hours recorded</h3></div><span id="sleep-trend-summary" class="chart-summary">No completed entries</span></div>
+                        <div class="chart-wrap daily-trend-wrap"><canvas id="sleep-trend-chart" aria-label="Sleep over the previous 14 completed days"></canvas><div id="sleep-trend-tooltip" class="chart-tooltip" role="status" hidden></div><p id="sleep-trend-empty" class="chart-empty">Completed Sleep entries will appear here.</p></div>
+                    </article>
+                </div>
             </section>
 
             <section class="weekly-strip" aria-label="Current metric summary">
@@ -945,7 +966,7 @@
          Dashboard JavaScript
          ===================================== -->
 
-    <script src="/dashboard/script.js?v=20260811-1"></script>
+    <script src="/dashboard/script.js?v=20260811-2"></script>
 </body>
 
 </html>

@@ -1738,6 +1738,99 @@ function drawWalkingChart(points) {
     });
 }
 
+const DAILY_TREND_CONFIG = {
+    hydration: { label: "Hydration", unit: "glasses", maximum: 16, color: "#0872b9" },
+    stress: { label: "Stress", unit: "of 5", maximum: 5, color: "#d94d48" },
+    sleep: { label: "Sleep", unit: "hours", maximum: 12, color: "#3d68ae" }
+};
+
+function formatDailyTrendValue(value) {
+    return Number(value).toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
+}
+
+function drawDailyGaugeTrend(key, dates, gauges) {
+    const config = DAILY_TREND_CONFIG[key];
+    const canvas = document.getElementById(`${key}-trend-chart`);
+    const empty = document.getElementById(`${key}-trend-empty`);
+    if (!canvas || !empty) return;
+    const points = dates.map(date => {
+        const saved = gauges?.[date]?.[key];
+        return { date, value: saved && Number.isFinite(Number(saved.value)) ? Number(saved.value) : null };
+    });
+    const recorded = points.filter(point => point.value !== null);
+    if (!recorded.length) {
+        empty.hidden = false;
+        canvas.hidden = true;
+        setText(`${key}-trend-summary`, "No completed entries");
+        return;
+    }
+
+    empty.hidden = true;
+    canvas.hidden = false;
+    const { context, width, height } = prepareCanvas(canvas);
+    const padding = { top: 18, right: 14, bottom: 34, left: 24 };
+    const chartWidth = width - padding.left - padding.right;
+    const chartHeight = height - padding.top - padding.bottom;
+    const slot = chartWidth / points.length;
+    drawGrid(context, width, height, padding);
+
+    const coordinates = points.map((point, index) => ({
+        ...point,
+        x: padding.left + slot * (index + .5),
+        y: point.value === null ? null : padding.top + chartHeight * (1 - Math.min(config.maximum, point.value) / config.maximum)
+    }));
+    canvas._hitPoints = coordinates.filter(point => point.value !== null);
+
+    context.beginPath();
+    let segmentStarted = false;
+    coordinates.forEach(point => {
+        if (point.value === null) {
+            segmentStarted = false;
+            return;
+        }
+        if (segmentStarted) context.lineTo(point.x, point.y);
+        else context.moveTo(point.x, point.y);
+        segmentStarted = true;
+    });
+    context.strokeStyle = config.color;
+    context.lineWidth = 3;
+    context.lineCap = "round";
+    context.lineJoin = "round";
+    context.stroke();
+
+    coordinates.forEach((point, index) => {
+        if (point.value === null) {
+            context.beginPath();
+            context.arc(point.x, height - padding.bottom, 2, 0, Math.PI * 2);
+            context.fillStyle = "#cbd4d1";
+            context.fill();
+        } else {
+            context.beginPath();
+            context.arc(point.x, point.y, 4, 0, Math.PI * 2);
+            context.fillStyle = "#fff";
+            context.fill();
+            context.strokeStyle = config.color;
+            context.lineWidth = 2;
+            context.stroke();
+        }
+        if (index === 0 || index === coordinates.length - 1 || index % 4 === 0) {
+            context.fillStyle = "#7a8782";
+            context.font = "9px Arial";
+            context.textAlign = "center";
+            context.fillText(shortChartDate(point.date), point.x, height - 11);
+        }
+    });
+
+    context.fillStyle = "#7a8782";
+    context.font = "9px Arial";
+    context.textAlign = "left";
+    context.fillText(String(config.maximum), 2, padding.top + 3);
+    context.fillText("0", 8, height - padding.bottom + 3);
+
+    const average = recorded.reduce((sum, point) => sum + point.value, 0) / recorded.length;
+    setText(`${key}-trend-summary`, `${formatDailyTrendValue(average)} ${config.unit} avg · ${recorded.length} recorded`);
+}
+
 function renderSummaryData() {
     const daily = readSummaryStorage(summaryDailyStorageKey, { entries: {}, profile: {} });
     const lifestyle = readSummaryStorage(lifestyleSummaryStorageKey, null);
@@ -1794,6 +1887,9 @@ function renderSummaryData() {
         };
     });
     drawWalkingChart(walkPoints);
+
+    const completedDates14 = recentDateKeys(15).slice(0, -1);
+    Object.keys(DAILY_TREND_CONFIG).forEach(key => drawDailyGaugeTrend(key, completedDates14, daily?.dailyGauges || {}));
 
     const recentWalks = walkPoints.filter(point => dates7.includes(point.date));
     const weeklyMiles = recentWalks.reduce((total, point) => total + point.miles, 0);
@@ -2008,6 +2104,14 @@ attachChartTooltip(
     "weight-chart-tooltip",
     point => `<strong>${fullChartDate(point.date)}</strong><span>Weight: ${point.value.toFixed(1)} ${summaryWeightUnit()}</span>`
 );
+
+Object.entries(DAILY_TREND_CONFIG).forEach(([key, config]) => {
+    attachChartTooltip(
+        `${key}-trend-chart`,
+        `${key}-trend-tooltip`,
+        point => `<strong>${fullChartDate(point.date)}</strong><span>${config.label}: ${formatDailyTrendValue(point.value)} ${config.unit}</span>`
+    );
+});
 
 attachChartTooltip(
     "walking-chart",
