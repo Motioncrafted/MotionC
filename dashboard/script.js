@@ -1800,7 +1800,7 @@ function renderSummaryData() {
     const weeklyMinutes = recentWalks.reduce((total, point) => total + point.minutes, 0);
     setText("weekly-miles", `${weeklyMiles.toFixed(2)} ${summaryDistanceUnit()}`);
     setText("weekly-minutes", `${Math.round(weeklyMinutes)} min`);
-    setText("walking-chart-summary", `${weeklyMiles.toFixed(1)} ${summaryDistanceUnit()} · ${Math.round(weeklyMinutes)} min this week`);
+    setText("walking-chart-summary", `${weeklyMiles.toFixed(1)} ${summaryDistanceUnit()} · ${Math.round(weeklyMinutes)} min in the last 7 days`);
 
     renderWalkingMetrics(entries, dates14);
 
