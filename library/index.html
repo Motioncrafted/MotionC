@@ -67,7 +67,7 @@
       width: min(100vw, 150vh);
       aspect-ratio: 3 / 2;
       overflow: hidden;
-      background: url("../images/library-index-ornament.png") center / 100% 100% no-repeat;
+      background: url("../images/library.webp") center / 100% 100% no-repeat;
       isolation: isolate;
     }
 
@@ -86,185 +86,43 @@
       opacity: 1;
     }
 
-    /* Shared MotionC navigation, rebuilt over the artwork's original rail. */
-    .motionc-sidebar {
+    /* Wider Library version of the standard MotionC menu. */
+    .library-sidebar {
       position: absolute;
       inset: 0 auto 0 0;
-      z-index: 20;
-      display: flex;
+      z-index: 8;
       width: var(--rail-width);
-      padding: 1.6% .7% 1.5%;
-      flex-direction: column;
-      overflow: visible;
-      background: linear-gradient(180deg, #132522, #0a1716);
-      box-shadow: 6px 0 18px rgba(0, 0, 0, .12);
-      font-family: Arial, sans-serif;
-    }
-
-    .motionc-brand {
-      display: grid;
-      width: clamp(42px, 5.4vw, 68px);
-      aspect-ratio: 1;
-      margin: 0 auto clamp(10px, 1.35vh, 18px);
-      padding: 3px;
-      place-items: center;
-      border: 1px solid rgba(255, 255, 255, .24);
-      border-radius: 17px;
-      background: #183831;
-      box-shadow: inset 0 1px rgba(255, 255, 255, .1), 0 7px 18px rgba(0, 0, 0, .2);
-    }
-
-    .motionc-brand img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-
-    .motionc-nav {
-      display: grid;
-      min-height: 0;
-      flex: 1;
-      grid-template-rows: repeat(6, minmax(0, 1fr));
-      gap: 2px;
-    }
-
-    .motionc-nav a,
-    .mobile-more-toggle {
-      position: relative;
-      display: grid;
-      min-height: 0;
-      padding: 3px 1px;
-      place-items: center;
-      align-content: center;
-      gap: 3px;
-      border: 1px solid transparent;
-      border-radius: 12px;
-      color: rgba(255, 255, 255, .74);
+      overflow: hidden;
       background: transparent;
-      text-decoration: none;
     }
 
-    .motionc-nav a img {
-      width: clamp(26px, 3.2vw, 42px);
-      height: clamp(26px, 3.2vw, 42px);
-      object-fit: contain;
-    }
-
-    .motionc-nav a small,
-    .mobile-more-toggle small {
-      font-size: clamp(7px, .76vw, 11px);
-      font-weight: 800;
-      letter-spacing: .05em;
-      line-height: 1;
-      text-align: center;
-      text-transform: uppercase;
-    }
-
-    .motionc-nav a:hover,
-    .motionc-nav a:focus-visible,
-    .motionc-nav a.active {
-      border-color: transparent;
-      color: #fff;
-      background: transparent;
-      outline: none;
-    }
-
-    .motionc-nav a.active img {
-      box-sizing: border-box;
-      width: clamp(40px, 4.55vw, 58px);
-      height: clamp(40px, 4.55vw, 58px);
-      padding: clamp(6px, .7vw, 9px);
-      border: 1px solid rgba(183, 221, 199, .42);
-      border-radius: 15px;
-      background: linear-gradient(145deg, rgba(53, 102, 73, .96), rgba(31, 73, 52, .96));
-      box-shadow: inset 0 1px rgba(255, 255, 255, .14), 0 7px 14px rgba(0, 0, 0, .24);
-    }
-
-    .motionc-nav a.active small { color: #eef8ef; }
-
-    .motionc-nav a::before,
-    .mobile-more-toggle::before {
+    .sidebar-link {
       position: absolute;
-      z-index: 3;
-      top: 1px;
+      z-index: 2;
       left: 50%;
-      width: clamp(43px, 4.9vw, 64px);
-      height: clamp(43px, 4.9vw, 64px);
-      border: 3px solid #f0b429;
-      border-radius: 14px;
-      content: "";
-      opacity: 0;
-      pointer-events: none;
+      width: 67%;
+      height: 9.7%;
+      border: 3px solid transparent;
+      border-radius: 12px;
       transform: translateX(-50%);
-    }
-
-    .nav-visualization .motionc-nav a:hover::before,
-    .nav-visualization .motionc-nav a:focus-visible::before,
-    .nav-visualization .mobile-more-toggle:hover::before,
-    .nav-visualization .mobile-more-toggle:focus-visible::before,
-    .nav-visualization .mobile-more-toggle:active::before {
-      opacity: 1;
-      box-shadow: 0 0 14px rgba(240, 180, 41, .6);
-    }
-
-    .mobile-more-toggle,
-    .mobile-more-menu { display: none; }
-
-    .preferences-menu {
-      position: absolute;
-      z-index: 70;
-      top: 2%;
-      left: calc(var(--rail-width) + 1.2%);
-      width: 225px;
-      padding: 16px;
-      border: 1px solid rgba(255, 255, 255, .2);
-      border-radius: 13px;
-      color: #17352c;
-      background: rgba(255, 255, 255, .97);
-      box-shadow: 0 14px 32px rgba(0, 0, 0, .24);
-      font-family: Arial, sans-serif;
-    }
-
-    .preferences-menu[hidden] { display: none; }
-    .preferences-menu > strong { display: block; font-size: 16px; }
-    .preferences-menu > p { margin: 5px 0 12px; color: #687771; font-size: 11px; }
-
-    .preferences-menu label {
-      display: flex;
-      gap: 8px;
-      margin-top: 8px;
-      padding: 9px;
-      align-items: center;
-      border-radius: 8px;
-      background: #f2f6f2;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 800;
-    }
-
-    .preferences-menu label small { margin-left: auto; color: #728078; }
-
-    .preferences-close {
-      position: absolute;
-      top: 7px;
-      right: 8px;
-      width: 28px;
-      height: 28px;
-      padding: 0;
-      border: 0;
-      border-radius: 7px;
-      color: #607069;
       background: transparent;
-      font-size: 21px;
-      line-height: 1;
     }
 
-    .preferences-close:hover,
-    .preferences-close:focus-visible {
-      color: #17352c;
-      background: #e8efe9;
+    .sidebar-link:hover,
+    .sidebar-link:focus-visible,
+    .sidebar-link.active {
       outline: none;
+      border-color: #f0b429;
+      background: rgba(240, 180, 41, .10);
+      box-shadow: 0 0 15px rgba(240, 180, 41, .45);
     }
+
+    .sidebar-link.home { top: 14.3%; }
+    .sidebar-link.walking { top: 25.1%; }
+    .sidebar-link.mcp { top: 36.7%; }
+    .sidebar-link.library { top: 47.2%; }
+    .sidebar-link.drop-zone { top: 57.3%; }
+    .sidebar-link.settings { top: 67%; }
 
     /* Invisible category targets over the printed Library Index artwork. */
     .index-hotspots {
@@ -290,6 +148,7 @@
       background: transparent;
     }
 
+    .index-choice:hover,
     .index-choice:focus-visible {
       outline: none;
       border-color: rgba(215, 151, 52, .72);
@@ -341,9 +200,6 @@
       100% { opacity: 0; transform: rotateY(88deg) scale(.97); }
     }
 
-    /* Keep the book still while its contents change. */
-    .book-transition { display: none; }
-
     /* Results text sits directly over the authentic blank book artwork. */
     .book-interface {
       position: absolute;
@@ -374,76 +230,48 @@
 
     .book-page.left {
       left: 5%;
-      padding-right: 1%;
-      padding-left: 7%;
       text-align: left;
     }
 
     .book-page.right {
       right: 5%;
-      padding-right: 7%;
-      padding-left: 1%;
       text-align: left;
     }
 
     .book-title {
-      display: grid;
-      min-height: 2.3em;
-      margin: 0 0 3%;
-      padding: 0 6%;
-      align-content: center;
+      margin: 0 0 6%;
       color: #51331c;
-      font-size: clamp(11px, 1.16vw, 19px);
-      line-height: 1.08;
-      text-align: center;
-    }
-
-    .book-page-label {
-      display: grid;
-      min-height: 2.3em;
-      margin: 0 0 3%;
-      padding: 0 6%;
-      align-content: center;
-      color: #80552a;
-      font: 700 clamp(8px, .72vw, 12px) "Kalam", cursive;
-      line-height: 1.15;
+      font-size: clamp(12px, 1.28vw, 21px);
+      line-height: 1.1;
       text-align: center;
     }
 
     .book-subtitle {
-      min-height: 1.35em;
       margin: 0 0 3%;
       color: #80552a;
       font: 700 clamp(7px, .62vw, 11px) "Kalam", cursive;
-      line-height: 1.2;
       text-align: center;
     }
 
     .book-list {
       display: grid;
-      gap: clamp(4px, .4vw, 7px);
+      gap: 8%;
       margin: 0;
       padding: 0;
-      align-content: start;
       list-style: none;
     }
 
-    .book-list li { min-width: 0; }
-
     .book-choice {
-      display: flex;
       width: 100%;
-      height: clamp(38px, 3vw, 52px);
-      padding: clamp(6px, .55vw, 9px) 3%;
-      align-items: center;
-      justify-content: center;
+      min-height: clamp(25px, 2.4vw, 42px);
+      padding: 5% 3%;
       border: 0;
       border-bottom: 1px solid rgba(126, 79, 34, .38);
       color: #38271b;
       background: rgba(255, 244, 218, .06);
       font-size: clamp(9px, .9vw, 15px);
-      line-height: 1.15;
-      text-align: center;
+      line-height: 1.22;
+      text-align: inherit;
     }
 
     .book-choice:hover,
@@ -515,7 +343,6 @@
       inset: 7%;
       border: 3px solid transparent;
       border-radius: 50%;
-      transform: translateX(-22%);
       transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
     }
 
@@ -523,7 +350,7 @@
     .magnifier-hotspot:focus-visible::after {
       border-color: rgba(255, 211, 111, .8);
       box-shadow: 0 0 18px rgba(255, 202, 73, .78);
-      transform: translate(-22%, -2px);
+      transform: translateY(-2px);
     }
 
     .magnifier-hotspot:focus-visible {
@@ -585,124 +412,11 @@
       background: #60401e;
     }
 
-    /* Scrollable section catalogue: a cool MotionC sage layer between book and article. */
-    .section-overlay {
-      position: absolute;
-      inset: 0;
-      z-index: 20;
-      display: grid;
-      place-items: center;
-      padding: 3.2%;
-      background: rgba(12, 27, 23, .62);
-      backdrop-filter: blur(3px);
-      opacity: 0;
-      transition: opacity 420ms ease;
-    }
-
-    .section-overlay[hidden] { display: none; }
-    .section-overlay.open { opacity: 1; }
-
-    .section-sheet {
-      position: relative;
-      display: grid;
-      grid-template-rows: auto auto minmax(0, 1fr) auto;
-      width: 88%;
-      height: 91%;
-      overflow: hidden;
-      padding: clamp(24px, 3.3vw, 54px) clamp(28px, 5vw, 82px) clamp(22px, 2.8vw, 46px);
-      border: 3px solid #6f9b82;
-      border-radius: 18px 30px 20px 28px;
-      color: #18372d;
-      background:
-        linear-gradient(105deg, rgba(34, 92, 65, .10), transparent 18%, transparent 82%, rgba(34, 92, 65, .10)),
-        repeating-linear-gradient(0deg, rgba(25, 72, 53, .025) 0 1px, transparent 1px 5px),
-        #edf4ef;
-      box-shadow: 0 22px 70px rgba(0, 0, 0, .66);
-      opacity: 0;
-      transform: translateY(14%) scale(.78);
-      transition: opacity 420ms ease, transform 520ms cubic-bezier(.2, .78, .2, 1);
-    }
-
-    .section-overlay.open .section-sheet { opacity: 1; transform: none; }
-    .section-kicker {
-      margin: 0 0 .25em;
-      color: #287a43;
-      font: 700 clamp(10px, .9vw, 15px) "Kalam", cursive;
-      letter-spacing: .12em;
-      text-align: center;
-      text-transform: uppercase;
-    }
-    .section-heading {
-      margin: 0;
-      color: #173f30;
-      font-size: clamp(25px, 2.8vw, 48px);
-      line-height: 1.1;
-      text-align: center;
-    }
-    .section-description {
-      margin: .35em 0 1.1em;
-      color: #557166;
-      font: 700 clamp(11px, 1vw, 17px) "Kalam", cursive;
-      text-align: center;
-    }
-    .section-content {
-      min-height: 0;
-      overflow-y: auto;
-      scrollbar-gutter: stable;
-      padding: 0 clamp(4px, 1vw, 18px) 1rem;
-      scrollbar-color: #71a085 #d7e6dc;
-    }
-    .section-content::-webkit-scrollbar { width: 14px; }
-    .section-content::-webkit-scrollbar-track { border-radius: 999px; background: #d7e6dc; }
-    .section-content::-webkit-scrollbar-thumb { border: 3px solid #d7e6dc; border-radius: 999px; background: #71a085; }
-    .section-article-list { display: grid; gap: 10px; max-width: 78ch; margin: 0 auto; padding: 0; list-style: none; }
-    .section-article {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 5px 18px;
-      width: 100%;
-      padding: clamp(13px, 1.25vw, 20px);
-      border: 1px solid #bdd2c5;
-      border-radius: 12px;
-      color: #18372d;
-      background: rgba(255,255,255,.72);
-      text-align: left;
-      box-shadow: 0 4px 12px rgba(25, 70, 51, .07);
-    }
-    .section-article:hover,
-    .section-article:focus-visible { border-color: #287a43; outline: 3px solid rgba(240,180,41,.75); background: #fff; }
-    .section-article strong { font-size: clamp(15px, 1.3vw, 22px); }
-    .section-article small { grid-column: 1; color: #5b756b; font-size: clamp(11px, .9vw, 15px); line-height: 1.4; }
-    .section-article i { grid-column: 2; grid-row: 1 / span 2; align-self: center; color: #287a43; font-size: 1.4em; font-style: normal; }
-    .section-empty { color: #557166; font-style: italic; text-align: center; }
-    .section-controls {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: center;
-      gap: 12px;
-      padding-top: 14px;
-    }
-    .section-controls button {
-      min-height: clamp(36px, 3vw, 50px);
-      border: 1px solid #4e8067;
-      border-radius: 8px;
-      padding: 0 1em;
-      color: #fff;
-      background: #287a43;
-      font: 700 clamp(9px, .9vw, 15px) "Kalam", cursive;
-    }
-    .section-controls button:hover,
-    .section-controls button:focus-visible { outline: 3px solid #f0b429; background: #1f6035; }
-    .section-controls button:disabled { opacity: .3; }
-    #sectionPrevious { justify-self: start; }
-    #sectionNext { justify-self: end; }
-    .section-count { color: #557166; font: 700 clamp(9px, .8vw, 14px) "Kalam", cursive; }
-
-    /* Large warm reading page above the cool catalogue layer. */
+    /* Large reading page. It grows out of the book instead of appearing abruptly. */
     .reader-overlay {
       position: absolute;
       inset: 0;
-      z-index: 30;
+      z-index: 20;
       display: grid;
       place-items: center;
       padding: 4%;
@@ -722,9 +436,6 @@
 
     .reader-sheet {
       position: relative;
-      display: grid;
-      grid-template-rows: auto auto minmax(0, 1fr);
-      align-content: start;
       width: 84%;
       height: 88%;
       overflow: hidden;
@@ -763,10 +474,7 @@
     .reader-heading {
       position: relative;
       z-index: 1;
-      display: grid;
-      align-content: end;
-      min-height: 2.2em;
-      margin: 0 auto .6%;
+      margin: 0 auto 1%;
       max-width: 26ch;
       color: #4d301a;
       font-size: clamp(25px, 2.8vw, 48px);
@@ -777,8 +485,7 @@
     .reader-category {
       position: relative;
       z-index: 1;
-      min-height: 1.35em;
-      margin: 0 0 1.8%;
+      margin: 0 0 2.5%;
       color: #287a43;
       font: 700 clamp(11px, 1vw, 17px) "Kalam", cursive;
       text-align: center;
@@ -787,86 +494,14 @@
     .reader-content {
       position: relative;
       z-index: 1;
-      width: 100%;
       max-width: 76ch;
-      min-height: 0;
-      max-height: 100%;
-      overflow: auto;
-      scrollbar-gutter: stable;
       margin: 0 auto;
-      padding: 0 clamp(2px, .8vw, 14px) .75rem;
       font-size: clamp(12px, 1.12vw, 19px);
       line-height: 1.72;
-      scrollbar-color: #c49558 #ead8b4;
-      scrollbar-width: auto;
-    }
-
-    .reader-content::-webkit-scrollbar {
-      width: 14px;
-    }
-
-    .reader-content::-webkit-scrollbar-track {
-      border-radius: 999px;
-      background: #ead8b4;
-      box-shadow: inset 0 0 0 1px rgba(116, 76, 35, .18);
-    }
-
-    .reader-content::-webkit-scrollbar-thumb {
-      border: 3px solid #ead8b4;
-      border-radius: 999px;
-      background: #c49558;
-    }
-
-    .reader-content::-webkit-scrollbar-thumb:hover {
-      background: #ae7940;
     }
 
     .reader-content p {
       margin: 0 0 1em;
-    }
-
-    .reader-content h2 {
-      margin: 0 0 .55em;
-      color: #5b351c;
-      font-size: 1.35em;
-      line-height: 1.18;
-    }
-
-    .reader-content h3 {
-      margin: .85em 0 .3em;
-      color: #75451f;
-      font-size: 1.08em;
-      line-height: 1.2;
-    }
-
-    .reader-content ul,
-    .reader-content ol {
-      margin: .35em 0 1em;
-      padding-left: 1.4em;
-    }
-
-    .reader-content li {
-      margin: 0 0 .38em;
-      padding-left: .15em;
-    }
-
-    .reader-content strong {
-      color: #4f311d;
-    }
-
-    .reader-content .mcp-plain-language {
-      margin: 1em 0;
-      padding: .7em 1em;
-      border-left: 4px solid #b97a2c;
-      background: rgba(255, 246, 218, .58);
-    }
-
-    .reader-content > :first-child {
-      margin-top: 0;
-    }
-
-    .reader-content > :last-child {
-      margin-bottom: 0;
     }
 
     .reader-content p:first-child::first-letter {
@@ -916,19 +551,8 @@
     }
 
     .reader-page-number {
-      padding: .55em .9em;
-      border: 1px solid rgba(140, 91, 40, .35);
-      border-radius: 999px;
       color: #765638;
-      background: rgba(247, 225, 182, .72);
-      box-shadow: 0 2px 7px rgba(87, 52, 22, .12);
       font: 700 clamp(9px, .8vw, 14px) "Kalam", cursive;
-      white-space: nowrap;
-    }
-
-    .reader-page-number.more-pages {
-      color: #5c391d;
-      background: #f0d5a4;
     }
 
     .reader-page-buttons {
@@ -941,154 +565,10 @@
       min-width: clamp(42px, 4vw, 68px);
     }
 
-    .reader-page-buttons #readerNext {
-      min-width: clamp(92px, 8vw, 132px);
-      padding: 0 1em;
-    }
-
     @media (max-width: 800px), (max-height: 560px) {
       .book-page { padding: 2.5% 3%; }
       .book-choice { min-height: 16px; }
       .reader-sheet { padding-top: 24px; }
-    }
-
-    @media (max-width: 700px) {
-      .page {
-        /* Crop the retired sidebar that is baked into the Library artwork. */
-        left: -16.8vw;
-        width: calc(100vw / .856);
-        max-width: none;
-      }
-
-      .motionc-sidebar {
-        position: fixed;
-        z-index: 60;
-        inset: auto 0 0;
-        display: block;
-        width: 100%;
-        height: 70px;
-        padding: 5px 8px max(5px, env(safe-area-inset-bottom));
-        overflow: visible;
-        border-top: 1px solid rgba(255, 255, 255, .16);
-        background: rgba(10, 27, 24, .97);
-        box-shadow: 0 -8px 24px rgba(7, 24, 20, .28);
-        /* Keep the top-left logo anchored to the viewport, not this bottom rail. */
-        backdrop-filter: none;
-      }
-
-      .motionc-brand {
-        position: fixed;
-        z-index: 62;
-        top: 10px;
-        left: 10px;
-        width: 48px;
-        height: 48px;
-        margin: 0;
-        border-radius: 14px;
-      }
-
-      .preferences-menu {
-        position: fixed;
-        top: 66px;
-        left: 10px;
-        width: min(260px, calc(100vw - 20px));
-      }
-
-      .motionc-nav {
-        display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
-        grid-template-rows: 1fr;
-        gap: 3px;
-      }
-
-      .motionc-nav a,
-      .mobile-more-toggle {
-        display: grid;
-        min-width: 0;
-        min-height: 58px;
-        padding: 3px 1px;
-        font-size: inherit;
-      }
-
-      .motionc-nav a img { width: 25px; height: 25px; }
-      .motionc-nav a.active img { width: 38px; height: 38px; padding: 7px; border-radius: 12px; }
-
-      .motionc-nav a small,
-      .mobile-more-toggle small { font-size: 7px; }
-
-      .motionc-nav a::before,
-      .mobile-more-toggle::before { top: 1px; width: 42px; height: 42px; border-radius: 11px; }
-
-      .nav-home { order: 1; }
-      .nav-daily { order: 2; }
-      .nav-mcp { order: 3; }
-      .nav-library { order: 4; }
-      .mobile-more-toggle { order: 5; }
-
-      .motionc-nav .nav-walking,
-      .motionc-nav .nav-drop-zone { display: none; }
-
-      .mobile-more-toggle {
-        border: 0;
-        color: rgba(255, 255, 255, .74);
-      }
-
-      .more-glyph {
-        display: grid;
-        width: 34px;
-        height: 34px;
-        place-items: center;
-        border: 1px solid rgba(255, 255, 255, .38);
-        border-radius: 11px;
-        color: #fff;
-        font-size: 15px;
-        font-weight: 900;
-        letter-spacing: 1px;
-        line-height: 1;
-      }
-
-      .mobile-more-toggle[aria-expanded="true"] .more-glyph {
-        border-color: rgba(183, 221, 199, .46);
-        background: linear-gradient(145deg, #356649, #1f4934);
-        box-shadow: 0 7px 14px rgba(0, 0, 0, .24);
-      }
-
-      .mobile-more-menu {
-        position: fixed;
-        z-index: 61;
-        right: 10px;
-        bottom: calc(78px + env(safe-area-inset-bottom));
-        display: grid;
-        width: min(230px, calc(100vw - 20px));
-        gap: 6px;
-        padding: 10px;
-        border: 1px solid rgba(255, 255, 255, .2);
-        border-radius: 15px;
-        background: rgba(13, 37, 32, .98);
-        box-shadow: 0 16px 38px rgba(0, 0, 0, .34);
-        backdrop-filter: blur(16px);
-      }
-
-      .mobile-more-menu[hidden] { display: none; }
-
-      .mobile-more-menu a {
-        display: flex;
-        gap: 12px;
-        padding: 11px 12px;
-        align-items: center;
-        border-radius: 10px;
-        color: #fff;
-        font-family: Arial, sans-serif;
-        text-decoration: none;
-      }
-
-      .mobile-more-menu a:hover,
-      .mobile-more-menu a:focus-visible {
-        outline: 2px solid #f0b429;
-        background: rgba(255, 255, 255, .08);
-      }
-
-      .mobile-more-menu img { width: 30px; height: 30px; object-fit: contain; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -1104,39 +584,25 @@
   </style>
 </head>
 
-<body class="nav-visualization">
+<body>
   <main class="page">
-    <aside class="motionc-sidebar" aria-label="MotionC navigation">
-      <button class="motionc-brand" id="preferencesToggle" type="button"
-        aria-label="Open preferences" aria-expanded="false" aria-controls="preferencesMenu">
-        <img src="/images/nav/motionc-logo.png" alt="">
-      </button>
-      <nav class="motionc-nav">
-        <a class="nav-home" href="/landing-page/"><img src="/images/nav/home.png" alt=""><small>Home</small></a>
-        <a class="nav-daily" href="/daily/"><img src="/images/nav/daily.png" alt=""><small>Daily</small></a>
-        <a class="nav-mcp" href="/dashboard/"><img src="/images/nav/mcp.png" alt=""><small>MCP</small></a>
-        <a class="nav-library active" href="/library/" aria-current="page"><img src="/images/nav/library.png" alt=""><small>Library</small></a>
-        <a class="nav-walking" href="/walking/"><img src="/images/nav/walking.png" alt=""><small>Walking</small></a>
-        <a class="nav-drop-zone" href="/drop-zone/"><img src="/images/nav/drop-zone.png" alt=""><small>Drop Zone</small></a>
-        <button class="mobile-more-toggle" id="mobileMoreToggle" type="button"
-          aria-label="Open more navigation" aria-expanded="false" aria-controls="mobileMoreMenu">
-          <span class="more-glyph" aria-hidden="true">•••</span>
-          <small>More</small>
-        </button>
-      </nav>
-      <div class="mobile-more-menu" id="mobileMoreMenu" hidden>
-        <a href="/walking/"><img src="/images/nav/walking.png" alt=""><span>Walking</span></a>
-        <a href="/drop-zone/"><img src="/images/nav/drop-zone.png" alt=""><span>Drop Zone</span></a>
-      </div>
-    </aside>
-
-    <div class="preferences-menu" id="preferencesMenu" hidden>
-      <button class="preferences-close" id="preferencesClose" type="button" aria-label="Close preferences">×</button>
-      <strong>Preferences</strong>
-      <p>Measurement system</p>
-      <label><input type="radio" name="unitSystem" value="imperial"> Imperial <small>lb · mi · in</small></label>
-      <label><input type="radio" name="unitSystem" value="metric"> Metric <small>kg · km · cm</small></label>
-    </div>
+    <nav class="library-sidebar" aria-label="MotionC sections">
+      <a class="sidebar-link home" href="/landing-page/" aria-label="Open Home"></a>
+      <a class="sidebar-link walking" href="/walking/" aria-label="Open Walking"></a>
+      <a class="sidebar-link mcp" href="/dashboard/" aria-label="Open MCP"></a>
+      <span
+        class="sidebar-link library active"
+        aria-label="Library — current page"
+        aria-current="page"
+      ></span>
+      <a class="sidebar-link drop-zone" href="/drop-zone/" aria-label="Open Drop Zone"></a>
+      <button
+        class="sidebar-link settings"
+        type="button"
+        aria-label="Open Settings"
+        title="Settings"
+      ></button>
+    </nav>
 
     <section class="index-hotspots" id="indexHotspots" aria-label="Library sections">
       <button
@@ -1213,32 +679,6 @@
     </form>
 
     <section
-      class="section-overlay"
-      id="sectionOverlay"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="sectionHeading"
-      hidden
-    >
-      <article class="section-sheet">
-        <p class="section-kicker">Library catalogue</p>
-        <div>
-          <h1 class="section-heading" id="sectionHeading"></h1>
-          <p class="section-description" id="sectionDescription"></p>
-        </div>
-        <div class="section-content" id="sectionContent"></div>
-        <div class="section-controls">
-          <button id="sectionPrevious" type="button">← Previous Section</button>
-          <div>
-            <button id="sectionIndex" type="button">Back to Library</button>
-            <span class="section-count" id="sectionCount"></span>
-          </div>
-          <button id="sectionNext" type="button">Next Section →</button>
-        </div>
-      </article>
-    </section>
-
-    <section
       class="reader-overlay"
       id="readerOverlay"
       role="dialog"
@@ -1253,7 +693,7 @@
 
         <div class="reader-controls">
           <button class="reader-index" id="readerIndex" type="button">
-            ← Section Titles
+            ← Library Index
           </button>
 
           <span class="reader-page-number" id="readerPageNumber"></span>
@@ -1263,7 +703,7 @@
               ←
             </button>
             <button id="readerNext" type="button" aria-label="Next article page">
-              Next Page →
+              →
             </button>
           </div>
         </div>
@@ -1271,7 +711,8 @@
     </section>
   </main>
 
-  <script>
+  <script type="module">
+    import { supabase } from "../shared/motionc-supabase.js";
     const categories = [
       {
         id: "walking",
@@ -1310,28 +751,7 @@
       Replace or expand these entries with finished MotionC articles.
       Each string inside `pages` becomes one reader page.
     */
-    const articles = [
-      {
-        id: "power-of-a-simple-greeting",
-        category: "walking",
-        title: "The Power of a Simple Greeting",
-        tags: ["walking", "connection", "kindness", "community", "mental well-being", "morning walk"],
-        summary: "How a smile, wave, or simple hello can create connection along a shared walking path.",
-        pages: [
-          `<h2>Introduction: The Morning Walk as a Microcosm of Life</h2>
-           <p>Every morning, as I walk along a familiar path, I find myself surrounded by others who share this quiet ritual. These are people who, like me, seek a moment of peace, reflection, or movement to start their day. On this path, I make a small but intentional effort: when passing others, I offer a gentle hello or a slight wave. It’s never pushy or intrusive—just a simple acknowledgment of our shared presence.</p>`,
-          `<h2>The Simple Act of Saying Hello</h2>
-           <p>This small gesture often receives a warm return—a smile, a nod, or a wave back. It’s a brief but meaningful exchange that creates a subtle sense of connection. These moments remind me that beneath the surface of our busy lives, there is a hidden network of shared humanity. Saying hello is more than politeness; it’s a way of saying, “I see you,” and that acknowledgment can be deeply comforting.</p>
-           <h2>The Feeling of Being Seen</h2>
-           <p>In our fast-paced, often disconnected daily routines, many people go unnoticed. A simple greeting can leave someone with the rare and precious feeling of being seen or acknowledged. This recognition, even if fleeting, can uplift spirits and remind us that we are not alone. It’s a small act that fills a gap often left by the anonymity of modern life.</p>`,
-          `<h2>The Unseen Stories Behind Each Passerby</h2>
-           <p>Of course, not everyone responds. Some people walk by without a glance, absorbed in their own thoughts or struggles. At first, this bothered me. But I’ve come to understand that everyone truly has their own “path to walk.” We don’t know the stories, challenges, or emotions that others carry with them. Perhaps my smile or hello is a small light in their day, even if they don’t outwardly show it.</p>
-           <h2>Why These Moments Matter</h2>
-           <p>These brief interactions may seem insignificant, but they hold real power. Small social connections can improve mental well-being, reduce feelings of isolation, and foster a sense of community. When we acknowledge others, we contribute to a ripple effect of kindness that can extend far beyond the moment.</p>`,
-          `<h2>Conclusion: Embracing Our Shared Journey</h2>
-           <p>Our daily paths are more than just routes from point A to point B—they are opportunities for connection, empathy, and kindness. By embracing the simple act of greeting others, we nurture the hidden bonds that unite us all. So next time you pass someone on your path, offer a smile or a hello. You might just brighten their day—and yours.</p>`
-        ]
-      },
+    const fallbackArticles = [
       {
         id: "mindful-walking",
         category: "walking",
@@ -1362,52 +782,13 @@
         id: "visceral-fat",
         category: "metrics",
         title: "Understanding Visceral Fat",
-        tags: ["visceral fat", "waist", "waist-to-hip ratio", "health", "body composition", "walking", "nutrition"],
-        summary: "What visceral fat is, why it matters, and the practical ways it can be estimated or measured.",
+        tags: ["visceral fat", "waist", "health", "body composition"],
+        summary: "A plain-language look at the fat stored around internal organs.",
         pages: [
-          `<h2>What It Is, Why It Matters, and How to Measure It</h2>
-           <p>If you’ve never heard of <strong>visceral fat</strong> before, you’re not alone. It’s one of those health terms that doesn’t come up in everyday conversation, but it’s actually pretty important—especially if you’re interested in staying healthy and active.</p>
-           <h2>What Is Visceral Fat?</h2>
-           <p>Visceral fat is the fat that lives deep inside your belly, wrapped around your organs like your liver, pancreas, and intestines. Unlike the fat you can pinch just under your skin (called <strong>subcutaneous fat</strong>), visceral fat is hidden away inside. While a little fat is normal and necessary, too much visceral fat can affect your health in ways you might not expect, quietly increasing your risk of several serious health conditions.</p>
-           <p>Why? Because visceral fat isn’t just sitting there quietly. It’s active tissue that releases chemicals and hormones that can increase inflammation and interfere with how your body functions. This can raise your risk for serious health issues like <strong>heart disease</strong>, <strong>type 2 diabetes</strong>, and other metabolic problems.</p>`,
-          `<h2>Why Motion Matters</h2>
-           <p>Here’s the good news: visceral fat responds well to movement. That’s where walking and staying active come in. At <strong>MotionC</strong>, we believe <strong>Motion Creates Change</strong>—and that includes changes inside your body that you might not see right away but will definitely feel over time.</p>
-           <p>Walking is one of the simplest and most effective ways to start reducing <strong>visceral fat</strong>. It helps your body burn calories, improves circulation, and boosts your metabolism. Plus, it’s easy to fit into your day, no matter your fitness level.</p>
-           <p>When you commit to moving regularly, you start to <strong>See Positive Change</strong>—whether it’s more energy, better sleep, or just feeling stronger and more confident in your own skin. Motion doesn’t just change how you look — it changes how you live.</p>`,
-          `<h2>Diet and Visceral Fat: What to Eat</h2>
-           <p>Eating the right foods can support your efforts to reduce visceral fat. Focus on nutrient-dense options like <strong>fruits and vegetables</strong> (rich in fiber and antioxidants), <strong>whole grains</strong> (such as oats, brown rice, and quinoa), <strong>lean proteins</strong> (such as chicken, fish, beans, and legumes), <strong>healthy fats</strong> (found in avocados, nuts, seeds, and olive oil), and <strong>foods rich in omega-3 fatty acids</strong> (like salmon, flaxseeds, and walnuts).</p>
-           <p>You might wonder what exactly “unhealthy fats” are, since fats aren’t all bad. Unhealthy fats typically refer to <strong>trans fats</strong> and excessive <strong>saturated fats</strong>. Trans fats are artificially created fats found in many processed and fried foods, and they can raise bad cholesterol levels while lowering good cholesterol. Saturated fats, found in some fatty meats and full-fat dairy, can also contribute to <strong>heart disease</strong> if consumed in excess. Limiting these fats helps reduce inflammation and supports healthier fat distribution in the body.</p>`,
-          `<h2>Diet and Visceral Fat: What to Limit</h2>
-           <p>On the other hand, limiting foods that are high in sugar, refined carbs, unhealthy fats, and excessive alcohol can make a big difference. Avoid or reduce intake of:</p>
-           <ul>
-             <li><strong>Sugary drinks and snacks</strong> (soda, candy, and pastries)</li>
-             <li><strong>Refined carbs</strong> (white bread, white rice, and many processed foods)</li>
-             <li><strong>Fried and fast foods</strong> (high in unhealthy fats and calories)</li>
-             <li><strong>Excessive alcohol</strong> (which can contribute to fat accumulation)</li>
-             <li><strong>High-sodium processed foods</strong> (which can cause water retention and other issues)</li>
-           </ul>`,
-          `<h2>How Can You Measure Visceral Fat?</h2>
-           <p>Since <strong>visceral fat</strong> is hidden deep inside your abdomen around your organs, it’s not something you can see or easily pinch. But there are a few practical ways to get an idea of whether you might have too much of it:</p>
-           <h3>1. Waist Measurement</h3>
-           <p>One of the simplest and most practical methods is measuring your waist circumference. Using a tape measure, wrap it around your bare stomach, just above your hip bones (usually at the level of your belly button). Make sure the tape is snug but not squeezing your skin.</p>
-           <ul>
-             <li>For men, a waist measurement over about 40 inches (102 cm) can indicate excess visceral fat.</li>
-             <li>For women, a waist measurement over about 35 inches (88 cm) can be a warning sign.</li>
-           </ul>
-           <p>While this doesn’t measure visceral fat directly, it’s a good indicator because visceral fat tends to increase belly size.</p>`,
-          `<h2>Other Ways to Estimate Visceral Fat</h2>
-           <h3>2. Waist-to-Hip Ratio</h3>
-           <p>This method compares the size of your waist to your hips. Measure your hips at the widest part, then divide your waist measurement by your hip measurement. Higher ratios suggest more visceral fat.</p>
-           <ul>
-             <li>A ratio above 0.90 for men and 0.85 for women may indicate higher <strong>visceral fat</strong> levels.</li>
-           </ul>
-           <h3>3. Body Composition Scales and Devices</h3>
-           <p>Some advanced bathroom scales and handheld devices use bioelectrical impedance to estimate body fat percentage, including visceral fat. While convenient, these can vary in accuracy and are best used as a general guide rather than a precise measurement.</p>`,
-          `<h2>4. Medical Imaging (Most Accurate)</h2>
-           <p>The most accurate way to measure visceral fat is through medical imaging like <strong>MRI</strong> or <strong>CT scans</strong>. These are usually done in clinical settings and aren’t practical for everyday tracking but can provide detailed information if needed.</p>
-           <h2>Final Thoughts</h2>
-           <p>Visceral fat might sound intimidating, but it’s something you can take control of. By embracing motion and making walking a part of your daily routine, you’re not just fighting fat—you’re creating a healthier, happier you. Every step you take is a step toward positive change.</p>
-           <p>So, lace up your shoes and get moving. Because at <strong>MotionC</strong>, <strong>We want you to ‘See what Change Looks Like’</strong>.</p>`
+          `<p>Body weight alone cannot describe where fat is stored. Visceral fat sits deeper in the abdomen around internal organs, which makes waist-related measurements useful alongside weight.</p>
+           <p>No single home measurement is a diagnosis. Trends are most helpful when viewed over time and interpreted in context.</p>`,
+          `<p>Waist circumference and waist-to-height ratio can add information that a scale cannot provide by itself.</p>
+           <p>Use measurements as signals for informed action—not as verdicts about your worth or your effort.</p>`
         ]
       },
       {
@@ -1421,73 +802,6 @@
            <p>The useful question is not “Was this number good?” but “What does the longer pattern suggest?”</p>`,
           `<p>Look for direction rather than perfection. A steady trend is more informative than a single high or low reading.</p>
            <p>Tracking should help you make decisions. If it only creates anxiety, the method—not the person—may need adjustment.</p>`
-        ]
-      },
-      {
-        id: "understanding-mcp-score",
-        category: "metrics",
-        title: "Understanding Your MCP Score",
-        tags: ["MCP", "Motion Core Prime", "BMI", "waist-to-height ratio", "health score", "motivation"],
-        summary: "A motivational guide to what the Motion Core Prime score measures and how to read its four zones.",
-        pages: [
-          `<h2>🔥 A Motivational Guide</h2>
-           <p>Your health journey isn’t just numbers — it’s movement, momentum, and the story of your progress. The <strong>MCP Score (Motion Core Prime)</strong> was created to give you a clear, powerful way to see that story unfold. It’s a single number that shows how hard your body is working behind the scenes, using simple measurements anyone can take at home.</p>
-           <p>No confusion. No guesswork. Just a direct reflection of your effort, your habits, and your direction.</p>
-           <p>This is where <strong>MotionC Creates aChange</strong> — and where you begin to <strong>See What Change Looks Like</strong>.</p>`,
-          `<h2>What is the MCP Score?</h2>
-           <p>The MCP Score is your personal metabolic snapshot — a quick way to understand how much strain your body carries day-to-day. Lower scores mean your body is cruising. Higher scores mean your body is pushing harder than it needs to.</p>
-           <p>It’s built from four meaningful factors:</p>
-           <ul>
-             <li><strong>BMI</strong> — your mass relative to height</li>
-             <li><strong>Waist-to-Height Ratio</strong> — a powerful indicator of visceral fat</li>
-             <li><strong>Sex</strong> — because biology shapes how we store energy</li>
-             <li><strong>Age</strong> — because your body changes as you grow</li>
-           </ul>
-           <p>Together, they create a score that reflects your real-world health load.</p>`,
-          `<h2>Why these measurements matter</h2>
-           <h3>BMI</h3>
-           <p>It’s a simple starting point — not perfect, but useful when paired with other metrics.</p>
-           <h3>Waist-to-Height Ratio</h3>
-           <p>This is your secret weapon. WHtR helps reveal hidden strain around your organs. When your waist shrinks, your MCP responds immediately.</p>
-           <h3>Sex</h3>
-           <p>Men and women store fat differently. A small adjustment keeps the score fair and balanced.</p>
-           <h3>Age</h3>
-           <p>Your metabolism evolves. Your MCP respects that reality and adjusts accordingly.</p>`,
-          `<h2>What do the MCP ranges mean?</h2>
-           <p>Your MCP falls into one of four zones — each one telling a different part of your story:</p>
-           <h3>🟢 Core Zone (&lt;25)</h3>
-           <p>You’re operating at your strongest. Your habits are aligned, your body is balanced, and your momentum is powerful.</p>
-           <h3>🔵 Healthy (25–35)</h3>
-           <p>You’re in a solid place. With a few consistent changes, you can push into the Core Zone and feel the difference.</p>`,
-          `<h2>MCP ranges, continued</h2>
-           <h3>🟠 Elevated (35–43)</h3>
-           <p>Your body is working harder than it needs to. This is your opportunity — small steps here create big wins.</p>
-           <h3>🔴 Watch Zone (&gt;43)</h3>
-           <p>Your body is carrying more strain. This is your moment to take action, build momentum, and reclaim your energy.</p>`,
-          `<h2>Is the MCP a medical diagnosis?</h2>
-           <p>No — and it doesn’t need to be.</p>
-           <p>Your MCP is a <strong>movement tool</strong>, not a medical test. It helps you understand your direction, your habits, and your progress. It’s designed to empower you, not replace your doctor.</p>
-           <h2>Why your MCP helps you move forward</h2>
-           <p>Because it’s:</p>
-           <ul>
-             <li><strong>Clear</strong> — one number, instantly understandable</li>
-             <li><strong>Responsive</strong> — it changes as <em>you</em> change</li>
-             <li><strong>Motivating</strong> — progress becomes visible</li>
-             <li><strong>Action-driven</strong> — every improvement shows up in your MCP</li>
-             <li><strong>Accessible</strong> — no special equipment, no barriers</li>
-           </ul>
-           <p>It’s built to help you stay aware, stay engaged, and stay moving.</p>`,
-          `<h2>How often should you update your measurements?</h2>
-           <p>Weekly or monthly works best. Your MCP is about momentum — not day-to-day noise.</p>
-           <h2>In plain English</h2>
-           <p>Your MCP tells you:</p>
-           <p class="mcp-plain-language"><strong>“How much strain is my body carrying right now?”</strong></p>
-           <p><strong>Lower MCP</strong> → less strain<br><strong>Higher MCP</strong> → more strain</p>
-           <p>Every improvement you make — every walk, every better choice, every small win — nudges your MCP in the right direction.</p>`,
-          `<h2>Why this matters</h2>
-           <p>Your health isn’t defined by a single moment. It’s defined by movement — the choices you make, the habits you build, and the direction you’re heading.</p>
-           <p>Your MCP helps you see that direction clearly. It shows your progress. It shows your momentum. It shows your change.</p>
-           <p>This is where <strong>MotionC Creates aChange</strong> — and where you truly <strong>See What Change Looks Like</strong>.</p>`
         ]
       },
       {
@@ -1543,92 +857,6 @@
         ]
       },
       {
-        id: "discovering-my-c",
-        category: "mindset",
-        title: "Discovering My “C”",
-        tags: ["MotionC", "compass", "purpose", "reflection", "motivation", "personal meaning"],
-        summary: "A personal reflection on Compass—and an invitation to discover what the C in MotionC means to you.",
-        pages: [
-          `<p>When I first created <strong>MotionC</strong>, I never really thought about what the “C” stood for. It was always meant to be open — an invitation for each person to bring their own meaning. Some people see it as Challenge, others as Courage, Calm, or Commitment. For many, it becomes something deeply personal that guides their journey.</p>
-           <p>But as the site began to take shape, I found myself wondering what my own “C” might be. Not to define it for anyone else, but to deepen my connection to the journey we’re all on.</p>
-           <p>After some reflection, one word kept coming back:</p>
-           <p class="mcp-plain-language"><strong>Compass.</strong></p>`,
-          `<h2>Why Compass?</h2>
-           <p>A compass is a tool for guidance. It doesn’t tell you exactly where to go or how fast to get there — it simply points you in the right direction. It helps you navigate uncertainty, keeps you oriented when the path twists, and reminds you that progress is about moving forward even when you can’t see the whole journey at once.</p>
-           <p>For me, the “C” as Compass symbolizes how I find direction and purpose in my own journey. It’s a personal reminder that even when the path isn’t clear, I can trust my inner compass to guide me.</p>`,
-          `<h2>Discover Your Own “C”</h2>
-           <p>I share my interpretation not to define your journey, but to invite you to reflect on what your “C” might be. Instead, I hope it encourages you to ask yourself:</p>
-           <ul>
-             <li>What guides you?</li>
-             <li>What motivates you?</li>
-             <li>What gives your motion purpose?</li>
-           </ul>
-           <p>Maybe your “C” is <strong>Confidence</strong>.<br>Maybe it's <strong>Curiosity</strong>, <strong>Consistency</strong>, <strong>Compassion</strong>, or <strong>Connection</strong>.</p>
-           <p>There is no wrong answer.</p>
-           <p>The path may be winding, and progress may come one small step at a time. But with your own compass in hand, every step forward is progress.</p>
-           <p>Now it's your turn to discover yours</p>
-           <p>And always remember: <strong>Motion Creates Change.</strong></p>`
-        ]
-      },
-      {
-        id: "see-what-change-looks-like",
-        category: "mindset",
-        title: "See What Change Looks Like",
-        tags: ["small steps", "habits", "momentum", "motivation", "walking", "progress", "MotionC"],
-        summary: "How small, repeatable actions create momentum and turn ambitious goals into visible progress.",
-        pages: [
-          `<h2>The Power of Small Steps</h2>
-           <h3>Introduction: The Journey Begins with a Single Step</h3>
-           <p>Change can feel overwhelming. When we face big goals—losing weight, improving fitness, or building a healthier lifestyle—it’s easy to believe we need to overhaul everything overnight. But lasting change doesn’t come from giant leaps. It comes from <strong>small, consistent steps</strong> taken day after day.</p>
-           <p>This is the heart of our message: <strong>Motion Creates Change.</strong></p>
-           <p>Imagine walking from <strong>Okotoks to Jasper</strong>—a journey of more than 200 miles. You don’t get there in one stride. You get there by breaking the journey into manageable segments and celebrating each town you pass along the way. Every step forward is progress. Every milestone is a victory.</p>
-           <p><strong>This is what change looks like.</strong></p>`,
-          `<h2>The Science Behind Small Steps</h2>
-           <p>Psychology and neuroscience agree: small, incremental changes are more sustainable and more effective than trying to transform your life all at once.</p>
-           <p>Here’s why small steps work:</p>
-           <ul>
-             <li><strong>Habit Formation:</strong> Simple, achievable actions reduce resistance and make habits stick.</li>
-             <li><strong>The Compound Effect:</strong> Tiny improvements accumulate over time, creating big results.</li>
-             <li><strong>Reduced Overwhelm:</strong> Small goals prevent burnout and keep motivation high.</li>
-             <li><strong>Positive Reinforcement:</strong> Each small win releases dopamine, strengthening your commitment.</li>
-           </ul>
-           <p>Small steps don’t just feel easier—they’re scientifically proven to create lasting change.</p>`,
-          `<h2>Real-Life Examples: Small Steps, Big Results</h2>
-           <p>People everywhere have transformed their lives by embracing small, steady progress:</p>
-           <ul>
-             <li>A woman who began with a 10-minute walk each day eventually lost 30 pounds in a year.</li>
-             <li>A man who replaced one sugary drink with water noticed better energy and mood within weeks.</li>
-             <li>A community walking challenge—tracking progress town by town—created motivation, connection, and long-term consistency.</li>
-           </ul>
-           <p>Your journey doesn’t have to be perfect or fast.<br>It just has to be <strong>forward</strong>.</p>`,
-          `<h2>How to Start Your Own Journey</h2>
-           <p>Ready to begin? Start small. Start simple. Start today.</p>
-           <ol>
-             <li><strong>Choose One Small Habit:</strong> A 5-minute walk after lunch. One extra glass of water. A tiny change you can repeat.</li>
-             <li><strong>Make It Manageable:</strong> Your step should feel easy enough to do daily without stress.</li>
-             <li><strong>Track Your Progress:</strong> Use a journal, an app, or our interactive walking route tracker to visualize your journey.</li>
-             <li><strong>Celebrate Every Win:</strong> No matter how small, acknowledge your effort.</li>
-             <li><strong>Build Gradually:</strong> Once your first habit feels natural, add another small step.</li>
-           </ol>
-           <p>Small steps build momentum. Momentum builds change.</p>`,
-          `<h2>Tracking and Celebrating Progress</h2>
-           <p>Seeing your progress is powerful. That’s why we created tools like our <strong>interactive walking route tracker</strong>, where you can virtually walk from town to town and check off milestones along the way. Visual progress keeps you motivated and reminds you that every step counts.</p>
-           <p>Celebrate your wins—privately or publicly. Share them on our community bragging wall or with friends and family.</p>
-           <p>Remember: <strong>Motion Creates Change</strong>, and every move forward is a victory.</p>`,
-          `<h2>Overcoming Common Barriers</h2>
-           <p>Change isn’t always smooth. You’ll face setbacks, dips in motivation, and days where you feel stuck. Here’s how to keep going:</p>
-           <ul>
-             <li><strong>Be Kind to Yourself:</strong> Progress isn’t linear. Setbacks are part of the journey.</li>
-             <li><strong>Focus on Consistency, Not Perfection:</strong> Daily small actions beat occasional big efforts.</li>
-             <li><strong>Find Support:</strong> Walk with a friend, join a community, or share your goals.</li>
-             <li><strong>Adjust as Needed:</strong> If a step feels too hard, scale it back. Make it easier. Keep moving.</li>
-           </ul>`,
-          `<h2>Call to Action: Start Seeing Your Change Today</h2>
-           <p>You don’t need to run a marathon or transform your life overnight. Start with one small step today. Walk a little farther. Eat a little healthier. Breathe a little deeper. Track your progress. Celebrate your wins.</p>
-           <p>And remember: <strong>Motion Creates Change.</strong></p>`
-        ]
-      },
-      {
         id: "invisible-progress",
         category: "mindset",
         title: "Invisible Progress",
@@ -1652,37 +880,6 @@
            <p>The interruption is rarely the real problem. The story that says you must restart perfectly can keep you away much longer.</p>`,
           `<p>Choose the smallest credible return: one walk, one prepared meal, or one earlier bedtime.</p>
            <p>You are not beginning from nothing. You are returning with experience.</p>`
-        ]
-      },
-      {
-        id: "eight-core-principles",
-        category: "guides",
-        title: "The 8 Core Principles of Health",
-        tags: ["MotionC", "health principles", "sleep", "hydration", "nutrition", "walking", "stress", "alcohol", "smoking", "activity"],
-        summary: "A friendly, no-pressure guide to the eight connected habits behind feeling and living well.",
-        pages: [
-          `<h2>Your Friendly Guide to Feeling Great with MotionC</h2>
-           <p>At <strong>MotionC</strong>, we know that getting healthy isn’t about turning your life upside down overnight or following a strict, joyless regimen. Instead, it’s about small, meaningful steps that add up to big changes. We call it the power of motion — because <strong>Motion Creates Change</strong>.</p>
-           <p>To help you on your journey, here are the 8 core principles we focus on, explained in a friendly, no-pressure way.</p>`,
-          `<h2>1. Sleep Quality: Your Body’s Nightly Recharge Station</h2>
-           <p>Think of sleep as your body’s ultimate reset button. It’s where recovery happens, hormones get balanced, your appetite gets regulated, and your brain sharpens up for decision-making. Skimp on sleep, and everything else starts to wobble. So, treat yourself to good sleep—it’s the foundation of feeling energized and ready to take on the day.</p>
-           <h2>2. Hydration: More Than Just Quenching Thirst</h2>
-           <p>Water is your body’s best friend. It keeps your blood flowing smoothly, helps regulate your temperature (no overheating here!), boosts physical performance, and even plays a sneaky role in how hungry you feel. So, keep that water bottle handy and sip your way to better health.</p>`,
-          `<h2>3. Nutrition: Fueling Your Body’s Engine</h2>
-           <p>Food isn’t just about filling your stomach; it’s about giving your body the right fuel and nutrients to repair itself and function like a well-oiled machine. Think colorful veggies, wholesome grains, and proteins that make you feel good inside and out. Your body will thank you with more energy and better mood.</p>
-           <h2>4. Walking: The Simple Superstar</h2>
-           <p>Walking is like that reliable friend who’s always there for you. It’s one of the easiest ways to boost your heart health, rev up your metabolism, lift your mood, and keep your joints moving smoothly. Plus, it’s free, fun, and you can do it almost anywhere. So, lace up and enjoy the stroll!</p>`,
-          `<h2>5. Stress Management: Keeping Calm in the Chaos</h2>
-           <p>Life throws curveballs, and chronic stress can sneakily mess with your sleep, eating habits, blood pressure, and motivation. Finding ways to manage stress—whether it’s through breathing exercises, hobbies, or just taking a moment to pause—can make a huge difference in how you feel day to day.</p>
-           <h2>6. Alcohol: Enjoy in Moderation</h2>
-           <p>We’re not here to preach, but it’s good to know that alcohol can impact your recovery, sleep quality, calorie intake, and long-term health. Enjoying a drink now and then is part of life, but being mindful helps you keep feeling your best.</p>`,
-          `<h2>7. Current Smoking Status: Recognizing Progress</h2>
-           <p>Quitting smoking is one of the biggest wins for your health, and we celebrate every step toward that goal. At <strong>MotionC</strong>, we recognize where you are right now and applaud the healthy choices you’re making. Every positive change counts, and quitting smoking is a game-changer.</p>
-           <h2>8. Activity Level: Keep Moving, Keep Thriving</h2>
-           <p>Strength, flexibility, and regular movement are your tickets to independence and overall fitness. Whether it’s stretching, lifting, dancing, or walking, staying active helps you feel strong and ready for whatever life throws your way.</p>`,
-          `<h2>Bringing It All Together: The Magic of MotionC’s Philosophy</h2>
-           <p>Here’s the best part: none of these habits exist in isolation. Improving just one often makes the others easier. Better sleep can lead to smarter food choices. A daily walk can melt away stress. Staying hydrated can boost your energy to move more. It’s a beautiful cycle where <strong>Motion Creates Change</strong>, and positive habits reinforce each other.</p>
-           <p>So don’t worry about being perfect. You don’t need to overhaul your life overnight. Start somewhere—anywhere—and watch how one good habit leads to another. At MotionC, we’re here to help you <strong>See what Change Looks Like</strong>, one step, one sip, one breath at a time.</p>`
         ]
       },
       {
@@ -1713,6 +910,7 @@
       }
     ];
 
+    let articles = fallbackArticles;
     const categoryMap = new Map(categories.map(category => [category.id, category]));
     const page = document.querySelector(".page");
     const indexHotspots = document.getElementById("indexHotspots");
@@ -1725,14 +923,6 @@
     const magnifierHotspot = document.getElementById("magnifierHotspot");
     const searchPanel = document.getElementById("searchPanel");
     const librarySearch = document.getElementById("librarySearch");
-    const sectionOverlay = document.getElementById("sectionOverlay");
-    const sectionHeading = document.getElementById("sectionHeading");
-    const sectionDescription = document.getElementById("sectionDescription");
-    const sectionContent = document.getElementById("sectionContent");
-    const sectionPrevious = document.getElementById("sectionPrevious");
-    const sectionNext = document.getElementById("sectionNext");
-    const sectionIndex = document.getElementById("sectionIndex");
-    const sectionCount = document.getElementById("sectionCount");
     const readerOverlay = document.getElementById("readerOverlay");
     const readerHeading = document.getElementById("readerHeading");
     const readerCategory = document.getElementById("readerCategory");
@@ -1748,9 +938,8 @@
     let resultSpread = 0;
     let activeArticle = null;
     let activeArticlePage = 0;
-    let activeSectionId = null;
-    let sectionResultArticles = [];
-    const sectionScrollPositions = new Map();
+    let turnTimer = null;
+    let turnCleanupTimer = null;
 
     function escapeHtml(value) {
       return String(value)
@@ -1762,8 +951,19 @@
     }
 
     function turnBook(update) {
+      window.clearTimeout(turnTimer);
+      window.clearTimeout(turnCleanupTimer);
       page.classList.remove("turning-book");
-      update();
+      void page.offsetWidth;
+      page.classList.add("turning-book");
+
+      turnTimer = window.setTimeout(() => {
+        update();
+      }, 220);
+
+      turnCleanupTimer = window.setTimeout(() => {
+        page.classList.remove("turning-book");
+      }, 460);
     }
 
     function categoryButton(category, index) {
@@ -1812,24 +1012,12 @@
       const leftArticles = spreadArticles.slice(0, splitAt);
       const rightArticles = spreadArticles.slice(splitAt);
       const totalSpreads = Math.max(1, Math.ceil(currentResults.length / perSpread));
-      const completeSpreads = Math.floor(currentResults.length / perSpread);
-      const remainingArticles = currentResults.length % perSpread;
-      const totalListingPages = Math.max(
-        1,
-        completeSpreads * 2 + (remainingArticles === 0 ? 0 : remainingArticles === 1 ? 1 : 2)
-      );
-      const leftListingPage = resultSpread * 2 + 1;
-      const rightListingPage = leftListingPage + 1;
-      const leftHeading = resultSpread === 0
-        ? `<h2 class="book-title">${escapeHtml(currentResultTitle)}</h2>`
-        : `<h2 class="book-page-label">Page ${leftListingPage} of ${totalListingPages}</h2>`;
-      const leftSubtitle = resultSpread === 0
-        ? `${currentResults.length} ${currentResults.length === 1 ? "article" : "articles"} found`
-        : "";
 
       leftBookPage.innerHTML = `
-        ${leftHeading}
-        <p class="book-subtitle">${leftSubtitle}</p>
+        <h2 class="book-title">${escapeHtml(currentResultTitle)}</h2>
+        <p class="book-subtitle">
+          ${currentResults.length} ${currentResults.length === 1 ? "article" : "articles"} found
+        </p>
         ${
           leftArticles.length
             ? `<ul class="book-list">${leftArticles.map(articleButton).join("")}</ul>`
@@ -1838,10 +1026,8 @@
       `;
 
       rightBookPage.innerHTML = `
-        <h2 class="book-page-label">
-          ${rightArticles.length ? `Page ${rightListingPage} of ${totalListingPages}` : ""}
-        </h2>
-        <p class="book-subtitle"></p>
+        <h2 class="book-title">${rightArticles.length ? "More to Explore" : ""}</h2>
+        <p class="book-subtitle">Spread ${resultSpread + 1} of ${totalSpreads}</p>
         ${
           rightArticles.length
             ? `<ul class="book-list">${rightArticles.map(articleButton).join("")}</ul>`
@@ -1858,11 +1044,11 @@
       const category = categoryMap.get(categoryId);
       if (!category) return;
 
-      openSection(categoryId, {
-        title: category.title,
-        description: category.description,
-        results: articles.filter(article => article.category === categoryId)
-      });
+      currentMode = "results";
+      currentResults = articles.filter(article => article.category === categoryId);
+      currentResultTitle = category.title;
+      resultSpread = 0;
+      turnBook(renderResults);
     }
 
     function searchArticles(query) {
@@ -1872,9 +1058,14 @@
         .split(/\s+/)
         .filter(Boolean);
 
-      if (!words.length) return;
+      if (!words.length) {
+        turnBook(renderIndex);
+        return;
+      }
 
-      const results = articles.filter(article => {
+      currentMode = "results";
+      currentResultTitle = `Search: “${query.trim()}”`;
+      currentResults = articles.filter(article => {
         const category = categoryMap.get(article.category);
         const searchable = [
           article.title,
@@ -1886,76 +1077,8 @@
 
         return words.every(word => searchable.includes(word));
       });
-
-      openSection("search", {
-        title: `Search: “${query.trim()}”`,
-        description: "Results from every Library section.",
-        results
-      });
-    }
-
-    function sectionArticleButton(article) {
-      const category = categoryMap.get(article.category);
-      return `<li>
-        <button class="section-article" type="button" data-article="${article.id}">
-          <strong>${escapeHtml(article.title)}</strong>
-          <small>${escapeHtml(article.summary)}${activeSectionId === "search" ? ` · ${escapeHtml(category?.title || "")}` : ""}</small>
-          <i aria-hidden="true">→</i>
-        </button>
-      </li>`;
-    }
-
-    function renderSection(scrollTop = 0) {
-      sectionHeading.textContent = activeSectionId === "search"
-        ? currentResultTitle
-        : categoryMap.get(activeSectionId)?.title || "Library";
-      sectionDescription.textContent = activeSectionId === "search"
-        ? "Results from every Library section."
-        : categoryMap.get(activeSectionId)?.description || "";
-      sectionContent.innerHTML = sectionResultArticles.length
-        ? `<ul class="section-article-list">${sectionResultArticles.map(sectionArticleButton).join("")}</ul>`
-        : '<p class="section-empty">No matching articles were found. Try another word or subject.</p>';
-      sectionCount.textContent = `${sectionResultArticles.length} ${sectionResultArticles.length === 1 ? "article" : "articles"}`;
-      const categoryIndex = categories.findIndex(category => category.id === activeSectionId);
-      sectionPrevious.disabled = categoryIndex < 0;
-      sectionNext.disabled = categoryIndex < 0;
-      requestAnimationFrame(() => { sectionContent.scrollTop = scrollTop; });
-    }
-
-    function openSection(sectionId, options = {}) {
-      if (activeSectionId) sectionScrollPositions.set(activeSectionId, sectionContent.scrollTop);
-      const changingSection = activeSectionId !== sectionId;
-      activeSectionId = sectionId;
-      currentResultTitle = options.title || categoryMap.get(sectionId)?.title || "Library";
-      sectionResultArticles = options.results || articles.filter(article => article.category === sectionId);
-      renderSection(changingSection ? 0 : sectionScrollPositions.get(sectionId) || 0);
-      sectionOverlay.hidden = false;
-      requestAnimationFrame(() => {
-        sectionOverlay.classList.add("open");
-        sectionIndex.focus();
-      });
-    }
-
-    function closeSectionToIndex() {
-      if (activeSectionId) sectionScrollPositions.set(activeSectionId, sectionContent.scrollTop);
-      sectionOverlay.classList.remove("open");
-      window.setTimeout(() => {
-        sectionOverlay.hidden = true;
-        activeSectionId = null;
-        renderIndex();
-      }, 440);
-    }
-
-    function moveSection(direction) {
-      const currentIndex = categories.findIndex(category => category.id === activeSectionId);
-      if (currentIndex < 0) return;
-      const nextIndex = (currentIndex + direction + categories.length) % categories.length;
-      const next = categories[nextIndex];
-      openSection(next.id, {
-        title: next.title,
-        description: next.description,
-        results: articles.filter(article => article.category === next.id)
-      });
+      resultSpread = 0;
+      turnBook(renderResults);
     }
 
     function renderReaderPage() {
@@ -1963,22 +1086,16 @@
       readerHeading.textContent = activeArticle.title;
       readerCategory.textContent = categoryMap.get(activeArticle.category)?.title || "MotionC Library";
       readerContent.innerHTML = activeArticle.pages[activeArticlePage];
-      readerContent.scrollTop = 0;
-      const isLastPage = activeArticlePage >= activeArticle.pages.length - 1;
-      readerPageNumber.textContent = isLastPage
-        ? `Page ${activeArticlePage + 1} of ${activeArticle.pages.length} • End of article`
-        : `Page ${activeArticlePage + 1} of ${activeArticle.pages.length} • More to read`;
-      readerPageNumber.classList.toggle("more-pages", !isLastPage);
+      readerPageNumber.textContent =
+        `Page ${activeArticlePage + 1} of ${activeArticle.pages.length}`;
       readerPrevious.disabled = activeArticlePage === 0;
-      readerNext.disabled = isLastPage;
-      readerNext.textContent = isLastPage ? "Finished" : "Next Page →";
+      readerNext.disabled = activeArticlePage >= activeArticle.pages.length - 1;
     }
 
     function openArticle(articleId) {
       activeArticle = articles.find(article => article.id === articleId);
       if (!activeArticle) return;
 
-      if (activeSectionId) sectionScrollPositions.set(activeSectionId, sectionContent.scrollTop);
       activeArticlePage = 0;
       renderReaderPage();
       readerOverlay.hidden = false;
@@ -1988,16 +1105,12 @@
       });
     }
 
-    function closeReaderToSection() {
+    function closeReaderToIndex() {
       readerOverlay.classList.remove("open");
       window.setTimeout(() => {
         readerOverlay.hidden = true;
         activeArticle = null;
-        const savedPosition = sectionScrollPositions.get(activeSectionId) || 0;
-        requestAnimationFrame(() => {
-          sectionContent.scrollTop = savedPosition;
-          sectionIndex.focus();
-        });
+        turnBook(renderIndex);
       }, 540);
     }
 
@@ -2043,10 +1156,7 @@
       magnifierHotspot.setAttribute("aria-expanded", "false");
     });
 
-    sectionIndex.addEventListener("click", closeSectionToIndex);
-    sectionPrevious.addEventListener("click", () => moveSection(-1));
-    sectionNext.addEventListener("click", () => moveSection(1));
-    readerIndex.addEventListener("click", closeReaderToSection);
+    readerIndex.addEventListener("click", closeReaderToIndex);
 
     readerPrevious.addEventListener("click", () => {
       if (activeArticlePage <= 0) return;
@@ -2064,12 +1174,7 @@
       if (event.key !== "Escape") return;
 
       if (!readerOverlay.hidden) {
-        closeReaderToSection();
-        return;
-      }
-
-      if (!sectionOverlay.hidden) {
-        closeSectionToIndex();
+        closeReaderToIndex();
         return;
       }
 
@@ -2080,102 +1185,32 @@
       }
     });
 
-    const preferencesStorageKey = "motionc-preferences-v1";
-    const preferencesToggle = document.getElementById("preferencesToggle");
-    const preferencesMenu = document.getElementById("preferencesMenu");
-    const preferencesClose = document.getElementById("preferencesClose");
+    async function loadPublishedArticles() {
+      const { data, error } = await supabase
+        .from("library_articles")
+        .select("slug, category, title, summary, tags, pages, display_order")
+        .order("display_order", { ascending: true })
+        .order("title", { ascending: true });
 
-    function loadLibraryUnitSystem() {
-      try {
-        return JSON.parse(localStorage.getItem(preferencesStorageKey))?.unitSystem === "metric"
-          ? "metric"
-          : "imperial";
-      } catch {
-        return "imperial";
-      }
+      if (error) throw error;
+      if (!Array.isArray(data) || !data.length) return;
+
+      articles = data.map(article => ({
+        id: article.slug,
+        category: article.category,
+        title: article.title,
+        summary: article.summary || "",
+        tags: Array.isArray(article.tags) ? article.tags : [],
+        pages: Array.isArray(article.pages) ? article.pages : []
+      }));
     }
 
-    function syncLibraryUnitChoices() {
-      const selected = loadLibraryUnitSystem();
-      document.querySelectorAll('input[name="unitSystem"]').forEach(input => {
-        input.checked = input.value === selected;
-      });
+    try {
+      await loadPublishedArticles();
+    } catch (error) {
+      console.error("MotionC Library could not load Supabase articles; using the embedded fallback.", error);
     }
 
-    function closeLibraryPreferences() {
-      preferencesMenu.hidden = true;
-      preferencesToggle.setAttribute("aria-expanded", "false");
-    }
-
-    preferencesToggle.addEventListener("click", event => {
-      event.preventDefault();
-      event.stopPropagation();
-      const willOpen = preferencesMenu.hidden;
-      if (willOpen) syncLibraryUnitChoices();
-      preferencesMenu.hidden = !willOpen;
-      preferencesToggle.setAttribute("aria-expanded", String(willOpen));
-    });
-
-    preferencesMenu.addEventListener("click", event => event.stopPropagation());
-    preferencesClose.addEventListener("click", closeLibraryPreferences);
-    document.addEventListener("click", closeLibraryPreferences);
-
-    document.querySelectorAll('input[name="unitSystem"]').forEach(input => {
-      input.addEventListener("change", () => {
-        const unitSystem = input.value === "metric" ? "metric" : "imperial";
-        localStorage.setItem(
-          preferencesStorageKey,
-          JSON.stringify({ unitSystem, updatedAt: new Date().toISOString() })
-        );
-        window.dispatchEvent(new CustomEvent("motionc:preferences-updated", { detail: { unitSystem } }));
-      });
-    });
-
-    window.addEventListener("storage", event => {
-      if (event.key === preferencesStorageKey) syncLibraryUnitChoices();
-    });
-
-    const mobileMoreToggle = document.getElementById("mobileMoreToggle");
-    const mobileMoreMenu = document.getElementById("mobileMoreMenu");
-
-    function setMobileMoreMenu(open) {
-      mobileMoreMenu.hidden = !open;
-      mobileMoreToggle.setAttribute("aria-expanded", String(open));
-      mobileMoreToggle.setAttribute(
-        "aria-label",
-        open ? "Close more navigation" : "Open more navigation"
-      );
-    }
-
-    mobileMoreToggle.addEventListener("click", () => {
-      setMobileMoreMenu(mobileMoreMenu.hidden);
-    });
-
-    document.addEventListener("click", event => {
-      if (
-        mobileMoreMenu.hidden ||
-        mobileMoreMenu.contains(event.target) ||
-        mobileMoreToggle.contains(event.target)
-      ) return;
-      setMobileMoreMenu(false);
-    });
-
-    document.addEventListener("keydown", event => {
-      if (event.key === "Escape" && !mobileMoreMenu.hidden) {
-        setMobileMoreMenu(false);
-        mobileMoreToggle.focus();
-      }
-      if (event.key === "Escape" && !preferencesMenu.hidden) {
-        closeLibraryPreferences();
-        preferencesToggle.focus();
-      }
-    });
-
-    window.addEventListener("resize", () => {
-      if (window.innerWidth > 700 && !mobileMoreMenu.hidden) setMobileMoreMenu(false);
-    });
-
-    syncLibraryUnitChoices();
     renderIndex();
   </script>
 </body>
