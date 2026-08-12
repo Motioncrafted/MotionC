@@ -823,7 +823,7 @@ function saveLifestyleSummary(score) {
             week: currentLifestyleWeekKey(),
             score,
             maximumScore: 24,
-            baseScore: score / 3,
+            baseScore: score / 24 * 10,
             values,
             updatedAt: new Date().toISOString()
         })
