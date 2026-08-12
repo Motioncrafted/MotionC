@@ -891,10 +891,20 @@
 
   <script>
     const DAILY_STORAGE_KEY = "motionc-daily-prototype-v1";
-    const JOURNEY_BASELINE_KEY = "walking_page_journey_baseline_v1";
-    const JASPER_CELEBRATION_KEY = "walking_page_jasper_celebrated_v1";
+    const JOURNEY_BASELINE_KEY = "motionc-walking-journey-baseline-v1";
+    const JASPER_CELEBRATION_KEY = "motionc-walking-jasper-celebrated-v1";
+    const LEGACY_JOURNEY_BASELINE_KEY = "walking_page_journey_baseline_v1";
+    const LEGACY_JASPER_CELEBRATION_KEY = "walking_page_jasper_celebrated_v1";
     const PREFERENCES_STORAGE_KEY = "motionc-preferences-v1";
     const KM_PER_MI = 1.609344;
+    if (localStorage.getItem(JOURNEY_BASELINE_KEY) === null && localStorage.getItem(LEGACY_JOURNEY_BASELINE_KEY) !== null) {
+      localStorage.setItem(JOURNEY_BASELINE_KEY, localStorage.getItem(LEGACY_JOURNEY_BASELINE_KEY));
+      localStorage.removeItem(LEGACY_JOURNEY_BASELINE_KEY);
+    }
+    if (localStorage.getItem(JASPER_CELEBRATION_KEY) === null && localStorage.getItem(LEGACY_JASPER_CELEBRATION_KEY) !== null) {
+      localStorage.setItem(JASPER_CELEBRATION_KEY, localStorage.getItem(LEGACY_JASPER_CELEBRATION_KEY));
+      localStorage.removeItem(LEGACY_JASPER_CELEBRATION_KEY);
+    }
     let unitSystem = "imperial";
     try {
       unitSystem = JSON.parse(localStorage.getItem(PREFERENCES_STORAGE_KEY))?.unitSystem === "metric"
@@ -1350,5 +1360,6 @@
 
     render();
   </script>
+  <script type="module" src="/shared/motionc-supabase.js?v=20260812-1"></script>
 </body>
 </html>
