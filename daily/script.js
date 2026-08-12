@@ -226,12 +226,13 @@ function persist() {
 function syncLifestyleSummary() {
   try {
     const summary = JSON.parse(localStorage.getItem(LIFESTYLE_SUMMARY_STORAGE_KEY));
-    if (!summary?.week || !Number.isFinite(Number(summary.baseScore))) return false;
+    if (!summary?.week || !Number.isFinite(Number(summary.score))) return false;
 
     const existing = state.weeks[summary.week];
-    if (existing?.summaryUpdatedAt === summary.updatedAt && existing?.scoreLogicVersion === 3) return false;
+    if (existing?.summaryUpdatedAt === summary.updatedAt && existing?.scoreLogicVersion === 4) return false;
 
-    const score = Math.min(10, roundHalf(Number(summary.baseScore)));
+    const maximumScore = Number(summary.maximumScore) > 0 ? Number(summary.maximumScore) : 24;
+    const score = Math.min(10, roundHalf(Number(summary.score) / maximumScore * 10));
 
     state.weeks[summary.week] = {
       ...existing,
@@ -240,7 +241,7 @@ function syncLifestyleSummary() {
       assessed: true,
       summaryScore: Number(summary.score),
       summaryUpdatedAt: summary.updatedAt,
-      scoreLogicVersion: 3,
+      scoreLogicVersion: 4,
       updatedAt: new Date().toISOString()
     };
     persist();
@@ -1082,7 +1083,7 @@ function saveWeekly() {
   document.querySelectorAll("[data-lifestyle]").forEach(select => values[select.dataset.lifestyle] = Number(select.value));
   const lifestyleBase = Object.values(values).reduce((sum, value) => sum + value, 0);
   const score = Math.min(10, roundHalf(lifestyleBase / LIFESTYLE_ITEMS.length * 10));
-  state.weeks[weekKey(new Date())] = { values, score, assessed: true, scoreLogicVersion: 3, updatedAt: new Date().toISOString() };
+  state.weeks[weekKey(new Date())] = { values, score, assessed: true, scoreLogicVersion: 4, updatedAt: new Date().toISOString() };
   state.profile.startWeight = byId("startingWeight").value ? storedWeight(Number(byId("startingWeight").value)) : state.profile.startWeight;
   state.profile.waist = byId("weeklyWaist").value ? storedWaist(Number(byId("weeklyWaist").value)) : state.profile.waist;
   state.profile.vibratoryLine = byId("vibratoryLine").value ? storedWeight(Number(byId("vibratoryLine").value)) : state.profile.vibratoryLine;
