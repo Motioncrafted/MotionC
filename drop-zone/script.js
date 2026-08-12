@@ -252,7 +252,9 @@ function renderWall(tags) {
     return normalized;
   });
   spraySequence = wallTags.length;
-  requestAnimationFrame(arrangeWallTags);
+  requestAnimationFrame(() => {
+    wallTags.forEach(tag => fitTagToWall(tag.element));
+  });
 }
 
 function restoreLocalWall() {
