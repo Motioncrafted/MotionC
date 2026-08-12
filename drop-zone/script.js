@@ -45,7 +45,7 @@ messageCount.textContent = message.value.length;
 function sanitizeMessage(value) {
   return value.replace(
     /\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*/gu,
-    emoji => ["🎉", "🔥"].includes(emoji.replace("\uFE0F", "")) ? emoji : ""
+    emoji => ["🎉", "😊"].includes(emoji.replace("\uFE0F", "")) ? emoji : ""
   );
 }
 
