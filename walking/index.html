@@ -319,6 +319,21 @@
 
     .lifetime span { font-size: clamp(8px, 0.8vw, 14px); }
 
+    .lifetime .lifetime-total {
+      margin-top: clamp(2px, .3vw, 5px);
+      padding-top: clamp(2px, .3vw, 5px);
+      border-top: 1px solid rgba(38, 52, 58, .24);
+      font-size: clamp(6px, .57vw, 10px);
+      line-height: 1.25;
+      color: #38535d;
+    }
+
+    .lifetime .lifetime-total b {
+      color: #1763a6;
+      font: inherit;
+      font-weight: 700;
+    }
+
     .entry {
       left: 29.7%;
       top: 78%;
@@ -790,11 +805,14 @@
     <section class="panel lifetime" aria-label="Walking page total">
       <strong id="walkingTotal">0.00</strong>
       <span id="walkingTotalLabel">Total Walking Miles</span>
+      <small class="lifetime-total">
+        Lifetime: <b id="lifetimeTotal">0.00</b> <span id="lifetimeTotalUnit">mi</span>
+      </small>
     </section>
 
     <section class="panel entry" aria-labelledby="entryTitle">
       <h2 id="entryTitle">Walking Progress</h2>
-      <p class="message">Your route updates automatically from walks recorded on the Daily page.</p>
+      <p class="message">Current Journey tracks this route. Lifetime includes every walk saved on Daily, even after starting a new journey.</p>
       <button class="journey-reset" id="resetJourney" type="button">Start New Journey</button>
       <form id="walkForm" hidden aria-hidden="true">
         <div class="fields">
@@ -1194,6 +1212,8 @@
       const walkingTotal = Math.max(0, lifetimeMiles - journeyBaselineMiles);
 
       document.getElementById("walkingTotal").textContent = displayDistance(walkingTotal).toFixed(2);
+      document.getElementById("lifetimeTotal").textContent = displayDistance(lifetimeMiles).toFixed(2);
+      document.getElementById("lifetimeTotalUnit").textContent = distanceUnit();
       updateRouteMarker(walkingTotal);
       document.getElementById("dayWalks").textContent = selected.length ? "1" : "0";
       document.getElementById("dayMiles").textContent = displayDistance(dayMiles).toFixed(2);
