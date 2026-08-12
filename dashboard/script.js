@@ -1844,6 +1844,12 @@ function renderSummaryData() {
     const dates14 = recentDateKeys(14);
     const dates7 = dates14.slice(-7);
     const entries = daily?.entries || {};
+    const lifetimeMiles = Object.values(entries).reduce(
+        (total, entry) => total + Number(entry?.distance || 0),
+        0
+    );
+    setText("display-lifetime-distance", summaryDisplayDistance(lifetimeMiles).toFixed(2));
+    setText("display-lifetime-distance-unit", summaryDistanceUnit());
     const savedGoal = Number(readSummaryStorage(summaryGoalStorageKey, null));
     const profileLine = Number(daily?.profile?.vibratoryLine);
     const profileGoal = Number(daily?.profile?.motivationalGoal);
