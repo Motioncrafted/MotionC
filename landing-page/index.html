@@ -46,6 +46,7 @@
       cursor: pointer;
     }
 
+    .hotspot:hover,
     .hotspot:focus-visible {
       outline: none;
       border-color: #f0b429;
@@ -131,12 +132,7 @@
       box-shadow: inset 0 1px 2px rgba(255, 255, 255, .18);
     }
 
-    .get-started:hover {
-      border-color: #1e6d3a;
-      background: linear-gradient(180deg, #43a861, #2d8148);
-      box-shadow: 0 4px 10px rgba(20, 74, 41, .28);
-    }
-
+    .get-started:hover,
     .get-started:focus-visible {
       border-color: #f0b429;
       background: linear-gradient(180deg, #43a861, #2d8148);
@@ -166,10 +162,7 @@
 
 .get-started,
 .learn-more,
-.understand,
-.track-circle,
-.move-circle,
-.live-circle {
+.understand {
   z-index: 3;
 }
     
@@ -187,45 +180,6 @@
   width: 15.4%;
   height: 8.3%;
   transform: rotate(-1deg);
-}
-
-.drop-zone-sign {
-  left: 4.8%;
-  top: 51.3%;
-  width: 15.6%;
-  height: 8.6%;
-  transform: rotate(.5deg);
-}
-
-.live-well-sign {
-  left: 4.9%;
-  top: 61.2%;
-  width: 15.3%;
-  height: 8.5%;
-  transform: rotate(-1deg);
-}
-
-.track-circle,
-.move-circle,
-.live-circle {
-  top: 82.8%;
-  height: 11.5%;
-  border-radius: 999px;
-}
-
-.track-circle {
-  left: 38.3%;
-  width: 15.4%;
-}
-
-.move-circle {
-  left: 56.6%;
-  width: 14.2%;
-}
-
-.live-circle {
-  left: 73.7%;
-  width: 13.4%;
 }
 
 .mira-hotspot {
@@ -496,10 +450,10 @@
       class="hotspot understand"
       id="understand"
       type="button"
-      aria-label="Legal — read the MotionC site disclaimer"
+      aria-label="Understand — read the MotionC site disclaimer"
       aria-controls="disclaimerOverlay"
       aria-expanded="false"
-      title="Legal"
+      title="Understand"
     ></button>
 
     <span
@@ -520,43 +474,8 @@
     <a
       class="hotspot progress-sign"
       href="/dashboard/"
-      aria-label="Open the Summary page"
-      title="Summary"
-    ></a>
-
-    <a
-      class="hotspot drop-zone-sign"
-      href="/drop-zone/"
-      aria-label="Open the Spray Zone page"
-      title="Spray Zone"
-    ></a>
-
-    <a
-      class="hotspot live-well-sign"
-      href="/library/"
-      aria-label="Open the MotionC Library"
-      title="Library"
-    ></a>
-
-    <a
-      class="hotspot track-circle"
-      href="/dashboard/"
-      aria-label="Summary — open the Summary page"
-      title="Summary"
-    ></a>
-
-    <a
-      class="hotspot move-circle"
-      href="/walking/"
-      aria-label="Walking — open the Walking page"
-      title="Walking"
-    ></a>
-
-    <a
-      class="hotspot live-circle"
-      href="/library/"
-      aria-label="Library — open the Library page"
-      title="Library"
+      aria-label="Open the MotionC Dashboard"
+      title="Progress"
     ></a>
 
     <button
@@ -566,6 +485,7 @@
       aria-label="Talk to MIRA"
       aria-controls="miraBubble"
       aria-expanded="false"
+      title="MIRA test area"
     ></button>
 
     <aside class="mira-bubble" id="miraBubble" aria-live="polite" hidden>
@@ -665,10 +585,12 @@
       "You bring the effort. I’ll bring the unsolicited commentary."
     ];
     let miraCommentIndex = 0;
-    const miraDisplayDuration = 2500;
+    const miraDisplayDuration = 3000;
     const miraFadeDuration = 700;
     let miraDismissTimer = null;
     let miraFadeTimer = null;
+    let miraTimerStartedAt = 0;
+    let miraTimeRemaining = miraDisplayDuration;
 
     function setInfoOpen(open) {
       infoOverlay.hidden = !open;
@@ -713,6 +635,8 @@
 
     function startMiraDismissTimer(duration = miraDisplayDuration) {
       window.clearTimeout(miraDismissTimer);
+      miraTimeRemaining = duration;
+      miraTimerStartedAt = Date.now();
       miraDismissTimer = window.setTimeout(() => setMiraOpen(false), duration);
     }
 
@@ -746,16 +670,23 @@
     miraHotspot.addEventListener("click", showNextMiraComment);
     miraClose.addEventListener("click", () => setMiraOpen(false));
 
-    document.addEventListener("click", event => {
-      if (
-        !miraBubble.hidden &&
-        !miraBubble.contains(event.target) &&
-        !miraHotspot.contains(event.target)
-      ) {
-        setMiraOpen(false);
+    miraBubble.addEventListener("mouseenter", () => {
+      if (miraDismissTimer === null) return;
+      miraTimeRemaining = Math.max(
+        0,
+        miraTimeRemaining - (Date.now() - miraTimerStartedAt)
+      );
+      window.clearTimeout(miraDismissTimer);
+      miraDismissTimer = null;
+    });
+
+    miraBubble.addEventListener("mouseleave", () => {
+      if (!miraBubble.hidden && !miraBubble.classList.contains("is-closing")) {
+        startMiraDismissTimer(miraTimeRemaining);
       }
     });
 
   </script>
+  <script type="module" src="/shared/motionc-supabase.js?v=20260812-1"></script>
 </body>
 </html>
