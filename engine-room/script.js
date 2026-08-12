@@ -19,15 +19,28 @@
 
 document.addEventListener("DOMContentLoaded", () => {
     const summaryMcpStorageKey = "motionc-mcp-summary-v1";
+    const dailyStorageKey = "motionc-daily-prototype-v1";
     const preferencesStorageKey = "motionc-preferences-v1";
-    const fallbackProfile = {
-        age: 65,
+    const emptyProfile = {
+        age: 0,
         sex: "M",
-        heightFeet: 5,
-        heightInches: 11,
-        weightPounds: 196.5,
-        waistInches: 40
+        heightFeet: 0,
+        heightInches: 0,
+        weightPounds: 0,
+        waistInches: 0
     };
+
+    function readLatestDailyWeight() {
+        try {
+            const daily = JSON.parse(localStorage.getItem(dailyStorageKey));
+            const latest = Object.values(daily?.entries || {})
+                .filter((entry) => entry?.date && Number(entry.weight) > 0)
+                .sort((first, second) => String(second.date).localeCompare(String(first.date)))[0];
+            return latest ? Number(latest.weight) : null;
+        } catch {
+            return null;
+        }
+    }
 
     function readSummaryProfile() {
         try {
@@ -36,12 +49,11 @@ document.addEventListener("DOMContentLoaded", () => {
             );
             const measurementData = saved?.measurementData;
 
-            if (!measurementData) {
-                return { ...fallbackProfile };
-            }
+            const latestDailyWeight = readLatestDailyWeight();
+            if (!measurementData) return { ...emptyProfile, weightPounds: latestDailyWeight || 0 };
 
             const totalHeightInches = Number(measurementData.heightInches);
-            const weightPounds = Number(measurementData.weightLbs);
+            const weightPounds = latestDailyWeight || Number(measurementData.weightLbs);
             const waistInches = Number(measurementData.waistInches);
             const age = Number(measurementData.age);
 
@@ -55,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 !Number.isFinite(age) ||
                 age <= 0
             ) {
-                return { ...fallbackProfile };
+                return { ...emptyProfile, weightPounds: latestDailyWeight || 0 };
             }
 
             const heightFeet = Math.floor(totalHeightInches / 12);
@@ -69,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 waistInches
             };
         } catch {
-            return { ...fallbackProfile };
+            return { ...emptyProfile, weightPounds: readLatestDailyWeight() || 0 };
         }
     }
 
@@ -710,6 +722,9 @@ document.addEventListener("DOMContentLoaded", () => {
             updateCombinedSliderHandle();
             updateScenarioDisplays();
             updateActiveTier(metrics.mcp);
+            weightSlider.disabled = false;
+            waistSlider.disabled = false;
+            combinedSlider.disabled = false;
             console.log(
                 "MotionC Weight Simulation:",
                 {
@@ -732,10 +747,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             );
         } catch (error) {
-            console.error(
-                "Engine Room calculation failed:",
-                error
-            );
+            displays.mcp.textContent = "Not assessed";
+            displays.journey.textContent = "—";
+            displays.bmi.textContent = "—";
+            displays.weightTest.textContent = profile.weightPounds > 0
+                ? `${displayWeight(profile.weightPounds).toFixed(1)} ${weightUnit()}`
+                : "No Daily weight";
+            displays.waistTest.textContent = profile.waistInches > 0
+                ? `${displayWaist(profile.waistInches).toFixed(1)}${waistUnit()}`
+                : "Complete Summary";
+            weightSlider.disabled = true;
+            waistSlider.disabled = true;
+            combinedSlider.disabled = true;
         }
     }
 
@@ -823,7 +846,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     window.addEventListener("storage", (event) => {
-        if (event.key === summaryMcpStorageKey) {
+        if (event.key === summaryMcpStorageKey || event.key === dailyStorageKey) {
             synchronizeSummaryProfile();
         }
     });
