@@ -125,11 +125,15 @@ function calculateEntry(entry, weeklyScore) {
   const distancePoints = Math.min(6, Number(entry.distance || 0) / 5 * 6);
   const timePoints = Math.min(6, Number(entry.minutes || 0) / 60 * 6);
   const movement = roundHalf(distancePoints + timePoints);
+  const lifestyleAssessed = weeklyScore !== null && weeklyScore !== undefined && Number.isFinite(Number(weeklyScore));
   const weightRecordedPoint = entry.weight ? 1 : 0;
-  const lifestyle = Math.min(10, roundHalf(Number(weeklyScore || 0) + weightRecordedPoint));
-  const total = roundHalf(food + movement + lifestyle);
-  const percent = Math.round(total / 30 * 100);
-  return { food, movement, lifestyle, total, percent, color: colorFor(percent) };
+  const lifestyle = lifestyleAssessed
+    ? Math.min(10, roundHalf(Number(weeklyScore) + weightRecordedPoint))
+    : null;
+  const maximum = lifestyleAssessed ? 30 : 20;
+  const total = roundHalf(food + movement + (lifestyle ?? 0));
+  const percent = Math.round(total / maximum * 100);
+  return { food, movement, lifestyle, lifestyleAssessed, total, maximum, percent, color: colorFor(percent) };
 }
 
 function colorFor(percent) {
@@ -235,6 +239,7 @@ function syncLifestyleSummary() {
       ...existing,
       values: summary.values || existing?.values || {},
       score,
+      assessed: true,
       summaryScore: Number(summary.score),
       summaryUpdatedAt: summary.updatedAt,
       scoreLogicVersion: 2,
@@ -249,11 +254,12 @@ function syncLifestyleSummary() {
 
 function weeklyForDate(dateValue) {
   const key = weekKey(dateFromIso(dateValue));
-  return state.weeks[key] || weeklyTemplate(6);
+  return state.weeks[key] || { values: {}, score: null, assessed: false };
 }
 
 function scoreForEntry(entry) {
-  return calculateEntry(entry, weeklyForDate(entry.date).score);
+  const weekly = weeklyForDate(entry.date);
+  return calculateEntry(entry, weekly.assessed === false ? null : weekly.score);
 }
 
 function formatShortDate(value) {
@@ -1019,10 +1025,18 @@ function openScore(dateValue) {
   const weak = Object.entries(weekly.values || {}).filter(([, value]) => value < 1).map(([key]) => LIFESTYLE_ITEMS.find(item => item[0] === key)?.[1]).filter(Boolean);
   const dailyImpact = score.food >= 8 ? "Strong positive" : score.food >= 6 ? "Mild negative" : "Needs attention";
   const moveImpact = score.movement >= 9 ? "Strong positive" : score.movement >= 5 ? "Positive" : "Limited movement";
-  const lifestyleImpact = score.lifestyle >= 8 ? "Strong" : score.lifestyle >= 6 ? "Moderate" : "Moderate negative";
+  const lifestyleImpact = score.lifestyleAssessed
+    ? (score.lifestyle >= 8 ? "Strong" : score.lifestyle >= 6 ? "Moderate" : "Moderate negative")
+    : "Not included";
+  const lifestyleDetail = score.lifestyleAssessed
+    ? (weak.length ? `Needs attention: ${escapeHtml(weak.slice(0, 3).join(", "))}.` : "Your weekly lifestyle is supporting today’s dot.")
+    : "Complete the Lifestyle Profile to include this section in the Daily score.";
+  const conclusion = score.lifestyleAssessed
+    ? (score.lifestyle < 6 ? "This week’s lifestyle is lowering the overall result slightly." : "Your weekly foundation is supporting today’s choices.")
+    : "Lifestyle is not included until the profile is completed.";
   byId("scoreDetails").innerHTML = `
     <p class="eyebrow">${escapeHtml(formatFullDate(dateValue).toUpperCase())}</p>
-    <div class="score-summary"><span class="dot ${score.color}"></span><div><h2>${score.percent}% · ${colorLabel(score.color)}</h2><span>${score.total}/30 points</span></div></div>
+    <div class="score-summary"><span class="dot ${score.color}"></span><div><h2>${score.percent}% · ${colorLabel(score.color)}</h2><span>${score.total}/${score.maximum} assessed points</span></div></div>
     <div class="daily-measurement">
       <span>Weight recorded</span>
       <strong>${entry.weight ? formatWeight(entry.weight) : "Not recorded"}</strong>
@@ -1039,10 +1053,9 @@ function openScore(dateValue) {
       <li><span>Distance</span><strong>${formatDistance(entry.distance || 0)}</strong></li>
       ${walksForEntry(entry).length > 1 ? walksForEntry(entry).map((walk, index) => `<li><span>Walk ${index + 1}</span><strong>${formatDistance(walk.distance || 0)} · ${Number(walk.minutes || 0)} min</strong></li>`).join("") : ""}
     </ul><p class="impact">Impact: ${moveImpact}</p></section>
-    <section class="score-section"><header><h3>Your lifestyle this week</h3><strong>${score.lifestyle}/10</strong></header>
-      <p>${weak.length ? `Needs attention: ${escapeHtml(weak.slice(0, 3).join(", "))}.` : "Your weekly lifestyle is supporting today’s dot."}</p>
-      <p class="impact">Impact: ${lifestyleImpact}</p></section>
-    <p class="score-conclusion">${score.movement >= 8 ? "Your movement was strong today. " : ""}${score.lifestyle < 6 ? "This week’s lifestyle is lowering the overall result slightly." : "Your weekly foundation is supporting today’s choices."}</p>`;
+    <section class="score-section"><header><h3>Your lifestyle this week</h3><strong>${score.lifestyleAssessed ? `${score.lifestyle}/10` : "Not assessed"}</strong></header>
+      <p>${lifestyleDetail}</p><p class="impact">Impact: ${lifestyleImpact}</p></section>
+    <p class="score-conclusion">${score.movement >= 8 ? "Your movement was strong today. " : ""}${conclusion}</p>`;
   byId("scoreDialog").showModal();
 }
 
@@ -1072,7 +1085,7 @@ function saveWeekly() {
   const lifestyleBase = Object.values(values).reduce((sum, value) => sum + value, 0);
   const waistPoint = byId("weeklyWaist").value ? 1 : 0;
   const score = Math.min(9, roundHalf(lifestyleBase + waistPoint));
-  state.weeks[weekKey(new Date())] = { values, score, scoreLogicVersion: 2, updatedAt: new Date().toISOString() };
+  state.weeks[weekKey(new Date())] = { values, score, assessed: true, scoreLogicVersion: 2, updatedAt: new Date().toISOString() };
   state.profile.startWeight = byId("startingWeight").value ? storedWeight(Number(byId("startingWeight").value)) : state.profile.startWeight;
   state.profile.waist = byId("weeklyWaist").value ? storedWaist(Number(byId("weeklyWaist").value)) : state.profile.waist;
   state.profile.vibratoryLine = byId("vibratoryLine").value ? storedWeight(Number(byId("vibratoryLine").value)) : state.profile.vibratoryLine;
