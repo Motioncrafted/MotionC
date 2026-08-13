@@ -616,18 +616,19 @@ textarea {
   top: 13%;
   display: flex;
   z-index: 4;
-  gap: 7px;
+  gap: clamp(3px, .35vw, 6px);
 }
 
 .font-picks button {
-  width: clamp(72px, 7.2vw, 116px);
+  width: clamp(58px, 5.25vw, 86px);
   min-width: 0;
-  padding: 7px 13px;
+  padding: 7px 5px;
   border: 1px solid #4c4f52;
   border-radius: 6px;
   color: #e7e7e7;
   background: rgba(12, 13, 14, .94);
   cursor: pointer;
+  font-size: clamp(10px, .82vw, 14px);
   font-weight: 800;
   white-space: nowrap;
 }
@@ -687,7 +688,7 @@ textarea {
 
 .size-picks {
   position: absolute;
-  left: 67.5%;
+  left: 59.5%;
   top: 13%;
   display: flex;
   z-index: 4;
