@@ -243,6 +243,75 @@ textarea {
   scrollbar-width: thin;
 }
 
+.wall-view-tabs {
+  position: absolute;
+  z-index: 33;
+  left: 81.3%;
+  top: 10.7%;
+  display: grid;
+  width: 17.2%;
+  height: 4.8%;
+  grid-template-columns: 1fr 1fr;
+}
+
+.wall-view-tabs button {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: rgba(255,255,255,.68);
+  background: rgba(3,5,6,.94);
+  font-family: "Segoe Print", "Comic Sans MS", cursive;
+  font-size: clamp(8px, .92vw, 16px);
+  font-weight: 800;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.wall-view-tabs button.active {
+  border-bottom-color: var(--blue);
+  color: var(--blue);
+  text-shadow: 0 0 8px rgba(0,174,243,.35);
+}
+
+.my-wall-invitation {
+  position: absolute;
+  z-index: 45;
+  left: 22%;
+  top: 18%;
+  width: 52%;
+  padding: 4.2% 5%;
+  border: 1px solid rgba(0,174,243,.58);
+  border-radius: 18px;
+  color: #f6f2ea;
+  background:
+    linear-gradient(135deg, rgba(8,27,29,.97), rgba(6,9,10,.97)),
+    #080b0c;
+  box-shadow: 0 24px 80px rgba(0,0,0,.72), inset 0 0 42px rgba(0,174,243,.07);
+  text-align: center;
+}
+
+.my-wall-invitation[hidden] { display: none; }
+.my-wall-invitation p { margin: 0 0 1%; color: var(--blue); font-weight: 900; letter-spacing: .16em; }
+.my-wall-invitation h2 { margin: 0 0 5%; font: 700 clamp(23px, 3vw, 48px)/1.05 Georgia, serif; }
+.my-wall-invitation ul { display: grid; gap: .75em; max-width: 76%; margin: 0 auto 6%; padding: 0; list-style: none; color: rgba(255,255,255,.82); }
+.my-wall-invitation li::before { margin-right: .55em; color: #77d13d; content: "✓"; }
+.my-wall-invitation a { display: inline-block; padding: .8em 1.4em; border-radius: 10px; color: white; background: #0879c9; font-weight: 900; text-decoration: none; }
+.my-wall-invitation small { display: block; margin-top: 4%; color: rgba(255,255,255,.58); }
+.invitation-close { position: absolute; top: 4%; right: 3%; border: 0; color: white; background: transparent; font-size: clamp(20px,2vw,34px); cursor: pointer; }
+
+.wall-stage.my-wall-mode::before {
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  top: 9%;
+  width: 80.5%;
+  height: 64%;
+  content: "";
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(8,74,78,.16), rgba(40,18,62,.12));
+  box-shadow: inset 0 0 80px rgba(0,0,0,.2);
+  mix-blend-mode: multiply;
+}
+
 .common-history::-webkit-scrollbar {
   width: 6px;
 }
@@ -281,6 +350,27 @@ textarea {
   letter-spacing: .04em;
   text-transform: uppercase;
 }
+
+.history-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-top: 6px;
+}
+
+.history-actions button {
+  padding: 3px 5px;
+  border: 1px solid rgba(0,174,243,.28);
+  border-radius: 5px;
+  color: rgba(255,255,255,.72);
+  background: rgba(0,0,0,.42);
+  font-size: clamp(6px,.5vw,9px);
+  cursor: pointer;
+}
+
+.history-actions button:hover { color: white; border-color: var(--blue); }
+.member-choice.unlocked,
+[data-member-font].unlocked { opacity: 1; filter: none; cursor: pointer; }
 
 .history-state {
   margin: 10% 3%;

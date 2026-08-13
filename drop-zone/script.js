@@ -12,7 +12,8 @@ const PLACEMENT_SPOTS = [
 ];
 const WALL_CAPACITY = 10;
 const MIN_VISIBLE_POSTS = 8;
-const WALL_STORAGE_KEY = "motionc-drop-zone-wall-v1";
+const LEGACY_WALL_STORAGE_KEY = "motionc-drop-zone-wall-v1";
+const WALL_STORAGE_KEY = "motionc-visitor-commons-wall-v1";
 
 const message = document.getElementById("message");
 const messageCount = document.getElementById("messageCount");
@@ -31,6 +32,10 @@ const preferencesMenu = document.getElementById("preferencesMenu");
 const preferencesClose = document.getElementById("preferencesClose");
 const mobileMoreToggle = document.getElementById("mobileMoreToggle");
 const mobileMoreMenu = document.getElementById("mobileMoreMenu");
+const commonsTab = document.getElementById("commonsTab");
+const myWallTab = document.getElementById("myWallTab");
+const myWallInvitation = document.getElementById("myWallInvitation");
+const invitationClose = document.getElementById("invitationClose");
 
 let selectedColor = COLORS[0];
 let selectedFont = FONTS[0];
@@ -39,13 +44,18 @@ let spraying = false;
 let spraySequence = 0;
 let wallTags = [];
 let historyTags = [];
+let currentSession = null;
+let currentWall = "commons";
 
 messageCount.textContent = message.value.length;
 
 function sanitizeMessage(value) {
+  const allowedEmoji = currentSession && currentWall === "private"
+    ? ["🎉", "😊", "💪", "👟"]
+    : ["🎉", "😊"];
   return value.replace(
     /\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*/gu,
-    emoji => ["🎉", "😊"].includes(emoji.replace("\uFE0F", "")) ? emoji : ""
+    emoji => allowedEmoji.includes(emoji.replace("\uFE0F", "")) ? emoji : ""
   );
 }
 
@@ -58,19 +68,23 @@ message.addEventListener("input", () => {
 
 document.querySelectorAll("[data-font]").forEach(button => {
   button.addEventListener("click", () => {
+    if (!button.dataset.font) return;
     selectedFont = button.dataset.font;
     document.querySelectorAll("[data-font]").forEach(item =>
       item.classList.toggle("selected", item === button)
     );
+    saveWallPreferences();
   });
 });
 
 document.querySelectorAll("[data-color]").forEach(button => {
   button.addEventListener("click", () => {
+    if (!button.dataset.color) return;
     selectedColor = button.dataset.color;
     document.querySelectorAll("[data-color]").forEach(item =>
       item.classList.toggle("selected", item === button)
     );
+    saveWallPreferences();
   });
 });
 
@@ -80,6 +94,7 @@ document.querySelectorAll("[data-size]").forEach(button => {
     document.querySelectorAll("[data-size]").forEach(item =>
       item.classList.toggle("selected", item === button)
     );
+    saveWallPreferences();
   });
 });
 
@@ -259,6 +274,10 @@ function renderWall(tags) {
 
 function restoreLocalWall() {
   try {
+    if (!localStorage.getItem(WALL_STORAGE_KEY) && localStorage.getItem(LEGACY_WALL_STORAGE_KEY)) {
+      localStorage.setItem(WALL_STORAGE_KEY, localStorage.getItem(LEGACY_WALL_STORAGE_KEY));
+      localStorage.removeItem(LEGACY_WALL_STORAGE_KEY);
+    }
     const stored = JSON.parse(localStorage.getItem(WALL_STORAGE_KEY));
     if (Array.isArray(stored)) renderWall(stored.filter(validStoredTag));
   } catch {
@@ -314,21 +333,46 @@ function renderHistory() {
     time.dateTime = tag.createdAt;
     time.textContent = formatTime(tag.createdAt);
     article.append(text, time);
+    if (currentWall === "private" && currentSession) {
+      const actions = document.createElement("div");
+      actions.className = "history-actions";
+      actions.innerHTML = `
+        <button type="button" data-wall-action="edit" data-id="${tag.id}">Edit</button>
+        <button type="button" data-wall-action="pin" data-id="${tag.id}">${tag.isPinned ? "Unpin" : "Pin"}</button>
+        <button type="button" data-wall-action="archive" data-id="${tag.id}">Archive</button>
+        <button type="button" data-wall-action="delete" data-id="${tag.id}">Delete</button>`;
+      article.append(actions);
+    }
     commonHistory.append(article);
   });
 }
 
 async function loadHistory() {
   try {
-    const response = await fetch("/api/tags", { cache: "no-store" });
-    if (!response.ok) throw new Error("History unavailable");
-    const payload = await response.json();
-    historyTags = payload.tags || [];
+    const table = currentWall === "commons" ? "commons_posts" : "private_wall_posts";
+    let query = supabase.from(table).select("*");
+    if (currentWall === "commons") {
+      query = query.eq("status", "published").order("created_at", { ascending: false });
+    } else {
+      query = query.eq("is_archived", false)
+        .order("is_pinned", { ascending: false })
+        .order("created_at", { ascending: false });
+    }
+    query = query.limit(50);
+    const { data, error } = await query;
+    if (error) throw error;
+    historyTags = (data || []).map(row => ({
+      id: row.id, text: row.text, color: row.color, font: row.font,
+      sizeChoice: row.size_choice, size: sizeFor(row.text, row.size_choice),
+      width: `${Number(row.width_percent)}%`, left: Number(row.position_x),
+      top: Number(row.position_y), rotation: Number(row.rotation), createdAt: row.created_at
+      , isPinned: Boolean(row.is_pinned)
+    }));
     renderHistory();
     restoreSharedWall(historyTags);
   } catch {
     historyState.classList.add("error");
-    historyState.textContent = "Commons will be available after its database is connected.";
+    historyState.textContent = currentWall === "commons" ? "The Commons is temporarily unavailable." : "Your private wall is temporarily unavailable.";
   }
 }
 
@@ -359,33 +403,25 @@ function buildSpray(color) {
 }
 
 async function saveHistory(tag) {
+  if (!currentSession) {
+    historyTags = [{ ...tag }, ...historyTags];
+    renderHistory();
+    return;
+  }
   try {
-    const response = await fetch("/api/tags", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        id: tag.id,
-        text: tag.text,
-        color: tag.color,
-        font: tag.font,
-        left: tag.left,
-        top: tag.top,
-        rotation: tag.rotation,
-        size: tag.size,
-        width: tag.width
-      })
-    });
-    if (!response.ok) throw new Error("Save failed");
-    const payload = await response.json();
-    historyTags = [payload.tag, ...historyTags.filter(item => item.id !== payload.tag.id)];
+    const table = currentWall === "commons" ? "commons_posts" : "private_wall_posts";
+    const record = {
+      id: tag.id, user_id: currentSession.user.id, text: tag.text,
+      color: tag.color, font: tag.font, size_choice: tag.sizeChoice,
+      width_percent: Number.parseFloat(tag.width), position_x: tag.left,
+      position_y: tag.top, rotation: tag.rotation
+    };
+    const { data, error } = await supabase.from(table).insert(record).select().single();
+    if (error) throw error;
+    historyTags = [{ ...tag, createdAt: data.created_at }, ...historyTags.filter(item => item.id !== tag.id)];
   } catch {
-    historyTags = [{
-      id: tag.id,
-      text: tag.text,
-      color: tag.color,
-      font: tag.font,
-    createdAt: new Date().toISOString()
-    }, ...historyTags];
+    historyState.classList.add("error");
+    historyState.textContent = "That message stayed on this screen but could not be saved.";
   }
   renderHistory();
 }
@@ -410,6 +446,7 @@ function spray() {
       ? (Math.random() > .5 ? 1 : -1) * (13 + Math.random() * 5)
       : -11 + Math.random() * 22,
     size: sizeFor(text, selectedSize),
+    sizeChoice: selectedSize,
     width: widthFor(text)
   };
   tag.createdAt = new Date().toISOString();
@@ -428,7 +465,7 @@ function spray() {
     }
     tag.element = createWallTag(tag);
     wallTags.push(tag);
-    saveLocalWall();
+    if (!currentSession && currentWall === "commons") saveLocalWall();
   }, 850);
 
   window.setTimeout(() => mistTarget.classList.remove("active"), 2700);
@@ -529,7 +566,117 @@ window.addEventListener("resize", () => {
   if (window.innerWidth > 760 && !mobileMoreMenu.hidden) setMobileMoreMenu(false);
 });
 
+function setActiveTab(name) {
+  currentWall = name;
+  const commonsActive = name === "commons";
+  commonsTab.classList.toggle("active", commonsActive);
+  myWallTab.classList.toggle("active", !commonsActive);
+  commonsTab.setAttribute("aria-selected", String(commonsActive));
+  myWallTab.setAttribute("aria-selected", String(!commonsActive));
+  document.querySelector(".wall-stage").classList.toggle("my-wall-mode", !commonsActive && Boolean(currentSession));
+}
+
+async function openCommons() {
+  myWallInvitation.hidden = true;
+  setActiveTab("commons");
+  setMemberChoices(false);
+  historyState.classList.remove("error");
+  if (currentSession) await loadHistory();
+  else {
+    restoreLocalWall();
+    historyTags = wallTags.map(storableTag).reverse();
+    renderHistory();
+  }
+}
+
+async function openMyWall() {
+  if (!currentSession) {
+    myWallInvitation.hidden = false;
+    myWallInvitation.querySelector("a").focus();
+    return;
+  }
+  myWallInvitation.hidden = true;
+  setActiveTab("private");
+  setMemberChoices(true);
+  await loadWallPreferences();
+  historyState.classList.remove("error");
+  await loadHistory();
+}
+
+commonsTab.addEventListener("click", openCommons);
+myWallTab.addEventListener("click", openMyWall);
+invitationClose.addEventListener("click", openCommons);
+
+function setMemberChoices(enabled) {
+  document.querySelectorAll(".member-choice, [data-member-font]").forEach(button => {
+    button.disabled = !enabled;
+    button.classList.toggle("unlocked", enabled);
+    if (button.dataset.memberColor) button.dataset.color = enabled ? button.dataset.memberColor : "";
+    if (button.dataset.memberFont) button.dataset.font = enabled ? button.dataset.memberFont : "";
+    if (button.dataset.memberEmoji) button.dataset.emoji = enabled ? button.dataset.memberEmoji : "";
+  });
+}
+
+async function loadWallPreferences() {
+  if (!currentSession) return;
+  const { data } = await supabase.from("wall_preferences")
+    .select("default_color, default_font, default_size")
+    .eq("user_id", currentSession.user.id)
+    .maybeSingle();
+  if (!data) return;
+  selectedColor = data.default_color || selectedColor;
+  selectedFont = data.default_font || selectedFont;
+  selectedSize = data.default_size || selectedSize;
+  document.querySelectorAll("[data-color]").forEach(item => item.classList.toggle("selected", item.dataset.color === selectedColor));
+  document.querySelectorAll("[data-font]").forEach(item => item.classList.toggle("selected", item.dataset.font === selectedFont));
+  document.querySelectorAll("[data-size]").forEach(item => item.classList.toggle("selected", item.dataset.size === selectedSize));
+}
+
+async function saveWallPreferences() {
+  if (!currentSession || currentWall !== "private") return;
+  const { error } = await supabase.from("wall_preferences").upsert({
+    user_id: currentSession.user.id,
+    default_color: selectedColor,
+    default_font: selectedFont,
+    default_size: selectedSize,
+    updated_at: new Date().toISOString()
+  });
+  if (error) console.error("My Wall preferences could not be saved", error);
+}
+
+commonHistory.addEventListener("click", async event => {
+  const button = event.target.closest("[data-wall-action]");
+  if (!button || currentWall !== "private" || !currentSession) return;
+  const tag = historyTags.find(item => item.id === button.dataset.id);
+  if (!tag) return;
+
+  let operation;
+  if (button.dataset.wallAction === "edit") {
+    const revised = window.prompt("Edit your private wall message", tag.text);
+    if (revised === null || !revised.trim()) return;
+    operation = supabase.from("private_wall_posts").update({ text: revised.trim().slice(0, 60), updated_at: new Date().toISOString() }).eq("id", tag.id);
+  } else if (button.dataset.wallAction === "pin") {
+    operation = supabase.from("private_wall_posts").update({ is_pinned: !tag.isPinned, updated_at: new Date().toISOString() }).eq("id", tag.id);
+  } else if (button.dataset.wallAction === "archive") {
+    operation = supabase.from("private_wall_posts").update({ is_archived: true, updated_at: new Date().toISOString() }).eq("id", tag.id);
+  } else if (button.dataset.wallAction === "delete") {
+    if (!window.confirm("Permanently delete this private wall message?")) return;
+    operation = supabase.from("private_wall_posts").delete().eq("id", tag.id);
+  }
+
+  button.disabled = true;
+  const { error } = await operation;
+  if (error) {
+    historyState.classList.add("error");
+    historyState.textContent = "That private-wall change could not be saved.";
+    button.disabled = false;
+    return;
+  }
+  await loadHistory();
+});
+
 syncUnitChoices();
 sprayButton.addEventListener("click", spray);
-restoreLocalWall();
-loadHistory();
+currentSession = await getSession().catch(() => null);
+await openCommons();
+import { supabase, getSession } from "../shared/motionc-supabase.js?v=20260813-1";

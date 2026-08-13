@@ -53,6 +53,24 @@
         <p class="history-state" id="historyState">Loading the latest wins…</p>
       </aside>
 
+      <div class="wall-view-tabs" role="tablist" aria-label="Choose a wall">
+        <button id="commonsTab" class="active" type="button" role="tab" aria-selected="true">The Commons</button>
+        <button id="myWallTab" type="button" role="tab" aria-selected="false">My Wall</button>
+      </div>
+
+      <section class="my-wall-invitation" id="myWallInvitation" hidden aria-labelledby="myWallInvitationTitle">
+        <button class="invitation-close" id="invitationClose" type="button" aria-label="Return to The Commons">×</button>
+        <p>YOUR SPACE</p>
+        <h2 id="myWallInvitationTitle">A wall that belongs only to you.</h2>
+        <ul>
+          <li>Keep private wins and milestones</li>
+          <li>Unlock more colours, icons and fonts</li>
+          <li>Pin, edit and archive your memories</li>
+        </ul>
+        <a href="/auth/">Register or sign in</a>
+        <small>Your Commons preview messages stay private until you choose to publish one.</small>
+      </section>
+
       <div class="mist-target" id="mistTarget" aria-hidden="true"></div>
       <div class="spray-stream" id="sprayStream" aria-hidden="true"></div>
       <div class="purple-can-pulse" id="purpleCan" aria-hidden="true"></div>
@@ -75,8 +93,8 @@
           <div class="emoji-menu" id="emojiMenu" role="menu" hidden>
             <button data-emoji="🎉" role="menuitem" type="button">🎉</button>
             <button data-emoji="😊" role="menuitem" type="button">😊</button>
-            <button aria-label="Members emoji locked" class="locked" disabled type="button">💪</button>
-            <button aria-label="Members emoji locked" class="locked" disabled type="button">👟</button>
+            <button aria-label="Strength icon — available on My Wall" class="locked member-choice" data-emoji="" data-member-emoji="💪" disabled type="button">💪</button>
+            <button aria-label="Running shoe — available on My Wall" class="locked member-choice" data-emoji="" data-member-emoji="👟" disabled type="button">👟</button>
           </div>
         </div>
 
@@ -86,6 +104,8 @@
           <button
             aria-label="Marker font — registration required"
             class="locked-choice"
+            data-font=""
+            data-member-font="'Trebuchet MS', sans-serif"
             disabled
             title="Register to unlock Marker"
             type="button"
@@ -93,6 +113,8 @@
           <button
             aria-label="Chalk font — registration required"
             class="locked-choice"
+            data-font=""
+            data-member-font="Georgia, serif"
             disabled
             title="Register to unlock Chalk"
             type="button"
@@ -103,9 +125,9 @@
           <button aria-label="Use pink paint" class="selected" data-color="#d52b69" style="background:#d52b69" type="button"></button>
           <button aria-label="Use orange paint" data-color="#ee7512" style="background:#ee7512" type="button"></button>
           <button aria-label="Use yellow paint" data-color="#ffbf22" style="background:#ffbf22" type="button"></button>
-          <button aria-label="Green paint — registration required" class="locked-choice" disabled style="background:#69a923" title="Register to unlock green" type="button"></button>
-          <button aria-label="Teal paint — registration required" class="locked-choice" disabled style="background:#0ea5b3" title="Register to unlock teal" type="button"></button>
-          <button aria-label="Purple paint — registration required" class="locked-choice" disabled style="background:#7550a5" title="Register to unlock purple" type="button"></button>
+          <button aria-label="Green paint — available on My Wall" class="locked-choice member-choice" data-color="" data-member-color="#69a923" disabled style="background:#69a923" title="Open My Wall to unlock green" type="button"></button>
+          <button aria-label="Teal paint — available on My Wall" class="locked-choice member-choice" data-color="" data-member-color="#0ea5b3" disabled style="background:#0ea5b3" title="Open My Wall to unlock teal" type="button"></button>
+          <button aria-label="Purple paint — available on My Wall" class="locked-choice member-choice" data-color="" data-member-color="#7550a5" disabled style="background:#7550a5" title="Open My Wall to unlock purple" type="button"></button>
         </div>
 
         <div class="size-picks" aria-label="Choose a font size">
@@ -119,7 +141,6 @@
       </div>
     </section>
   </main>
-  <script src="/drop-zone/script.js?v=20260812-1"></script>
-  <script type="module" src="/shared/motionc-supabase.js?v=20260812-1"></script>
+  <script type="module" src="/drop-zone/script.js?v=20260813-1"></script>
 </body>
 </html>
