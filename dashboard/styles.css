@@ -1373,11 +1373,12 @@ body {
     position: absolute;
     inset: 17px;
     border-radius: 50%;
-    background: conic-gradient(
-        var(--core-colour) 0 41.666%,
-        var(--healthy-colour) 41.666% 58.333%,
-        var(--elevated-colour) 58.333% 71.666%,
-        var(--watch-colour) 71.666% 100%
+    background: conic-gradient(from 195deg,
+        var(--core-colour) 0 38.194%,
+        var(--healthy-colour) 38.194% 53.472%,
+        var(--elevated-colour) 53.472% 65.694%,
+        var(--watch-colour) 65.694% 91.666%,
+        transparent 91.666% 100%
     );
     box-shadow: 0 0 0 1px rgba(20, 58, 43, .06);
 }
@@ -1432,10 +1433,12 @@ body {
     left: calc(50% - 6px);
     width: 12px;
     height: 12px;
-    border: 3px solid #fff;
+    border: 3px solid #173d31;
     border-radius: 50%;
-    background: #173d31;
-    box-shadow: 0 1px 4px rgba(18, 53, 41, .32);
+    background: #ffd43b;
+    box-shadow:
+        0 0 0 3px #fff,
+        0 0 10px 4px rgba(255, 212, 59, .72);
     opacity: 0;
     transform: rotate(var(--mcp-marker-angle)) translateY(-78px);
 }
@@ -1453,10 +1456,10 @@ body {
     line-height: 1;
     text-transform: uppercase;
 }
-.mcp-zone-label-core { top: 24px; right: 6px; }
-.mcp-zone-label-healthy { bottom: 7px; left: 50%; transform: translateX(-50%); }
-.mcp-zone-label-elevated { bottom: 31px; left: -1px; }
-.mcp-zone-label-watch { top: 31px; left: 1px; }
+.mcp-zone-label-core { bottom: 25px; left: 0; }
+.mcp-zone-label-healthy { top: 6px; left: 56%; transform: translateX(-50%); }
+.mcp-zone-label-elevated { top: 38px; right: -4px; }
+.mcp-zone-label-watch { right: -2px; bottom: 30px; }
 .mcp-zone-gauge.zone-core .mcp-zone-label-core,
 .mcp-zone-gauge.zone-healthy .mcp-zone-label-healthy,
 .mcp-zone-gauge.zone-elevated .mcp-zone-label-elevated,

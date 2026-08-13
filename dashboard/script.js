@@ -1814,7 +1814,8 @@ function updateModernMcpDisplay(detail) {
         if (gauge) {
             gauge.classList.remove("zone-core", "zone-healthy", "zone-elevated", "zone-watch");
             gauge.classList.add("is-assessed", `zone-${zone.key}`);
-            gauge.style.setProperty("--mcp-marker-angle", `${Math.max(0, Math.min(60, mcp)) / 60 * 360}deg`);
+            const markerAngle = 195 + (Math.max(0, Math.min(60, mcp)) / 60 * 330);
+            gauge.style.setProperty("--mcp-marker-angle", `${markerAngle}deg`);
             gauge.setAttribute("aria-label", `MCP ${mcp.toFixed(1)}, ${zone.label}`);
         }
         setText("momentum-message", mcp >= 30 ? "You’re building healthy momentum. Consistency is doing its quiet work." : "Every small improvement moves the score. Choose one habit to strengthen today.");
