@@ -620,7 +620,8 @@ textarea {
 }
 
 .font-picks button {
-  min-width: 72px;
+  width: clamp(72px, 7.2vw, 116px);
+  min-width: 0;
   padding: 7px 13px;
   border: 1px solid #4c4f52;
   border-radius: 6px;
@@ -628,6 +629,7 @@ textarea {
   background: rgba(12, 13, 14, .94);
   cursor: pointer;
   font-weight: 800;
+  white-space: nowrap;
 }
 
 .font-picks button.selected {
@@ -685,7 +687,7 @@ textarea {
 
 .size-picks {
   position: absolute;
-  left: 61.5%;
+  left: 67.5%;
   top: 13%;
   display: flex;
   z-index: 4;
