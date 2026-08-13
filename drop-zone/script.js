@@ -335,6 +335,12 @@ function renderHistory() {
     time.textContent = formatTime(tag.createdAt);
     article.append(text, time);
     if (currentWall === "private" && currentSession) {
+      if (tag.isPinned) {
+        const pin = document.createElement("span");
+        pin.className = "history-pin";
+        pin.textContent = "📌 Pinned";
+        article.prepend(pin);
+      }
       const actions = document.createElement("div");
       actions.className = "history-actions";
       actions.innerHTML = `
@@ -357,6 +363,7 @@ async function loadHistory() {
     } else {
       query = query.eq("is_archived", false)
         .order("is_pinned", { ascending: false })
+        .order("pinned_at", { ascending: false, nullsFirst: false })
         .order("created_at", { ascending: false });
     }
     query = query.limit(50);
@@ -367,7 +374,7 @@ async function loadHistory() {
       sizeChoice: row.size_choice, size: sizeFor(row.text, row.size_choice),
       width: `${Number(row.width_percent)}%`, left: Number(row.position_x),
       top: Number(row.position_y), rotation: Number(row.rotation), createdAt: row.created_at
-      , isPinned: Boolean(row.is_pinned)
+      , isPinned: Boolean(row.is_pinned), pinnedAt: row.pinned_at
     }));
     renderHistory();
     restoreSharedWall(historyTags);
@@ -664,7 +671,12 @@ commonHistory.addEventListener("click", async event => {
     if (revised === null || !revised.trim()) return;
     operation = supabase.from("private_wall_posts").update({ text: revised.trim().slice(0, 60), updated_at: new Date().toISOString() }).eq("id", tag.id);
   } else if (button.dataset.wallAction === "pin") {
-    operation = supabase.from("private_wall_posts").update({ is_pinned: !tag.isPinned, updated_at: new Date().toISOString() }).eq("id", tag.id);
+    const pinning = !tag.isPinned;
+    operation = supabase.from("private_wall_posts").update({
+      is_pinned: pinning,
+      pinned_at: pinning ? new Date().toISOString() : null,
+      updated_at: new Date().toISOString()
+    }).eq("id", tag.id);
   } else if (button.dataset.wallAction === "archive") {
     operation = supabase.from("private_wall_posts").update({ is_archived: true, updated_at: new Date().toISOString() }).eq("id", tag.id);
   } else if (button.dataset.wallAction === "delete") {
