@@ -615,6 +615,10 @@ function setMemberChoices(enabled) {
   document.querySelectorAll(".member-choice, [data-member-font]").forEach(button => {
     button.disabled = !enabled;
     button.classList.toggle("unlocked", enabled);
+    if (button.dataset.memberEmoji) button.classList.toggle("locked", !enabled);
+    if (button.dataset.memberColor || button.dataset.memberFont) {
+      button.classList.toggle("locked-choice", !enabled);
+    }
     if (button.dataset.memberColor) button.dataset.color = enabled ? button.dataset.memberColor : "";
     if (button.dataset.memberFont) button.dataset.font = enabled ? button.dataset.memberFont : "";
     if (button.dataset.memberEmoji) button.dataset.emoji = enabled ? button.dataset.memberEmoji : "";
