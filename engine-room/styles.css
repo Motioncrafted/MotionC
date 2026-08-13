@@ -249,7 +249,6 @@ body {
     line-height: 1.05;
     transform: rotate(-1.8deg);
 }
-
 .mcp-zone-note::after {
     position: absolute;
     inset: 5% 4%;
@@ -257,7 +256,6 @@ body {
     content: "";
     pointer-events: none;
 }
-
 .mcp-zone-note h2 {
     position: relative;
     z-index: 1;
@@ -269,7 +267,6 @@ body {
     text-underline-offset: .18em;
     transform: rotate(.8deg);
 }
-
 .mcp-zone-note ul {
     position: relative;
     z-index: 1;
@@ -279,7 +276,6 @@ body {
     padding: 0;
     list-style: none;
 }
-
 .mcp-zone-note li {
     display: grid;
     grid-template-columns: 1fr auto;
@@ -289,7 +285,6 @@ body {
     font-weight: 700;
     white-space: nowrap;
 }
-
 .mcp-zone-note li::before {
     width: clamp(4px, .48vw, 8px);
     aspect-ratio: 1;
@@ -301,7 +296,6 @@ body {
     transform: translateX(-100%);
     box-shadow: 0 0 2px currentColor;
 }
-
 .mcp-zone-note li span { grid-column: 1; grid-row: 1; }
 .mcp-zone-note li strong { grid-column: 2; font-weight: 900; }
 .mcp-zone-note .zone-core::before { background: #237c36; }
@@ -311,7 +305,6 @@ body {
 .mcp-zone-note .zone-healthy { transform: rotate(.5deg); }
 .mcp-zone-note .zone-elevated { transform: rotate(-.6deg); }
 .mcp-zone-note .zone-watch { transform: rotate(.35deg); }
-
 .note-tape {
     position: absolute;
     z-index: 2;
@@ -324,7 +317,6 @@ body {
     box-shadow: 0 2px 3px rgba(0,0,0,.22);
     opacity: .88;
 }
-
 .note-tape-left { left: 4%; transform: rotate(-7deg); }
 .note-tape-right { right: 3%; transform: rotate(6deg); }
 
