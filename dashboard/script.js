@@ -1226,71 +1226,6 @@ window.addEventListener(
     }
 );
 
-/* ==========================================================
-   TEMP LOCATION MARKER
-   MCP "YOU ARE HERE" PLACEHOLDER
-   ========================================================== */
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    const dashboardWrapper =
-        document.querySelector(
-            ".dashboard-wrapper"
-        );
-
-    if (!dashboardWrapper) {
-        console.warn(
-            "MCP location marker: dashboard wrapper not found."
-        );
-
-        return;
-    }
-
-    const existingMarker =
-        document.getElementById(
-            "mcp-location-marker"
-        );
-
-    if (existingMarker) {
-        return;
-    }
-
-    const mcpLocationMarker =
-        document.createElement(
-            "div"
-        );
-
-    mcpLocationMarker.id =
-        "mcp-location-marker";
-
-    mcpLocationMarker.setAttribute(
-        "aria-hidden",
-        "true"
-    );
-
-    Object.assign(
-        mcpLocationMarker.style,
-        {
-            position: "absolute",
-            top: "35.6%",
-            left: "1.3%",
-            width: "6.9%",
-            height: "10.3%",
-            border: "3px solid #ffd400",
-            borderRadius: "6px",
-            background: "transparent",
-            boxSizing: "border-box",
-            pointerEvents: "none",
-            zIndex: "20"
-        }
-    );
-
-    dashboardWrapper.appendChild(
-        mcpLocationMarker
-    );
-
-});
-
 /* =========================================
    Modern Summary data and chart layer
    ========================================= */
@@ -1865,9 +1800,23 @@ function updateModernMcpDisplay(detail) {
     const mcp = Number(eventDetail.results?.mcp);
     const bmi = Number(eventDetail.results?.bmi);
     if (Number.isFinite(mcp)) {
+        const gauge = document.getElementById("mcp-ring");
+        const zone = mcp < 25
+            ? { key: "core", label: "Core Zone" }
+            : mcp < 35
+                ? { key: "healthy", label: "Healthy Zone" }
+                : mcp < 43
+                    ? { key: "elevated", label: "Elevated Zone" }
+                    : { key: "watch", label: "Watch Zone" };
+
         setText("display-mcp-ring", mcp.toFixed(1));
-        setRingValue("mcp-ring", mcp / 50 * 100);
-        setText("mcp-status", mcp >= 45 ? "Core zone" : mcp >= 30 ? "Healthy zone" : mcp >= 20 ? "Caution zone" : "At-risk zone");
+        setText("mcp-zone-status", zone.label);
+        if (gauge) {
+            gauge.classList.remove("zone-core", "zone-healthy", "zone-elevated", "zone-watch");
+            gauge.classList.add("is-assessed", `zone-${zone.key}`);
+            gauge.style.setProperty("--mcp-marker-angle", `${Math.max(0, Math.min(60, mcp)) / 60 * 360}deg`);
+            gauge.setAttribute("aria-label", `MCP ${mcp.toFixed(1)}, ${zone.label}`);
+        }
         setText("momentum-message", mcp >= 30 ? "You’re building healthy momentum. Consistency is doing its quiet work." : "Every small improvement moves the score. Choose one habit to strengthen today.");
     }
     if (Number.isFinite(bmi)) {
