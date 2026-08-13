@@ -9,6 +9,7 @@ let pendingSession = null;
 let browserStateBeforeSignIn = null;
 const requestedNext = new URLSearchParams(location.search).get("next");
 const safeNext = requestedNext && requestedNext.startsWith("/") && !requestedNext.startsWith("//") ? requestedNext : null;
+const requestedMode = new URLSearchParams(location.search).get("mode");
 
 function continueAfterLogin() {
   if (safeNext) location.assign(safeNext);
@@ -95,4 +96,7 @@ $("switchButton").addEventListener("click", async () => {
 
 const existing = await getSession();
 if (existing) await finishLogin(existing);
-else show("signedOutPanel");
+else {
+  setMode(requestedMode === "create" ? "create" : "signin");
+  show("signedOutPanel");
+}
