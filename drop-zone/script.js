@@ -12,6 +12,7 @@ const PLACEMENT_SPOTS = [
 ];
 const WALL_CAPACITY = 10;
 const MIN_VISIBLE_POSTS = 8;
+const VISITOR_POST_LIMIT = 3;
 const LEGACY_WALL_STORAGE_KEY = "motionc-drop-zone-wall-v1";
 const WALL_STORAGE_KEY = "motionc-visitor-commons-wall-v1";
 
@@ -37,6 +38,7 @@ const myWallTab = document.getElementById("myWallTab");
 const myWallInvitation = document.getElementById("myWallInvitation");
 const invitationClose = document.getElementById("invitationClose");
 const wallViewDescription = document.getElementById("wallViewDescription");
+const visitorPostLimit = document.getElementById("visitorPostLimit");
 
 let selectedColor = COLORS[0];
 let selectedFont = FONTS[0];
@@ -249,6 +251,13 @@ function saveLocalWall() {
   }
 }
 
+function syncVisitorPostLimit() {
+  const atLimit = !currentSession && currentWall === "commons" && wallTags.length >= VISITOR_POST_LIMIT;
+  visitorPostLimit.hidden = !atLimit;
+  sprayButton.disabled = spraying || atLimit || !message.value.trim();
+  sprayButton.textContent = atLimit ? "LIMIT REACHED" : spraying ? "SPRAYING…" : "SPRAY IT!";
+}
+
 function validStoredTag(tag) {
   return tag && typeof tag.text === "string" && tag.text.trim() &&
     COLORS.includes(tag.color) && FONTS.includes(tag.font) &&
@@ -280,7 +289,7 @@ function restoreLocalWall() {
       localStorage.removeItem(LEGACY_WALL_STORAGE_KEY);
     }
     const stored = JSON.parse(localStorage.getItem(WALL_STORAGE_KEY));
-    if (Array.isArray(stored)) renderWall(stored.filter(validStoredTag));
+    if (Array.isArray(stored)) renderWall(stored.filter(validStoredTag).slice(-VISITOR_POST_LIMIT));
   } catch {
     localStorage.removeItem(WALL_STORAGE_KEY);
   }
@@ -436,7 +445,10 @@ async function saveHistory(tag) {
 
 function spray() {
   const text = message.value.trim();
-  if (!text || spraying) return;
+  if (!text || spraying || (!currentSession && currentWall === "commons" && wallTags.length >= VISITOR_POST_LIMIT)) {
+    syncVisitorPostLimit();
+    return;
+  }
 
   spraying = true;
   sprayButton.disabled = true;
@@ -474,13 +486,13 @@ function spray() {
     tag.element = createWallTag(tag);
     wallTags.push(tag);
     if (!currentSession && currentWall === "commons") saveLocalWall();
+    syncVisitorPostLimit();
   }, 850);
 
   window.setTimeout(() => mistTarget.classList.remove("active"), 2700);
   window.setTimeout(() => {
     spraying = false;
-    sprayButton.disabled = !message.value.trim();
-    sprayButton.textContent = "SPRAY IT!";
+    syncVisitorPostLimit();
     purpleCan.classList.remove("spraying");
     sprayStream.replaceChildren();
   }, 3150);
@@ -598,6 +610,7 @@ async function openCommons() {
     historyTags = wallTags.map(storableTag).reverse();
     renderHistory();
   }
+  syncVisitorPostLimit();
 }
 
 async function openMyWall() {
@@ -612,6 +625,7 @@ async function openMyWall() {
   await loadWallPreferences();
   historyState.classList.remove("error");
   await loadHistory();
+  syncVisitorPostLimit();
 }
 
 commonsTab.addEventListener("click", openCommons);
@@ -698,5 +712,6 @@ commonHistory.addEventListener("click", async event => {
 syncUnitChoices();
 sprayButton.addEventListener("click", spray);
 currentSession = await getSession().catch(() => null);
-await openCommons();
+if (currentSession && new URLSearchParams(location.search).get("wall") === "my") await openMyWall();
+else await openCommons();
 import { supabase, getSession } from "../shared/motionc-supabase.js?v=20260813-1";

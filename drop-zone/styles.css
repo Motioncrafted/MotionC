@@ -759,6 +759,20 @@ textarea {
   white-space: nowrap;
 }
 
+.visitor-post-limit {
+  position: absolute;
+  right: 1.2%;
+  bottom: -1.5%;
+  width: 18%;
+  margin: 0;
+  color: #ffcf54;
+  font-size: clamp(6px,.54vw,10px);
+  line-height: 1.25;
+  text-align: center;
+}
+.visitor-post-limit[hidden] { display: none; }
+.visitor-post-limit a { color: #8ddcff; font-weight: 800; }
+
 .emoji-picker {
   position: absolute;
   left: 30%;
