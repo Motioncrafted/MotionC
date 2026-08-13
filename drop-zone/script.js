@@ -255,7 +255,7 @@ function syncVisitorPostLimit() {
   const atLimit = !currentSession && currentWall === "commons" && wallTags.length >= VISITOR_POST_LIMIT;
   visitorPostLimit.hidden = !atLimit;
   sprayButton.disabled = spraying || atLimit || !message.value.trim();
-  sprayButton.textContent = atLimit ? "LIMIT REACHED" : spraying ? "SPRAYING…" : "SPRAY IT!";
+  sprayButton.textContent = atLimit ? "3 POST LIMIT" : spraying ? "SPRAYING…" : "SPRAY IT!";
 }
 
 function validStoredTag(tag) {

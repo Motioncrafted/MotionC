@@ -762,8 +762,8 @@ textarea {
 .visitor-post-limit {
   position: absolute;
   right: 1.2%;
-  bottom: -1.5%;
-  width: 18%;
+  bottom: -3%;
+  width: 19%;
   margin: 0;
   color: #ffcf54;
   font-size: clamp(6px,.54vw,10px);
@@ -771,7 +771,16 @@ textarea {
   text-align: center;
 }
 .visitor-post-limit[hidden] { display: none; }
-.visitor-post-limit a { color: #8ddcff; font-weight: 800; }
+.visitor-post-limit span { display: flex; gap: 5px; margin-top: 4px; justify-content: center; }
+.visitor-post-limit a {
+  padding: 3px 6px;
+  border: 1px solid rgba(141,220,255,.5);
+  border-radius: 5px;
+  color: #8ddcff;
+  background: rgba(0,0,0,.35);
+  font-weight: 800;
+  white-space: nowrap;
+}
 
 .emoji-picker {
   position: absolute;
