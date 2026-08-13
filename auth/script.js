@@ -23,7 +23,7 @@ function setMode(next) {
   mode = next;
   $("signInTab").classList.toggle("active", mode === "signin");
   $("createTab").classList.toggle("active", mode === "create");
-  $("submitButton").textContent = mode === "signin" ? "Sign in" : "Create user";
+  $("submitButton").textContent = mode === "signin" ? "Sign in" : "Create account";
   $("password").autocomplete = mode === "signin" ? "current-password" : "new-password";
   $("formMessage").textContent = "";
 }
