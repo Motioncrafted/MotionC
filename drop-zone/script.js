@@ -36,6 +36,7 @@ const commonsTab = document.getElementById("commonsTab");
 const myWallTab = document.getElementById("myWallTab");
 const myWallInvitation = document.getElementById("myWallInvitation");
 const invitationClose = document.getElementById("invitationClose");
+const wallViewDescription = document.getElementById("wallViewDescription");
 
 let selectedColor = COLORS[0];
 let selectedFont = FONTS[0];
@@ -51,7 +52,7 @@ messageCount.textContent = message.value.length;
 
 function sanitizeMessage(value) {
   const allowedEmoji = currentSession && currentWall === "private"
-    ? ["🎉", "😊", "💪", "👟"]
+    ? ["🎉", "😊", "💪", "👟", "⭐", "👍", "😎"]
     : ["🎉", "😊"];
   return value.replace(
     /\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*/gu,
@@ -301,7 +302,7 @@ function layoutForHistoryTag(tag, index) {
 
 function restoreSharedWall(tags) {
   const visible = tags.slice(0, WALL_CAPACITY).reverse();
-  if (visible.length) renderWall(visible.map(layoutForHistoryTag));
+  renderWall(visible.map(layoutForHistoryTag));
 }
 
 function formatTime(createdAt) {
@@ -574,6 +575,9 @@ function setActiveTab(name) {
   commonsTab.setAttribute("aria-selected", String(commonsActive));
   myWallTab.setAttribute("aria-selected", String(!commonsActive));
   document.querySelector(".wall-stage").classList.toggle("my-wall-mode", !commonsActive && Boolean(currentSession));
+  wallViewDescription.textContent = commonsActive
+    ? "A shared space to celebrate wins and inspire each other."
+    : "Your private place for wins, milestones and memories.";
 }
 
 async function openCommons() {
