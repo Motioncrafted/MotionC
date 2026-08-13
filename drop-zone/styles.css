@@ -264,9 +264,10 @@ textarea {
   color: rgba(255,255,255,.68);
   background: #07090a;
   font-family: "Segoe Print", "Comic Sans MS", cursive;
-  font-size: clamp(8px, .92vw, 16px);
+  font-size: clamp(7px, .78vw, 14px);
   font-weight: 800;
   text-transform: uppercase;
+  white-space: nowrap;
   cursor: pointer;
 }
 
@@ -561,6 +562,19 @@ textarea {
   z-index: 10;
 }
 
+.interactive-controls::before {
+  position: absolute;
+  z-index: 3;
+  left: 34.5%;
+  top: 7%;
+  width: 43.5%;
+  height: 39%;
+  border-radius: 7px;
+  content: "";
+  pointer-events: none;
+  background: #101112;
+}
+
 .message-field {
   position: absolute;
   left: 2%;
@@ -598,7 +612,7 @@ textarea {
 
 .font-picks {
   position: absolute;
-  left: 36%;
+  left: 35.5%;
   top: 13%;
   display: flex;
   z-index: 4;
@@ -652,6 +666,7 @@ textarea {
   left: 36.2%;
   top: 59%;
   display: flex;
+  z-index: 4;
   gap: 18px;
 }
 
@@ -670,7 +685,7 @@ textarea {
 
 .size-picks {
   position: absolute;
-  left: 62%;
+  left: 61.5%;
   top: 13%;
   display: flex;
   z-index: 4;
@@ -679,12 +694,7 @@ textarea {
 }
 
 .size-picks > span {
-  align-self: center;
-  margin-right: 2px;
-  color: #9da2a5;
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: .08em;
+  display: none;
 }
 
 .size-picks button {
