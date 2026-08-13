@@ -53,6 +53,11 @@
         <p class="history-state" id="historyState">Loading the latest wins…</p>
       </aside>
 
+      <nav class="visitor-account-actions" id="visitorAccountActions" aria-label="Visitor account options" hidden>
+        <a href="/auth/?mode=signin&amp;next=%2Fdrop-zone%2F">Sign in</a>
+        <a href="/auth/?mode=create&amp;next=%2Fdrop-zone%2F%3Fwall%3Dmy">Create account</a>
+      </nav>
+
       <div class="wall-view-tabs" role="tablist" aria-label="Choose a wall">
         <button id="commonsTab" class="active" type="button" role="tab" aria-selected="true">The Commons</button>
         <button id="myWallTab" type="button" role="tab" aria-selected="false">My Wall</button>
@@ -142,13 +147,14 @@
         </div>
 
         <button class="spray-button" id="sprayButton" type="button">SPRAY IT!</button>
-        <p class="visitor-post-limit" id="visitorPostLimit" hidden>
-          You’ve used your 3 visitor posts.
+        <div class="visitor-post-limit" id="visitorPostLimit" hidden>
+          <strong>3 visitor posts used</strong>
+          <small>Sign in or create an account to keep posting.</small>
           <span>
+            <a href="/auth/?mode=signin&amp;next=%2Fdrop-zone%2F">Sign in</a>
             <a href="/auth/?mode=create&amp;next=%2Fdrop-zone%2F%3Fwall%3Dmy">Create account</a>
-            <a href="/auth/?mode=signin&amp;next=%2Fdrop-zone%2F%3Fwall%3Dmy">Sign in</a>
           </span>
-        </p>
+        </div>
       </div>
     </section>
   </main>

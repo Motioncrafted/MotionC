@@ -39,6 +39,7 @@ const myWallInvitation = document.getElementById("myWallInvitation");
 const invitationClose = document.getElementById("invitationClose");
 const wallViewDescription = document.getElementById("wallViewDescription");
 const visitorPostLimit = document.getElementById("visitorPostLimit");
+const visitorAccountActions = document.getElementById("visitorAccountActions");
 
 let selectedColor = COLORS[0];
 let selectedFont = FONTS[0];
@@ -255,7 +256,8 @@ function syncVisitorPostLimit() {
   const atLimit = !currentSession && currentWall === "commons" && wallTags.length >= VISITOR_POST_LIMIT;
   visitorPostLimit.hidden = !atLimit;
   sprayButton.disabled = spraying || atLimit || !message.value.trim();
-  sprayButton.textContent = atLimit ? "3 POST LIMIT" : spraying ? "SPRAYING…" : "SPRAY IT!";
+  sprayButton.hidden = atLimit;
+  sprayButton.textContent = spraying ? "SPRAYING…" : "SPRAY IT!";
 }
 
 function validStoredTag(tag) {
@@ -712,6 +714,7 @@ commonHistory.addEventListener("click", async event => {
 syncUnitChoices();
 sprayButton.addEventListener("click", spray);
 currentSession = await getSession().catch(() => null);
+visitorAccountActions.hidden = Boolean(currentSession);
 if (currentSession && new URLSearchParams(location.search).get("wall") === "my") await openMyWall();
 else await openCommons();
 import { supabase, getSession } from "../shared/motionc-supabase.js?v=20260813-1";

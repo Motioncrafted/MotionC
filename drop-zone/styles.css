@@ -243,6 +243,30 @@ textarea {
   scrollbar-width: thin;
 }
 
+.visitor-account-actions {
+  position: absolute;
+  z-index: 34;
+  left: 82.1%;
+  top: 18.7%;
+  display: flex;
+  width: 15.6%;
+  gap: 5px;
+  justify-content: center;
+}
+.visitor-account-actions[hidden] { display: none; }
+.visitor-account-actions a {
+  padding: 5px 8px;
+  border: 1px solid rgba(0,174,243,.5);
+  border-radius: 6px;
+  color: #8ddcff;
+  background: rgba(2,5,6,.94);
+  font-size: clamp(7px,.57vw,10px);
+  font-weight: 900;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.visitor-account-actions a:hover { border-color: var(--blue); color: white; }
+
 .wall-view-tabs {
   position: absolute;
   z-index: 33;
@@ -761,19 +785,29 @@ textarea {
 
 .visitor-post-limit {
   position: absolute;
-  right: 1.2%;
-  bottom: -3%;
-  width: 19%;
-  margin: 0;
-  color: #ffcf54;
+  right: 1.5%;
+  top: 15%;
+  display: grid;
+  width: 17.5%;
+  min-height: 72%;
+  padding: 8px 7px;
+  place-content: center;
+  gap: 5px;
+  border: 1px solid #168bd0;
+  border-radius: 8px;
+  color: white;
+  background: linear-gradient(#174c70, #102d40);
+  box-shadow: 0 0 0 7px #101112;
   font-size: clamp(6px,.54vw,10px);
-  line-height: 1.25;
+  line-height: 1.2;
   text-align: center;
 }
 .visitor-post-limit[hidden] { display: none; }
+.visitor-post-limit strong { color: #ffcf54; font-size: clamp(8px,.72vw,13px); text-transform: uppercase; }
+.visitor-post-limit small { color: rgba(255,255,255,.76); font-size: inherit; }
 .visitor-post-limit span { display: flex; gap: 5px; margin-top: 4px; justify-content: center; }
 .visitor-post-limit a {
-  padding: 3px 6px;
+  padding: 4px 6px;
   border: 1px solid rgba(141,220,255,.5);
   border-radius: 5px;
   color: #8ddcff;
