@@ -1814,7 +1814,7 @@ function updateModernMcpDisplay(detail) {
         if (gauge) {
             gauge.classList.remove("zone-core", "zone-healthy", "zone-elevated", "zone-watch");
             gauge.classList.add("is-assessed", `zone-${zone.key}`);
-            const markerAngle = 195 + (Math.max(0, Math.min(60, mcp)) / 60 * 330);
+            const markerAngle = 195 + ((60 - Math.max(0, Math.min(60, mcp))) / 60 * 330);
             gauge.style.setProperty("--mcp-marker-angle", `${markerAngle}deg`);
             gauge.setAttribute("aria-label", `MCP ${mcp.toFixed(1)}, ${zone.label}`);
         }

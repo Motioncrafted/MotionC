@@ -1374,10 +1374,10 @@ body {
     inset: 17px;
     border-radius: 50%;
     background: conic-gradient(from 195deg,
-        var(--core-colour) 0 38.194%,
+        var(--watch-colour) 0 25.972%,
+        var(--elevated-colour) 25.972% 38.194%,
         var(--healthy-colour) 38.194% 53.472%,
-        var(--elevated-colour) 53.472% 65.694%,
-        var(--watch-colour) 65.694% 91.666%,
+        var(--core-colour) 53.472% 91.666%,
         transparent 91.666% 100%
     );
     box-shadow: 0 0 0 1px rgba(20, 58, 43, .06);
@@ -1456,10 +1456,10 @@ body {
     line-height: 1;
     text-transform: uppercase;
 }
-.mcp-zone-label-core { bottom: 25px; left: 0; }
+.mcp-zone-label-core { right: 0; bottom: 25px; }
 .mcp-zone-label-healthy { top: 6px; left: 56%; transform: translateX(-50%); }
-.mcp-zone-label-elevated { top: 38px; right: -4px; }
-.mcp-zone-label-watch { right: -2px; bottom: 30px; }
+.mcp-zone-label-elevated { top: 38px; left: -4px; }
+.mcp-zone-label-watch { bottom: 30px; left: -2px; }
 .mcp-zone-gauge.zone-core .mcp-zone-label-core,
 .mcp-zone-gauge.zone-healthy .mcp-zone-label-healthy,
 .mcp-zone-gauge.zone-elevated .mcp-zone-label-elevated,
