@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>MotionC Account Test</title>
+  <title>MotionC Account</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <main class="account-shell">
-    <a class="back" href="/daily/">← Daily page</a>
-    <p class="eyebrow">MOTIONC ACCOUNT TEST</p>
-    <h1>Two people. Two separate journeys.</h1>
-    <p class="intro">Sign in as either test user. MotionC will save and restore that person’s Daily and Summary data independently.</p>
+    <a class="back" href="/drop-zone/">← Continue to The Commons</a>
+    <p class="eyebrow">YOUR MOTIONC ACCOUNT</p>
+    <h1>Your journey. Your private space.</h1>
+    <p class="intro">Sign in to restore your MotionC information and open your private My Wall, or continue to The Commons as a visitor.</p>
 
     <section id="signedOutPanel" class="card">
       <div class="tabs" role="tablist">
@@ -24,12 +24,13 @@
         <button id="submitButton" class="primary" type="submit">Sign in</button>
       </form>
       <p id="formMessage" class="message" aria-live="polite"></p>
+      <a class="visitor-link" href="/drop-zone/">Continue as a visitor</a>
     </section>
 
     <section id="setupPanel" class="card hidden">
       <p class="eyebrow">FIRST SIGN-IN</p>
       <h2>Choose this user’s starting point</h2>
-      <p>This browser currently has MotionC prototype data. Assign it to this account, or begin with a clean record.</p>
+      <p>This browser may contain local MotionC information. Assign it to this account, or begin with a clean record. Visitor Commons previews are never imported or published.</p>
       <div class="actions">
         <button id="importButton" class="primary" type="button">Use current MotionC data</button>
         <button id="freshButton" class="secondary" type="button">Start this user fresh</button>
@@ -43,12 +44,13 @@
       <div class="actions">
         <a class="primary button-link" href="/daily/">Open Daily page</a>
         <a class="secondary button-link" href="/dashboard/">Open Summary</a>
+        <a class="secondary button-link" href="/drop-zone/?wall=my">Open My Wall</a>
         <button id="switchButton" class="quiet" type="button">Save and switch user</button>
       </div>
     </section>
 
     <aside class="test-note">
-      <strong>How to test:</strong> create your account, enter a recognizable Daily value, then choose <em>Save and switch user</em>. Create your imaginary friend, enter different data, and switch back. Each account should return exactly as it was left.
+      <strong>Visitor privacy:</strong> messages created while signed out stay in this browser. MotionC will not publish or attach them to an account without asking you first.
     </aside>
   </main>
   <script type="module" src="script.js"></script>

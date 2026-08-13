@@ -7,6 +7,12 @@ const $ = (id) => document.getElementById(id);
 let mode = "signin";
 let pendingSession = null;
 let browserStateBeforeSignIn = null;
+const requestedNext = new URLSearchParams(location.search).get("next");
+const safeNext = requestedNext && requestedNext.startsWith("/") && !requestedNext.startsWith("//") ? requestedNext : null;
+
+function continueAfterLogin() {
+  if (safeNext) location.assign(safeNext);
+}
 
 function show(name) {
   ["signedOutPanel", "setupPanel", "signedInPanel"].forEach((id) => $(id).classList.toggle("hidden", id !== name));
@@ -30,6 +36,7 @@ async function finishLogin(session) {
     return;
   }
   await activateUser(session.user.id, cloud.state);
+  if (safeNext) { continueAfterLogin(); return; }
   $("currentEmail").textContent = session.user.email;
   show("signedInPanel");
 }
@@ -59,12 +66,14 @@ $("accountForm").addEventListener("submit", async (event) => {
 
 $("importButton").addEventListener("click", async () => {
   await activateUser(pendingSession.user.id, browserStateBeforeSignIn || captureLocalState());
+  if (safeNext) { continueAfterLogin(); return; }
   $("currentEmail").textContent = pendingSession.user.email;
   show("signedInPanel");
 });
 
 $("freshButton").addEventListener("click", async () => {
   await activateUser(pendingSession.user.id, makeFreshState());
+  if (safeNext) { continueAfterLogin(); return; }
   $("currentEmail").textContent = pendingSession.user.email;
   show("signedInPanel");
 });
