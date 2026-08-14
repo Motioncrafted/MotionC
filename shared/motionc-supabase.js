@@ -9,11 +9,7 @@ const AUTH_PREFIX = "motionc-auth-";
 export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
 function dataKeys() {
-  return Object.keys(localStorage).filter((key) =>
-    key.startsWith(DATA_PREFIX) &&
-    !key.startsWith(AUTH_PREFIX) &&
-    key !== "motionc-visitor-commons-wall-v1"
-  );
+  return Object.keys(localStorage).filter((key) => key.startsWith(DATA_PREFIX) && !key.startsWith(AUTH_PREFIX));
 }
 
 export function captureLocalState() {
