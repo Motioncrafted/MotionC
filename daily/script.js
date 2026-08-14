@@ -1,1214 +1,2056 @@
-const STORAGE_KEY = "motionc-daily-prototype-v1";
-const LIFESTYLE_SUMMARY_STORAGE_KEY = "motionc-lifestyle-summary-v1";
-const PREFERENCES_STORAGE_KEY = "motionc-preferences-v1";
-const WEIGHT_GOAL_STORAGE_KEY = "motionc-weight-goal-v1";
-const KG_PER_LB = 0.45359237;
-const KM_PER_MI = 1.609344;
-const CM_PER_IN = 2.54;
-const LIFESTYLE_ITEMS = [
-  ["sleep", "Sleep quality"],
-  ["hydration", "Hydration"],
-  ["nutrition", "Nutrition"],
-  ["activity", "Activity level"],
-  ["stress", "Stress management"],
-  ["alcohol", "Alcohol"],
-  ["smoking", "Smoking"],
-  ["movement", "Daily movement"]
-];
-const WEEKLY_REFLECTIONS = [
-  "I may not be there yet, but I’m closer than I was yesterday.",
-  "Change Happens One Step at a Time.",
-  "All Truly Great Thoughts are Conceived While Walking.",
-  "Strive for <u>Progress</u>, not Perfection."
-];
+"use strict";
 
-const byId = id => document.getElementById(id);
-let unitSystem = loadUnitSystem();
+/* =========================================
+   MotionC Dashboard
+   ========================================= */
 
-function loadUnitSystem() {
-  try {
-    return JSON.parse(localStorage.getItem(PREFERENCES_STORAGE_KEY))?.unitSystem === "metric"
-      ? "metric"
-      : "imperial";
-  } catch {
-    return "imperial";
-  }
+
+/* -----------------------------------------
+   Main elements
+   ----------------------------------------- */
+
+const drawer = document.querySelector(".input-drawer");
+const overlay = document.querySelector(".drawer-overlay");
+const hotspot = document.getElementById("kscore-button");
+const closeButton = document.querySelector(".drawer-close-btn");
+
+/* -----------------------------------------
+   Engine Room button
+   ----------------------------------------- */
+
+const engineRoomButton =
+    document.getElementById("simulation-button");
+/* =========================================
+   Active page indicator
+   ========================================= */
+
+hotspot?.classList.add("active-page");
+const form = document.getElementById("kscore-form");
+
+const calculateMcpButton =
+    document.getElementById("calculate-mcp-btn");
+
+const calculateLifestyleButton =
+    document.getElementById("calculate-lifestyle-btn");
+
+
+
+/* -----------------------------------------
+   Measurement elements
+   ----------------------------------------- */
+
+const measurementSystemInputs =
+    document.querySelectorAll(
+        'input[name="measurementSystem"]'
+    );
+
+const imperialHeightFields =
+    document.getElementById("imperial-height-fields");
+
+const metricHeightFields =
+    document.getElementById("metric-height-fields");
+
+const weightInput = document.getElementById("weight");
+const waistInput = document.getElementById("waist");
+
+const heightFeetInput =
+    document.getElementById("height-feet");
+
+const heightInchesInput =
+    document.getElementById("height-inches");
+
+const heightCmInput =
+    document.getElementById("height-cm");
+
+const ageInput = document.getElementById("age");
+const sexInput = document.getElementById("sex");
+
+
+/* -----------------------------------------
+   MCP information popup
+
+   These elements will work once they are
+   added to the matching HTML.
+   ----------------------------------------- */
+
+const mcpInfoButton =
+    document.querySelector(".mcp-info-button");
+
+const mcpInfoTooltip =
+    document.querySelector(".mcp-info-tooltip");
+
+
+/* =========================================
+   Drawer controls
+   ========================================= */
+
+function isDrawerOpen() {
+    return drawer?.classList.contains("open") ?? false;
 }
 
-function saveUnitSystem(value) {
-  unitSystem = value === "metric" ? "metric" : "imperial";
-  localStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify({ unitSystem, updatedAt: new Date().toISOString() }));
-  window.dispatchEvent(new CustomEvent("motionc:preferences-updated", { detail: { unitSystem } }));
-}
 
-const displayWeight = pounds => unitSystem === "metric" ? pounds * KG_PER_LB : pounds;
-const storedWeight = value => unitSystem === "metric" ? value / KG_PER_LB : value;
-const displayDistance = miles => unitSystem === "metric" ? miles * KM_PER_MI : miles;
-const storedDistance = value => unitSystem === "metric" ? value / KM_PER_MI : value;
-const displayWaist = inches => unitSystem === "metric" ? inches * CM_PER_IN : inches;
-const storedWaist = value => unitSystem === "metric" ? value / CM_PER_IN : value;
-const weightUnit = () => unitSystem === "metric" ? "kg" : "lb";
-const distanceUnit = () => unitSystem === "metric" ? "km" : "mi";
-const waistUnit = () => unitSystem === "metric" ? "cm" : "in";
-const formatWeight = pounds => `${displayWeight(Number(pounds)).toFixed(1)} ${weightUnit()}`;
-const formatDistance = miles => `${displayDistance(Number(miles)).toFixed(2)} ${distanceUnit()}`;
-const fields = {
-  date: byId("entryDate"),
-  weight: byId("weight"),
-  distance: byId("distance"),
-  minutes: byId("minutes"),
-  walkingHr: byId("walkingHr"),
-  steps: byId("steps"),
-  restingHr: byId("restingHr"),
-  weightNote: byId("weightNote"),
-  observation: byId("observation"),
-  noRestaurant: byId("noRestaurant"),
-  noFastFood: byId("noFastFood"),
-  noJunkFood: byId("noJunkFood"),
-  oneTreat: byId("oneTreat")
-};
-
-function applyUnitSystem() {
-  byId("weightUnit").textContent = weightUnit();
-  byId("distanceUnit").textContent = distanceUnit();
-  byId("waistUnit").textContent = waistUnit();
-  byId("startWeightUnit").textContent = weightUnit();
-  byId("lineWeightUnit").textContent = weightUnit();
-  byId("goalWeightUnit").textContent = weightUnit();
-  document.querySelectorAll('input[name="unitSystem"]').forEach(input => {
-    input.checked = input.value === unitSystem;
-  });
-  if (fields.date.value) loadEntry(fields.date.value);
-  renderAll(fields.date.value || isoDate());
-  refreshWalkingCalculator(true);
-}
-
-let state = loadState();
-syncLifestyleSummary();
-let activeScoreDate = null;
-let addingWalk = false;
-let editingWalkIndex = null;
-
-function isoDate(date = new Date()) {
-  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-  return local.toISOString().slice(0, 10);
-}
-
-function dateFromIso(value) {
-  return new Date(`${value}T12:00:00`);
-}
-
-function addDays(date, amount) {
-  const next = new Date(date);
-  next.setDate(next.getDate() + amount);
-  return next;
-}
-
-function startOfWeek(date) {
-  const next = new Date(date);
-  next.setHours(12, 0, 0, 0);
-  next.setDate(next.getDate() - next.getDay());
-  return next;
-}
-
-function weekKey(date) {
-  return isoDate(startOfWeek(date));
-}
-
-function roundHalf(value) {
-  return Math.round(value * 2) / 2;
-}
-
-function calculateEntry(entry, weeklyScore) {
-  const promiseKeys = ["noRestaurant", "noFastFood", "noJunkFood", "oneTreat"];
-  const food = promiseKeys.reduce((total, key) => total + (entry[key] ? 2 : 0), 0);
-  const distancePoints = Math.min(6, Number(entry.distance || 0) / 5 * 6);
-  const timePoints = Math.min(6, Number(entry.minutes || 0) / 60 * 6);
-  const movement = roundHalf(distancePoints + timePoints);
-  const lifestyleAssessed = weeklyScore !== null && weeklyScore !== undefined && Number.isFinite(Number(weeklyScore));
-  const lifestyle = lifestyleAssessed
-    ? Math.min(10, roundHalf(Number(weeklyScore)))
-    : null;
-  const maximum = lifestyleAssessed ? 30 : 20;
-  const total = roundHalf(food + movement + (lifestyle ?? 0));
-  const percent = Math.round(total / maximum * 100);
-  return { food, movement, lifestyle, lifestyleAssessed, total, maximum, percent, color: colorFor(percent) };
-}
-
-function colorFor(percent) {
-  if (percent >= 85) return "green";
-  if (percent >= 70) return "light-green";
-  if (percent >= 50) return "yellow";
-  if (percent >= 30) return "orange";
-  return "red";
-}
-
-function colorLabel(color) {
-  return color.split("-").map(word => word[0].toUpperCase() + word.slice(1)).join(" ");
-}
-
-function seedState() {
-  const today = new Date();
-  const entries = {};
-  const distances = [2.4, 3.1, 0, 4.2, 5.4, 2.8, 0, 3.7, 4.9, 2.1, 5.8, 0, 6.1, 4.3, 3.6, 5.2, 4.7, 0, 5.36, 3.9, 0];
-  const weights = [203.2, 202.8, 202.9, 202.3, 201.9, 201.6, 201.8, 201.1, 200.8, 200.4, 200.6, 200.1, 199.8, 199.6, 199.4, 199.7, 199.2, 198.9, 198.7, 198.8, 198.5];
-
-  for (let index = 20; index >= 0; index -= 1) {
-    const date = addDays(today, -index);
-    const arrayIndex = 20 - index;
-    const distance = distances[arrayIndex];
-    const promises = {
-      noRestaurant: arrayIndex !== 5 && arrayIndex !== 15,
-      noFastFood: arrayIndex !== 9,
-      noJunkFood: arrayIndex !== 3 && arrayIndex !== 17,
-      oneTreat: arrayIndex !== 12
-    };
-    const minutes = distance ? Math.round(distance * (18 + (arrayIndex % 4))) : 0;
-    entries[isoDate(date)] = {
-      date: isoDate(date),
-      weight: weights[arrayIndex],
-      distance,
-      minutes,
-      weightNote: arrayIndex === 12 ? "Entered the 190s" : "",
-      observation: arrayIndex === 18 ? "Long route felt easier today" : "",
-      ...promises,
-      updatedAt: new Date().toISOString()
-    };
-  }
-
-  const currentWeek = weekKey(today);
-  const previousWeek = weekKey(addDays(today, -7));
-  const earlierWeek = weekKey(addDays(today, -14));
-  return {
-    entries,
-    weeks: {
-      [earlierWeek]: weeklyTemplate(6),
-      [previousWeek]: weeklyTemplate(7),
-      [currentWeek]: weeklyTemplate(6.5)
-    },
-    profile: {
-      waist: 38.5,
-      vibratoryLine: 200,
-      motivationalGoal: 195,
-      startWeight: 217
+function openDrawer() {
+    if (!drawer || !overlay || !hotspot) {
+        return;
     }
-  };
+
+    drawer.classList.add("open");
+    overlay.classList.add("open");
+   
+    drawer.setAttribute("aria-hidden", "false");
+    hotspot.setAttribute("aria-expanded", "true");
 }
 
-function weeklyTemplate(score) {
-  const values = {};
-  LIFESTYLE_ITEMS.forEach(([key], index) => {
-    values[key] = index < Math.round(score) ? 1 : index < Math.round(score) + 2 ? .5 : 0;
-  });
-  return { values, score, updatedAt: new Date().toISOString() };
-}
 
-function loadState() {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    const loaded = saved ? JSON.parse(saved) : seedState();
-    const sharedVibratoryLine = Number(localStorage.getItem(WEIGHT_GOAL_STORAGE_KEY));
-    if (sharedVibratoryLine > 0) {
-      loaded.profile = loaded.profile || {};
-      loaded.profile.vibratoryLine = sharedVibratoryLine;
+function closeDrawer() {
+    if (!drawer || !overlay || !hotspot) {
+        return;
     }
-    loaded.dailyGauges = loaded.dailyGauges || {};
-    return loaded;
-  } catch {
-    return seedState();
-  }
+
+    drawer.classList.remove("open");
+    overlay.classList.remove("open");
+    
+    drawer.setAttribute("aria-hidden", "true");
+    hotspot.setAttribute("aria-expanded", "false");
+
+    closeMcpInfo();
 }
 
-function persist() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-}
 
-function syncLifestyleSummary() {
-  try {
-    const summary = JSON.parse(localStorage.getItem(LIFESTYLE_SUMMARY_STORAGE_KEY));
-    if (!summary?.week || !Number.isFinite(Number(summary.score))) return false;
-
-    const existing = state.weeks[summary.week];
-    if (existing?.summaryUpdatedAt === summary.updatedAt && existing?.scoreLogicVersion === 4) return false;
-
-    const maximumScore = Number(summary.maximumScore) > 0 ? Number(summary.maximumScore) : 24;
-    const score = Math.min(10, roundHalf(Number(summary.score) / maximumScore * 10));
-
-    state.weeks[summary.week] = {
-      ...existing,
-      values: summary.values || existing?.values || {},
-      score,
-      assessed: true,
-      summaryScore: Number(summary.score),
-      summaryUpdatedAt: summary.updatedAt,
-      scoreLogicVersion: 4,
-      updatedAt: new Date().toISOString()
-    };
-    persist();
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function weeklyForDate(dateValue) {
-  const key = weekKey(dateFromIso(dateValue));
-  return state.weeks[key] || { values: {}, score: null, assessed: false };
-}
-
-function scoreForEntry(entry) {
-  const weekly = weeklyForDate(entry.date);
-  return calculateEntry(entry, weekly.assessed === false ? null : weekly.score);
-}
-
-function formatShortDate(value) {
-  return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(dateFromIso(value));
-}
-
-function formatFullDate(value) {
-  return new Intl.DateTimeFormat(undefined, { weekday: "long", month: "long", day: "numeric" }).format(dateFromIso(value));
-}
-
-function walksForEntry(entry) {
-  if (!entry) return [];
-  if (Array.isArray(entry.walks)) return entry.walks;
-  if (Number(entry.distance) > 0 || Number(entry.minutes) > 0) {
-    return [{
-      distance: Number(entry.distance || 0),
-      minutes: Number(entry.minutes || 0),
-      steps: Number(entry.steps) > 0 ? Number(entry.steps) : null,
-      walkingHr: Number(entry.walkingHr) > 0 ? Number(entry.walkingHr) : null,
-      recordedAt: entry.updatedAt || new Date().toISOString(),
-      legacy: true
-    }];
-  }
-  return [];
-}
-
-function syncWalkTotals(entry) {
-  const walks = walksForEntry(entry);
-  entry.walks = walks;
-  entry.distance = Math.round(walks.reduce((sum, walk) => sum + Number(walk.distance || 0), 0) * 100) / 100;
-  entry.minutes = walks.reduce((sum, walk) => sum + Number(walk.minutes || 0), 0);
-  entry.steps = walks.length && walks.every(walk => Number(walk.steps) > 0)
-    ? walks.reduce((sum, walk) => sum + Math.round(Number(walk.steps)), 0)
-    : null;
-  const allHrMeasured = walks.length && walks.every(walk => Number(walk.walkingHr) > 0 && Number(walk.minutes) > 0);
-  entry.walkingHr = allHrMeasured
-    ? Math.round(walks.reduce((sum, walk) => sum + Number(walk.walkingHr) * Number(walk.minutes), 0) / entry.minutes)
-    : null;
-  return entry;
-}
-
-function clearWalkFields() {
-  fields.distance.value = "";
-  fields.minutes.value = "";
-  fields.walkingHr.value = "";
-  fields.steps.value = "";
-}
-
-function loadEntry(dateValue) {
-  const entry = state.entries[dateValue];
-  addingWalk = false;
-  editingWalkIndex = null;
-  fields.date.value = dateValue;
-  fields.weight.value = entry?.weight ? displayWeight(Number(entry.weight)).toFixed(1) : "";
-  clearWalkFields();
-  fields.restingHr.value = entry?.restingHr ?? "";
-  fields.weightNote.value = entry?.weightNote ?? "";
-  fields.observation.value = entry?.observation ?? "";
-  fields.noRestaurant.checked = entry?.noRestaurant ?? true;
-  fields.noFastFood.checked = entry?.noFastFood ?? true;
-  fields.noJunkFood.checked = entry?.noJunkFood ?? true;
-  fields.oneTreat.checked = entry?.oneTreat ?? true;
-  updateWalkEntryMode();
-  renderWalkBreakdown();
-  renderToday(dateValue);
-  loadDailyGauges(dateValue);
-  renderDailyInsights(dateValue);
-}
-
-const DAILY_GAUGE_CONFIG = {
-  hydration: { input: "hydrationInput", value: "hydrationValue", status: "hydrationStatus", miniChart: "hydrationMiniChart", label: "Hydration", unit: "glasses", maximum: 16, color: "#075da8" },
-  stress: { input: "stressInput", value: "stressValue", status: "stressStatus", miniChart: "stressMiniChart", label: "Stress", unit: "of 5", maximum: 5, color: "#dc4545" },
-  sleep: { input: "sleepInput", value: "sleepValue", status: "sleepStatus", miniChart: "sleepMiniChart", label: "Sleep", unit: "hours", maximum: 12, color: "#315fa8" }
-};
-
-const INSIGHT_RULES = {
-  hydrationLitresPerHour: 0.4,
-  litresPerGlass: 0.236588,
-  hydrationMinimumGlasses: 1,
-  sleepLookbackDays: 7,
-  sleepMinimumEntries: 4,
-  sleepAverageThreshold: 5,
-  stressRecordedDays: 5,
-  stressMinimumHighDays: 3,
-  stressHighLevel: 4,
-  maximumMessages: 2
-};
-
-function displayGaugeValue(key, value) {
-  if (key !== "sleep") return String(Number(value));
-  return Number(value).toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
-}
-
-function setGaugeAppearance(key, value) {
-  const input = byId(DAILY_GAUGE_CONFIG[key].input);
-  const percent = ((Number(value) - Number(input.min)) / (Number(input.max) - Number(input.min))) * 100;
-  input.style.setProperty("--gauge-fill", `${Math.max(0, Math.min(100, percent))}%`);
-}
-
-function loadDailyGauges(dateValue) {
-  const gauges = state.dailyGauges?.[dateValue] || {};
-  Object.entries(DAILY_GAUGE_CONFIG).forEach(([key, config]) => {
-    const input = byId(config.input);
-    const saved = gauges[key];
-    const recorded = saved && Number.isFinite(Number(saved.value));
-    input.value = recorded ? saved.value : 0;
-    byId(config.value).textContent = recorded ? displayGaugeValue(key, saved.value) : "—";
-    byId(config.status).textContent = recorded
-      ? `Updated ${new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" }).format(new Date(saved.updatedAt))}`
-      : "Not recorded today";
-    input.closest(".daily-gauge").classList.toggle("is-recorded", Boolean(recorded));
-    setGaugeAppearance(key, input.value);
-  });
-}
-
-function previewDailyGauge(key) {
-  const config = DAILY_GAUGE_CONFIG[key];
-  const value = Number(byId(config.input).value);
-  byId(config.value).textContent = displayGaugeValue(key, value);
-  setGaugeAppearance(key, value);
-}
-
-function stepDailyGauge(key, direction) {
-  const input = byId(DAILY_GAUGE_CONFIG[key].input);
-  const step = Number(input.step) || 1;
-  const next = Math.max(Number(input.min), Math.min(Number(input.max), Number(input.value) + (step * direction)));
-  input.value = String(next);
-  previewDailyGauge(key);
-}
-
-function saveDailyGauge(key) {
-  const dateValue = fields.date.value || isoDate();
-  const config = DAILY_GAUGE_CONFIG[key];
-  const value = Number(byId(config.input).value);
-  state.dailyGauges = state.dailyGauges || {};
-  state.dailyGauges[dateValue] = state.dailyGauges[dateValue] || {};
-  state.dailyGauges[dateValue][key] = { value, updatedAt: new Date().toISOString() };
-  persist();
-  loadDailyGauges(dateValue);
-  renderDailyInsights(dateValue);
-  renderMiniGaugeCharts();
-}
-
-function miniChartDateLabel(dateValue) {
-  return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(dateFromIso(dateValue));
-}
-
-function renderMiniGaugeChart(key) {
-  const config = DAILY_GAUGE_CONFIG[key];
-  const chart = byId(config.miniChart);
-  const today = dateFromIso(isoDate());
-  const dates = Array.from({ length: 7 }, (_, index) => isoDate(addDays(today, index - 7)));
-  const values = dates.map(date => {
-    const saved = state.dailyGauges?.[date]?.[key];
-    return saved && Number.isFinite(Number(saved.value)) ? Number(saved.value) : null;
-  });
-  const hasData = values.some(value => value !== null);
-  const width = 190;
-  const height = 72;
-  const chartTop = 8;
-  const chartBottom = 56;
-  const slotWidth = width / dates.length;
-  const bars = values.map((value, index) => {
-    if (value === null) return `<rect class="mini-chart-missing" x="${(index * slotWidth + 7).toFixed(1)}" y="${chartBottom - 2}" width="${(slotWidth - 12).toFixed(1)}" height="2" rx="1"></rect>`;
-    const barHeight = Math.max(3, (Math.min(config.maximum, value) / config.maximum) * (chartBottom - chartTop));
-    return `<rect x="${(index * slotWidth + 7).toFixed(1)}" y="${(chartBottom - barHeight).toFixed(1)}" width="${(slotWidth - 12).toFixed(1)}" height="${barHeight.toFixed(1)}" rx="3" fill="${config.color}"><title>${miniChartDateLabel(dates[index])}: ${displayGaugeValue(key, value)} ${config.unit}</title></rect>`;
-  }).join("");
-  chart.innerHTML = `<strong>${config.label} · previous 7 completed days</strong>${hasData ? `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${config.label} over the previous seven completed days"><line x1="0" y1="${chartBottom}" x2="${width}" y2="${chartBottom}" class="mini-chart-axis"></line>${bars}<text x="2" y="70">${miniChartDateLabel(dates[0])}</text><text x="188" y="70" text-anchor="end">${miniChartDateLabel(dates.at(-1))}</text></svg>` : `<span>No completed data yet</span>`}`;
-}
-
-function renderMiniGaugeCharts() {
-  Object.keys(DAILY_GAUGE_CONFIG).forEach(renderMiniGaugeChart);
-}
-
-function completedGaugeSamples(key, beforeDate, calendarDays = null) {
-  const before = dateFromIso(beforeDate);
-  const earliest = calendarDays === null ? null : addDays(before, -calendarDays);
-  return Object.entries(state.dailyGauges || {})
-    .filter(([date, gauges]) => {
-      const sampleDate = dateFromIso(date);
-      return date < beforeDate && (!earliest || sampleDate >= earliest) && Number.isFinite(Number(gauges?.[key]?.value));
-    })
-    .sort(([dateA], [dateB]) => dateB.localeCompare(dateA));
-}
-
-function estimatedHydrationDeficit(dateValue) {
-  const entry = state.entries[dateValue];
-  const walkingMinutes = walksForEntry(entry).reduce((sum, walk) => sum + Number(walk.minutes || 0), 0);
-  if (walkingMinutes <= 0) return 0;
-  const glasses = ((walkingMinutes / 60) * INSIGHT_RULES.hydrationLitresPerHour) / INSIGHT_RULES.litresPerGlass;
-  return Math.round(glasses * 2) / 2;
-}
-
-function buildDailyInsights(dateValue) {
-  if (dateValue !== isoDate()) return [];
-  const immediate = [];
-  const patterns = [];
-  const hydrationDeficit = estimatedHydrationDeficit(dateValue);
-
-  if (hydrationDeficit >= INSIGHT_RULES.hydrationMinimumGlasses) {
-    immediate.push({
-      priority: 100 + hydrationDeficit,
-      html: `<strong>Estimated hydration deficit from today's walking: ${displayGaugeValue("sleep", hydrationDeficit)} ${hydrationDeficit === 1 ? "glass" : "glasses"}.</strong>`
-    });
-  }
-
-  const sleepSamples = completedGaugeSamples("sleep", dateValue, INSIGHT_RULES.sleepLookbackDays);
-  if (sleepSamples.length >= INSIGHT_RULES.sleepMinimumEntries) {
-    const sleepValues = sleepSamples.map(([, gauges]) => Number(gauges.sleep.value));
-    const sleepAverage = sleepValues.reduce((sum, value) => sum + value, 0) / sleepValues.length;
-    if (sleepAverage < INSIGHT_RULES.sleepAverageThreshold) {
-      patterns.push({
-        priority: INSIGHT_RULES.sleepAverageThreshold - sleepAverage,
-        html: `<strong>A pattern worth noticing:</strong> Your sleep averaged ${displayGaugeValue("sleep", sleepAverage)} hours across ${sleepValues.length} recorded nights. <a href="/library/">Explore sleep articles in the MotionC Library</a>.`
-      });
-    }
-  }
-
-  const stressSamples = completedGaugeSamples("stress", dateValue).slice(0, INSIGHT_RULES.stressRecordedDays);
-  if (stressSamples.length === INSIGHT_RULES.stressRecordedDays) {
-    const highStressDays = stressSamples.filter(([, gauges]) => Number(gauges.stress.value) >= INSIGHT_RULES.stressHighLevel).length;
-    if (highStressDays >= INSIGHT_RULES.stressMinimumHighDays) {
-      patterns.push({
-        priority: highStressDays / INSIGHT_RULES.stressRecordedDays,
-        html: `<strong>Stress has remained elevated:</strong> ${highStressDays} of your last ${INSIGHT_RULES.stressRecordedDays} recorded days were level 4 or 5. <a href="/library/">Explore stress articles in the MotionC Library</a>.`
-      });
-    }
-  }
-
-  patterns.sort((a, b) => b.priority - a.priority);
-  return [...immediate, ...patterns].slice(0, INSIGHT_RULES.maximumMessages);
-}
-
-function renderDailyInsights(dateValue) {
-  const messages = buildDailyInsights(dateValue);
-  byId("gaugeMessages").innerHTML = messages.map(message => `<p class="gauge-message">${message.html}</p>`).join("");
-}
-
-function readDayFields(existing = {}) {
-  const enteredWeight = fields.weight.value ? Number(fields.weight.value) : null;
-  const unchangedWeight = existing?.weight && enteredWeight === Number(displayWeight(Number(existing.weight)).toFixed(1));
-  return {
-    ...existing,
-    date: fields.date.value,
-    weight: enteredWeight === null ? null : unchangedWeight ? Number(existing.weight) : storedWeight(enteredWeight),
-    restingHr: fields.restingHr.value ? Number(fields.restingHr.value) : null,
-    weightNote: fields.weightNote.value.trim(),
-    observation: fields.observation.value.trim(),
-    noRestaurant: fields.noRestaurant.checked,
-    noFastFood: fields.noFastFood.checked,
-    noJunkFood: fields.noJunkFood.checked,
-    oneTreat: fields.oneTreat.checked,
-    updatedAt: new Date().toISOString()
-  };
-}
-
-function readWalkFields() {
-  return {
-    distance: fields.distance.value ? storedDistance(Number(fields.distance.value)) : 0,
-    minutes: fields.minutes.value ? Number(fields.minutes.value) : 0,
-    walkingHr: fields.walkingHr.value ? Number(fields.walkingHr.value) : null,
-    steps: fields.steps.value ? Math.round(Number(fields.steps.value)) : null,
-    recordedAt: new Date().toISOString()
-  };
-}
-
-function saveEntry() {
-  if (!fields.date.value) return;
-  const existing = state.entries[fields.date.value];
-  const entry = readDayFields(existing || {});
-  entry.walks = walksForEntry(existing).map(walk => ({ ...walk }));
-  const walk = readWalkFields();
-  const editingWalk = editingWalkIndex !== null;
-  const addedWalk = addingWalk;
-  const hasWalkInput = walk.distance > 0 || walk.minutes > 0;
-  const creatingFirstWalk = entry.walks.length === 0 && hasWalkInput;
-
-  if ((addedWalk || editingWalk) && !hasWalkInput) {
-    byId("saveStatus").textContent = "Enter the distance or time for this walk.";
-    return;
-  }
-
-  if (editingWalk) entry.walks[editingWalkIndex] = { ...entry.walks[editingWalkIndex], ...walk, legacy: false };
-  else if (addedWalk || creatingFirstWalk) entry.walks.push(walk);
-
-  syncWalkTotals(entry);
-  state.entries[entry.date] = entry;
-  persist();
-  loadEntry(entry.date);
-  byId("saveStatus").textContent = editingWalk
-    ? "Walk updated. This date’s totals have been recalculated."
-    : addedWalk
-      ? "Walk added. This date’s totals and score are updated."
-      : "Saved. This date’s dot and weekly summary are updated.";
-  window.setTimeout(() => byId("saveStatus").textContent = "", 3000);
-  renderAll(entry.date);
-}
-
-function updateWalkEntryMode() {
-  const entry = state.entries[fields.date.value];
-  const hasSavedWalk = walksForEntry(entry).length > 0;
-  const addWalkButton = byId("addWalk");
-  const enteringWalk = addingWalk || editingWalkIndex !== null;
-  addWalkButton.hidden = !hasSavedWalk;
-  addWalkButton.textContent = enteringWalk ? "Cancel walk changes" : "+ Add another walk";
-  byId("saveEntry").textContent = editingWalkIndex !== null ? "Update walk" : "Save walk";
-}
-
-function toggleAddWalk() {
-  if (addingWalk || editingWalkIndex !== null) {
-    loadEntry(fields.date.value);
-    byId("saveStatus").textContent = "";
-    return;
-  }
-  if (!state.entries[fields.date.value]) return;
-  addingWalk = true;
-  clearWalkFields();
-  updateWalkEntryMode();
-  byId("saveStatus").textContent = "Enter only the new walk. It will remain separate and update this date’s totals.";
-  fields.distance.focus();
-}
-
-function editWalk(index) {
-  const walk = walksForEntry(state.entries[fields.date.value])[index];
-  if (!walk) return;
-  addingWalk = false;
-  editingWalkIndex = index;
-  fields.distance.value = walk.distance ? displayDistance(Number(walk.distance)).toFixed(2) : "";
-  fields.minutes.value = walk.minutes || "";
-  fields.walkingHr.value = walk.walkingHr || "";
-  fields.steps.value = walk.steps || "";
-  updateWalkEntryMode();
-  byId("saveStatus").textContent = `Editing Walk ${index + 1}. Update the values and save.`;
-  fields.distance.focus();
-}
-
-function deleteWalk(index) {
-  const entry = state.entries[fields.date.value];
-  const walks = walksForEntry(entry);
-  if (!walks[index] || !window.confirm(`Remove Walk ${index + 1} from this day?`)) return;
-  entry.walks = walks.filter((_, walkIndex) => walkIndex !== index);
-  syncWalkTotals(entry);
-  entry.updatedAt = new Date().toISOString();
-  persist();
-  loadEntry(entry.date);
-  renderAll(entry.date);
-  byId("saveStatus").textContent = "Walk removed. This date’s totals have been recalculated.";
-}
-
-function dailyStepsPerMile() {
-  const samples = Object.values(state.entries)
-    .flatMap(entry => walksForEntry(entry))
-    .filter(walk => Number(walk.steps) > 0 && Number(walk.distance) > 0)
-    .map(walk => Number(walk.steps) / Number(walk.distance))
-    .filter(rate => rate >= 1400 && rate <= 3000)
-    .sort((a, b) => a - b);
-  if (samples.length < 3) return 2050;
-  const middle = Math.floor(samples.length / 2);
-  return samples.length % 2 ? samples[middle] : (samples[middle - 1] + samples[middle]) / 2;
-}
-
-function estimatedHrForWalk(walk, restingHr) {
-  if (!(Number(walk.distance) > 0 && Number(walk.minutes) > 0)) return "Estimated";
-  const pace = Number(walk.minutes) / Number(walk.distance);
-  const resting = Number(restingHr) > 0 ? Number(restingHr) : 72;
-  const effort = pace >= 20 ? [15, 30] : pace >= 18 ? [20, 36] : pace >= 16 ? [28, 45] : pace >= 14 ? [38, 58] : [48, 72];
-  return `${Math.max(70, Math.round(resting + effort[0]))}–${Math.min(160, Math.round(resting + effort[1]))} bpm est.`;
-}
-
-function renderWalkBreakdown() {
-  const entry = state.entries[fields.date.value];
-  const walks = walksForEntry(entry);
-  const section = byId("walkBreakdown");
-  section.hidden = walks.length === 0;
-  if (!walks.length) return;
-  const totalDistance = walks.reduce((sum, walk) => sum + Number(walk.distance || 0), 0);
-  const totalMinutes = walks.reduce((sum, walk) => sum + Number(walk.minutes || 0), 0);
-  const legacyOnly = walks.length === 1 && walks[0].legacy;
-  const stepsPerMile = dailyStepsPerMile();
-  byId("walkBreakdownTitle").textContent = legacyOnly ? "Earlier daily total" : `${walks.length} walk${walks.length === 1 ? "" : "s"} recorded`;
-  byId("walkBreakdownTotal").textContent = `${formatDistance(totalDistance)} · ${totalMinutes} min total`;
-  byId("walkList").innerHTML = walks.map((walk, index) => `
-    <article class="walk-row">
-      <strong>${walk.legacy ? "Recorded total" : `Walk ${index + 1}`}</strong>
-      <span class="walk-stat"><small>Distance</small><span>${formatDistance(walk.distance || 0)}</span></span>
-      <span class="walk-stat"><small>Time</small><span>${Number(walk.minutes || 0)} min</span></span>
-      <span class="walk-stat"><small>Steps</small><span>${Number(walk.steps) > 0 ? Math.round(Number(walk.steps)).toLocaleString() : `≈${Math.round(Number(walk.distance || 0) * stepsPerMile / 10) * 10}`}</span></span>
-      <span class="walk-stat"><small>Avg HR</small><span>${Number(walk.walkingHr) > 0 ? `${Math.round(Number(walk.walkingHr))} bpm` : estimatedHrForWalk(walk, entry.restingHr)}</span></span>
-      <span class="walk-actions"><button type="button" data-walk-action="edit" data-walk-index="${index}">Edit</button><button type="button" data-walk-action="delete" data-walk-index="${index}">Delete</button></span>
-    </article>
-  `).join("");
-}
-
-function renderToday(dateValue) {
-  const entry = state.entries[dateValue];
-  const orb = byId("todayOrb");
-  orb.className = "score-orb";
-  if (!entry) {
-    byId("todayPercent").textContent = "—";
-    byId("todayColor").textContent = "Save this entry to create your dot";
-    orb.classList.add("future");
-    return;
-  }
-  const score = scoreForEntry(entry);
-  orb.classList.add(score.color);
-  byId("todayPercent").textContent = `${score.percent}%`;
-  byId("todayColor").textContent = `${colorLabel(score.color)} · ${score.total}/30`;
-  activeScoreDate = dateValue;
-}
-
-function renderCalendar(focusDateValue) {
-  const focus = dateFromIso(focusDateValue);
-  const year = focus.getFullYear();
-  const month = focus.getMonth();
-  byId("calendarTitle").textContent = new Intl.DateTimeFormat(undefined, { month: "long", year: "numeric" }).format(focus);
-  const first = new Date(year, month, 1, 12);
-  const lastDay = new Date(year, month + 1, 0, 12).getDate();
-  const grid = byId("calendarGrid");
-  grid.replaceChildren();
-
-  for (let blank = 0; blank < first.getDay(); blank += 1) {
-    const cell = document.createElement("div");
-    cell.className = "calendar-day empty";
-    grid.append(cell);
-  }
-
-  for (let day = 1; day <= lastDay; day += 1) {
-    const value = isoDate(new Date(year, month, day, 12));
-    const entry = state.entries[value];
-    const cell = document.createElement("div");
-    cell.className = "calendar-day";
-    const number = document.createElement("span");
-    number.className = "day-number";
-    number.textContent = day;
-    cell.append(number);
-    const dot = document.createElement("button");
-    dot.className = "dot";
-    if (entry) {
-      const score = scoreForEntry(entry);
-      dot.classList.add(score.color);
-      const weightLabel = entry.weight ? ` · ${formatWeight(entry.weight)}` : "";
-      dot.title = `${score.percent}% · ${colorLabel(score.color)}${weightLabel}`;
-      dot.addEventListener("click", () => openScore(value));
+function toggleDrawer() {
+    if (isDrawerOpen()) {
+        closeDrawer();
     } else {
-      dot.classList.add("future");
-      dot.disabled = true;
-      dot.title = value > isoDate() ? "Future day" : "No entry";
+        openDrawer();
     }
-    cell.append(dot);
-    grid.append(cell);
-  }
 }
 
-function entriesInRange(start, end) {
-  return Object.values(state.entries)
-    .filter(entry => {
-      const date = dateFromIso(entry.date);
-      return date >= start && date <= end;
-    })
-    .sort((a, b) => a.date.localeCompare(b.date));
-}
 
-function currentStreak(entries) {
-  if (!entries.length) return 0;
-  let streak = 0;
-  for (let index = entries.length - 1; index >= 0; index -= 1) {
-    if (Number(entries[index].distance || 0) <= 0) break;
-    streak += 1;
-  }
-  return streak;
-}
+/* MCP hotspot: mouse or touch */
 
-function weeklySummary(start) {
-  const end = addDays(start, 6);
-  const entries = entriesInRange(start, end);
-  const weights = entries.filter(item => item.weight).map(item => item.weight);
-  const totalDistance = entries.reduce((sum, item) => sum + Number(item.distance || 0), 0);
-  const longest = entries.reduce((best, item) => Number(item.distance || 0) > Number(best?.distance || 0) ? item : best, null);
-  const percentages = entries.map(item => scoreForEntry(item).percent);
-  return {
-    entries,
-    weight: weights.at(-1),
-    change: weights.length > 1 ? weights.at(-1) - weights[0] : 0,
-    totalDistance,
-    streak: currentStreak(entries),
-    longest,
-    average: percentages.length ? Math.round(percentages.reduce((a, b) => a + b, 0) / percentages.length) : 0
-  };
-}
+hotspot?.addEventListener("click", toggleDrawer);
 
-function weekNotesHtml(entries, emptyMessage) {
-  const notes = entries.filter(entry => entry.weightNote || entry.observation);
-  if (!notes.length) return `<p class="no-week-notes">${emptyMessage}</p>`;
 
-  return notes.map(entry => {
-    const comments = [];
-    if (entry.weightNote) {
-      comments.push(`<span><b>Weight note:</b> ${escapeHtml(entry.weightNote)}</span>`);
+/*
+   The MCP hotspot is currently a div with
+   role="button", so Enter and Space should
+   also operate it for keyboard users.
+*/
+
+hotspot?.addEventListener("keydown", (event) => {
+    if (
+        event.key === "Enter" ||
+        event.key === " "
+    ) {
+        event.preventDefault();
+        toggleDrawer();
     }
-    if (entry.observation) {
-      comments.push(`<span><b>Observation:</b> ${escapeHtml(entry.observation)}</span>`);
+});
+
+
+/* X button */
+
+closeButton?.addEventListener("click", closeDrawer);
+
+
+/* Outside overlay */
+
+overlay?.addEventListener("click", closeDrawer);
+
+
+/* Escape key */
+
+document.addEventListener("keydown", (event) => {
+    if (
+        event.key === "Escape" &&
+        isDrawerOpen()
+    ) {
+        closeDrawer();
     }
-    return `<p class="week-note"><strong>${formatShortDate(entry.date)}:</strong>${comments.join("")}</p>`;
-  }).join("");
+});
+
+
+/* =========================================
+   Engine Room
+   ========================================= */
+
+engineRoomButton?.addEventListener("click", () => {
+
+    document.body.classList.add("page-fade-out");
+
+    setTimeout(() => {
+        window.location.href = "/engine-room/";
+    }, 250);
+
+});
+
+/* =========================================
+   Engine Room
+   ========================================= */
+
+engineRoomButton?.addEventListener("click", () => {
+
+    document.body.classList.add("page-fade-out");
+
+    setTimeout(() => {
+        window.location.href = "/engine-room/";
+    }, 250);
+
+});
+/* =========================================
+   MCP information popup
+   ========================================= */
+
+function openMcpInfo() {
+    if (!mcpInfoButton || !mcpInfoTooltip) {
+        return;
+    }
+
+    mcpInfoTooltip.classList.add("open");
+
+    mcpInfoButton.setAttribute(
+        "aria-expanded",
+        "true"
+    );
 }
 
-function renderWeekly() {
-  const start = startOfWeek(new Date());
-  const end = addDays(start, 6);
-  byId("weekRange").textContent = `${formatShortDate(isoDate(start))}–${formatShortDate(isoDate(end))}`;
-  const summary = weeklySummary(start);
-  const stats = [
-    ["Current weight", summary.weight ? formatWeight(summary.weight) : "—"],
-    ["Weekly change", summary.change === 0 ? "No change" : `${summary.change < 0 ? "Down" : "Up"} ${displayWeight(Math.abs(summary.change)).toFixed(1)} ${weightUnit()}`],
-    ["Distance", formatDistance(summary.totalDistance)],
-    ["Walking streak", `${summary.streak} day${summary.streak === 1 ? "" : "s"}`],
-    ["Longest walk", summary.longest ? formatDistance(summary.longest.distance) : "—"],
-    ["Average dot", summary.average ? `${summary.average}%` : "—"]
-  ];
-  byId("weeklyStats").innerHTML = stats.map(([label, value]) =>
-    `<div class="weekly-stat"><span>${label}</span><strong>${value}</strong></div>`
-  ).join("");
-  byId("weeklyNotes").innerHTML = weekNotesHtml(summary.entries, "No notes recorded this week.");
 
-  const previous = byId("previousWeeks");
-  previous.replaceChildren();
-  const previousWeekKeys = [...new Set(
-    Object.values(state.entries)
-      .filter(entry => dateFromIso(entry.date) < start)
-      .map(entry => weekKey(dateFromIso(entry.date)))
-  )].sort((a, b) => b.localeCompare(a));
+function closeMcpInfo() {
+    if (!mcpInfoButton || !mcpInfoTooltip) {
+        return;
+    }
 
-  if (!previousWeekKeys.length) {
-    previous.innerHTML = '<p class="no-week-notes">No previous weeks recorded yet.</p>';
-  }
+    mcpInfoTooltip.classList.remove("open");
 
-  previousWeekKeys.forEach(key => {
-    const weekStart = dateFromIso(key);
-    const weekEnd = addDays(weekStart, 6);
-    const old = weeklySummary(weekStart);
-    const block = document.createElement("div");
-    block.className = "previous-week";
-    block.innerHTML = `<strong>${formatShortDate(isoDate(weekStart))}–${formatShortDate(isoDate(weekEnd))}</strong>
-      <p>${formatDistance(old.totalDistance)} · ${old.average || 0}% average · ${old.entries.length} entries</p>
-      <div class="previous-week-notes">
-        <span class="previous-week-notes-title">Notes</span>
-        ${weekNotesHtml(old.entries, "No notes recorded.")}
-      </div>`;
-    previous.append(block);
-  });
+    mcpInfoButton.setAttribute(
+        "aria-expanded",
+        "false"
+    );
 }
 
-function longestWalk() {
-  return Object.values(state.entries).reduce((best, entry) =>
-    Number(entry.distance || 0) > Number(best?.distance || 0) ? entry : best, null
-  );
+
+function toggleMcpInfo(event) {
+    event.stopPropagation();
+
+    if (!mcpInfoTooltip) {
+        return;
+    }
+
+    if (mcpInfoTooltip.classList.contains("open")) {
+        closeMcpInfo();
+    } else {
+        openMcpInfo();
+    }
 }
 
-function renderMilestones() {
-  const entries = Object.values(state.entries).sort((a, b) => a.date.localeCompare(b.date));
-  const walkingDays = entries.filter(entry => Number(entry.distance || 0) > 0);
-  const timedWalkingDays = walkingDays.filter(entry => Number(entry.minutes || 0) > 0);
-  const weights = entries.filter(item => item.weight).map(item => item.weight);
-  const lowest = weights.length ? Math.min(...weights) : null;
-  const weightedEntries = entries.filter(item => Number(item.weight) > 0);
-  const latestWeight = weightedEntries.length ? Number(weightedEntries.at(-1).weight) : null;
-  const startWeight = Number(state.profile.startWeight);
-  const totalMiles = entries.reduce((sum, item) => sum + Number(item.distance || 0), 0);
-  const longest = longestWalk();
-  const greenDays = entries.filter(item => ["green", "light-green"].includes(scoreForEntry(item).color)).length;
-  const availableDots = entries.length;
-  const positivePercentage = availableDots ? Math.round(greenDays / availableDots * 100) : 0;
-  const vibratoryLine = state.profile.vibratoryLine;
-  const displayedStart = displayWeight(startWeight);
-  const decadeBoundary = Math.floor(displayedStart / 10) * 10;
-  const decadeLabel = decadeBoundary - 10;
-  const decadeReached = lowest ? displayWeight(lowest) < decadeBoundary : false;
-  const totalDistance = displayDistance(totalMiles);
-  const longestDistance = displayDistance(Number(longest?.distance || 0));
-  const averageDailyDistance = walkingDays.length
-    ? displayDistance(walkingDays.reduce((sum, entry) => sum + Number(entry.distance || 0), 0) / walkingDays.length)
-    : 0;
-  const averageDailyMinutes = timedWalkingDays.length
-    ? timedWalkingDays.reduce((sum, entry) => sum + Number(entry.minutes || 0), 0) / timedWalkingDays.length
-    : 0;
-  const loss = displayWeight(Math.max(0, startWeight - (latestWeight ?? startWeight)));
-  const weightTiers = unitSystem === "metric" ? [2.5, 5, 10, 20, 30, 50] : [5, 10, 25, 50, 75, 100];
-  const distanceTiers = unitSystem === "metric" ? [50, 100, 250, 500, 1000] : [25, 50, 100, 250, 500, 1000];
-  const walkTiers = unitSystem === "metric" ? [1, 5, 10, 21.1, 42.2] : [1, 3, 5, 10, 13.1, 26.2];
-  const positiveTiers = [5, 10, 25, 50, 100, 250, 500];
 
-  function progressive(value, tiers, labelFor, detailFor) {
-    const completed = tiers.filter(tier => value >= tier);
-    const highest = completed.at(-1);
-    const next = tiers.find(tier => value < tier);
-    const labelTier = highest || next || tiers.at(-1);
-    const nextDetail = next ? ` · Next ${next}: ${Math.min(100, Math.round(value / next * 100))}%` : "";
+/* Click/tap support */
+
+mcpInfoButton?.addEventListener(
+    "click",
+    toggleMcpInfo
+);
+
+
+/* Close popup when clicking or tapping elsewhere */
+
+document.addEventListener("click", (event) => {
+    if (
+        !mcpInfoTooltip ||
+        !mcpInfoButton
+    ) {
+        return;
+    }
+
+    const clickedInsideTooltip =
+        mcpInfoTooltip.contains(event.target);
+
+    const clickedInfoButton =
+        mcpInfoButton.contains(event.target);
+
+    if (
+        !clickedInsideTooltip &&
+        !clickedInfoButton
+    ) {
+        closeMcpInfo();
+    }
+});
+
+
+/* =========================================
+   Imperial / Metric switching
+   ========================================= */
+
+function getMeasurementSystem() {
+    const selected =
+        form?.querySelector(
+            'input[name="measurementSystem"]:checked'
+        );
+
+    return selected?.value ?? "imperial";
+}
+
+
+function updateUnitLabels(system) {
+    const weightLabel =
+        document.querySelector(
+            'label[for="weight"]'
+        );
+
+    const waistLabel =
+        document.querySelector(
+            'label[for="waist"]'
+        );
+
+    if (system === "metric") {
+        if (weightLabel) {
+            weightLabel.textContent = "Weight — kg";
+        }
+
+        if (waistLabel) {
+            waistLabel.textContent = "Waist — cm";
+        }
+
+        if (weightInput) {
+            weightInput.placeholder = "kg";
+        }
+
+        if (waistInput) {
+            waistInput.placeholder = "cm";
+        }
+
+    } else {
+        if (weightLabel) {
+            weightLabel.textContent = "Weight — lb";
+        }
+
+        if (waistLabel) {
+            waistLabel.textContent = "Waist — in";
+        }
+
+        if (weightInput) {
+            weightInput.placeholder = "lb";
+        }
+
+        if (waistInput) {
+            waistInput.placeholder = "in";
+        }
+
+    }
+}
+
+
+function updateMeasurementFields() {
+    const system = getMeasurementSystem();
+    const useMetric = system === "metric";
+
+    if (imperialHeightFields) {
+        imperialHeightFields.hidden = useMetric;
+    }
+
+    if (metricHeightFields) {
+        metricHeightFields.hidden = !useMetric;
+    }
+
+    /*
+       Required status follows the selected
+       measurement system.
+    */
+
+    if (heightFeetInput) {
+        heightFeetInput.required = !useMetric;
+        heightFeetInput.disabled = useMetric;
+    }
+
+    if (heightInchesInput) {
+        heightInchesInput.required = !useMetric;
+        heightInchesInput.disabled = useMetric;
+    }
+
+    if (heightCmInput) {
+        heightCmInput.required = useMetric;
+        heightCmInput.disabled = !useMetric;
+    }
+
+    updateUnitLabels(system);
+}
+
+
+measurementSystemInputs.forEach((input) => {
+    input.addEventListener(
+        "change",
+        updateMeasurementFields
+    );
+});
+
+
+/* Set the correct initial labels and fields */
+
+updateMeasurementFields();
+
+
+/* =========================================
+   Number helpers
+   ========================================= */
+
+function readNumber(input) {
+    if (!input) {
+        return NaN;
+    }
+
+    const value = Number(input.value);
+
+    return Number.isFinite(value)
+        ? value
+        : NaN;
+}
+
+
+/* =========================================
+   Required measurement validation
+   ========================================= */
+
+function getMeasurementData() {
+    const system = getMeasurementSystem();
+
+    const enteredWeight = readNumber(weightInput);
+    const enteredWaist = readNumber(waistInput);
+    const age = readNumber(ageInput);
+    const sex = sexInput?.value ?? "";
+
+    let heightCm;
+    let heightMetres;
+    let heightInches;
+
+    let waistCm;
+    let waistInches;
+
+    let weightKg;
+    let weightLbs;
+
+    if (system === "metric") {
+        heightCm = readNumber(heightCmInput);
+        heightMetres = heightCm / 100;
+        heightInches = heightCm / 2.54;
+
+        waistCm = enteredWaist;
+        waistInches = waistCm / 2.54;
+
+        weightKg = enteredWeight;
+        weightLbs = weightKg / 0.453592;
+    } else {
+        const feet = readNumber(heightFeetInput);
+        const inches = readNumber(heightInchesInput);
+
+        heightInches = (feet * 12) + inches;
+        heightCm = heightInches * 2.54;
+        heightMetres = heightCm / 100;
+
+        waistInches = enteredWaist;
+        waistCm = waistInches * 2.54;
+
+        weightLbs = enteredWeight;
+        weightKg = weightLbs * 0.453592;
+    }
+
+    const valuesAreValid =
+        Number.isFinite(enteredWeight) &&
+        enteredWeight > 0 &&
+
+        Number.isFinite(enteredWaist) &&
+        enteredWaist > 0 &&
+
+        Number.isFinite(heightCm) &&
+        heightCm > 0 &&
+
+        Number.isFinite(heightMetres) &&
+        heightMetres > 0 &&
+
+        Number.isFinite(heightInches) &&
+        heightInches > 0 &&
+
+        Number.isFinite(waistCm) &&
+        waistCm > 0 &&
+
+        Number.isFinite(waistInches) &&
+        waistInches > 0 &&
+
+        Number.isFinite(weightKg) &&
+        weightKg > 0 &&
+
+        Number.isFinite(weightLbs) &&
+        weightLbs > 0 &&
+
+        Number.isFinite(age) &&
+        age > 0 &&
+
+        sex !== "";
+
+    if (!valuesAreValid) {
+        throw new Error(
+            "Please complete all measurement fields before calculating your MCP."
+        );
+    }
+
     return {
-      label: labelFor(labelTier),
-      reached: Boolean(highest),
-      detail: `${detailFor(value)}${nextDetail}`
+        system,
+        enteredWeight,
+        enteredWaist,
+        age,
+        sex,
+
+        heightCm,
+        heightMetres,
+        heightInches,
+
+        waistCm,
+        waistInches,
+
+        weightKg,
+        weightLbs
     };
-  }
-
-  const milestoneData = [
-    { label: "Total Weight Lost", reached: Number.isFinite(startWeight) && latestWeight !== null, detail: latestWeight !== null ? `${formatWeight(startWeight)} start → ${formatWeight(latestWeight)} latest (${loss.toFixed(1)} ${weightUnit()} lost)` : "Starting and latest weights needed" },
-    { label: "Lowest Recorded Weight", reached: lowest !== null, detail: lowest !== null ? formatWeight(lowest) : "No weight recorded" },
-    { label: "Vibratory Set Line", reached: Number.isFinite(Number(vibratoryLine)), detail: formatWeight(vibratoryLine) },
-    { label: "Longest Daily Walk", reached: Boolean(longest), detail: longest ? `${longestDistance.toFixed(2)} ${distanceUnit()}` : "No walk recorded" },
-    { label: `Total Cumulative ${unitSystem === "metric" ? "Kilometres" : "Miles"}`, reached: entries.length > 0, detail: `${totalDistance.toFixed(1)} ${distanceUnit()}` },
-    { label: "Total Positive Dots", reached: availableDots > 0, detail: `${greenDays} / ${availableDots} (${positivePercentage}%)` }
-  ];
-  const reached = milestoneData.filter(item => item.reached);
-  byId("milestoneCount").textContent = `${reached.length} tracked`;
-  byId("latestMilestone").innerHTML = `<span>CURRENT PROGRESS</span><strong>${greenDays} / ${availableDots} Positive Dots</strong><small>${positivePercentage}% positive</small>`;
-  byId("dailyWalkAverage").innerHTML = walkingDays.length
-    ? `<span>DAILY WALK AVERAGE</span><strong>${averageDailyDistance.toFixed(2)} ${distanceUnit()}</strong>${averageDailyMinutes ? `<small>${Math.round(averageDailyMinutes)} min per walking day</small>` : `<small>Per walking day</small>`}`
-    : `<span>DAILY WALK AVERAGE</span><strong>&mdash;</strong><small>Record a walk to begin</small>`;
-  byId("milestoneList").innerHTML = milestoneData.map(item =>
-    `<div class="milestone-item ${item.reached ? "" : "locked"}"><i>${item.reached ? "✓" : "·"}</i><span>${item.label}</span><small>${item.detail}</small></div>`
-  ).join("");
 }
 
-let calculatorMode = "distance";
 
-function latestRecordedWeight() {
-  return Object.values(state.entries)
-    .filter(entry => Number(entry.weight) > 0)
-    .sort((a, b) => b.date.localeCompare(a.date))[0]?.weight || state.profile.startWeight;
-}
+/* =========================================
+   MCP calculation engine
+   ========================================= */
 
-function recentWalkingSpeed() {
-  const walks = Object.values(state.entries).filter(entry =>
-    Number(entry.distance) > 0 && Number(entry.minutes) > 0
-  );
-  const miles = walks.reduce((sum, entry) => sum + Number(entry.distance), 0);
-  const minutes = walks.reduce((sum, entry) => sum + Number(entry.minutes), 0);
-  return minutes > 0 ? miles / (minutes / 60) : 3;
-}
+/*
+   Motion Core Prime formula
 
-function calculatorValues() {
-  return {
-    distance: Number(byId("calcDistance").value),
-    time: Number(byId("calcTime").value),
-    speed: Number(byId("calcSpeed").value),
-    weight: Number(byId("calcWeight").value)
-  };
-}
+   All calculations retain full precision.
 
-function refreshWalkingCalculator(resetValues = false) {
-  byId("calcDistanceUnit").textContent = distanceUnit();
-  byId("calcSpeedUnit").textContent = unitSystem === "metric" ? "km/h" : "mph";
-  byId("calcWeightUnit").textContent = weightUnit();
-  byId("calcLossUnit").textContent = weightUnit();
+   Rounding is applied only when values
+   are presented on screen.
+*/
 
-  if (resetValues) {
-    byId("calcWeight").value = displayWeight(latestRecordedWeight()).toFixed(1);
-    byId("calcSpeed").value = displayDistance(recentWalkingSpeed()).toFixed(2);
-    byId("calcDistance").value = "";
-    byId("calcTime").value = "";
-    byId("calcTargetLoss").value = "";
-  }
-
-  calculateWalk();
-}
-
-function setCalculatorMode(mode) {
-  calculatorMode = ["distance", "time", "speed", "calories"].includes(mode) ? mode : "distance";
-  const requirements = {
-    distance: ["speed", "time"],
-    time: ["distance", "speed"],
-    speed: ["distance", "time"],
-    calories: ["distance", "weight"]
-  };
-
-  document.querySelectorAll("[data-calc-mode]").forEach(button => {
-    button.classList.toggle("active", button.dataset.calcMode === calculatorMode);
-  });
-  document.querySelectorAll("[data-calc-field]").forEach(label => {
-    const field = label.dataset.calcField;
-    label.classList.toggle("is-required", requirements[calculatorMode].includes(field));
-    label.classList.toggle("is-output", field === calculatorMode && calculatorMode !== "calories");
-  });
-  calculateWalk();
-}
-
-function calculateWalk() {
-  const values = calculatorValues();
-  const labels = {
-    distance: "Estimated distance",
-    time: "Estimated walking time",
-    speed: "Estimated walking speed",
-    calories: "Estimated energy used"
-  };
-  byId("calcResultLabel").textContent = labels[calculatorMode];
-
-  let result = "";
-  if (calculatorMode === "distance" && values.speed > 0 && values.time > 0) {
-    result = `${(values.speed * values.time / 60).toFixed(2)} ${distanceUnit()}`;
-  } else if (calculatorMode === "time" && values.distance > 0 && values.speed > 0) {
-    result = `${Math.round(values.distance / values.speed * 60)} minutes`;
-  } else if (calculatorMode === "speed" && values.distance > 0 && values.time > 0) {
-    result = `${(values.distance / (values.time / 60)).toFixed(2)} ${unitSystem === "metric" ? "km/h" : "mph"}`;
-  } else if (calculatorMode === "calories" && values.distance > 0 && values.weight > 0) {
-    const miles = storedDistance(values.distance);
-    const pounds = storedWeight(values.weight);
-    result = `${Math.round(.57 * pounds * miles)} kcal`;
-  }
-
-  const missing = {
-    distance: "Enter walking time",
-    time: "Enter distance",
-    speed: "Enter distance and time",
-    calories: "Enter distance and weight"
-  };
-  byId("calcResult").textContent = result || missing[calculatorMode];
-  renderWalkingProjection();
-}
-
-function renderWalkingProjection() {
-  const targetDisplay = Number(byId("calcTargetLoss").value);
-  const weightDisplay = Number(byId("calcWeight").value);
-  const output = byId("projectionResults");
-  if (!(targetDisplay > 0) || !(weightDisplay > 0)) {
-    output.textContent = "Enter a desired loss to see a planning estimate.";
-    return;
-  }
-
-  const targetPounds = storedWeight(targetDisplay);
-  const weightPounds = storedWeight(weightDisplay);
-  const estimatedCalories = targetPounds * 3500;
-  const caloriesPerMile = .57 * weightPounds;
-  const estimatedMiles = estimatedCalories / caloriesPerMile;
-  const recordedMiles = Object.values(state.entries).reduce((sum, entry) => sum + Number(entry.distance || 0), 0);
-  const progress = Math.min(100, recordedMiles / estimatedMiles * 100);
-
-  output.innerHTML = `
-    <strong>${displayDistance(estimatedMiles).toFixed(1)} ${distanceUnit()}</strong> estimated walking distance<br>
-    ${Math.round(estimatedCalories).toLocaleString()} estimated kcal<br>
-    ${displayDistance(recordedMiles).toFixed(1)} ${distanceUnit()} recorded · ${progress.toFixed(1)}% of distance estimate
-  `;
-}
-
-function setupWalkingCalculator() {
-  document.querySelectorAll("[data-calc-mode]").forEach(button => {
-    button.addEventListener("click", () => setCalculatorMode(button.dataset.calcMode));
-  });
-  ["calcDistance", "calcTime", "calcSpeed", "calcWeight", "calcTargetLoss"].forEach(id => {
-    byId(id).addEventListener("input", calculateWalk);
-  });
-  setCalculatorMode("distance");
-}
-
-function promiseLine(label, passed) {
-  return `<li><span>${label}</span><strong>${passed ? "✓" : "✕"}</strong></li>`;
-}
-
-function openScore(dateValue) {
-  const entry = state.entries[dateValue];
-  if (!entry) return;
-  const score = scoreForEntry(entry);
-  const weekly = weeklyForDate(dateValue);
-  const weak = Object.entries(weekly.values || {}).filter(([, value]) => value < 1).map(([key]) => LIFESTYLE_ITEMS.find(item => item[0] === key)?.[1]).filter(Boolean);
-  const dailyImpact = score.food >= 8 ? "Strong positive" : score.food >= 6 ? "Mild negative" : "Needs attention";
-  const moveImpact = score.movement >= 9 ? "Strong positive" : score.movement >= 5 ? "Positive" : "Limited movement";
-  const lifestyleImpact = score.lifestyleAssessed
-    ? (score.lifestyle >= 8 ? "Strong" : score.lifestyle >= 6 ? "Moderate" : "Moderate negative")
-    : "Not included";
-  const lifestyleDetail = score.lifestyleAssessed
-    ? (weak.length ? `Needs attention: ${escapeHtml(weak.slice(0, 3).join(", "))}.` : "Your weekly lifestyle is supporting today’s dot.")
-    : "Complete the Lifestyle Profile to include this section in the Daily score.";
-  const conclusion = score.lifestyleAssessed
-    ? (score.lifestyle < 6 ? "This week’s lifestyle is lowering the overall result slightly." : "Your weekly foundation is supporting today’s choices.")
-    : "Lifestyle is not included until the profile is completed.";
-  byId("scoreDetails").innerHTML = `
-    <p class="eyebrow">${escapeHtml(formatFullDate(dateValue).toUpperCase())}</p>
-    <div class="score-summary"><span class="dot ${score.color}"></span><div><h2>${score.percent}% · ${colorLabel(score.color)}</h2><span>${score.total}/${score.maximum} assessed points</span></div></div>
-    <div class="daily-measurement">
-      <span>Weight recorded</span>
-      <strong>${entry.weight ? formatWeight(entry.weight) : "Not recorded"}</strong>
-      ${entry.weightNote ? `<small>${escapeHtml(entry.weightNote)}</small>` : ""}
-    </div>
-    <section class="score-section"><header><h3>Food</h3><strong>${score.food}/8</strong></header><ul>
-      ${promiseLine("No restaurant meal", entry.noRestaurant)}
-      ${promiseLine("No fast food", entry.noFastFood)}
-      ${promiseLine("No junk food", entry.noJunkFood)}
-      ${promiseLine("Stayed within one treat", entry.oneTreat)}
-    </ul><p class="impact">Impact: ${dailyImpact}</p></section>
-    <section class="score-section"><header><h3>Movement</h3><strong>${score.movement}/12</strong></header><ul>
-      <li><span>Walking time</span><strong>${entry.minutes || 0} min</strong></li>
-      <li><span>Distance</span><strong>${formatDistance(entry.distance || 0)}</strong></li>
-      ${walksForEntry(entry).length > 1 ? walksForEntry(entry).map((walk, index) => `<li><span>Walk ${index + 1}</span><strong>${formatDistance(walk.distance || 0)} · ${Number(walk.minutes || 0)} min</strong></li>`).join("") : ""}
-    </ul><p class="impact">Impact: ${moveImpact}</p></section>
-    <section class="score-section"><header><h3>Your lifestyle this week</h3><strong>${score.lifestyleAssessed ? `${score.lifestyle}/10` : "Not assessed"}</strong></header>
-      <p>${lifestyleDetail}</p><p class="impact">Impact: ${lifestyleImpact}</p></section>
-    <p class="score-conclusion">${score.movement >= 8 ? "Your movement was strong today. " : ""}${conclusion}</p>`;
-  byId("scoreDialog").showModal();
-}
-
-function escapeHtml(value) {
-  return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
-}
-
-function buildLifestyleForm() {
-  const week = weeklyForDate(isoDate());
-  byId("lifestyleGrid").innerHTML = LIFESTYLE_ITEMS.map(([key, label]) => `
-    <label>${label}
-      <select data-lifestyle="${key}">
-        <option value="0" ${week.values?.[key] === 0 ? "selected" : ""}>Needs attention</option>
-        <option value="0.5" ${week.values?.[key] === .5 ? "selected" : ""}>Fair</option>
-        <option value="1" ${week.values?.[key] === 1 ? "selected" : ""}>Supporting me</option>
-      </select>
-    </label>`).join("");
-  byId("weeklyWaist").value = displayWaist(state.profile.waist).toFixed(1);
-  byId("startingWeight").value = displayWeight(state.profile.startWeight).toFixed(1);
-  byId("vibratoryLine").value = displayWeight(state.profile.vibratoryLine).toFixed(1);
-  byId("motivationalGoal").value = displayWeight(state.profile.motivationalGoal).toFixed(1);
-}
-
-function saveWeekly() {
-  const values = {};
-  document.querySelectorAll("[data-lifestyle]").forEach(select => values[select.dataset.lifestyle] = Number(select.value));
-  const lifestyleBase = Object.values(values).reduce((sum, value) => sum + value, 0);
-  const score = Math.min(10, roundHalf(lifestyleBase / LIFESTYLE_ITEMS.length * 10));
-  state.weeks[weekKey(new Date())] = { values, score, assessed: true, scoreLogicVersion: 4, updatedAt: new Date().toISOString() };
-  state.profile.startWeight = byId("startingWeight").value ? storedWeight(Number(byId("startingWeight").value)) : state.profile.startWeight;
-  state.profile.waist = byId("weeklyWaist").value ? storedWaist(Number(byId("weeklyWaist").value)) : state.profile.waist;
-  state.profile.vibratoryLine = byId("vibratoryLine").value ? storedWeight(Number(byId("vibratoryLine").value)) : state.profile.vibratoryLine;
-  localStorage.setItem(WEIGHT_GOAL_STORAGE_KEY, String(state.profile.vibratoryLine));
-  state.profile.motivationalGoal = byId("motivationalGoal").value ? storedWeight(Number(byId("motivationalGoal").value)) : state.profile.motivationalGoal;
-  persist();
-  byId("weeklyDialog").close();
-  renderAll(fields.date.value);
-}
-
-function renderAll(dateValue = isoDate()) {
-  const now = new Date();
-  byId("heroWeekday").textContent = new Intl.DateTimeFormat(undefined, { weekday: "long" }).format(now);
-  byId("heroDate").textContent = new Intl.DateTimeFormat(undefined, { month: "long", day: "numeric", year: "numeric" }).format(now);
-  const yearStart = new Date(now.getFullYear(), 0, 1);
-  const weekNumber = Math.floor((now - yearStart) / 604800000);
-  byId("weeklyReflection").innerHTML = WEEKLY_REFLECTIONS[weekNumber % WEEKLY_REFLECTIONS.length];
-  renderToday(dateValue);
-  renderCalendar(dateValue);
-  renderWeekly();
-  renderMilestones();
-  renderDailyInsights(dateValue);
-  renderMiniGaugeCharts();
-}
-
-fields.date.addEventListener("change", () => loadEntry(fields.date.value));
-Object.keys(DAILY_GAUGE_CONFIG).forEach(key => {
-  byId(DAILY_GAUGE_CONFIG[key].input).addEventListener("input", () => previewDailyGauge(key));
-});
-byId("saveHydration").addEventListener("click", () => saveDailyGauge("hydration"));
-byId("saveStress").addEventListener("click", () => saveDailyGauge("stress"));
-byId("saveSleep").addEventListener("click", () => saveDailyGauge("sleep"));
-document.querySelectorAll("[data-gauge-step]").forEach(button => {
-  button.addEventListener("click", () => stepDailyGauge(button.dataset.gaugeStep, Number(button.dataset.direction)));
-});
-byId("gaugeInfoButton").addEventListener("click", () => {
-  const info = byId("gaugeInfo");
-  info.hidden = !info.hidden;
-  byId("gaugeInfoButton").setAttribute("aria-expanded", String(!info.hidden));
-});
-byId("saveEntry").addEventListener("click", saveEntry);
-byId("addWalk").addEventListener("click", toggleAddWalk);
-byId("walkList").addEventListener("click", event => {
-  const button = event.target.closest("button[data-walk-action]");
-  if (!button) return;
-  const index = Number(button.dataset.walkIndex);
-  if (button.dataset.walkAction === "edit") editWalk(index);
-  if (button.dataset.walkAction === "delete") deleteWalk(index);
-});
-byId("todayOrb").addEventListener("click", () => activeScoreDate && openScore(activeScoreDate));
-byId("explainToday").addEventListener("click", () => activeScoreDate && openScore(activeScoreDate));
-byId("closeScore").addEventListener("click", () => byId("scoreDialog").close());
-byId("scoreDialog").addEventListener("click", event => {
-  const dialog = event.currentTarget;
-  const bounds = dialog.getBoundingClientRect();
-  const clickedBackdrop =
-    event.clientX < bounds.left ||
-    event.clientX > bounds.right ||
-    event.clientY < bounds.top ||
-    event.clientY > bounds.bottom;
-
-  if (clickedBackdrop) dialog.close();
-});
-byId("weeklyButton").addEventListener("click", () => {
-  buildLifestyleForm();
-  byId("weeklyDialog").showModal();
-});
-byId("closeWeekly").addEventListener("click", () => byId("weeklyDialog").close());
-byId("saveWeekly").addEventListener("click", saveWeekly);
-window.addEventListener("focus", () => {
-  if (syncLifestyleSummary()) renderAll(fields.date.value);
-});
-window.addEventListener("storage", event => {
-  if (event.key === LIFESTYLE_SUMMARY_STORAGE_KEY && syncLifestyleSummary()) {
-    renderAll(fields.date.value);
-  }
-  if (event.key === PREFERENCES_STORAGE_KEY) {
-    unitSystem = loadUnitSystem();
-    applyUnitSystem();
-  }
-});
-
-function closePreferences() {
-  byId("preferencesMenu").hidden = true;
-  byId("preferencesToggle").setAttribute("aria-expanded", "false");
-}
-
-byId("preferencesToggle").addEventListener("click", event => {
-  event.preventDefault();
-  event.stopPropagation();
-  const menu = byId("preferencesMenu");
-  menu.hidden = !menu.hidden;
-  byId("preferencesToggle").setAttribute("aria-expanded", String(!menu.hidden));
-});
-byId("preferencesMenu").addEventListener("click", event => event.stopPropagation());
-byId("preferencesClose").addEventListener("click", closePreferences);
-document.addEventListener("click", closePreferences);
-document.addEventListener("keydown", event => {
-  if (event.key === "Escape") closePreferences();
-});
-
-document.querySelectorAll('input[name="unitSystem"]').forEach(input => {
-  input.addEventListener("change", () => {
-    saveUnitSystem(input.value);
-    applyUnitSystem();
-  });
-});
-
-function scheduleDailyGaugeReset() {
-  const scheduledDate = isoDate();
-  const now = new Date();
-  const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 50);
-  window.setTimeout(() => {
-    if (fields.date.value === scheduledDate) {
-      fields.date.value = isoDate();
-      loadEntry(fields.date.value);
-      renderAll(fields.date.value);
+function getAgeAdjustment(age) {
+    if (age >= 70) {
+        return 4;
     }
-    scheduleDailyGaugeReset();
-  }, nextMidnight.getTime() - now.getTime());
+
+    if (age >= 60) {
+        return 3;
+    }
+
+    if (age >= 50) {
+        return 2;
+    }
+
+    if (age >= 40) {
+        return 1;
+    }
+
+    return 0;
 }
 
-persist();
-loadEntry(isoDate());
-renderAll();
-setupWalkingCalculator();
-applyUnitSystem();
-scheduleDailyGaugeReset();
+
+function getSexAdjustment(sex) {
+    const normalizedSex =
+        String(sex).trim().toLowerCase();
+
+    return normalizedSex === "female" ? 1 : 0;
+}
+
+
+function calculateMcp({
+    heightCm,
+    heightMetres,
+    waistCm,
+    weightKg,
+    age,
+    sex
+}) {
+    /*
+       Core metrics
+    */
+
+    const bmi =
+        weightKg /
+        (heightMetres * heightMetres);
+
+    const whtr =
+        waistCm / heightCm;
+
+    const bodyK50 =
+        (bmi * whtr) * 2;
+
+    /*
+       Adjustments
+    */
+
+    const sexAdjustment =
+        getSexAdjustment(sex);
+
+    const ageAdjustment =
+        getAgeAdjustment(age);
+
+    /*
+       Raw score and final scaled MCP
+    */
+
+    const rawScore =
+        bodyK50 +
+        sexAdjustment +
+        ageAdjustment;
+
+    const mcp =
+        (2.551 * rawScore) - 51.53;
+
+    return {
+        bmi,
+        whtr,
+        bodyK50,
+        sexAdjustment,
+        ageAdjustment,
+        rawScore,
+        mcp
+    };
+}
+
+
+/* =========================================
+   Dashboard metric updating
+   ========================================= */
+
+/*
+   These IDs can be placed over the top
+   dashboard cards:
+
+   display-weight
+   display-weight-unit
+
+   display-waist
+   display-waist-unit
+
+   display-bmi
+   display-whtr
+   display-mcp
+*/
+
+function setText(id, value) {
+    const element = document.getElementById(id);
+
+    if (element) {
+        element.textContent = value;
+    }
+}
+
+
+function updateMcpDashboard({
+    system,
+    enteredWeight,
+    enteredWaist,
+    results
+}) {
+    const weightUnit =
+        system === "metric" ? "kg" : "lb";
+
+    const waistUnit =
+        system === "metric" ? "cm" : "in";
+
+    /*
+       Weight and waist are displayed in the
+       measurement system selected by the user.
+    */
+
+    setText(
+        "display-weight",
+        enteredWeight.toFixed(1)
+    );
+
+    setText(
+        "display-weight-unit",
+        weightUnit
+    );
+
+    setText(
+        "display-waist",
+        enteredWaist.toFixed(1)
+    );
+
+    setText(
+        "display-waist-unit",
+        waistUnit
+    );
+
+    /*
+       MotionC display standards:
+
+       BMI  = 1 decimal place
+       WHtR = 2 decimal places
+       MCP  = 1 decimal place
+    */
+
+    setText(
+        "display-bmi",
+        results.bmi.toFixed(1)
+    );
+
+    setText(
+        "display-whtr",
+        results.whtr.toFixed(2)
+    );
+
+    setText(
+        "display-mcp",
+        results.mcp.toFixed(1)
+    );
+}
+
+
+/* =========================================
+   Calculate MCP button
+   ========================================= */
+
+calculateMcpButton?.addEventListener(
+    "click",
+    () => {
+        try {
+            const measurementData =
+                getMeasurementData();
+
+            const results =
+                calculateMcp(measurementData);
+
+            updateMcpDashboard({
+                system:
+                    measurementData.system,
+
+                enteredWeight:
+                    measurementData.enteredWeight,
+
+                enteredWaist:
+                    measurementData.enteredWaist,
+
+                results
+            });
+
+            /*
+               Temporary confirmation until all
+               live metric overlays are installed.
+            */
+
+            alert(
+                `Your MCP is ${results.mcp.toFixed(1)}.\n` +
+                `Your BMI is ${results.bmi.toFixed(1)}.\n` +
+                `Your WHtR is ${results.whtr.toFixed(2)}.`
+            );
+
+            /*
+               Future features can listen for this
+               event without duplicating the MCP
+               calculation formula.
+            */
+
+            document.dispatchEvent(
+                new CustomEvent(
+                    "motionc:mcp-updated",
+                    {
+                        detail: {
+                            measurementData,
+                            results
+                        }
+                    }
+                )
+            );
+        } catch (error) {
+            alert(
+                error instanceof Error
+                    ? error.message
+                    : "Unable to calculate your MCP."
+            );
+        }
+    }
+);
+
+
+/* =========================================
+   Lifestyle Checklist
+   ========================================= */
+
+const lifestyleGroups = [
+    "sleep",
+    "hydration",
+    "nutrition",
+    "walking",
+    "stress",
+    "alcohol",
+    "smoking",
+    "activity"
+];
+
+const lifestyleSummaryStorageKey =
+    "motionc-lifestyle-summary-v1";
+
+const dailyLifestyleKeys = {
+    sleep: "sleep",
+    hydration: "hydration",
+    nutrition: "nutrition",
+    walking: "movement",
+    stress: "stress",
+    alcohol: "alcohol",
+    smoking: "smoking",
+    activity: "activity"
+};
+
+function currentLifestyleWeekKey() {
+    const date = new Date();
+    date.setHours(12, 0, 0, 0);
+    date.setDate(date.getDate() - date.getDay());
+
+    const localDate =
+        new Date(
+            date.getTime() -
+            date.getTimezoneOffset() * 60000
+        );
+
+    return localDate.toISOString().slice(0, 10);
+}
+
+function saveLifestyleSummary(score) {
+    const values = {};
+
+    lifestyleGroups.forEach((groupName) => {
+        values[dailyLifestyleKeys[groupName]] =
+            getSelectedLifestyleValue(groupName) / 3;
+    });
+
+    localStorage.setItem(
+        lifestyleSummaryStorageKey,
+        JSON.stringify({
+            week: currentLifestyleWeekKey(),
+            score,
+            maximumScore: 24,
+            baseScore: score / 24 * 10,
+            values,
+            updatedAt: new Date().toISOString()
+        })
+    );
+}
+
+function restoreLifestyleSummary() {
+    try {
+        const saved = JSON.parse(
+            localStorage.getItem(
+                lifestyleSummaryStorageKey
+            )
+        );
+
+        const score = Number(saved?.score);
+
+        if (
+            !Number.isFinite(score) ||
+            score < 0 ||
+            score > 24
+        ) {
+            return;
+        }
+
+        lifestyleGroups.forEach((groupName) => {
+            const dailyKey =
+                dailyLifestyleKeys[groupName];
+
+            const savedValue =
+                Number(saved.values?.[dailyKey]);
+
+            if (!Number.isFinite(savedValue)) {
+                return;
+            }
+
+            const option = form?.querySelector(
+                `input[name="${groupName}"][value="${Math.round(savedValue * 3)}"]`
+            );
+
+            if (option) {
+                option.checked = true;
+            }
+        });
+
+        updateLifestyleGauge(score);
+    } catch {
+        // Ignore missing or invalid saved data.
+    }
+}
+
+
+function getSelectedLifestyleValue(groupName) {
+    const selected =
+        form?.querySelector(
+            `input[name="${groupName}"]:checked`
+        );
+
+    if (!selected) {
+        return null;
+    }
+
+    const value = Number(selected.value);
+
+    return Number.isFinite(value)
+        ? value
+        : null;
+}
+
+
+function calculateLifestyleScore() {
+    let total = 0;
+    const unanswered = [];
+
+    lifestyleGroups.forEach((groupName) => {
+        const value =
+            getSelectedLifestyleValue(groupName);
+
+        if (value === null) {
+            unanswered.push(groupName);
+        } else {
+            total += value;
+        }
+    });
+
+    if (unanswered.length > 0) {
+        throw new Error(
+            "Please answer all eight Lifestyle Checklist questions before updating the gauge."
+        );
+    }
+
+    return total;
+}
+
+
+/* =========================================
+   Lifestyle gauge updating
+   ========================================= */
+
+/*
+   Once the gauge is built, it can use:
+
+   lifestyleScore: 0–24
+   lifestylePercent: 0–100
+*/
+
+function updateLifestyleGauge(score) {
+    const maximumScore = 24;
+
+    const percentage =
+        (score / maximumScore) * 100;
+
+    setText(
+        "display-lifestyle-score",
+        String(score)
+    );
+
+    setText(
+        "display-lifestyle-percent",
+        `${Math.round(percentage)}%`
+    );
+
+    /*
+       This custom event gives the future
+       gauge code a clean place to listen
+       without mixing it into the form logic.
+    */
+
+    document.dispatchEvent(
+        new CustomEvent(
+            "motionc:lifestyle-updated",
+            {
+                detail: {
+                    score,
+                    maximumScore,
+                    percentage
+                }
+            }
+        )
+    );
+
+    return percentage;
+}
+
+
+/* =========================================
+   Update Lifestyle Gauge button
+   ========================================= */
+
+calculateLifestyleButton?.addEventListener(
+    "click",
+    () => {
+        try {
+            const score =
+                calculateLifestyleScore();
+
+            saveLifestyleSummary(score);
+
+            const percentage =
+                updateLifestyleGauge(score);
+
+            /*
+               Temporary confirmation until the
+               live gauge needle is installed.
+            */
+
+            alert(
+                `Lifestyle Checklist: ${score} of 24 ` +
+                `(${Math.round(percentage)}%).`
+            );
+        } catch (error) {
+            alert(
+                error instanceof Error
+                    ? error.message
+                    : "Unable to calculate the Lifestyle score."
+            );
+        }
+    }
+);
+/* =========================================
+   Gauge arrow controls
+   ========================================= */
+
+/*
+   The two gauges intentionally use different
+   zone systems.
+
+   YOUR TREND:
+   Four active 25% zones. Yellow is skipped.
+
+   LIFESTYLE CHECKLIST:
+   Five active 20% zones. Yellow is included.
+*/
+
+function clamp(value, minimum, maximum) {
+    return Math.min(
+        Math.max(value, minimum),
+        maximum
+    );
+}
+
+function interpolate(
+    value,
+    inputMinimum,
+    inputMaximum,
+    outputMinimum,
+    outputMaximum
+) {
+    const progress =
+        (value - inputMinimum) /
+        (inputMaximum - inputMinimum);
+
+    return outputMinimum +
+        (
+            progress *
+            (outputMaximum - outputMinimum)
+        );
+}
+
+
+/* -----------------------------------------
+   YOUR TREND
+   ----------------------------------------- */
+
+function trendPercentageToGaugeAngle(percentage) {
+
+    const percent =
+        clamp(percentage, 0, 100);
+
+    if (percent <= 25) {
+        return interpolate(
+            percent,
+            0,
+            25,
+            -86,
+            -55
+        );
+    }
+
+    if (percent <= 50) {
+        return interpolate(
+            percent,
+            25,
+            50,
+            -52,
+            -20
+        );
+    }
+
+    if (percent <= 75) {
+        return interpolate(
+            percent,
+            50,
+            75,
+            20,
+            52
+        );
+    }
+
+    return interpolate(
+        percent,
+        75,
+        100,
+        55,
+        86
+    );
+}
+
+
+/* -----------------------------------------
+   LIFESTYLE CHECKLIST
+   ----------------------------------------- */
+
+function lifestylePercentageToGaugeAngle(percentage) {
+
+    const percent =
+        clamp(percentage, 0, 100);
+
+    return interpolate(
+        percent,
+        0,
+        100,
+        -86,
+        86
+    );
+}
+
+
+function setGaugeArrowAngle(
+    element,
+    angle
+) {
+
+    if (!element) {
+        return;
+    }
+
+    element.style.setProperty(
+        "--gauge-angle",
+        `${angle}deg`
+    );
+}
+
+
+/* -----------------------------------------
+   MCP percentage
+   ----------------------------------------- */
+
+function mcpToGaugePercentage(mcp) {
+
+    return clamp(
+        (mcp / 50) * 100,
+        0,
+        100
+    );
+}
+
+
+const trendGaugeArrow =
+    document.getElementById(
+        "trend-gauge-arrow"
+    );
+
+const lifestyleGaugeArrow =
+    document.getElementById(
+        "lifestyle-gauge-arrow"
+    );
+
+
+document.addEventListener(
+    "motionc:mcp-updated",
+    (event) => {
+
+        const mcp =
+            Number(
+                event.detail?.results?.mcp
+            );
+
+        if (!Number.isFinite(mcp)) {
+            return;
+        }
+
+        const percentage =
+            mcpToGaugePercentage(
+                mcp
+            );
+
+        const angle =
+            trendPercentageToGaugeAngle(
+                percentage
+            );
+
+        setGaugeArrowAngle(
+            trendGaugeArrow,
+            angle
+        );
+
+    }
+);
+
+
+document.addEventListener(
+    "motionc:lifestyle-updated",
+    (event) => {
+
+        const percentage =
+            Number(
+                event.detail?.percentage
+            );
+
+        if (!Number.isFinite(percentage)) {
+            return;
+        }
+
+        const angle =
+            lifestylePercentageToGaugeAngle(
+                percentage
+            );
+
+        setGaugeArrowAngle(
+            lifestyleGaugeArrow,
+            angle
+        );
+
+    }
+);
+
+window.addEventListener(
+    "load",
+    restoreLifestyleSummary
+);
+
+window.addEventListener(
+    "pageshow",
+    () => {
+        document.body.classList.remove(
+            "page-fade-out"
+        );
+        closeDrawer();
+        restoreLifestyleSummary();
+    }
+);
+
+/* =========================================
+   Modern Summary data and chart layer
+   ========================================= */
+
+const summaryDailyStorageKey = "motionc-daily-prototype-v1";
+const summaryMcpStorageKey = "motionc-mcp-summary-v1";
+const summaryGoalStorageKey = "motionc-weight-goal-v1";
+const summaryPreferencesStorageKey = "motionc-preferences-v1";
+const summaryKgPerLb = 0.45359237;
+const summaryKmPerMi = 1.609344;
+let summaryGoalWeight = null;
+let summaryWeightPoints = [];
+let summaryUnitSystem = "imperial";
+const summaryDisplayWeight = pounds => summaryUnitSystem === "metric" ? pounds * summaryKgPerLb : pounds;
+const summaryStoredWeight = value => summaryUnitSystem === "metric" ? value / summaryKgPerLb : value;
+const summaryDisplayDistance = miles => summaryUnitSystem === "metric" ? miles * summaryKmPerMi : miles;
+const summaryWeightUnit = () => summaryUnitSystem === "metric" ? "kg" : "lb";
+const summaryDistanceUnit = () => summaryUnitSystem === "metric" ? "km" : "mi";
+
+const summaryLifestyleMeta = {
+    sleep: ["☾", "Sleep", ["Needs attention", "About 6 hours", "7–8 hours"]],
+    hydration: ["◒", "Hydration", ["Drink more water", "Improving", "Well hydrated"]],
+    nutrition: ["●", "Nutrition", ["Needs attention", "Mixed choices", "Healthy choices"]],
+    movement: ["↗", "Walking", ["Under 3,000 steps", "3,000–8,000 steps", "8,000+ steps"]],
+    stress: ["◇", "Stress", ["High stress", "Moderate stress", "Well managed"]],
+    alcohol: ["▽", "Alcohol", ["High intake", "Moderate intake", "Low intake"]],
+    smoking: ["⊘", "Smoking", ["Current smoker", "Former smoker", "Non-smoker"]],
+    activity: ["✦", "Activity", ["Rare exercise", "Occasional exercise", "Regular workouts"]]
+};
+
+function readSummaryStorage(key, fallback) {
+    try {
+        const parsed = JSON.parse(localStorage.getItem(key));
+        return parsed ?? fallback;
+    } catch {
+        return fallback;
+    }
+}
+
+function saveSharedVibratoryLine(pounds) {
+    const daily = readSummaryStorage(summaryDailyStorageKey, { entries: {}, weeks: {}, profile: {} });
+    daily.profile = daily.profile || {};
+    daily.profile.vibratoryLine = pounds;
+    daily.profile.updatedAt = new Date().toISOString();
+    localStorage.setItem(summaryDailyStorageKey, JSON.stringify(daily));
+}
+
+function summaryDate(value) {
+    return new Date(`${value}T12:00:00`);
+}
+
+function summaryIso(date) {
+    const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0, 10);
+}
+
+function recentDateKeys(days) {
+    const dates = [];
+    const today = new Date();
+    today.setHours(12, 0, 0, 0);
+    for (let offset = days - 1; offset >= 0; offset -= 1) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - offset);
+        dates.push(summaryIso(date));
+    }
+    return dates;
+}
+
+function median(values) {
+    if (!values.length) return null;
+    const ordered = [...values].sort((a, b) => a - b);
+    const middle = Math.floor(ordered.length / 2);
+    return ordered.length % 2 ? ordered[middle] : (ordered[middle - 1] + ordered[middle]) / 2;
+}
+
+function personalStepsPerMile(entries) {
+    const samples = Object.values(entries)
+        .flatMap(entry => Array.isArray(entry.walks) && entry.walks.length ? entry.walks : [entry])
+        .filter(walk => Number(walk.steps) > 0 && Number(walk.distance) > 0)
+        .map(walk => Number(walk.steps) / Number(walk.distance))
+        .filter(rate => rate >= 1400 && rate <= 3000);
+    return samples.length >= 3 ? median(samples) : 2050;
+}
+
+function stepResult(entry, entries) {
+    const walks = Array.isArray(entry?.walks) ? entry.walks : [];
+    if (walks.length) {
+        const rate = personalStepsPerMile(entries);
+        const measured = walks.every(walk => Number(walk.steps) > 0);
+        const value = walks.reduce((total, walk) => total + (Number(walk.steps) > 0
+            ? Math.round(Number(walk.steps))
+            : Math.round(Number(walk.distance || 0) * rate / 10) * 10), 0);
+        return value > 0 ? { value, measured } : null;
+    }
+    if (Number(entry?.steps) > 0) return { value: Math.round(Number(entry.steps)), measured: true };
+    const miles = Number(entry?.distance || 0);
+    if (!(miles > 0)) return null;
+    return { value: Math.round(miles * personalStepsPerMile(entries) / 10) * 10, measured: false };
+}
+
+function latestRecorded(entries, field, beforeDate) {
+    return Object.values(entries)
+        .filter(entry => entry.date <= beforeDate && Number(entry[field]) > 0)
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .at(-1) || null;
+}
+
+function estimatedWalkingHr(entry, restingBaseline) {
+    const miles = Number(entry?.distance || 0);
+    const minutes = Number(entry?.minutes || 0);
+    if (!(miles > 0 && minutes > 0)) return null;
+    const pace = minutes / miles;
+    const resting = Number(restingBaseline) > 0 ? Number(restingBaseline) : 72;
+    const effort = pace >= 20 ? [15, 30] : pace >= 18 ? [20, 36] : pace >= 16 ? [28, 45] : pace >= 14 ? [38, 58] : [48, 72];
+    return {
+        low: Math.max(70, Math.round(resting + effort[0])),
+        high: Math.min(160, Math.round(resting + effort[1])),
+        pace
+    };
+}
+
+function renderWalkingMetrics(entries, dates14) {
+    const walks = Object.values(entries)
+        .filter(entry => entry.date <= summaryIso(new Date()) && Number(entry.distance) > 0)
+        .sort((a, b) => a.date.localeCompare(b.date));
+    const latest = walks.at(-1);
+    if (!latest) return;
+
+    const steps = stepResult(latest, entries);
+    if (steps) {
+        setText("display-steps", steps.value.toLocaleString());
+        setText("steps-label", steps.measured ? "Steps" : "Estimated steps");
+        const recent = walks.filter(entry => dates14.includes(entry.date) && entry.date !== latest.date)
+            .map(entry => stepResult(entry, entries)?.value).filter(Number.isFinite);
+        const average = recent.length ? Math.round(recent.reduce((sum, value) => sum + value, 0) / recent.length) : null;
+        const comparison = average ? `${steps.value >= average ? "▲" : "▼"} ${Math.abs(steps.value - average).toLocaleString()} vs your recent average` : "Your personal walking total";
+        setText("steps-status", `${steps.measured ? "Measured" : "Personal estimate"} · ${comparison}`);
+    }
+
+    const restingEntry = latestRecorded(entries, "restingHr", latest.date);
+    const resting = Number(restingEntry?.restingHr);
+    const walkingHr = Number(latest.walkingHr);
+    if (walkingHr > 0) {
+        setText("display-walking-hr", Math.round(walkingHr));
+        setText("walking-hr-label", "Average walking HR");
+        setText("walking-hr-status", "Measured · from your latest walk");
+    } else {
+        const estimate = estimatedWalkingHr(latest, resting);
+        if (estimate) {
+            setText("display-walking-hr", `${estimate.low}–${estimate.high}`);
+            setText("walking-hr-label", "Likely walking HR");
+            setText("walking-hr-status", `Estimated range · based on pace${resting > 0 ? " + your resting baseline" : ""}`);
+        }
+    }
+
+    if (resting > 0) {
+        setText("display-resting-hr", Math.round(resting));
+        setText("resting-hr-status", restingEntry.date === latest.date ? "Measured · latest entry" : `Last measured ${shortChartDate(restingEntry.date)}`);
+    } else {
+        setText("resting-hr-status", "Not recorded · add it for recovery context");
+    }
+}
+
+function shortChartDate(value) {
+    return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" })
+        .format(summaryDate(value));
+}
+
+function setRingValue(id, percentage) {
+    const ring = document.getElementById(id);
+    if (ring) {
+        ring.style.setProperty("--ring-value", `${Math.max(0, Math.min(100, percentage)) * 3.6}deg`);
+    }
+}
+
+function renderLifestyleSummary(saved) {
+    const container = document.getElementById("lifestyle-items");
+    if (!container) return;
+
+    const values = saved?.values || {};
+    container.innerHTML = Object.entries(summaryLifestyleMeta).map(([key, meta]) => {
+        const numeric = Number(values[key]);
+        const level = Number.isFinite(numeric) ? Math.max(0, Math.min(2, Math.round(numeric * 2))) : -1;
+        const stateClass = level === 2 ? "good" : level === 1 ? "mid" : level === 0 ? "low" : "";
+        const detail = level >= 0 ? meta[2][level] : "Not answered";
+        return `
+            <div class="lifestyle-item">
+                <span class="lifestyle-item-icon" aria-hidden="true">${meta[0]}</span>
+                <span><strong>${meta[1]}</strong><small>${detail}</small></span>
+                <span class="lifestyle-level ${stateClass}" aria-label="${detail}"></span>
+            </div>
+        `;
+    }).join("");
+
+    const score = Number(saved?.score);
+    if (Number.isFinite(score)) {
+        setText("display-lifestyle-score", String(score));
+        setText("display-lifestyle-percent", `${Math.round(score / 24 * 100)}%`);
+        setText("weekly-lifestyle", `${score} / 24`);
+        setRingValue("lifestyle-ring", score / 24 * 100);
+    }
+}
+
+function roundedRect(context, x, y, width, height, radius) {
+    const safeRadius = Math.min(radius, Math.abs(width) / 2, Math.abs(height) / 2);
+    context.beginPath();
+    context.roundRect(x, y, width, height, safeRadius);
+}
+
+function prepareCanvas(canvas) {
+    const ratio = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = Math.max(1, Math.round(rect.width * ratio));
+    canvas.height = Math.max(1, Math.round(rect.height * ratio));
+    const context = canvas.getContext("2d");
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    return { context, width: rect.width, height: rect.height };
+}
+
+function drawGrid(context, width, height, padding) {
+    context.strokeStyle = "#e4e9e5";
+    context.lineWidth = 1;
+    for (let row = 0; row < 4; row += 1) {
+        const y = padding.top + (height - padding.top - padding.bottom) * row / 3;
+        context.beginPath();
+        context.moveTo(padding.left, y);
+        context.lineTo(width - padding.right, y);
+        context.stroke();
+    }
+}
+
+function drawWeightChart(points) {
+    const canvas = document.getElementById("weight-chart");
+    const empty = document.getElementById("weight-chart-empty");
+    if (!canvas || !empty) return;
+
+    if (points.length < 1) {
+        empty.hidden = false;
+        canvas.hidden = true;
+        return;
+    }
+
+    empty.hidden = true;
+    canvas.hidden = false;
+    const { context, width, height } = prepareCanvas(canvas);
+    const padding = { top: 18, right: 15, bottom: 34, left: 14 };
+    summaryWeightPoints = points;
+    const values = points.map(point => point.value);
+    if (Number.isFinite(summaryGoalWeight)) values.push(summaryGoalWeight);
+    const minimum = Math.min(...values) - .7;
+    const maximum = Math.max(...values) + .7;
+    const chartWidth = width - padding.left - padding.right;
+    const chartHeight = height - padding.top - padding.bottom;
+    drawGrid(context, width, height, padding);
+
+    const coordinates = points.map((point, index) => ({
+        x: padding.left + chartWidth * (points.length === 1 ? .5 : index / (points.length - 1)),
+        y: padding.top + chartHeight * (1 - (point.value - minimum) / (maximum - minimum)),
+        ...point
+    }));
+    canvas._hitPoints = coordinates;
+
+    const gradient = context.createLinearGradient(0, padding.top, 0, height - padding.bottom);
+    gradient.addColorStop(0, "rgba(52, 123, 80, .28)");
+    gradient.addColorStop(1, "rgba(52, 123, 80, 0)");
+    context.beginPath();
+    context.moveTo(coordinates[0].x, height - padding.bottom);
+    coordinates.forEach(point => context.lineTo(point.x, point.y));
+    context.lineTo(coordinates.at(-1).x, height - padding.bottom);
+    context.closePath();
+    context.fillStyle = gradient;
+    context.fill();
+
+    context.beginPath();
+    coordinates.forEach((point, index) => index ? context.lineTo(point.x, point.y) : context.moveTo(point.x, point.y));
+    context.strokeStyle = "#347b50";
+    context.lineWidth = 3;
+    context.lineJoin = "round";
+    context.lineCap = "round";
+    context.stroke();
+
+    coordinates.forEach(point => {
+        context.beginPath();
+        context.arc(point.x, point.y, 4, 0, Math.PI * 2);
+        context.fillStyle = "#fff";
+        context.fill();
+        context.strokeStyle = "#347b50";
+        context.lineWidth = 2;
+        context.stroke();
+    });
+
+    if (Number.isFinite(summaryGoalWeight)) {
+        const goalY = padding.top + chartHeight * (1 - (summaryGoalWeight - minimum) / (maximum - minimum));
+        context.save();
+        context.setLineDash([7, 5]);
+        context.beginPath();
+        context.moveTo(padding.left, goalY);
+        context.lineTo(width - padding.right, goalY);
+        context.strokeStyle = "#d19a2d";
+        context.lineWidth = 2;
+        context.stroke();
+        context.restore();
+
+        const goalText = `Line ${summaryGoalWeight.toFixed(1)} ${summaryWeightUnit()}`;
+        context.font = "bold 10px Arial";
+        const labelWidth = context.measureText(goalText).width + 14;
+        context.fillStyle = "#fff4d2";
+        roundedRect(context, width - padding.right - labelWidth, goalY - 20, labelWidth, 17, 7);
+        context.fill();
+        context.fillStyle = "#8c6415";
+        context.textAlign = "center";
+        context.fillText(goalText, width - padding.right - labelWidth / 2, goalY - 8);
+        canvas._goalScale = { minimum, maximum, top: padding.top, height: chartHeight, goalY };
+        setText("goal-weight-label", `Vibratory Set Line: ${summaryGoalWeight.toFixed(1)} ${summaryWeightUnit()}`);
+    }
+
+    context.fillStyle = "#7a8782";
+    context.font = "10px Arial";
+    context.textAlign = "center";
+    coordinates.forEach((point, index) => {
+        if (index === 0 || index === coordinates.length - 1 || index % 3 === 0) {
+            context.fillText(shortChartDate(point.date), point.x, height - 11);
+        }
+    });
+}
+
+function drawWalkingChart(points) {
+    const canvas = document.getElementById("walking-chart");
+    const empty = document.getElementById("walking-chart-empty");
+    if (!canvas || !empty) return;
+
+    if (!points.some(point => point.miles > 0 || point.minutes > 0)) {
+        empty.hidden = false;
+        canvas.hidden = true;
+        return;
+    }
+
+    empty.hidden = true;
+    canvas.hidden = false;
+    const { context, width, height } = prepareCanvas(canvas);
+    const padding = { top: 18, right: 15, bottom: 34, left: 14 };
+    const chartWidth = width - padding.left - padding.right;
+    const chartHeight = height - padding.top - padding.bottom;
+    const maxMiles = Math.max(1, ...points.map(point => point.miles));
+    const maxMinutes = Math.max(10, ...points.map(point => point.minutes));
+    const slot = chartWidth / points.length;
+    const barWidth = Math.min(26, slot * .58);
+    drawGrid(context, width, height, padding);
+
+    points.forEach((point, index) => {
+        const center = padding.left + slot * (index + .5);
+        const milesHeight = chartHeight * point.miles / maxMiles;
+        context.fillStyle = "#5b8a54";
+        roundedRect(context, center - barWidth / 2, height - padding.bottom - milesHeight, barWidth, milesHeight, 5);
+        context.fill();
+
+        if (index === 0 || index === points.length - 1 || index % 2 === 0) {
+            context.fillStyle = "#7a8782";
+            context.font = "10px Arial";
+            context.textAlign = "center";
+            context.fillText(shortChartDate(point.date), center, height - 11);
+        }
+    });
+
+    const timeCoordinates = points.map((point, index) => ({
+        x: padding.left + slot * (index + .5),
+        y: padding.top + chartHeight * (1 - point.minutes / maxMinutes),
+        active: point.minutes > 0,
+        ...point
+    }));
+    canvas._hitPoints = timeCoordinates.filter(point => point.active);
+    context.beginPath();
+    let lineStarted = false;
+    timeCoordinates.forEach(point => {
+        if (!point.active) {
+            lineStarted = false;
+            return;
+        }
+        if (lineStarted) context.lineTo(point.x, point.y);
+        else context.moveTo(point.x, point.y);
+        lineStarted = true;
+    });
+    context.strokeStyle = "#d79a30";
+    context.lineWidth = 3;
+    context.lineCap = "round";
+    context.lineJoin = "round";
+    context.stroke();
+    timeCoordinates.filter(point => point.active).forEach(point => {
+        context.beginPath();
+        context.arc(point.x, point.y, 3.5, 0, Math.PI * 2);
+        context.fillStyle = "#fff";
+        context.fill();
+        context.strokeStyle = "#d79a30";
+        context.lineWidth = 2;
+        context.stroke();
+    });
+}
+
+function latestDailyWeight(entries) {
+    return Object.values(entries || {})
+        .filter(entry => entry?.date && Number(entry.weight) > 0)
+        .sort((first, second) => String(first.date).localeCompare(String(second.date)))
+        .at(-1)?.weight ?? null;
+}
+
+function canonicalMcpSnapshot(savedMcp, entries) {
+    const measurementData = savedMcp?.measurementData;
+    if (!measurementData) return null;
+
+    const dailyWeightLbs = Number(latestDailyWeight(entries));
+    const weightLbs = dailyWeightLbs > 0 ? dailyWeightLbs : Number(measurementData.weightLbs);
+    const heightInches = Number(measurementData.heightInches);
+    const waistInches = Number(measurementData.waistInches);
+    const age = Number(measurementData.age);
+
+    if (![weightLbs, heightInches, waistInches, age].every(value => Number.isFinite(value) && value > 0)) {
+        return null;
+    }
+
+    const system = measurementData.system === "metric" ? "metric" : "imperial";
+    const canonicalMeasurements = {
+        ...measurementData,
+        system,
+        enteredWeight: system === "metric" ? weightLbs * summaryKgPerLb : weightLbs,
+        enteredWaist: system === "metric" ? waistInches * 2.54 : waistInches,
+        heightCm: heightInches * 2.54,
+        heightMetres: heightInches * 0.0254,
+        heightInches,
+        waistCm: waistInches * 2.54,
+        waistInches,
+        weightKg: weightLbs * summaryKgPerLb,
+        weightLbs,
+        age
+    };
+
+    return {
+        measurementData: canonicalMeasurements,
+        results: calculateMcp(canonicalMeasurements)
+    };
+}
+
+const DAILY_TREND_CONFIG = {
+    hydration: { label: "Hydration", unit: "glasses", maximum: 16, color: "#0872b9" },
+    stress: { label: "Stress", unit: "of 5", maximum: 5, color: "#d94d48" },
+    sleep: { label: "Sleep", unit: "hours", maximum: 12, color: "#3d68ae" }
+};
+
+function formatDailyTrendValue(value) {
+    return Number(value).toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
+}
+
+function drawDailyGaugeTrend(key, dates, gauges) {
+    const config = DAILY_TREND_CONFIG[key];
+    const canvas = document.getElementById(`${key}-trend-chart`);
+    const empty = document.getElementById(`${key}-trend-empty`);
+    if (!canvas || !empty) return;
+    const points = dates.map(date => {
+        const saved = gauges?.[date]?.[key];
+        return { date, value: saved && Number.isFinite(Number(saved.value)) ? Number(saved.value) : null };
+    });
+    const recorded = points.filter(point => point.value !== null);
+    if (!recorded.length) {
+        empty.hidden = false;
+        canvas.hidden = true;
+        setText(`${key}-trend-summary`, "No completed entries");
+        return;
+    }
+
+    empty.hidden = true;
+    canvas.hidden = false;
+    const { context, width, height } = prepareCanvas(canvas);
+    const padding = { top: 18, right: 14, bottom: 34, left: 24 };
+    const chartWidth = width - padding.left - padding.right;
+    const chartHeight = height - padding.top - padding.bottom;
+    const slot = chartWidth / points.length;
+    drawGrid(context, width, height, padding);
+
+    const coordinates = points.map((point, index) => ({
+        ...point,
+        x: padding.left + slot * (index + .5),
+        y: point.value === null ? null : padding.top + chartHeight * (1 - Math.min(config.maximum, point.value) / config.maximum)
+    }));
+    canvas._hitPoints = coordinates.filter(point => point.value !== null);
+
+    context.beginPath();
+    let segmentStarted = false;
+    coordinates.forEach(point => {
+        if (point.value === null) {
+            segmentStarted = false;
+            return;
+        }
+        if (segmentStarted) context.lineTo(point.x, point.y);
+        else context.moveTo(point.x, point.y);
+        segmentStarted = true;
+    });
+    context.strokeStyle = config.color;
+    context.lineWidth = 3;
+    context.lineCap = "round";
+    context.lineJoin = "round";
+    context.stroke();
+
+    coordinates.forEach((point, index) => {
+        if (point.value === null) {
+            context.beginPath();
+            context.arc(point.x, height - padding.bottom, 2, 0, Math.PI * 2);
+            context.fillStyle = "#cbd4d1";
+            context.fill();
+        } else {
+            context.beginPath();
+            context.arc(point.x, point.y, 4, 0, Math.PI * 2);
+            context.fillStyle = "#fff";
+            context.fill();
+            context.strokeStyle = config.color;
+            context.lineWidth = 2;
+            context.stroke();
+        }
+        if (index === 0 || index === coordinates.length - 1 || index % 4 === 0) {
+            context.fillStyle = "#7a8782";
+            context.font = "9px Arial";
+            context.textAlign = "center";
+            context.fillText(shortChartDate(point.date), point.x, height - 11);
+        }
+    });
+
+    context.fillStyle = "#7a8782";
+    context.font = "9px Arial";
+    context.textAlign = "left";
+    context.fillText(String(config.maximum), 2, padding.top + 3);
+    context.fillText("0", 8, height - padding.bottom + 3);
+
+    const average = recorded.reduce((sum, point) => sum + point.value, 0) / recorded.length;
+    setText(`${key}-trend-summary`, `${formatDailyTrendValue(average)} ${config.unit} avg · ${recorded.length} recorded`);
+}
+
+function renderSummaryData() {
+    const daily = readSummaryStorage(summaryDailyStorageKey, { entries: {}, profile: {} });
+    const lifestyle = readSummaryStorage(lifestyleSummaryStorageKey, null);
+    const savedMcp = readSummaryStorage(summaryMcpStorageKey, null);
+    const preferences = readSummaryStorage(summaryPreferencesStorageKey, {});
+    summaryUnitSystem = preferences?.unitSystem === "metric" ? "metric" : "imperial";
+    document.querySelectorAll('input[name="summaryUnitSystem"]').forEach(input => {
+        input.checked = input.value === summaryUnitSystem;
+    });
+    setText("walking-distance-legend", summaryUnitSystem === "metric" ? "Kilometres" : "Miles");
+    const dates14 = recentDateKeys(14);
+    const dates7 = dates14.slice(-7);
+    const entries = daily?.entries || {};
+    const lifetimeMiles = Object.values(entries).reduce(
+        (total, entry) => total + Number(entry?.distance || 0),
+        0
+    );
+    setText("display-lifetime-distance", summaryDisplayDistance(lifetimeMiles).toFixed(2));
+    setText("display-lifetime-distance-unit", summaryDistanceUnit());
+    const savedGoal = Number(readSummaryStorage(summaryGoalStorageKey, null));
+    const profileLine = Number(daily?.profile?.vibratoryLine);
+    const profileGoal = Number(daily?.profile?.motivationalGoal);
+    const canonicalGoal = savedGoal > 0 ? savedGoal : profileLine > 0 ? profileLine : profileGoal > 0 ? profileGoal : 195;
+    summaryGoalWeight = summaryDisplayWeight(canonicalGoal);
+
+    const canonicalMcp = canonicalMcpSnapshot(savedMcp, entries);
+    if (canonicalMcp) {
+        updateMcpDashboard({
+            system: canonicalMcp.measurementData.system,
+            enteredWeight: Number(canonicalMcp.measurementData.enteredWeight),
+            enteredWaist: Number(canonicalMcp.measurementData.enteredWaist),
+            results: canonicalMcp.results
+        });
+        document.dispatchEvent(new CustomEvent("motionc:mcp-summary-restored", {
+            detail: canonicalMcp
+        }));
+    }
+
+    const weightPoints = dates14
+        .filter(date => Number(entries[date]?.weight) > 0)
+        .map(date => ({ date, value: summaryDisplayWeight(Number(entries[date].weight)) }));
+    drawWeightChart(weightPoints);
+
+    if (weightPoints.length) {
+        const first = weightPoints[0].value;
+        const last = weightPoints.at(-1).value;
+        const change = last - first;
+        setText("display-weight", last.toFixed(1));
+        setText("display-weight-unit", summaryWeightUnit());
+        setText("weight-change", `${change <= 0 ? "▼" : "▲"} ${Math.abs(change).toFixed(1)} ${summaryWeightUnit()} over 14 days`);
+        setText("weight-chart-summary", `${last.toFixed(1)} ${summaryWeightUnit()} · ${change > 0 ? "+" : ""}${change.toFixed(1)} ${summaryWeightUnit()}`);
+        setText("weekly-weight-change", `${change > 0 ? "+" : ""}${change.toFixed(1)} ${summaryWeightUnit()}`);
+    }
+
+    const walkPoints = dates14.map(date => {
+        const dailyEntry = entries[date] || {};
+        return {
+            date,
+            miles: summaryDisplayDistance(Number(dailyEntry.distance || 0)),
+            minutes: Number(dailyEntry.minutes || 0)
+        };
+    });
+    drawWalkingChart(walkPoints);
+
+    const completedDates14 = recentDateKeys(15).slice(0, -1);
+    Object.keys(DAILY_TREND_CONFIG).forEach(key => drawDailyGaugeTrend(key, completedDates14, daily?.dailyGauges || {}));
+
+    const recentWalks = walkPoints.filter(point => dates7.includes(point.date));
+    const weeklyMiles = recentWalks.reduce((total, point) => total + point.miles, 0);
+    const weeklyMinutes = recentWalks.reduce((total, point) => total + point.minutes, 0);
+    setText("weekly-miles", `${weeklyMiles.toFixed(2)} ${summaryDistanceUnit()}`);
+    setText("weekly-minutes", `${Math.round(weeklyMinutes)} min`);
+    setText("walking-chart-summary", `${weeklyMiles.toFixed(1)} ${summaryDistanceUnit()} · ${Math.round(weeklyMinutes)} min in the last 7 days`);
+
+    renderWalkingMetrics(entries, dates14);
+
+    renderLifestyleSummary(lifestyle);
+}
+
+function updateModernMcpDisplay(detail) {
+    const eventDetail = detail || {};
+    const mcp = Number(eventDetail.results?.mcp);
+    const bmi = Number(eventDetail.results?.bmi);
+    if (Number.isFinite(mcp)) {
+        const gauge = document.getElementById("mcp-ring");
+        const zone = mcp < 25
+            ? { key: "core", label: "Core Zone" }
+            : mcp < 35
+                ? { key: "healthy", label: "Healthy Zone" }
+                : mcp < 43
+                    ? { key: "elevated", label: "Elevated Zone" }
+                    : { key: "watch", label: "Watch Zone" };
+
+        setText("display-mcp-ring", mcp.toFixed(1));
+        setText("mcp-zone-status", zone.label);
+        if (gauge) {
+            gauge.classList.remove("zone-core", "zone-healthy", "zone-elevated", "zone-watch");
+            gauge.classList.add("is-assessed", `zone-${zone.key}`);
+            const markerAngle = 195 + ((60 - Math.max(0, Math.min(60, mcp))) / 60 * 330);
+            gauge.style.setProperty("--mcp-marker-angle", `${markerAngle}deg`);
+            gauge.setAttribute("aria-label", `MCP ${mcp.toFixed(1)}, ${zone.label}`);
+        }
+        setText("momentum-message", mcp >= 30 ? "You’re building healthy momentum. Consistency is doing its quiet work." : "Every small improvement moves the score. Choose one habit to strengthen today.");
+    }
+    if (Number.isFinite(bmi)) {
+        setText("bmi-status", bmi < 18.5 ? "Below healthy range" : bmi < 25 ? "Healthy range" : bmi < 30 ? "Above healthy range" : "High range");
+    }
+}
+
+document.addEventListener("motionc:mcp-updated", event => {
+    if (event.detail?.measurementData && event.detail?.results) {
+        localStorage.setItem(summaryMcpStorageKey, JSON.stringify({
+            ...event.detail,
+            updatedAt: new Date().toISOString()
+        }));
+    }
+    updateModernMcpDisplay(event.detail);
+});
+
+document.addEventListener("motionc:mcp-summary-restored", event => {
+    updateModernMcpDisplay(event.detail);
+});
+
+document.addEventListener("motionc:lifestyle-updated", event => {
+    setRingValue("lifestyle-ring", Number(event.detail?.percentage) || 0);
+    renderLifestyleSummary(readSummaryStorage(lifestyleSummaryStorageKey, null));
+});
+
+window.addEventListener("resize", () => {
+    window.clearTimeout(window.motioncSummaryResize);
+    window.motioncSummaryResize = window.setTimeout(renderSummaryData, 120);
+});
+
+const summaryWeightCanvas = document.getElementById("weight-chart");
+let draggingWeightGoal = false;
+
+function updateGoalFromPointer(event) {
+    const scale = summaryWeightCanvas?._goalScale;
+    if (!scale) return;
+    const rect = summaryWeightCanvas.getBoundingClientRect();
+    const y = Math.max(scale.top, Math.min(scale.top + scale.height, event.clientY - rect.top));
+    const percentage = 1 - (y - scale.top) / scale.height;
+    summaryGoalWeight = Math.round((scale.minimum + percentage * (scale.maximum - scale.minimum)) * 10) / 10;
+    const canonicalLine = summaryStoredWeight(summaryGoalWeight);
+    localStorage.setItem(summaryGoalStorageKey, String(canonicalLine));
+    saveSharedVibratoryLine(canonicalLine);
+    drawWeightChart(summaryWeightPoints);
+}
+
+summaryWeightCanvas?.addEventListener("pointerdown", event => {
+    const scale = summaryWeightCanvas._goalScale;
+    if (!scale) return;
+    const rect = summaryWeightCanvas.getBoundingClientRect();
+    if (Math.abs(event.clientY - rect.top - scale.goalY) > 18) return;
+    draggingWeightGoal = true;
+    summaryWeightCanvas.setPointerCapture(event.pointerId);
+    updateGoalFromPointer(event);
+});
+
+summaryWeightCanvas?.addEventListener("pointermove", event => {
+    if (draggingWeightGoal) updateGoalFromPointer(event);
+});
+
+summaryWeightCanvas?.addEventListener("pointerup", event => {
+    draggingWeightGoal = false;
+    if (summaryWeightCanvas.hasPointerCapture(event.pointerId)) {
+        summaryWeightCanvas.releasePointerCapture(event.pointerId);
+    }
+});
+
+function fullChartDate(value) {
+    return new Intl.DateTimeFormat(undefined, {
+        weekday: "short",
+        month: "short",
+        day: "numeric"
+    }).format(summaryDate(value));
+}
+
+function nearestChartPoint(canvas, event, radius = 12) {
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    let nearest = null;
+    let nearestDistance = radius;
+
+    (canvas._hitPoints || []).forEach(point => {
+        const distance = Math.hypot(point.x - x, point.y - y);
+        if (distance <= nearestDistance) {
+            nearest = point;
+            nearestDistance = distance;
+        }
+    });
+
+    return nearest;
+}
+
+function positionChartTooltip(tooltip, canvas, point) {
+    const wrap = canvas.closest(".chart-wrap");
+    if (!wrap) return;
+    const canvasRect = canvas.getBoundingClientRect();
+    const wrapRect = wrap.getBoundingClientRect();
+    const tooltipHalfWidth = Math.max(63, tooltip.offsetWidth / 2);
+    const left = Math.max(
+        tooltipHalfWidth + 4,
+        Math.min(wrapRect.width - tooltipHalfWidth - 4, canvasRect.left - wrapRect.left + point.x)
+    );
+    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${canvasRect.top - wrapRect.top + point.y}px`;
+}
+
+function attachChartTooltip(canvasId, tooltipId, renderContent) {
+    const canvas = document.getElementById(canvasId);
+    const tooltip = document.getElementById(tooltipId);
+    if (!canvas || !tooltip) return;
+
+    canvas.addEventListener("pointermove", event => {
+        if (canvas === summaryWeightCanvas && draggingWeightGoal) {
+            tooltip.hidden = true;
+            return;
+        }
+
+        const point = nearestChartPoint(canvas, event);
+        if (!point) {
+            tooltip.hidden = true;
+            canvas.style.cursor = canvas === summaryWeightCanvas ? "ns-resize" : "default";
+            return;
+        }
+
+        tooltip.innerHTML = renderContent(point);
+        tooltip.hidden = false;
+        canvas.style.cursor = "pointer";
+        positionChartTooltip(tooltip, canvas, point);
+    });
+
+    canvas.addEventListener("pointerleave", () => {
+        tooltip.hidden = true;
+        canvas.style.cursor = canvas === summaryWeightCanvas ? "ns-resize" : "default";
+    });
+}
+
+attachChartTooltip(
+    "weight-chart",
+    "weight-chart-tooltip",
+    point => `<strong>${fullChartDate(point.date)}</strong><span>Weight: ${point.value.toFixed(1)} ${summaryWeightUnit()}</span>`
+);
+
+Object.entries(DAILY_TREND_CONFIG).forEach(([key, config]) => {
+    attachChartTooltip(
+        `${key}-trend-chart`,
+        `${key}-trend-tooltip`,
+        point => `<strong>${fullChartDate(point.date)}</strong><span>${config.label}: ${formatDailyTrendValue(point.value)} ${config.unit}</span>`
+    );
+});
+
+attachChartTooltip(
+    "walking-chart",
+    "walking-chart-tooltip",
+    point => `<strong>${fullChartDate(point.date)}</strong><span>${summaryUnitSystem === "metric" ? "Kilometres" : "Miles"}: ${point.miles.toFixed(2)}</span><span>Time: ${Math.round(point.minutes)} min</span>`
+);
+
+const summaryPreferencesToggle = document.getElementById("summaryPreferencesToggle");
+const summaryPreferencesMenu = document.getElementById("summaryPreferencesMenu");
+const summaryPreferencesClose = document.getElementById("summaryPreferencesClose");
+
+function closeSummaryPreferences() {
+    summaryPreferencesMenu.hidden = true;
+    summaryPreferencesToggle.setAttribute("aria-expanded", "false");
+}
+
+summaryPreferencesToggle?.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopPropagation();
+    summaryPreferencesMenu.hidden = !summaryPreferencesMenu.hidden;
+    summaryPreferencesToggle.setAttribute("aria-expanded", String(!summaryPreferencesMenu.hidden));
+});
+summaryPreferencesMenu?.addEventListener("click", event => event.stopPropagation());
+summaryPreferencesClose?.addEventListener("click", closeSummaryPreferences);
+document.addEventListener("click", closeSummaryPreferences);
+document.addEventListener("keydown", event => {
+    if (event.key === "Escape") closeSummaryPreferences();
+});
+
+document.querySelectorAll('input[name="summaryUnitSystem"]').forEach(input => {
+    input.addEventListener("change", () => {
+        localStorage.setItem(summaryPreferencesStorageKey, JSON.stringify({
+            unitSystem: input.value,
+            updatedAt: new Date().toISOString()
+        }));
+        renderSummaryData();
+    });
+});
+
+window.addEventListener("DOMContentLoaded", renderSummaryData);
+window.addEventListener("pageshow", renderSummaryData);
