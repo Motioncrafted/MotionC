@@ -1686,6 +1686,51 @@
         ]
       },
       {
+        id: "chia-seeds-a-beginners-guide",
+        category: "nutrition",
+        title: "Chia Seeds: A Beginner’s Guide",
+        tags: ["chia seeds", "beginner guide", "fiber", "omega-3", "protein", "digestion", "fullness", "heart health", "chia pudding", "nutrition", "Mo Explains", "visual learning"],
+        summary: "What they are, why they matter, and how to start.",
+        pages: [
+          `<p>If you’ve never used chia seeds before, they can seem a little mysterious. They’re tiny, they look simple, and yet people talk about them like they’re a nutrition powerhouse.</p>
+           <p>The truth is: chia seeds are one of the easiest daily habits you can add to support your health — and they require almost no effort.</p>`,
+          `<h2>What Chia Seeds Actually Are</h2>
+           <p>Chia seeds come from a flowering plant in the mint family. They’re small, neutral-tasting seeds that absorb liquid and form a gel-like texture.</p>
+           <p>This unique ability to absorb water is part of what makes them so useful.</p>
+           <p>Chia seeds contain:</p>
+           <ul><li>Fiber</li><li>Omega-3 fatty acids</li><li>Protein</li><li>Antioxidants</li><li>Minerals like calcium and magnesium</li></ul>
+           <p>They’re simple, but surprisingly nutrient-dense.</p>`,
+          `<h2>Why People Use Chia Seeds</h2>
+           <p>Chia seeds are popular because they’re:</p>
+           <ul><li>easy to add to meals</li><li>high in fiber</li><li>supportive for digestion</li><li>helpful for fullness</li><li>rich in plant-based omega-3s</li></ul>
+           <p>You don’t need to cook them, soak them, or prepare them in any complicated way. They fit into almost any eating style.</p>`,
+          `<h2>The Benefits (Beginner-Friendly)</h2>
+           <h3>1. Supports Digestion</h3>
+           <p>Chia seeds are high in soluble fiber. When they absorb water, they form a gentle gel that helps support regular digestion and smoother bowel movements.</p>
+           <h3>2. Helps You Stay Full Longer</h3>
+           <p>The combination of fiber, protein, and water absorption helps increase satiety. This can support appetite control and more stable eating patterns.</p>
+           <h3>3. Plant-Based Omega-3s</h3>
+           <p>Chia seeds are one of the richest plant sources of omega-3 fatty acids. Omega-3s support heart health, inflammation control, and overall wellness.</p>
+           <h3>4. Easy to Add to Anything</h3>
+           <p>Chia seeds have almost no flavor. You can add them to yogurt, smoothies, oatmeal, salads, or even water.</p>
+           <h3>5. Simple, Flexible Habit</h3>
+           <p>You don’t need a recipe. You don’t need a routine. You just sprinkle them into whatever you’re already eating.</p>`,
+          `<h2>Do You Need to Soak Them?</h2>
+           <p>You can soak chia seeds, but you don’t have to.</p>
+           <p>Soaking makes them softer and creates a pudding-like texture. Eating them dry is also fine — just make sure you drink a little water with them.</p>`,
+          `<h2>How to Start (Beginner Tips)</h2>
+           <ul><li>Begin with 1 tablespoon per day</li><li>Add them to yogurt, smoothies, or oatmeal</li><li>If eating dry, drink extra water</li><li>If soaking, use a 1:4 ratio (chia to liquid)</li><li>Try chia pudding if you want a simple breakfast option</li></ul>
+           <p>Chia seeds are forgiving — there’s no wrong way to use them.</p>`,
+          `<h2>Takeaway</h2>
+           <p>Chia seeds are a beginner-friendly habit that supports digestion, fullness, heart health, and daily nutrition. They’re simple, versatile, and easy to add to your routine without changing how you eat.</p>
+           <h2>Mo Explains: A Visual Guide</h2>
+           <figure class="article-explainer">
+             <img src="/images/mo-explains-chia-seeds-beginners-guide.png" alt="Mo Explains visual beginner’s guide to chia seeds, digestion, fullness, omega-3s, soaking, and daily use" loading="lazy">
+             <figcaption>Mo Explains: Chia Seeds — A Beginner’s Guide</figcaption>
+           </figure>`
+        ]
+      },
+      {
         id: "small-food-changes",
         category: "nutrition",
         title: "Small Food Changes That Last",
@@ -2295,7 +2340,7 @@
 
     function sectionArticleButton(article) {
       const category = categoryMap.get(article.category);
-      const visualBadge = ["understanding-insulin-spikes", "hydration-a-beginners-guide"].includes(article.id)
+      const visualBadge = ["understanding-insulin-spikes", "hydration-a-beginners-guide", "chia-seeds-a-beginners-guide"].includes(article.id)
         ? `<span class="mo-learning-badge" role="img" aria-label="Includes a Mo visual explainer" title="Includes a Mo visual explainer"><img src="/images/mo-visual-explainer-grey.png" alt=""></span>`
         : ["mo-explains-insulin-spikes-two-modes", "mo-explains-why-bananas-spike-insulin"].includes(article.id)
           ? `<span class="mo-learning-badge" role="img" aria-label="All-Mo visual article" title="All-Mo visual article"><img src="/images/mo-visual-explainer-blue.png" alt=""></span>`
