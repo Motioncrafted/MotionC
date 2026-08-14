@@ -570,6 +570,23 @@
       color: #52656d;
     }
 
+    .reserved-route-panel {
+      position: absolute;
+      left: 75.1%;
+      top: 78%;
+      width: 22.5%;
+      height: 18.3%;
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+    }
+
+    .reserved-route-panel img {
+      width: 43%;
+      height: auto;
+      filter: drop-shadow(0 5px 9px rgba(25, 45, 49, .22));
+    }
+
     .delete {
       float: right;
       min-width: 0;
@@ -810,6 +827,10 @@
       </div>
       <div class="walk-list" id="historyList"></div>
     </section>
+
+    <div class="reserved-route-panel" aria-label="MotionC — reserved for future walking routes">
+      <img src="../images/nav/motionc-logo.png" alt="MotionC">
+    </div>
 
     <section
       class="jasper-celebration"
