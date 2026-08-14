@@ -878,14 +878,6 @@
       line-height: .82;
     }
 
-    .article-section-divider {
-      width: min(72%, 34rem);
-      height: 1px;
-      margin: 2.2em auto;
-      border: 0;
-      background: linear-gradient(90deg, transparent, rgba(155, 98, 39, .58), transparent);
-    }
-
     .reader-controls {
       position: absolute;
       z-index: 2;
@@ -1440,8 +1432,7 @@
            <p>You’re operating at your strongest. Your habits are aligned, your body is balanced, and your momentum is powerful.</p>
            <h3>🔵 Healthy (25–35)</h3>
            <p>You’re in a solid place. With a few consistent changes, you can push into the Core Zone and feel the difference.</p>`,
-          `<h2>MCP ranges, continued</h2>
-           <h3>🟠 Elevated (35–43)</h3>
+          `<h3>🟠 Elevated (35–43)</h3>
            <p>Your body is working harder than it needs to. This is your opportunity — small steps here create big wins.</p>
            <h3>🔴 Watch Zone (&gt;43)</h3>
            <p>Your body is carrying more strain. This is your moment to take action, build momentum, and reclaim your energy.</p>`,
@@ -1943,7 +1934,10 @@
       readerCategory.textContent = categoryMap.get(activeArticle.category)?.title || "MotionC Library";
       readerContent.innerHTML = activeArticle.pages
         .filter(page => typeof page === "string" && page.trim())
-        .join('<hr class="article-section-divider" aria-hidden="true">');
+        .join("");
+      readerContent.querySelectorAll("h2, h3").forEach(heading => {
+        if (/\bcontinued\b/i.test(heading.textContent)) heading.remove();
+      });
       readerContent.scrollTop = 0;
       readerPageNumber.textContent = "Complete article • Scroll to read";
     }
