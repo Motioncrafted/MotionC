@@ -1589,8 +1589,21 @@
            <p>MotionC helps you spend more time in fat-burning mode — not through restriction, but through awareness and smart timing.</p>
            <h2>Mo Explains: A Visual Guide</h2>
            <figure class="article-explainer">
-             <img src="/images/mo-explains-insulin-spikes.png" alt="Mo Explains visual guide to insulin, movement, food timing, and balanced meal choices" loading="lazy">
-             <figcaption>Mo Explains: Understanding Insulin Spikes — A Beginner’s Guide</figcaption>
+             <img src="/images/mo-explains-insulin-spikes-two-modes-revised.png" alt="Mo Explains visual guide to insulin spikes and the body’s two general metabolic modes" loading="lazy">
+             <figcaption>Mo Explains: Understanding Insulin Spikes — The Two Modes</figcaption>
+           </figure>`
+        ]
+      },
+      {
+        id: "mo-explains-insulin-spikes-two-modes",
+        category: "nutrition",
+        title: "Mo Explains: Understanding Insulin Spikes — The Two Modes",
+        tags: ["Mo", "Mo Explains", "All Mo", "visual learning", "insulin", "blood sugar", "fat loss", "nutrition"],
+        summary: "An all-Mo visual guide to insulin spikes, metabolic modes, timing, movement, and food choices.",
+        pages: [
+          `<figure class="article-explainer">
+             <img src="/images/mo-explains-insulin-spikes-two-modes-revised.png" alt="Mo Explains visual guide to insulin spikes and the body’s two general metabolic modes" loading="lazy">
+             <figcaption>Mo Explains: Understanding Insulin Spikes — The Two Modes</figcaption>
            </figure>`
         ]
       },
@@ -1987,7 +2000,9 @@
       const category = categoryMap.get(article.category);
       const visualBadge = article.id === "understanding-insulin-spikes"
         ? `<span class="mo-learning-badge" role="img" aria-label="Includes a Mo visual explainer" title="Includes a Mo visual explainer"><img src="/images/mo-visual-explainer-grey.png" alt=""></span>`
-        : "";
+        : article.id === "mo-explains-insulin-spikes-two-modes"
+          ? `<span class="mo-learning-badge" role="img" aria-label="All-Mo visual article" title="All-Mo visual article"><img src="/images/mo-visual-explainer-blue.png" alt=""></span>`
+          : "";
       return `<li>
         <button class="section-article" type="button" data-article="${article.id}">
           <strong>${visualBadge}${escapeHtml(article.title)}</strong>
