@@ -1604,6 +1604,19 @@
           `<figure class="article-explainer">
              <img src="/images/mo-explains-insulin-spikes-two-modes-revised.png" alt="Mo Explains visual guide to insulin spikes and the body’s two general metabolic modes" loading="lazy">
              <figcaption>Mo Explains: Understanding Insulin Spikes — The Two Modes</figcaption>
+          </figure>`
+        ]
+      },
+      {
+        id: "mo-explains-why-bananas-spike-insulin",
+        category: "nutrition",
+        title: "Mo Explains: Why Bananas Spike Insulin More Than You Think",
+        tags: ["Mo", "Mo Explains", "All Mo", "visual learning", "bananas", "insulin", "blood sugar", "ripeness", "food timing", "nutrition"],
+        summary: "An all-Mo visual guide to banana ripeness, insulin response, food pairing, and movement timing.",
+        pages: [
+          `<figure class="article-explainer">
+             <img src="/images/mo-explains-why-bananas-spike-insulin.png" alt="Mo Explains visual guide to bananas, ripeness, insulin response, and movement timing" loading="lazy">
+             <figcaption>Mo Explains: Why Bananas Spike Insulin More Than You Think</figcaption>
            </figure>`
         ]
       },
@@ -2000,7 +2013,7 @@
       const category = categoryMap.get(article.category);
       const visualBadge = article.id === "understanding-insulin-spikes"
         ? `<span class="mo-learning-badge" role="img" aria-label="Includes a Mo visual explainer" title="Includes a Mo visual explainer"><img src="/images/mo-visual-explainer-grey.png" alt=""></span>`
-        : article.id === "mo-explains-insulin-spikes-two-modes"
+        : ["mo-explains-insulin-spikes-two-modes", "mo-explains-why-bananas-spike-insulin"].includes(article.id)
           ? `<span class="mo-learning-badge" role="img" aria-label="All-Mo visual article" title="All-Mo visual article"><img src="/images/mo-visual-explainer-blue.png" alt=""></span>`
           : "";
       return `<li>
