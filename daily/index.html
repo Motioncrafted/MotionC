@@ -1,939 +1,326 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>MotionC Dashboard</title>
-
-    <link
-        rel="stylesheet"
-        href="/dashboard/styles.css?v=20260811-2"
-    >
-
-    <style>
-        .dashboard-wrapper {
-            position: relative;
-        }
-
-        .walking-page-link {
-            position: absolute;
-            z-index: 20;
-            left: 3.35%;
-            top: 27.2%;
-            width: 6.75%;
-            height: 11.5%;
-            border: 3px solid transparent;
-            border-radius: 10px;
-        }
-
-        .walking-page-link:focus-visible {
-            outline: none;
-            border-color: #f0b429;
-            background: rgba(240, 180, 41, 0.10);
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Daily | MotionC</title>
+  <meta name="description" content="Your quick daily MotionC health check-in.">
+  <link rel="stylesheet" href="/daily/styles.css?v=20260811-3">
 </head>
-
 <body>
-
-    <!-- =====================================
-         Main dashboard
-         ===================================== -->
-
-    <aside class="side-menu" aria-label="Main navigation">
-        <button class="side-brand" id="summaryPreferencesToggle" type="button" aria-label="Open preferences" aria-expanded="false" aria-controls="summaryPreferencesMenu">
-            <img src="/images/nav/motionc-logo.png" alt="">
-        </button>
-        <div class="side-preferences-menu" id="summaryPreferencesMenu" hidden>
-            <button class="side-preferences-close" id="summaryPreferencesClose" type="button" aria-label="Close preferences">×</button>
-            <strong>Preferences</strong>
-            <p>Measurement system</p>
-            <label><input type="radio" name="summaryUnitSystem" value="imperial"> Imperial <small>lb · mi · in</small></label>
-            <label><input type="radio" name="summaryUnitSystem" value="metric"> Metric <small>kg · km · cm</small></label>
-        </div>
-        <nav>
-            <a href="/landing-page/" aria-label="Home"><img src="/images/nav/home.png" alt=""><small>Home</small></a>
-            <a href="/daily/" aria-label="Daily"><img src="/images/nav/daily.png" alt=""><small>Daily</small></a>
-            <a class="current" href="/dashboard/" aria-current="page" aria-label="MCP"><img src="/images/nav/mcp.png" alt=""><small>MCP</small></a>
-            <a href="/library/" aria-label="Library"><img src="/images/nav/library.png" alt=""><small>Library</small></a>
-            <a href="/walking/" aria-label="Walking"><img src="/images/nav/walking.png" alt=""><small>Walking</small></a>
-            <a href="/drop-zone/" aria-label="Drop Zone"><img src="/images/nav/drop-zone.png" alt=""><small>Drop Zone</small></a>
-        </nav>
-        <p>Move.<br>Track.<br>Improve.</p>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="MotionC navigation">
+      <button class="brand" id="preferencesToggle" type="button" aria-label="Open preferences" aria-expanded="false" aria-controls="preferencesMenu">
+        <img src="/images/nav/motionc-logo.png" alt="">
+      </button>
+      <nav>
+        <a href="/landing-page/"><img src="/images/nav/home.png" alt=""><small>Home</small></a>
+        <a class="active" href="/daily/index.html" aria-current="page"><img src="/images/nav/daily.png" alt=""><small>Daily</small></a>
+        <a href="/dashboard/"><img src="/images/nav/mcp.png" alt=""><small>MCP</small></a>
+        <a href="/library/"><img src="/images/nav/library.png" alt=""><small>Library</small></a>
+        <a href="/walking/"><img src="/images/nav/walking.png" alt=""><small>Walking</small></a>
+        <a href="/drop-zone/"><img src="/images/nav/drop-zone.png" alt=""><small>Drop Zone</small></a>
+      </nav>
+      <p class="sidebar-motto">One day.<br>One choice.<br>Always forward.</p>
     </aside>
 
-    <main class="main-content">
-        <header class="summary-hero">
-            <nav class="summary-nav" aria-label="MotionC navigation">
-                <a class="brand" href="/landing-page/" aria-label="MotionC home">
-                    <span class="brand-mark">M</span>
-                    <span><strong>Motion<span>C</span></strong><small>Motion Creates Change</small></span>
-                </a>
-            </nav>
-            <div class="hero-copy">
-                <p class="eyebrow">YOUR HEALTH CONTROL CENTER</p>
-                <h1>Summary</h1>
-                <p>Celebrate the path behind you—it lights the way forward.</p>
-            </div>
-        </header>
-
-        <div class="summary-shell">
-            <div class="summary-heading">
-                <div>
-                    <p class="eyebrow">TODAY’S OVERVIEW</p>
-                    <h2>Your progress, all in one place</h2>
-                </div>
-                <div class="heading-actions">
-                    <a id="simulation-button" class="engine-room-button" href="/engine-room/">
-                        <span aria-hidden="true">⚙</span> Engine Room
-                    </a>
-                    <button id="kscore-button" class="edit-profile-button" type="button"
-                        aria-label="Update measurements and lifestyle" aria-expanded="false">
-                        Update my information
-                    </button>
-                </div>
-            </div>
-
-            <section class="metric-grid" aria-label="Current measurements">
-                <article class="metric-card metric-card-blue">
-                    <div class="metric-icon" aria-hidden="true">⚖</div>
-                    <p>Current weight</p>
-                    <strong><span id="display-weight">—</span> <small id="display-weight-unit">lb</small></strong>
-                    <span id="weight-change" class="metric-change">Add a Daily entry to begin</span>
-                </article>
-                <article class="metric-card metric-card-gold">
-                    <div class="metric-icon" aria-hidden="true">⌁</div>
-                    <p>Waist</p>
-                    <strong><span id="display-waist">—</span> <small id="display-waist-unit">in</small></strong>
-                    <span class="metric-change">A key health indicator</span>
-                </article>
-                <article class="metric-card metric-card-coral">
-                    <div class="metric-icon" aria-hidden="true">♥</div>
-                    <p>BMI</p>
-                    <strong id="display-bmi">—</strong>
-                    <span id="bmi-status" class="metric-change">Calculated from your profile</span>
-                </article>
-                <article class="metric-card metric-card-violet">
-                    <div class="metric-icon" aria-hidden="true">↗</div>
-                    <p>Total distance walked</p>
-                    <strong><span id="display-lifetime-distance">0.00</span> <small id="display-lifetime-distance-unit">mi</small></strong>
-                    <span class="metric-change">Your lifetime total from Daily</span>
-                </article>
-                <article class="metric-card metric-card-sky">
-                    <div class="metric-icon" aria-hidden="true">#</div>
-                    <p id="steps-label">Steps</p>
-                    <strong><span id="display-steps">—</span></strong>
-                    <span id="steps-status" class="metric-change">Record a walk to begin</span>
-                </article>
-                <article class="metric-card metric-card-amber">
-                    <div class="metric-icon" aria-hidden="true">♥</div>
-                    <p id="walking-hr-label">Walking HR</p>
-                    <strong><span id="display-walking-hr">—</span> <small id="walking-hr-unit">bpm</small></strong>
-                    <span id="walking-hr-status" class="metric-change">Optional measurement</span>
-                </article>
-                <article class="metric-card metric-card-rose">
-                    <div class="metric-icon" aria-hidden="true">○</div>
-                    <p>Resting HR</p>
-                    <strong><span id="display-resting-hr">—</span> <small>bpm</small></strong>
-                    <span id="resting-hr-status" class="metric-change">Optional recovery baseline</span>
-                </article>
-            </section>
-
-            <section class="insight-grid">
-                <article class="panel score-panel">
-                    <div class="panel-heading">
-                        <div><p class="eyebrow">CURRENT MOMENTUM</p><h3>MCP & lifestyle</h3></div>
-                    </div>
-                    <div class="score-pair">
-                        <div class="mcp-zone-gauge" id="mcp-ring" role="img" aria-label="MCP not assessed">
-                            <div class="mcp-zone-halo" aria-hidden="true"></div>
-                            <span class="mcp-zone-label mcp-zone-label-core">Core</span>
-                            <span class="mcp-zone-label mcp-zone-label-healthy">Healthy</span>
-                            <span class="mcp-zone-label mcp-zone-label-elevated">Elevated</span>
-                            <span class="mcp-zone-label mcp-zone-label-watch">Watch</span>
-                            <span class="mcp-location-marker" aria-hidden="true"></span>
-                            <div class="mcp-gauge-centre">
-                                <strong id="display-mcp-ring">—</strong>
-                                <span>MCP</span>
-                                <em id="mcp-zone-status">Not assessed</em>
-                            </div>
-                        </div>
-                        <div class="score-ring lifestyle-ring" id="lifestyle-ring">
-                            <div>
-                                <strong><span id="display-lifestyle-score">—</span><small>/24</small></strong>
-                                <span>Lifestyle</span>
-                            </div>
-                        </div>
-                    </div>
-                    <p id="momentum-message" class="momentum-message">Complete your information to reveal your current momentum.</p>
-                </article>
-
-                <article class="panel lifestyle-panel">
-                    <div class="panel-heading">
-                        <div><p class="eyebrow">LIFESTYLE CHECKLIST</p><h3>The habits behind the score</h3></div>
-                        <span id="display-lifestyle-percent" class="score-pill">—</span>
-                    </div>
-                    <div id="lifestyle-items" class="lifestyle-items" aria-live="polite"></div>
-                </article>
-            </section>
-
-            <section class="chart-grid">
-                <article class="panel chart-panel">
-                    <div class="panel-heading">
-                        <div><p class="eyebrow">LAST 14 DAYS</p><h3>Weight trend</h3></div>
-                        <div class="weight-chart-meta">
-                            <span id="weight-chart-summary" class="chart-summary">No entries yet</span>
-                            <span id="goal-weight-label" class="goal-weight-label">Vibratory Set Line: —</span>
-                        </div>
-                    </div>
-                    <div class="chart-wrap">
-                        <canvas id="weight-chart" aria-label="Weight over the last 14 days"></canvas>
-                        <div id="weight-chart-tooltip" class="chart-tooltip" role="status" hidden></div>
-                        <p id="weight-chart-empty" class="chart-empty">Your saved Daily weights will appear here.</p>
-                    </div>
-                    <p class="goal-line-help">Drag the gold Vibratory Set Line up or down to change it.</p>
-                </article>
-
-                <article class="panel chart-panel">
-                    <div class="panel-heading">
-                        <div><p class="eyebrow">WALKING / TIME</p><h3>Recent walks</h3></div>
-                        <span id="walking-chart-summary" class="chart-summary">No walks yet</span>
-                    </div>
-                    <div class="chart-wrap">
-                        <canvas id="walking-chart" aria-label="Walking miles and minutes by day"></canvas>
-                        <div id="walking-chart-tooltip" class="chart-tooltip" role="status" hidden></div>
-                        <p id="walking-chart-empty" class="chart-empty">Walks saved on the Walking page will appear here.</p>
-                    </div>
-                    <div class="chart-legend"><span class="miles-key" id="walking-distance-legend">Miles</span><span class="minutes-key">Minutes</span></div>
-                </article>
-            </section>
-
-            <section class="daily-trends-section" aria-labelledby="dailyTrendsTitle">
-                <div class="daily-trends-heading">
-                    <div><p class="eyebrow">PREVIOUS 14 COMPLETED DAYS</p><h2 id="dailyTrendsTitle">Daily gauge trends</h2></div>
-                    <p>Today stays live on the Daily page and joins these graphs at midnight.</p>
-                </div>
-                <div class="daily-trends-grid">
-                    <article class="panel chart-panel daily-trend-panel">
-                        <div class="panel-heading"><div><p class="eyebrow">HYDRATION</p><h3>Glasses recorded</h3></div><span id="hydration-trend-summary" class="chart-summary">No completed entries</span></div>
-                        <div class="chart-wrap daily-trend-wrap"><canvas id="hydration-trend-chart" aria-label="Hydration over the previous 14 completed days"></canvas><div id="hydration-trend-tooltip" class="chart-tooltip" role="status" hidden></div><p id="hydration-trend-empty" class="chart-empty">Completed Hydration entries will appear here.</p></div>
-                    </article>
-                    <article class="panel chart-panel daily-trend-panel">
-                        <div class="panel-heading"><div><p class="eyebrow">STRESS</p><h3>Daily level</h3></div><span id="stress-trend-summary" class="chart-summary">No completed entries</span></div>
-                        <div class="chart-wrap daily-trend-wrap"><canvas id="stress-trend-chart" aria-label="Stress over the previous 14 completed days"></canvas><div id="stress-trend-tooltip" class="chart-tooltip" role="status" hidden></div><p id="stress-trend-empty" class="chart-empty">Completed Stress entries will appear here.</p></div>
-                    </article>
-                    <article class="panel chart-panel daily-trend-panel">
-                        <div class="panel-heading"><div><p class="eyebrow">SLEEP</p><h3>Hours recorded</h3></div><span id="sleep-trend-summary" class="chart-summary">No completed entries</span></div>
-                        <div class="chart-wrap daily-trend-wrap"><canvas id="sleep-trend-chart" aria-label="Sleep over the previous 14 completed days"></canvas><div id="sleep-trend-tooltip" class="chart-tooltip" role="status" hidden></div><p id="sleep-trend-empty" class="chart-empty">Completed Sleep entries will appear here.</p></div>
-                    </article>
-                </div>
-            </section>
-
-            <section class="weekly-strip" aria-label="Current metric summary">
-                <div><span>Last 7 days — Distance</span><strong id="weekly-miles">0.00 mi</strong></div>
-                <div><span>Last 7 days — Walking time</span><strong id="weekly-minutes">0 min</strong></div>
-                <div><span>14-day weight change</span><strong id="weekly-weight-change">—</strong></div>
-                <div><span>Current Lifestyle score</span><strong id="weekly-lifestyle">— / 24</strong></div>
-                <a href="/daily/">Open Daily Summary <span aria-hidden="true">→</span></a>
-            </section>
+    <main>
+      <header class="hero">
+        <div>
+          <p class="eyebrow">MO-TRIBE</p>
+          <h1>Daily</h1>
+          <p>Three quick numbers. Four standing promises. Then get on with your day.</p>
         </div>
+        <div class="hero-date">
+          <span id="heroWeekday"></span>
+          <strong id="heroDate"></strong>
+        </div>
+        <div class="preferences-menu" id="preferencesMenu" hidden>
+          <button class="preferences-close" id="preferencesClose" type="button" aria-label="Close preferences">×</button>
+          <strong>Preferences</strong>
+          <p>Measurement system</p>
+          <label><input type="radio" name="unitSystem" value="imperial"> Imperial <small>lb · mi · in</small></label>
+          <label><input type="radio" name="unitSystem" value="metric"> Metric <small>kg · km · cm</small></label>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="entry-card card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">TODAY’S CHECK-IN</p>
+              <h2>Record today</h2>
+            </div>
+            <aside class="weekly-reflection" aria-label="This week’s Reflection Point">
+              <span>REFLECTION POINT</span>
+              <q id="weeklyReflection"></q>
+            </aside>
+            <label class="date-field">
+              Date
+              <input id="entryDate" type="date">
+            </label>
+          </div>
+
+          <div class="number-grid">
+            <label>
+              <span>Weight</span>
+              <span class="input-with-unit">
+                <input id="weight" inputmode="decimal" min="50" max="700" step="0.1" type="number" placeholder="—">
+                <small id="weightUnit">lb</small>
+              </span>
+            </label>
+            <label>
+              <span>Walking distance</span>
+              <span class="input-with-unit">
+                <input id="distance" inputmode="decimal" min="0" max="100" step="0.01" type="number" placeholder="—">
+                <small id="distanceUnit">mi</small>
+              </span>
+            </label>
+            <label>
+              <span>Walking time</span>
+              <span class="input-with-unit">
+                <input id="minutes" inputmode="numeric" min="0" max="1440" step="1" type="number" placeholder="—">
+                <small>min</small>
+              </span>
+            </label>
+          </div>
+
+          <div class="number-grid optional-metrics-grid">
+            <label>
+              <span>Average walking HR <em>Optional</em></span>
+              <span class="input-with-unit">
+                <input id="walkingHr" inputmode="numeric" min="40" max="220" step="1" type="number" placeholder="—">
+                <small>bpm</small>
+              </span>
+            </label>
+            <label>
+              <span>Steps <em>Optional</em></span>
+              <span class="input-with-unit">
+                <input id="steps" inputmode="numeric" min="0" max="200000" step="1" type="number" placeholder="—">
+                <small>steps</small>
+              </span>
+            </label>
+            <label>
+              <span>Resting HR <em>Optional</em></span>
+              <span class="input-with-unit">
+                <input id="restingHr" inputmode="numeric" min="30" max="220" step="1" type="number" placeholder="—">
+                <small>bpm</small>
+              </span>
+            </label>
+          </div>
+          <details class="optional-metrics-help">
+            <summary>Why add these optional measurements?</summary>
+            <p><strong>Steps</strong> makes your comparisons exact and teaches MotionC your personal steps per mile. <strong>Walking HR</strong> adds effort context. <strong>Resting HR</strong> adds a measured recovery baseline. Leave any of them blank and MotionC will clearly label what it can estimate.</p>
+          </details>
+
+          <section class="walk-breakdown" id="walkBreakdown" hidden aria-labelledby="walkBreakdownTitle">
+            <div class="walk-breakdown-heading">
+              <div>
+                <p class="eyebrow">TODAY’S WALKS</p>
+                <h3 id="walkBreakdownTitle">Your walks</h3>
+              </div>
+              <strong id="walkBreakdownTotal"></strong>
+            </div>
+            <div class="walk-list" id="walkList"></div>
+          </section>
+
+          <div class="promises">
+            <div class="promises-copy">
+              <p class="eyebrow">TODAY’S PROMISES</p>
+              <h3>Start with success. Record the exceptions.</h3>
+            </div>
+            <div class="promise-grid">
+              <label><input id="noRestaurant" type="checkbox" checked><span>✓</span>No restaurant meal</label>
+              <label><input id="noFastFood" type="checkbox" checked><span>✓</span>No fast food</label>
+              <label><input id="noJunkFood" type="checkbox" checked><span>✓</span>No junk food</label>
+              <label><input id="oneTreat" type="checkbox" checked><span>✓</span>Stayed within one treat</label>
+            </div>
+          </div>
+
+          <div class="notes-grid">
+            <label>Weight note <input id="weightNote" type="text" maxlength="80" placeholder="Optional context"></label>
+            <label>Observation <input id="observation" type="text" maxlength="120" placeholder="Anything worth remembering?"></label>
+          </div>
+
+          <div class="entry-actions">
+            <button class="secondary-button" id="weeklyButton" type="button">Weekly check-in</button>
+            <button class="secondary-button" id="addWalk" type="button" hidden>+ Add another walk</button>
+            <button class="save-button" id="saveEntry" type="button">Save walk</button>
+          </div>
+          <p class="save-status" id="saveStatus" aria-live="polite"></p>
+        </section>
+
+        <section class="today-score card" aria-live="polite">
+          <div class="today-score-content">
+            <p class="eyebrow">TODAY’S HEALTH SCORE</p>
+            <button class="score-orb green" id="todayOrb" type="button" aria-label="Open today’s score explanation"></button>
+            <strong id="todayPercent">—</strong>
+            <span id="todayColor">Save this entry to create your dot</span>
+            <button class="text-button" id="explainToday" type="button">Why this colour?</button>
+          </div>
+        </section>
+
+        <section class="daily-gauges daily-gauges-card card" aria-labelledby="dailyGaugesTitle">
+            <div class="daily-gauges-heading">
+              <p class="eyebrow" id="dailyGaugesTitle">DAILY GAUGES</p>
+              <button class="gauge-info-button" id="gaugeInfoButton" type="button" aria-expanded="false" aria-controls="gaugeInfo">i</button>
+            </div>
+            <div class="gauge-info" id="gaugeInfo" hidden>
+              <strong>Your Lifestyle Profile shows your typical habits.</strong>
+              <span>Your Daily Gauges show what happened today.</span>
+              <span>When the two don't match, MotionC highlights the gap—because that's where real progress begins.</span>
+            </div>
+            <div class="gauge-grid">
+              <article class="daily-gauge hydration-gauge">
+                <output id="hydrationValue" for="hydrationInput">—</output><span class="gauge-unit">glasses</span>
+                <div class="gauge-tube"><input id="hydrationInput" type="range" min="0" max="16" step="1" value="0" aria-label="Glasses of water today"><div class="mini-gauge-chart" id="hydrationMiniChart" aria-hidden="true"></div></div>
+                <div class="gauge-stepper"><button type="button" data-gauge-step="hydration" data-direction="-1" aria-label="Decrease hydration">−</button><strong>Hydration</strong><button type="button" data-gauge-step="hydration" data-direction="1" aria-label="Increase hydration">+</button></div>
+                <button class="gauge-save" id="saveHydration" type="button">Update</button><small id="hydrationStatus">Not recorded today</small>
+              </article>
+              <article class="daily-gauge stress-gauge">
+                <output id="stressValue" for="stressInput">—</output><span class="gauge-unit">of 5</span>
+                <div class="gauge-tube"><input id="stressInput" type="range" min="0" max="5" step="1" value="0" aria-label="Stress today from zero to five"><div class="mini-gauge-chart" id="stressMiniChart" aria-hidden="true"></div></div>
+                <div class="gauge-stepper"><button type="button" data-gauge-step="stress" data-direction="-1" aria-label="Decrease stress">−</button><strong>Stress</strong><button type="button" data-gauge-step="stress" data-direction="1" aria-label="Increase stress">+</button></div>
+                <button class="gauge-save" id="saveStress" type="button">Update</button><small id="stressStatus">Not recorded today</small>
+              </article>
+              <article class="daily-gauge sleep-gauge">
+                <output id="sleepValue" for="sleepInput">—</output><span class="gauge-unit">hours</span>
+                <div class="gauge-tube"><input id="sleepInput" type="range" min="0" max="12" step="0.25" value="0" aria-label="Hours of sleep"><div class="mini-gauge-chart" id="sleepMiniChart" aria-hidden="true"></div></div>
+                <div class="gauge-stepper"><button type="button" data-gauge-step="sleep" data-direction="-1" aria-label="Decrease sleep">−</button><strong>Sleep</strong><button type="button" data-gauge-step="sleep" data-direction="1" aria-label="Increase sleep">+</button></div>
+                <button class="gauge-save" id="saveSleep" type="button">Update</button><small id="sleepStatus">Not recorded today</small>
+              </article>
+            </div>
+            <section class="gauge-message-area" aria-labelledby="gaugeMessageTitle">
+              <p class="gauge-message-title" id="gaugeMessageTitle">Message:</p>
+              <div class="gauge-messages" id="gaugeMessages" aria-live="polite"></div>
+            </section>
+        </section>
+
+        <section class="calendar-card card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">DAILY HEALTH</p>
+              <h2 id="calendarTitle">This month</h2>
+            </div>
+            <div class="calendar-key" aria-label="Dot colour key">
+              <span class="green"></span><span class="light-green"></span><span class="yellow"></span><span class="orange"></span><span class="red"></span>
+            </div>
+          </div>
+          <div class="weekday-row"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+          <div class="calendar-grid" id="calendarGrid"></div>
+        </section>
+
+        <section class="weekly-card card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">AUTO-UPDATING</p>
+              <h2>This week</h2>
+            </div>
+            <strong class="week-range" id="weekRange"></strong>
+          </div>
+          <div class="weekly-stats" id="weeklyStats"></div>
+          <details class="week-notes" open>
+            <summary>Notes from this week</summary>
+            <div id="weeklyNotes"></div>
+          </details>
+          <details class="previous-weeks">
+            <summary>Previous weeks</summary>
+            <div id="previousWeeks"></div>
+          </details>
+        </section>
+
+        <section class="milestones-card card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">PERSONAL BESTS</p>
+              <h2>Milestones</h2>
+            </div>
+            <span class="badge" id="milestoneCount">0 reached</span>
+          </div>
+          <div class="latest-milestone" id="latestMilestone"></div>
+          <div class="daily-walk-average" id="dailyWalkAverage" aria-live="polite"></div>
+          <div class="milestone-list" id="milestoneList"></div>
+        </section>
+
+        <section class="walk-calculator card" aria-labelledby="walkCalculatorTitle">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">PLAN YOUR NEXT MOVE</p>
+              <h2 id="walkCalculatorTitle">Walking Calculator</h2>
+            </div>
+            <span class="calculator-badge">Estimate</span>
+          </div>
+
+          <div class="calculator-modes" role="group" aria-label="Choose what to calculate">
+            <button class="calculator-mode active" type="button" data-calc-mode="distance">Distance</button>
+            <button class="calculator-mode" type="button" data-calc-mode="time">Time</button>
+            <button class="calculator-mode" type="button" data-calc-mode="speed">Speed</button>
+            <button class="calculator-mode" type="button" data-calc-mode="calories">Calories</button>
+          </div>
+
+          <div class="calculator-fields">
+            <label data-calc-field="distance">
+              <span>Distance</span>
+              <span class="calculator-input"><input id="calcDistance" type="number" min="0" step="0.01"><small id="calcDistanceUnit">mi</small></span>
+            </label>
+            <label data-calc-field="time">
+              <span>Walking time</span>
+              <span class="calculator-input"><input id="calcTime" type="number" min="0" step="1"><small>min</small></span>
+            </label>
+            <label data-calc-field="speed">
+              <span>Walking speed</span>
+              <span class="calculator-input"><input id="calcSpeed" type="number" min="0" step="0.01"><small id="calcSpeedUnit">mph</small></span>
+            </label>
+            <label data-calc-field="weight">
+              <span>Current weight</span>
+              <span class="calculator-input"><input id="calcWeight" type="number" min="0" step="0.1"><small id="calcWeightUnit">lb</small></span>
+            </label>
+          </div>
+
+          <div class="calculator-result" aria-live="polite">
+            <span id="calcResultLabel">Estimated distance</span>
+            <strong id="calcResult">Enter walking time</strong>
+          </div>
+
+          <details class="projection-panel">
+            <summary>Weight-loss walking projection</summary>
+            <label>
+              Desired weight loss
+              <span class="calculator-input"><input id="calcTargetLoss" type="number" min="0" step="0.1"><small id="calcLossUnit">lb</small></span>
+            </label>
+            <div class="projection-results" id="projectionResults">Enter a desired loss to see a planning estimate.</div>
+          </details>
+
+          <p class="calculator-note">
+            Planning estimates only. Energy use and weight change vary by person, pace,
+            terrain, and other factors.
+          </p>
+        </section>
+      </div>
     </main>
-
-
-    <!-- =====================================
-         Dark overlay behind the drawer
-         ===================================== -->
-
-    <div class="drawer-overlay"></div>
-
-
-    <!-- =====================================
-         Information drawer
-         ===================================== -->
-
-    <aside
-        class="input-drawer"
-        aria-hidden="true"
-    >
-
-        <header class="drawer-header">
-
-            <button
-                class="drawer-close-btn"
-                type="button"
-                aria-label="Close form"
-            >
-                ✕
-            </button>
-
-            <h1>Update My Information</h1>
-
-            <p>
-                Enter your measurements to calculate your MCP and dashboard metrics.
-            </p>
-
-        </header>
-
-
-        <form id="kscore-form">
-
-            <!-- =====================================
-                 Required measurements and MCP
-                 ===================================== -->
-
-            <fieldset>
-
-                <legend>My Measurements</legend>
-
-                <p class="section-note">
-                    Weight, waist, height, age and sex calculate your MCP.
-                </p>
-
-                <div class="measurement-privacy-note" role="note" aria-label="MotionC privacy promise">
-                    <span class="privacy-note-icon" aria-hidden="true">✓</span>
-                    <div>
-                        <strong>Your health information belongs to you.</strong>
-                        <p>MotionC uses these measurements only to provide your calculations, trends and personalized experience. We do not sell your personal information or use your health measurements for advertising.</p>
-                        <small>This version stores your measurements in your private MotionC account.</small>
-                    </div>
-                </div>
-
-
-                <!-- Measurement system -->
-                <div class="ms-options">
-
-                    <label class="ms-option">
-
-                        <input
-                            type="radio"
-                            name="measurementSystem"
-                            value="imperial"
-                            checked
-                        >
-
-                        Imperial
-
-                    </label>
-
-                    <label class="ms-option">
-
-                        <input
-                            type="radio"
-                            name="measurementSystem"
-                            value="metric"
-                        >
-
-                        Metric
-
-                    </label>
-
-                </div>
-
-
-                <!-- Weight and waist -->
-                <div class="measurement-two-column">
-
-                    <div class="field">
-
-                        <label for="weight">
-                            Weight
-                        </label>
-
-                        <input
-                            id="weight"
-                            type="number"
-                            step="0.1"
-                            min="1"
-                            inputmode="decimal"
-                        >
-
-                    </div>
-
-                    <div class="field">
-
-                        <label for="waist">
-                            Waist
-                        </label>
-
-                        <input
-                            id="waist"
-                            type="number"
-                            step="0.1"
-                            min="1"
-                            inputmode="decimal"
-                        >
-
-                    </div>
-
-                </div>
-
-
-                <!-- Imperial height -->
-                <div
-                    class="two-column imperial-height"
-                    id="imperial-height-fields"
-                >
-
-                    <div class="field">
-
-                        <label for="height-feet">
-                            Height — ft
-                        </label>
-
-                        <input
-                            id="height-feet"
-                            type="number"
-                            min="1"
-                            max="8"
-                            inputmode="numeric"
-                        >
-
-                    </div>
-
-                    <div class="field">
-
-                        <label for="height-inches">
-                            Height — in
-                        </label>
-
-                        <input
-                            id="height-inches"
-                            type="number"
-                            min="0"
-                            max="11"
-                            inputmode="numeric"
-                        >
-
-                    </div>
-
-                </div>
-
-
-                <!-- Metric height -->
-                <div
-                    class="field metric-height"
-                    id="metric-height-fields"
-                    hidden
-                >
-
-                    <label for="height-cm">
-                        Height — cm
-                    </label>
-
-                    <input
-                        id="height-cm"
-                        type="number"
-                        step="0.1"
-                        min="50"
-                        max="260"
-                        inputmode="decimal"
-                    >
-
-                </div>
-
-
-                <!-- Age and sex -->
-                <div class="two-column">
-
-                    <div class="field">
-
-                        <label for="age">
-                            Age
-                        </label>
-
-                        <input
-                            id="age"
-                            type="number"
-                            min="18"
-                            max="120"
-                            inputmode="numeric"
-                        >
-
-                    </div>
-
-                    <div class="field">
-
-                        <label for="sex">
-                            Sex
-                        </label>
-
-                        <select id="sex">
-
-                            <option value="">
-                                Choose
-                            </option>
-
-                            <option value="male">
-                                Male
-                            </option>
-
-                            <option value="female">
-                                Female
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                </div>
-
-
-                <!-- MCP calculation button -->
-                <button
-                    type="button"
-                    id="calculate-mcp-btn"
-                    class="submit-btn"
-                >
-                    Calculate My MCP
-                </button>
-
-            </fieldset>
-
-
-            <hr class="form-divider">
-
-
-            <!-- =====================================
-                 Optional Lifestyle Checklist
-                 ===================================== -->
-
-            <fieldset>
-
-                <legend>Lifestyle Checklist</legend>
-
-                <p class="section-note">
-                    Optional — complete this section to update your Lifestyle Checklist gauge.
-                </p>
-
-
-                <!-- Sleep Quality -->
-                <div class="quiz-group">
-
-                    <p class="quiz-heading">
-                        Sleep Quality
-                    </p>
-
-                    <div class="quiz-options">
-
-                        <label>
-
-                            <input
-                                type="radio"
-                                name="sleep"
-                                value="3"
-                            >
-
-                            Usually sleep 7–8 hours each night
-
-                        </label>
-
-                        <label>
-
-                            <input
-                                type="radio"
-                                name="sleep"
-                                value="2"
-                            >
-
-                            Usually sleep around 6 hours
-
-                        </label>
-
-                        <label>
-
-                            <input
-                                type="radio"
-                                name="sleep"
-                                value="1"
-                            >
-
-                            Usually sleep less than 6 hours
-
-                        </label>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Hydration -->
-                <div class="quiz-group">
-
-                    <p class="quiz-heading">
-                        Hydration
-                    </p>
-
-                    <div class="quiz-options">
-
-                        <label>
-
-                            <input
-                                type="radio"
-                                name="hydration"
-                                value="3"
-                            >
-
-                            Drink enough water most days
-
-                        </label>
-
-                        <label>
-
-                            <input
-                                type="radio"
-                                name="hydration"
-                                value="2"
-                            >
-
-                            Drink some water but could improve
-
-                        </label>
-
-                        <label>
-
-                            <input
-                                type="radio"
-                                name="hydration"
-                                value="1"
-                            >
-
-                            Rarely drink enough water
-
-                        </label>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Nutrition -->
-                <div class="quiz-group">
-
-                    <p class="quiz-heading">
-                        Nutrition
-                    </p>
-
-                    <div class="quiz-options">
-
-                        <label>
-
-                            <input
-                                type="radio"
-                                name="nutrition"
-                                value="3"
-                            >
-
-                            Mostly healthy food choices
-
-                        </label>
-
-                        <label>
-
-                            <input
-                                type="radio"
-                                name="nutrition"
-                                value="2"
-                            >
-
-                            A mix of healthy and unhealthy choices
-
-                        </label>
-
-                        <label>
-
-                            <input
-                                type="radio"
-                                name="nutrition"
-                                value="1"
-                            >
-
-                            Mostly unhealthy food choices
-
-                        </label>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Walking -->
-                <div class="quiz-group">
-
-                    <p class="quiz-heading">
-                        Walking — Daily Movement
-                    </p>
-
-                    <div class="quiz-options">
-
-                        <label>
-
-                            <input
-                                type="radio"
-                                name="walking"
-                                value="3"
-                            >
-
-                            Average over 8,000 steps per day
-
-                        </label>
-
-                        <label>
-
-                            <input
-                                type="radio"
-                                name="walking"
-                                value="2"
-                            >
-
-                            Average 3,000–8,000 steps per day
-
-                        </label>
-
-                        <label>
-
-                            <input
-                                type="radio"
-                                name="walking"
-                                value="1"
-                            >
-
-                            Average under 3,000 steps per day
-
-                        </label>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Stress Management -->
-                <div class="quiz-group">
-
-                    <p class="quiz-heading">
-                        Stress Management
-                    </p>
-
-                    <div class="quiz-options">
-
-                        <label>
-
-                            <input
-                                type="radio"
-                                name="stress"
-                                value="3"
-                            >
-
-                            Stress is usually well managed
-
-                        </label>
-
-                        <label>
-
-                            <input
-                                type="radio"
-                                name="stress"
-                                value="2"
-                            >
-
-                            Moderate stress most days
-
-                        </label>
-
-                        <label>
-
-                            <input
-                                type="radio"
-                                name="stress"
-                                value="1"
-                            >
-
-                            High stress most days
-
-                        </label>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Alcohol Intake -->
-                <div class="quiz-group">
-
-                    <p class="quiz-heading">
-                        Alcohol Intake
-                    </p>
-
-                    <div class="quiz-options">
-
-                        <label>
-
-                            <input
-                                type="radio"
-                                name="alcohol"
-                                value="3"
-                            >
-
-                            Low alcohol intake
-
-                        </label>
-
-                        <label>
-
-                            <input
-                                type="radio"
-                                name="alcohol"
-                                value="2"
-                            >
-
-                            Moderate alcohol intake
-
-                        </label>
-
-                        <label>
-
-                            <input
-                                type="radio"
-                                name="alcohol"
-                                value="1"
-                            >
-
-                            High alcohol intake
-
-                        </label>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Smoking -->
-                <div class="quiz-group">
-
-                    <p class="quiz-heading">
-                        Smoking
-                    </p>
-
-                    <div class="quiz-options">
-
-                        <label>
-
-                            <input
-                                type="radio"
-                                name="smoking"
-                                value="3"
-                            >
-
-                            Non-smoker
-
-                        </label>
-
-                        <label>
-
-                            <input
-                                type="radio"
-                                name="smoking"
-                                value="2"
-                            >
-
-                            Former smoker
-
-                        </label>
-
-                        <label>
-
-                            <input
-                                type="radio"
-                                name="smoking"
-                                value="0"
-                            >
-
-                            Current smoker
-
-                        </label>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Activity -->
-                <div class="quiz-group">
-
-                    <p class="quiz-heading">
-                        Activity
-                    </p>
-
-                    <div class="quiz-options">
-
-                        <label>
-
-                            <input
-                                type="radio"
-                                name="activity"
-                                value="3"
-                            >
-
-                            Exercise regularly each week
-
-                        </label>
-
-                        <label>
-
-                            <input
-                                type="radio"
-                                name="activity"
-                                value="2"
-                            >
-
-                            Exercise occasionally
-
-                        </label>
-
-                        <label>
-
-                            <input
-                                type="radio"
-                                name="activity"
-                                value="1"
-                            >
-
-                            Rarely exercise
-
-                        </label>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Lifestyle calculation button -->
-                <button
-                    type="button"
-                    id="calculate-lifestyle-btn"
-                    class="submit-btn"
-                >
-                    Update Lifestyle Gauge
-                </button>
-
-            </fieldset>
-
-        </form>
-
-    </aside>
-
-
-    <!-- =====================================
-         Dashboard JavaScript
-         ===================================== -->
-
-    <script src="/dashboard/script.js?v=20260814-2"></script>
-    <script type="module" src="/shared/motionc-supabase.js?v=20260811-1"></script>
+  </div>
+
+  <dialog class="score-dialog" id="scoreDialog">
+    <button class="dialog-close" id="closeScore" type="button" aria-label="Close">×</button>
+    <div id="scoreDetails"></div>
+  </dialog>
+
+  <dialog class="weekly-dialog" id="weeklyDialog">
+    <button class="dialog-close" id="closeWeekly" type="button" aria-label="Close">×</button>
+    <p class="eyebrow">YOUR LIFESTYLE THIS WEEK</p>
+    <h2>Weekly check-in</h2>
+    <p class="dialog-intro">A quick background check plus the personal measurements used throughout MotionC.</p>
+    <div class="lifestyle-grid" id="lifestyleGrid"></div>
+    <div class="weekly-measures">
+      <label>Starting Weight <span class="input-with-unit"><input id="startingWeight" type="number" step="0.1" min="20" max="700"><small id="startWeightUnit">lb</small></span></label>
+      <label>Waist <span class="input-with-unit"><input id="weeklyWaist" type="number" step="0.1" min="15" max="300"><small id="waistUnit">in</small></span></label>
+      <label>Vibratory Set Line <span class="input-with-unit"><input id="vibratoryLine" type="number" step="0.1" min="20" max="700"><small id="lineWeightUnit">lb</small></span></label>
+      <label>Motivational goal <span class="input-with-unit"><input id="motivationalGoal" type="number" step="0.1" min="20" max="700"><small id="goalWeightUnit">lb</small></span></label>
+    </div>
+    <button class="save-button full" id="saveWeekly" type="button">Save weekly check-in</button>
+  </dialog>
+
+  <script src="/daily/script.js?v=20260811-3"></script>
+  <script type="module" src="/shared/motionc-supabase.js?v=20260811-1"></script>
 </body>
-
 </html>
