@@ -671,7 +671,29 @@
     }
     .section-article:hover,
     .section-article:focus-visible { border-color: #287a43; outline: 3px solid rgba(240,180,41,.75); background: #fff; }
-    .section-article strong { font-size: clamp(15px, 1.3vw, 22px); }
+    .section-article strong {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      font-size: clamp(15px, 1.3vw, 22px);
+    }
+    .mo-learning-badge {
+      display: inline-grid;
+      width: clamp(34px, 3.2vw, 46px);
+      aspect-ratio: 1;
+      flex: 0 0 auto;
+      overflow: hidden;
+      place-items: center;
+      border: 2px solid #8b908a;
+      border-radius: 50%;
+      background: #d9dccf;
+      box-shadow: 0 3px 8px rgba(39, 54, 48, .18);
+    }
+    .mo-learning-badge img {
+      width: 220%;
+      max-width: none;
+      height: auto;
+    }
     .section-article small { grid-column: 1; color: #5b756b; font-size: clamp(11px, .9vw, 15px); line-height: 1.4; }
     .section-article i { grid-column: 2; grid-row: 1 / span 2; align-self: center; color: #287a43; font-size: 1.4em; font-style: normal; }
     .section-empty { color: #557166; font-style: italic; text-align: center; }
@@ -1963,9 +1985,12 @@
 
     function sectionArticleButton(article) {
       const category = categoryMap.get(article.category);
+      const visualBadge = article.id === "understanding-insulin-spikes"
+        ? `<span class="mo-learning-badge" role="img" aria-label="Includes a Mo visual explainer" title="Includes a Mo visual explainer"><img src="/images/mo-visual-explainer-grey.png" alt=""></span>`
+        : "";
       return `<li>
         <button class="section-article" type="button" data-article="${article.id}">
-          <strong>${escapeHtml(article.title)}</strong>
+          <strong>${visualBadge}${escapeHtml(article.title)}</strong>
           <small>${escapeHtml(article.summary)}${activeSectionId === "search" ? ` · ${escapeHtml(category?.title || "")}` : ""}</small>
           <i aria-hidden="true">→</i>
         </button>
