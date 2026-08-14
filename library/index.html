@@ -186,7 +186,7 @@
     .mobile-more-toggle::before {
       position: absolute;
       z-index: 3;
-      top: 1px;
+      top: calc(50% - clamp(4px, .55vw, 7px));
       left: 50%;
       width: clamp(43px, 4.9vw, 64px);
       height: clamp(43px, 4.9vw, 64px);
@@ -195,7 +195,7 @@
       content: "";
       opacity: 0;
       pointer-events: none;
-      transform: translateX(-50%);
+      transform: translate(-50%, -50%);
     }
 
     .nav-visualization .motionc-nav a:hover::before,
@@ -997,7 +997,7 @@
       .mobile-more-toggle small { font-size: 7px; }
 
       .motionc-nav a::before,
-      .mobile-more-toggle::before { top: 1px; width: 42px; height: 42px; border-radius: 11px; }
+      .mobile-more-toggle::before { top: calc(50% - 4px); width: 42px; height: 42px; border-radius: 11px; }
 
       .nav-home { order: 1; }
       .nav-daily { order: 2; }
