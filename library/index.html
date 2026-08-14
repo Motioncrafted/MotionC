@@ -186,7 +186,7 @@
     .mobile-more-toggle::before {
       position: absolute;
       z-index: 3;
-      top: calc(50% - clamp(4px, .55vw, 7px));
+      top: 50%;
       left: 50%;
       width: clamp(43px, 4.9vw, 64px);
       height: clamp(43px, 4.9vw, 64px);
@@ -854,6 +854,27 @@
       color: #4f311d;
     }
 
+    .article-explainer {
+      margin: 2em auto .5em;
+      text-align: center;
+    }
+
+    .article-explainer img {
+      display: block;
+      width: min(100%, 760px);
+      height: auto;
+      margin: 0 auto;
+      border: 1px solid rgba(30, 96, 153, .3);
+      border-radius: 18px;
+      box-shadow: 0 12px 30px rgba(37, 71, 93, .18);
+    }
+
+    .article-explainer figcaption {
+      margin-top: .65em;
+      color: #687a72;
+      font: 700 .82em "Kalam", cursive;
+    }
+
     .reader-content .mcp-plain-language {
       margin: 1em 0;
       padding: .7em 1em;
@@ -1473,6 +1494,82 @@
            <p>Protein, fibre-rich foods, colourful plants, and adequate fluids create a dependable foundation.</p>`,
           `<p>Notice how meals affect energy, concentration, hunger, and recovery. Those signals often teach more than rigid rules.</p>
            <p>A sustainable pattern leaves room for preference, culture, convenience, and enjoyment.</p>`
+        ]
+      },
+      {
+        id: "understanding-insulin-spikes",
+        category: "nutrition",
+        title: "Understanding Insulin Spikes",
+        tags: ["insulin", "blood sugar", "nutrition", "energy", "hunger", "walking", "Mo Explains"],
+        summary: "How insulin spikes work, why they matter, and how they influence fat loss.",
+        pages: [
+          `<p><strong>How they work, why they matter, and how they influence fat loss.</strong></p>
+           <p>Insulin is one of the most misunderstood hormones in the body. Most people know it helps control blood sugar, but fewer realize it also influences hunger, cravings, energy stability, and how easily your body can access stored fat.</p>
+           <p>Once you understand insulin spikes, you understand why some foods support fat loss — and why others quietly slow it down.</p>
+           <p>This guide explains insulin in clear MotionC terms.</p>`,
+          `<h2>⭐ 1. What Is an Insulin Spike?</h2>
+           <p>An insulin spike happens when your blood sugar rises quickly after eating fast-digesting foods. Your pancreas releases insulin to bring sugar levels back down.</p>
+           <p><strong>Insulin’s main jobs:</strong></p>
+           <ul>
+             <li>move sugar out of your bloodstream</li>
+             <li>store excess energy</li>
+             <li>shift your body away from using stored fat</li>
+           </ul>
+           <p>This shift is temporary — but important.</p>`,
+          `<h2>⭐ 2. What Causes Insulin Spikes?</h2>
+           <p><strong>Foods that can produce a faster response, depending on portion, ripeness, preparation, and what accompanies them:</strong></p>
+           <ul>
+             <li>sugar</li><li>juice</li><li>white bread</li><li>cereal</li><li>pastries</li>
+             <li>bananas</li><li>grapes</li><li>dried fruit</li><li>rice</li><li>pasta</li>
+             <li>candy</li><li>chips</li><li>chocolate</li><li>high-carb meals eaten without protein</li>
+           </ul>
+           <p>These foods digest quickly and raise blood sugar faster — and insulin responds accordingly.</p>`,
+          `<h2>⭐ 3. The Two Metabolic Modes</h2>
+           <p>Your metabolism <strong>leans toward</strong> one of two general modes depending on insulin levels.</p>
+           <h3>Mode 1 — Fat-Burning Mode (Lower Insulin)</h3>
+           <ul><li>glucagon rises</li><li>body taps stored fat</li><li>hunger stabilizes</li><li>energy stays steady</li><li>mood stays calm</li></ul>
+           <p>MotionC aims to help you spend more time here.</p>
+           <h3>Mode 2 — Fat-Storing Mode (Higher Insulin)</h3>
+           <ul><li>body prioritizes incoming calories</li><li>fat-burning slows</li><li>hunger rises</li><li>cravings increase</li><li>energy becomes less stable</li></ul>
+           <p>This mode is normal — but you don’t want to live in it all day.</p>`,
+          `<h2>⭐ 4. Can You Burn Fat During an Insulin Spike?</h2>
+           <p>Fat-burning <strong>drops sharply</strong> during an insulin spike.</p>
+           <p>Insulin signals your body:</p>
+           <p class="mcp-plain-language"><strong>“Use the incoming energy first.”</strong></p>
+           <p>This makes it harder to access stored fat until insulin settles back down.</p>
+           <p>This is why snacking, grazing, sugary breakfasts, carb-heavy meals, and late-night eating can reduce your daily fat-burning window.</p>
+           <p>Each spike <strong>delays</strong> your return to fat-burning mode.</p>`,
+          `<h2>⭐ 5. How Long Does Fat-Storing Mode Last?</h2>
+           <p>An insulin spike often lasts <strong>several hours</strong>, depending on:</p>
+           <ul><li>meal size</li><li>sugar content</li><li>your metabolic health</li><li>your activity level</li></ul>
+           <p><strong>Repeated eating can extend the time insulin remains elevated</strong>, reducing the hours your body spends accessing stored fat.</p>
+           <p>This is why timing matters.</p>`,
+          `<h2>⭐ 6. Are Insulin Spikes Always Bad?</h2>
+           <p>No — insulin spikes serve important purposes.</p>
+           <p>They help with:</p>
+           <ul><li>muscle building</li><li>post-workout recovery</li><li>nutrient absorption</li><li>energy replenishment</li><li>stabilizing blood sugar after meals</li></ul>
+           <p>The goal isn’t to avoid spikes — it’s to <strong>control when they happen</strong>.</p>`,
+          `<h2>⭐ 7. How to Reduce Insulin Spikes</h2>
+           <p>MotionC teaches simple strategies:</p>
+           <h3>✔ Eat protein first</h3><p>Slows digestion and reduces spikes.</p>
+           <h3>✔ Add fiber</h3><p>Slows sugar absorption.</p>
+           <h3>✔ Avoid sugary breakfasts</h3><p>Start the day in fat-burning mode.</p>
+           <h3>✔ Move before or after eating</h3><p>Both help; post-meal walking is especially effective for reducing glucose.</p>
+           <h3>✔ Choose low-glycemic fruits</h3><p>Green apples, berries, kiwi, grapefruit.</p>
+           <h3>✔ Avoid frequent snacking</h3><p>Most snacks trigger small insulin rises.</p>
+           <h3>✔ Drink water first</h3><p>Hydration stabilizes hunger signals.</p>
+           <p><strong>Small steps. Large gains.</strong></p>`,
+          `<h2>⭐ 8. The MotionC Takeaway</h2>
+           <p>Insulin spikes aren’t the enemy — they’re a signal.</p>
+           <p>They tell your body:</p>
+           <p class="mcp-plain-language"><strong>“Store incoming energy now.”</strong></p>
+           <p>When you understand how spikes work, you can control hunger, cravings, fat loss, energy, mood, and metabolism.</p>
+           <p>MotionC helps you spend more time in fat-burning mode — not through restriction, but through awareness and smart timing.</p>
+           <h2>Mo Explains: A Visual Guide</h2>
+           <figure class="article-explainer">
+             <img src="/images/mo-explains-insulin-spikes.png" alt="Mo Explains visual guide to insulin, movement, food timing, and balanced meal choices" loading="lazy">
+             <figcaption>Mo Explains: Understanding Insulin Spikes — A Beginner’s Guide</figcaption>
+           </figure>`
         ]
       },
       {
@@ -2141,7 +2238,7 @@
       if (error) throw error;
       if (!Array.isArray(data) || !data.length) return;
 
-      articles = data.map(article => ({
+      const cloudArticles = data.map(article => ({
         id: article.slug,
         category: article.category,
         title: article.title,
@@ -2149,6 +2246,11 @@
         tags: Array.isArray(article.tags) ? article.tags : [],
         pages: Array.isArray(article.pages) ? article.pages : []
       }));
+      const cloudIds = new Set(cloudArticles.map(article => article.id));
+      articles = [
+        ...cloudArticles,
+        ...fallbackArticles.filter(article => !cloudIds.has(article.id))
+      ];
     }
 
     try {
