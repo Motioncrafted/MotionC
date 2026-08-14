@@ -119,12 +119,6 @@
                     <strong id="display-bmi">—</strong>
                     <span id="bmi-status" class="metric-change">Calculated from your profile</span>
                 </article>
-                <article class="metric-card metric-card-green">
-                    <div class="metric-icon mountain-icon" aria-hidden="true">▲</div>
-                    <p>MCP score</p>
-                    <strong id="display-mcp">—</strong>
-                    <span id="mcp-status" class="metric-change">Your whole-health marker</span>
-                </article>
                 <article class="metric-card metric-card-violet">
                     <div class="metric-icon" aria-hidden="true">↗</div>
                     <p>Total distance walked</p>
@@ -157,8 +151,18 @@
                         <div><p class="eyebrow">CURRENT MOMENTUM</p><h3>MCP & lifestyle</h3></div>
                     </div>
                     <div class="score-pair">
-                        <div class="score-ring mcp-ring" id="mcp-ring">
-                            <div><strong id="display-mcp-ring">—</strong><span>MCP</span></div>
+                        <div class="mcp-zone-gauge" id="mcp-ring" role="img" aria-label="MCP not assessed">
+                            <div class="mcp-zone-halo" aria-hidden="true"></div>
+                            <span class="mcp-zone-label mcp-zone-label-core">Core</span>
+                            <span class="mcp-zone-label mcp-zone-label-healthy">Healthy</span>
+                            <span class="mcp-zone-label mcp-zone-label-elevated">Elevated</span>
+                            <span class="mcp-zone-label mcp-zone-label-watch">Watch</span>
+                            <span class="mcp-location-marker" aria-hidden="true"></span>
+                            <div class="mcp-gauge-centre">
+                                <strong id="display-mcp-ring">—</strong>
+                                <span>MCP</span>
+                                <em id="mcp-zone-status">Not assessed</em>
+                            </div>
                         </div>
                         <div class="score-ring lifestyle-ring" id="lifestyle-ring">
                             <div>
@@ -928,7 +932,7 @@
          Dashboard JavaScript
          ===================================== -->
 
-    <script src="/dashboard/script.js?v=20260814-1"></script>
+    <script src="/dashboard/script.js?v=20260814-2"></script>
     <script type="module" src="/shared/motionc-supabase.js?v=20260811-1"></script>
 </body>
 
