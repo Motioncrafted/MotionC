@@ -1226,6 +1226,71 @@ window.addEventListener(
     }
 );
 
+/* ==========================================================
+   TEMP LOCATION MARKER
+   MCP "YOU ARE HERE" PLACEHOLDER
+   ========================================================== */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const dashboardWrapper =
+        document.querySelector(
+            ".dashboard-wrapper"
+        );
+
+    if (!dashboardWrapper) {
+        console.warn(
+            "MCP location marker: dashboard wrapper not found."
+        );
+
+        return;
+    }
+
+    const existingMarker =
+        document.getElementById(
+            "mcp-location-marker"
+        );
+
+    if (existingMarker) {
+        return;
+    }
+
+    const mcpLocationMarker =
+        document.createElement(
+            "div"
+        );
+
+    mcpLocationMarker.id =
+        "mcp-location-marker";
+
+    mcpLocationMarker.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+    Object.assign(
+        mcpLocationMarker.style,
+        {
+            position: "absolute",
+            top: "35.6%",
+            left: "1.3%",
+            width: "6.9%",
+            height: "10.3%",
+            border: "3px solid #ffd400",
+            borderRadius: "6px",
+            background: "transparent",
+            boxSizing: "border-box",
+            pointerEvents: "none",
+            zIndex: "20"
+        }
+    );
+
+    dashboardWrapper.appendChild(
+        mcpLocationMarker
+    );
+
+});
+
 /* =========================================
    Modern Summary data and chart layer
    ========================================= */
@@ -1624,6 +1689,51 @@ function drawWalkingChart(points) {
     });
 }
 
+function latestDailyWeight(entries) {
+    return Object.values(entries || {})
+        .filter(entry => entry?.date && Number(entry.weight) > 0)
+        .sort((first, second) => String(first.date).localeCompare(String(second.date)))
+        .at(-1)?.weight ?? null;
+}
+
+function canonicalMcpSnapshot(savedMcp, entries) {
+    const measurementData = savedMcp?.measurementData;
+    if (!measurementData) return null;
+
+    const dailyWeightLbs = Number(latestDailyWeight(entries));
+    const weightLbs = dailyWeightLbs > 0
+        ? dailyWeightLbs
+        : Number(measurementData.weightLbs);
+    const heightInches = Number(measurementData.heightInches);
+    const waistInches = Number(measurementData.waistInches);
+    const age = Number(measurementData.age);
+
+    if (![weightLbs, heightInches, waistInches, age].every(value => Number.isFinite(value) && value > 0)) {
+        return null;
+    }
+
+    const system = measurementData.system === "metric" ? "metric" : "imperial";
+    const canonicalMeasurements = {
+        ...measurementData,
+        system,
+        enteredWeight: system === "metric" ? weightLbs * summaryKgPerLb : weightLbs,
+        enteredWaist: system === "metric" ? waistInches * 2.54 : waistInches,
+        heightCm: heightInches * 2.54,
+        heightMetres: heightInches * 0.0254,
+        heightInches,
+        waistCm: waistInches * 2.54,
+        waistInches,
+        weightKg: weightLbs * summaryKgPerLb,
+        weightLbs,
+        age
+    };
+
+    return {
+        measurementData: canonicalMeasurements,
+        results: calculateMcp(canonicalMeasurements)
+    };
+}
+
 const DAILY_TREND_CONFIG = {
     hydration: { label: "Hydration", unit: "glasses", maximum: 16, color: "#0872b9" },
     stress: { label: "Stress", unit: "of 5", maximum: 5, color: "#d94d48" },
@@ -1742,15 +1852,16 @@ function renderSummaryData() {
     const canonicalGoal = savedGoal > 0 ? savedGoal : profileLine > 0 ? profileLine : profileGoal > 0 ? profileGoal : 195;
     summaryGoalWeight = summaryDisplayWeight(canonicalGoal);
 
-    if (savedMcp?.measurementData && savedMcp?.results) {
+    const canonicalMcp = canonicalMcpSnapshot(savedMcp, entries);
+    if (canonicalMcp) {
         updateMcpDashboard({
-            system: savedMcp.measurementData.system,
-            enteredWeight: Number(savedMcp.measurementData.enteredWeight),
-            enteredWaist: Number(savedMcp.measurementData.enteredWaist),
-            results: savedMcp.results
+            system: canonicalMcp.measurementData.system,
+            enteredWeight: Number(canonicalMcp.measurementData.enteredWeight),
+            enteredWaist: Number(canonicalMcp.measurementData.enteredWaist),
+            results: canonicalMcp.results
         });
         document.dispatchEvent(new CustomEvent("motionc:mcp-summary-restored", {
-            detail: savedMcp
+            detail: canonicalMcp
         }));
     }
 
@@ -1800,24 +1911,9 @@ function updateModernMcpDisplay(detail) {
     const mcp = Number(eventDetail.results?.mcp);
     const bmi = Number(eventDetail.results?.bmi);
     if (Number.isFinite(mcp)) {
-        const gauge = document.getElementById("mcp-ring");
-        const zone = mcp < 25
-            ? { key: "core", label: "Core Zone" }
-            : mcp < 35
-                ? { key: "healthy", label: "Healthy Zone" }
-                : mcp < 43
-                    ? { key: "elevated", label: "Elevated Zone" }
-                    : { key: "watch", label: "Watch Zone" };
-
         setText("display-mcp-ring", mcp.toFixed(1));
-        setText("mcp-zone-status", zone.label);
-        if (gauge) {
-            gauge.classList.remove("zone-core", "zone-healthy", "zone-elevated", "zone-watch");
-            gauge.classList.add("is-assessed", `zone-${zone.key}`);
-            const markerAngle = 195 + ((60 - Math.max(0, Math.min(60, mcp))) / 60 * 330);
-            gauge.style.setProperty("--mcp-marker-angle", `${markerAngle}deg`);
-            gauge.setAttribute("aria-label", `MCP ${mcp.toFixed(1)}, ${zone.label}`);
-        }
+        setRingValue("mcp-ring", mcp / 50 * 100);
+        setText("mcp-status", mcp >= 45 ? "Core zone" : mcp >= 30 ? "Healthy zone" : mcp >= 20 ? "Caution zone" : "At-risk zone");
         setText("momentum-message", mcp >= 30 ? "You’re building healthy momentum. Consistency is doing its quiet work." : "Every small improvement moves the score. Choose one habit to strengthen today.");
     }
     if (Number.isFinite(bmi)) {
