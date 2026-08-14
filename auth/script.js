@@ -7,13 +7,6 @@ const $ = (id) => document.getElementById(id);
 let mode = "signin";
 let pendingSession = null;
 let browserStateBeforeSignIn = null;
-const requestedNext = new URLSearchParams(location.search).get("next");
-const safeNext = requestedNext && requestedNext.startsWith("/") && !requestedNext.startsWith("//") ? requestedNext : null;
-const requestedMode = new URLSearchParams(location.search).get("mode");
-
-function continueAfterLogin() {
-  if (safeNext) location.assign(safeNext);
-}
 
 function show(name) {
   ["signedOutPanel", "setupPanel", "signedInPanel"].forEach((id) => $(id).classList.toggle("hidden", id !== name));
@@ -23,7 +16,7 @@ function setMode(next) {
   mode = next;
   $("signInTab").classList.toggle("active", mode === "signin");
   $("createTab").classList.toggle("active", mode === "create");
-  $("submitButton").textContent = mode === "signin" ? "Sign in" : "Create account";
+  $("submitButton").textContent = mode === "signin" ? "Sign in" : "Create user";
   $("password").autocomplete = mode === "signin" ? "current-password" : "new-password";
   $("formMessage").textContent = "";
 }
@@ -37,7 +30,6 @@ async function finishLogin(session) {
     return;
   }
   await activateUser(session.user.id, cloud.state);
-  if (safeNext) { continueAfterLogin(); return; }
   $("currentEmail").textContent = session.user.email;
   show("signedInPanel");
 }
@@ -67,14 +59,12 @@ $("accountForm").addEventListener("submit", async (event) => {
 
 $("importButton").addEventListener("click", async () => {
   await activateUser(pendingSession.user.id, browserStateBeforeSignIn || captureLocalState());
-  if (safeNext) { continueAfterLogin(); return; }
   $("currentEmail").textContent = pendingSession.user.email;
   show("signedInPanel");
 });
 
 $("freshButton").addEventListener("click", async () => {
   await activateUser(pendingSession.user.id, makeFreshState());
-  if (safeNext) { continueAfterLogin(); return; }
   $("currentEmail").textContent = pendingSession.user.email;
   show("signedInPanel");
 });
@@ -96,7 +86,4 @@ $("switchButton").addEventListener("click", async () => {
 
 const existing = await getSession();
 if (existing) await finishLogin(existing);
-else {
-  setMode(requestedMode === "create" ? "create" : "signin");
-  show("signedOutPanel");
-}
+else show("signedOutPanel");
