@@ -1668,7 +1668,7 @@ function canonicalMcpSnapshot(savedMcp, entries) {
 }
 
 const DAILY_TREND_CONFIG = {
-    hydration: { label: "Hydration", unit: "glasses", maximum: 16, color: "#0872b9" },
+    hydration: { label: "Hydration", unit: "10 oz cups", maximum: 16, color: "#0872b9" },
     stress: { label: "Stress", unit: "of 5", maximum: 5, color: "#d94d48" },
     sleep: { label: "Sleep", unit: "hours", maximum: 12, color: "#3d68ae" }
 };
