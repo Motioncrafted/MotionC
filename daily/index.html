@@ -55,10 +55,13 @@
               <span>REFLECTION POINT</span>
               <q id="weeklyReflection"></q>
             </aside>
-            <label class="date-field">
-              Date
-              <input id="entryDate" type="date">
-            </label>
+            <div class="date-controls">
+              <label class="date-field">
+                Date
+                <input id="entryDate" type="date">
+              </label>
+              <button class="today-button" id="goToToday" type="button">Go to today</button>
+            </div>
           </div>
 
           <div class="number-grid">
@@ -172,8 +175,8 @@
             </div>
             <div class="gauge-grid">
               <article class="daily-gauge hydration-gauge">
-                <output id="hydrationValue" for="hydrationInput">—</output><span class="gauge-unit">glasses</span>
-                <div class="gauge-tube"><input id="hydrationInput" type="range" min="0" max="16" step="1" value="0" aria-label="Glasses of water today"><div class="mini-gauge-chart" id="hydrationMiniChart" aria-hidden="true"></div></div>
+                <output id="hydrationValue" for="hydrationInput">—</output><span class="gauge-unit">cups · 10 oz each</span>
+                <div class="gauge-tube"><input id="hydrationInput" type="range" min="0" max="16" step="1" value="0" aria-label="Ten-ounce cups of water today"><div class="mini-gauge-chart" id="hydrationMiniChart" aria-hidden="true"></div></div>
                 <div class="gauge-stepper"><button type="button" data-gauge-step="hydration" data-direction="-1" aria-label="Decrease hydration">−</button><strong>Hydration</strong><button type="button" data-gauge-step="hydration" data-direction="1" aria-label="Increase hydration">+</button></div>
                 <button class="gauge-save" id="saveHydration" type="button">Update</button><small id="hydrationStatus">Not recorded today</small>
               </article>
@@ -197,13 +200,20 @@
         </section>
 
         <section class="calendar-card card">
-          <div class="section-heading">
+          <div class="section-heading calendar-heading">
             <div>
               <p class="eyebrow">DAILY HEALTH</p>
               <h2 id="calendarTitle">This month</h2>
             </div>
-            <div class="calendar-key" aria-label="Dot colour key">
-              <span class="green"></span><span class="light-green"></span><span class="yellow"></span><span class="orange"></span><span class="red"></span>
+            <div class="calendar-tools">
+              <div class="calendar-navigation" aria-label="Change calendar month">
+                <button id="previousMonth" type="button" aria-label="Previous month">←</button>
+                <button id="calendarToday" type="button">Today</button>
+                <button id="nextMonth" type="button" aria-label="Next month">→</button>
+              </div>
+              <div class="calendar-key" aria-label="Dot colour key">
+                <span class="green"></span><span class="light-green"></span><span class="yellow"></span><span class="orange"></span><span class="red"></span>
+              </div>
             </div>
           </div>
           <div class="weekday-row"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
@@ -320,7 +330,7 @@
     <button class="save-button full" id="saveWeekly" type="button">Save weekly check-in</button>
   </dialog>
 
-  <script src="/daily/script.js?v=20260811-3"></script>
+  <script src="/daily/script.js?v=20260815-1"></script>
   <script type="module" src="/shared/motionc-supabase.js?v=20260811-1"></script>
 </body>
 </html>

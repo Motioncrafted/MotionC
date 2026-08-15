@@ -88,6 +88,7 @@ syncLifestyleSummary();
 let activeScoreDate = null;
 let addingWalk = false;
 let editingWalkIndex = null;
+let calendarViewDate = new Date();
 
 function isoDate(date = new Date()) {
   const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
@@ -226,15 +227,16 @@ function persist() {
 function syncLifestyleSummary() {
   try {
     const summary = JSON.parse(localStorage.getItem(LIFESTYLE_SUMMARY_STORAGE_KEY));
-    if (!summary?.week || !Number.isFinite(Number(summary.score))) return false;
+    if (!Number.isFinite(Number(summary?.score))) return false;
+    const summaryWeek = summary.week || weekKey(new Date());
 
-    const existing = state.weeks[summary.week];
+    const existing = state.weeks[summaryWeek];
     if (existing?.summaryUpdatedAt === summary.updatedAt && existing?.scoreLogicVersion === 4) return false;
 
     const maximumScore = Number(summary.maximumScore) > 0 ? Number(summary.maximumScore) : 24;
     const score = Math.min(10, roundHalf(Number(summary.score) / maximumScore * 10));
 
-    state.weeks[summary.week] = {
+    state.weeks[summaryWeek] = {
       ...existing,
       values: summary.values || existing?.values || {},
       score,
@@ -253,7 +255,13 @@ function syncLifestyleSummary() {
 
 function weeklyForDate(dateValue) {
   const key = weekKey(dateFromIso(dateValue));
-  return state.weeks[key] || { values: {}, score: null, assessed: false };
+  const savedWeek = state.weeks[key];
+  if (savedWeek && savedWeek.assessed !== false && Number.isFinite(Number(savedWeek.score))) return savedWeek;
+
+  const latestAssessed = Object.values(state.weeks || {})
+    .filter(week => week?.assessed === true && Number.isFinite(Number(week.score)))
+    .sort((a, b) => String(b.updatedAt || b.summaryUpdatedAt || "").localeCompare(String(a.updatedAt || a.summaryUpdatedAt || "")))[0];
+  return latestAssessed || { values: {}, score: null, assessed: false };
 }
 
 function scoreForEntry(entry) {
@@ -329,15 +337,15 @@ function loadEntry(dateValue) {
 }
 
 const DAILY_GAUGE_CONFIG = {
-  hydration: { input: "hydrationInput", value: "hydrationValue", status: "hydrationStatus", miniChart: "hydrationMiniChart", label: "Hydration", unit: "glasses", maximum: 16, color: "#075da8" },
+  hydration: { input: "hydrationInput", value: "hydrationValue", status: "hydrationStatus", miniChart: "hydrationMiniChart", label: "Hydration", unit: "cups", maximum: 16, color: "#075da8" },
   stress: { input: "stressInput", value: "stressValue", status: "stressStatus", miniChart: "stressMiniChart", label: "Stress", unit: "of 5", maximum: 5, color: "#dc4545" },
   sleep: { input: "sleepInput", value: "sleepValue", status: "sleepStatus", miniChart: "sleepMiniChart", label: "Sleep", unit: "hours", maximum: 12, color: "#315fa8" }
 };
 
 const INSIGHT_RULES = {
   hydrationLitresPerHour: 0.4,
-  litresPerGlass: 0.236588,
-  hydrationMinimumGlasses: 1,
+  litresPerCup: 0.295735,
+  hydrationMinimumCups: 1,
   sleepLookbackDays: 7,
   sleepMinimumEntries: 4,
   sleepAverageThreshold: 5,
@@ -448,8 +456,8 @@ function estimatedHydrationDeficit(dateValue) {
   const entry = state.entries[dateValue];
   const walkingMinutes = walksForEntry(entry).reduce((sum, walk) => sum + Number(walk.minutes || 0), 0);
   if (walkingMinutes <= 0) return 0;
-  const glasses = ((walkingMinutes / 60) * INSIGHT_RULES.hydrationLitresPerHour) / INSIGHT_RULES.litresPerGlass;
-  return Math.round(glasses * 2) / 2;
+  const cups = ((walkingMinutes / 60) * INSIGHT_RULES.hydrationLitresPerHour) / INSIGHT_RULES.litresPerCup;
+  return Math.round(cups * 2) / 2;
 }
 
 function buildDailyInsights(dateValue) {
@@ -458,10 +466,10 @@ function buildDailyInsights(dateValue) {
   const patterns = [];
   const hydrationDeficit = estimatedHydrationDeficit(dateValue);
 
-  if (hydrationDeficit >= INSIGHT_RULES.hydrationMinimumGlasses) {
+  if (hydrationDeficit >= INSIGHT_RULES.hydrationMinimumCups) {
     immediate.push({
       priority: 100 + hydrationDeficit,
-      html: `<strong>Estimated hydration deficit from today's walking: ${displayGaugeValue("sleep", hydrationDeficit)} ${hydrationDeficit === 1 ? "glass" : "glasses"}.</strong>`
+      html: `<strong>Estimated hydration deficit from today's walking: ${displayGaugeValue("sleep", hydrationDeficit)} ${hydrationDeficit === 1 ? "10 oz cup" : "10 oz cups"}.</strong>`
     });
   }
 
@@ -669,8 +677,8 @@ function renderToday(dateValue) {
   activeScoreDate = dateValue;
 }
 
-function renderCalendar(focusDateValue) {
-  const focus = dateFromIso(focusDateValue);
+function renderCalendar() {
+  const focus = calendarViewDate;
   const year = focus.getFullYear();
   const month = focus.getMonth();
   byId("calendarTitle").textContent = new Intl.DateTimeFormat(undefined, { month: "long", year: "numeric" }).format(focus);
@@ -1102,14 +1110,38 @@ function renderAll(dateValue = isoDate()) {
   const weekNumber = Math.floor((now - yearStart) / 604800000);
   byId("weeklyReflection").innerHTML = WEEKLY_REFLECTIONS[weekNumber % WEEKLY_REFLECTIONS.length];
   renderToday(dateValue);
-  renderCalendar(dateValue);
+  renderCalendar();
   renderWeekly();
   renderMilestones();
   renderDailyInsights(dateValue);
   renderMiniGaugeCharts();
 }
 
-fields.date.addEventListener("change", () => loadEntry(fields.date.value));
+fields.date.addEventListener("change", () => {
+  if (!fields.date.value) return;
+  calendarViewDate = dateFromIso(fields.date.value);
+  loadEntry(fields.date.value);
+  renderCalendar();
+});
+byId("goToToday").addEventListener("click", () => {
+  const today = isoDate();
+  fields.date.value = today;
+  calendarViewDate = dateFromIso(today);
+  loadEntry(today);
+  renderCalendar();
+});
+byId("previousMonth").addEventListener("click", () => {
+  calendarViewDate = new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth() - 1, 1, 12);
+  renderCalendar();
+});
+byId("nextMonth").addEventListener("click", () => {
+  calendarViewDate = new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth() + 1, 1, 12);
+  renderCalendar();
+});
+byId("calendarToday").addEventListener("click", () => {
+  calendarViewDate = new Date();
+  renderCalendar();
+});
 Object.keys(DAILY_GAUGE_CONFIG).forEach(key => {
   byId(DAILY_GAUGE_CONFIG[key].input).addEventListener("input", () => previewDailyGauge(key));
 });
@@ -1149,9 +1181,16 @@ byId("scoreDialog").addEventListener("click", event => {
 });
 byId("weeklyButton").addEventListener("click", () => {
   buildLifestyleForm();
-  byId("weeklyDialog").showModal();
+  const dialog = byId("weeklyDialog");
+  if (dialog.open) return;
+  if (typeof dialog.showModal === "function") dialog.showModal();
+  else dialog.setAttribute("open", "");
 });
-byId("closeWeekly").addEventListener("click", () => byId("weeklyDialog").close());
+byId("closeWeekly").addEventListener("click", () => {
+  const dialog = byId("weeklyDialog");
+  if (typeof dialog.close === "function") dialog.close();
+  else dialog.removeAttribute("open");
+});
 byId("saveWeekly").addEventListener("click", saveWeekly);
 window.addEventListener("focus", () => {
   if (syncLifestyleSummary()) renderAll(fields.date.value);
