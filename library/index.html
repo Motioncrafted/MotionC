@@ -1804,6 +1804,50 @@
         ]
       },
       {
+        id: "kimchi-a-beginners-guide",
+        category: "nutrition",
+        title: "Kimchi: A Beginner’s Guide",
+        tags: ["kimchi", "fermented foods", "fermentation", "probiotics", "gut health", "digestion", "inflammation", "immune system", "metabolism", "blood sugar", "salt", "beginner guide", "Mo Explains", "visual learning"],
+        summary: "What kimchi is, why it matters, and how to start.",
+        pages: [
+          `<p>If you’ve never heard of kimchi before, you’re not alone. Kimchi is a traditional Korean food made from vegetables — usually cabbage — that are seasoned and then fermented. It’s tangy, a little spicy, and packed with natural health benefits.</p>
+           <p>Think of it as a small daily habit that quietly supports your body in big ways.</p>`,
+          `<h2>What Kimchi Actually Is</h2>
+           <p>Kimchi starts with simple ingredients:</p>
+           <ul><li>Cabbage or radish</li><li>Garlic</li><li>Ginger</li><li>Chili</li><li>Salt</li></ul>
+           <p>These ingredients are mixed together and left to ferment. During fermentation, beneficial bacteria grow — the same kind that support gut health.</p>
+           <p>The result is a flavorful, probiotic-rich food that has been enjoyed for centuries.</p>`,
+          `<h2>Why Fermentation Matters</h2>
+           <p>Fermentation is what makes kimchi special. It creates:</p>
+           <ul><li>Probiotics that support digestion</li><li>Natural compounds that help calm inflammation</li><li>Antioxidants that support your immune system</li></ul>
+           <p>It’s one of the easiest ways to add fermented foods to your routine.</p>`,
+          `<h2>The Benefits (Beginner-Friendly)</h2>
+           <h3>1. Better Digestion</h3>
+           <p>Kimchi contains live probiotics that help balance your gut. This can support smoother digestion and reduce bloating.</p>
+           <h3>2. Natural Anti-Inflammatory Support</h3>
+           <p>Fermented foods produce compounds that help calm inflammation. This supports joint comfort and overall wellness.</p>
+           <h3>3. Stronger Immune Resilience</h3>
+           <p>A healthier gut supports a stronger immune system. Kimchi’s probiotics and antioxidants help reinforce your daily defenses.</p>
+           <h3>4. More Stable Metabolism</h3>
+           <p>Kimchi can help support blood sugar balance and appetite regulation. This contributes to metabolic stability — a key part of long-term health.</p>
+           <h3>5. Easy to Add to Your Routine</h3>
+           <p>Kimchi requires no prep and pairs easily with meals. A small serving goes a long way.</p>`,
+          `<h2>What About the Salt?</h2>
+           <p>Kimchi is salty — that’s part of fermentation. Salt may cause temporary water retention, but it does not affect fat gain or long-term weight.</p>
+           <p>Small scale fluctuations are normal and simply reflect water shifts.</p>`,
+          `<h2>How to Start (Beginner Tips)</h2>
+           <ul><li>Begin with 1–2 tablespoons</li><li>Choose fermented, refrigerated kimchi</li><li>Add it to lunch or supper</li><li>Pair it with protein</li><li>Drink a little extra water</li></ul>
+           <p>You don’t need to eat a lot. Consistency is what makes the difference.</p>`,
+          `<h2>Takeaway</h2>
+           <p>Kimchi is a simple, beginner-friendly way to support gut health, inflammation control, immunity, and metabolic stability. It’s a small habit with meaningful benefits — and easy to add to your day.</p>
+           <h2>Mo Explains: A Visual Guide</h2>
+           <figure class="article-explainer">
+             <img src="/images/mo-explains-kimchi-top-five-benefits.png" alt="Mo Explains visual guide to kimchi’s benefits for gut health, inflammation, immunity, metabolism, and daily habits" loading="lazy">
+             <figcaption>Mo Explains: Kimchi — Top 5 Benefits</figcaption>
+           </figure>`
+        ]
+      },
+      {
         id: "magnesium-choosing-the-most-well-rounded-option",
         category: "nutrition",
         title: "Magnesium: Choosing the Most Well-Rounded Option for Daily Use",
@@ -2553,7 +2597,7 @@
 
     function sectionArticleButton(article) {
       const category = categoryMap.get(article.category);
-      const visualBadge = ["understanding-insulin-spikes", "hydration-a-beginners-guide", "chia-seeds-a-beginners-guide", "psyllium-husk-a-friendly-beginner-guide", "magnesium-choosing-the-most-well-rounded-option", "chelated-minerals-why-they-matter"].includes(article.id)
+      const visualBadge = ["understanding-insulin-spikes", "hydration-a-beginners-guide", "chia-seeds-a-beginners-guide", "psyllium-husk-a-friendly-beginner-guide", "kimchi-a-beginners-guide", "magnesium-choosing-the-most-well-rounded-option", "chelated-minerals-why-they-matter"].includes(article.id)
         ? `<span class="mo-learning-badge" role="img" aria-label="Includes a Mo visual explainer" title="Includes a Mo visual explainer"><img src="/images/mo-visual-explainer-grey.png" alt=""></span>`
         : ["mo-explains-insulin-spikes-two-modes", "mo-explains-why-bananas-spike-insulin"].includes(article.id)
           ? `<span class="mo-learning-badge" role="img" aria-label="All-Mo visual article" title="All-Mo visual article"><img src="/images/mo-visual-explainer-blue.png" alt=""></span>`
