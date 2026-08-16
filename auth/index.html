@@ -4,25 +4,30 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>MotionC Account</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=20260815-1">
 </head>
 <body>
   <main class="account-shell">
     <a class="back" href="/drop-zone/">← Continue to The Commons</a>
     <p class="eyebrow">YOUR MOTIONC ACCOUNT</p>
     <h1>Your journey. Your private space.</h1>
-    <p class="intro">Sign in to restore your MotionC information and open your private My Wall, or continue to The Commons as a visitor.</p>
+    <p class="intro">Use your email privately to secure your account. Around MotionC, other members see only the username you choose.</p>
 
     <section id="signedOutPanel" class="card">
-      <div class="tabs" role="tablist">
+      <div class="tabs" role="tablist" aria-label="Account access">
         <button id="signInTab" class="active" type="button">Sign in</button>
         <button id="createTab" type="button">Create account</button>
       </div>
       <form id="accountForm">
-        <label>Email<input id="email" type="email" autocomplete="username" required></label>
-        <label>Password<input id="password" type="password" autocomplete="current-password" minlength="6" required></label>
+        <label id="usernameField" class="hidden">Username
+          <input id="username" type="text" autocomplete="username" minlength="3" maxlength="24" pattern="[A-Za-z0-9_]+" placeholder="Letters, numbers, and underscores">
+          <small>This is your public MotionC identity. Your email stays private.</small>
+        </label>
+        <label>Email<input id="email" type="email" autocomplete="email" required></label>
+        <label>Password<input id="password" type="password" autocomplete="current-password" minlength="8" required></label>
         <button id="submitButton" class="primary" type="submit">Sign in</button>
       </form>
+      <button id="forgotPasswordButton" class="text-action" type="button">Forgot password?</button>
       <p id="formMessage" class="message" aria-live="polite"></p>
       <nav class="visitor-links" aria-label="Explore MotionC without an account">
         <a class="visitor-link visitor-link-primary" href="/landing-page/">Explore MotionC</a>
@@ -30,32 +35,80 @@
       </nav>
     </section>
 
-    <section id="setupPanel" class="card hidden">
-      <p class="eyebrow">FIRST SIGN-IN</p>
-      <h2>Choose this user’s starting point</h2>
-      <p>This browser may contain local MotionC information. Assign it to this account, or begin with a clean record. Visitor Commons previews are never imported or published.</p>
-      <div class="actions">
-        <button id="importButton" class="primary" type="button">Use current MotionC data</button>
-        <button id="freshButton" class="secondary" type="button">Start this user fresh</button>
-      </div>
+    <section id="usernamePanel" class="card hidden">
+      <p class="eyebrow">CHOOSE YOUR MOTIONC NAME</p>
+      <h2>How should MotionC know you?</h2>
+      <p>Your email remains your private sign-in. Choose the username shown around the site.</p>
+      <form id="usernameForm">
+        <label>Username
+          <input id="profileUsername" type="text" minlength="3" maxlength="24" pattern="[A-Za-z0-9_]+" autocomplete="username" required>
+          <small>3–24 letters, numbers, or underscores.</small>
+        </label>
+        <button class="primary" type="submit">Save username</button>
+      </form>
+      <p id="usernameMessage" class="message" aria-live="polite"></p>
     </section>
 
     <section id="signedInPanel" class="card hidden">
       <p class="eyebrow">CURRENT USER</p>
-      <h2 id="currentEmail"></h2>
-      <p id="syncStatus">This account’s data is loaded on this browser.</p>
+      <h2 id="currentUsername"></h2>
+      <p id="syncStatus">Your account data is loaded on this browser.</p>
       <div class="actions">
         <a class="primary button-link" href="/daily/index.html">Open Daily page</a>
         <a class="secondary button-link" href="/dashboard/">Open Summary</a>
         <a class="secondary button-link" href="/drop-zone/?wall=my">Open My Wall</a>
-        <button id="switchButton" class="quiet" type="button">Save and switch user</button>
+        <button id="changePasswordButton" class="secondary" type="button">Change password</button>
+        <button id="switchButton" class="quiet" type="button">Save and sign out</button>
+      </div>
+      <div class="danger-zone">
+        <strong>Leave MotionC permanently</strong>
+        <p>Deleting your account permanently removes your sign-in, profile, saved MotionC information, and wall posts.</p>
+        <button id="deleteAccountButton" class="danger" type="button">Delete my account</button>
       </div>
     </section>
 
     <aside class="test-note">
-      <strong>Visitor privacy:</strong> messages created while signed out stay in this browser. MotionC will not publish or attach them to an account without asking you first.
+      <strong>Visitor privacy:</strong> messages created while signed out stay in this browser. MotionC will not publish or attach them to an account.
     </aside>
   </main>
-  <script type="module" src="script.js"></script>
+
+  <dialog id="forgotDialog">
+    <button class="dialog-close" data-close-dialog="forgotDialog" type="button" aria-label="Close">×</button>
+    <p class="eyebrow">PASSWORD HELP</p>
+    <h2>Reset your password</h2>
+    <p>Enter the email used for this account. We’ll send a private reset link.</p>
+    <form id="forgotForm">
+      <label>Email<input id="resetEmail" type="email" autocomplete="email" required></label>
+      <button class="primary" type="submit">Send reset email</button>
+    </form>
+    <p id="forgotMessage" class="message" aria-live="polite"></p>
+  </dialog>
+
+  <dialog id="passwordDialog">
+    <button class="dialog-close" id="closePasswordDialog" type="button" aria-label="Close">×</button>
+    <p class="eyebrow" id="passwordEyebrow">EMAIL CONFIRMED</p>
+    <h2 id="passwordDialogTitle">Choose a new password</h2>
+    <form id="passwordForm">
+      <label id="currentPasswordField" class="hidden">Current password<input id="currentPassword" type="password" autocomplete="current-password" minlength="8"></label>
+      <label>New password<input id="newPassword" type="password" autocomplete="new-password" minlength="8" required></label>
+      <label>Confirm new password<input id="confirmPassword" type="password" autocomplete="new-password" minlength="8" required></label>
+      <button class="primary" type="submit">Update password</button>
+    </form>
+    <p id="passwordMessage" class="message" aria-live="polite"></p>
+  </dialog>
+
+  <dialog id="deleteDialog">
+    <button class="dialog-close" data-close-dialog="deleteDialog" type="button" aria-label="Close">×</button>
+    <p class="eyebrow danger-copy">PERMANENT ACTION</p>
+    <h2>Delete your MotionC account?</h2>
+    <p>This cannot be undone. Your account and associated MotionC data will be permanently removed.</p>
+    <form id="deleteForm">
+      <label>Type DELETE to confirm<input id="deleteConfirmation" type="text" autocomplete="off" pattern="DELETE" required></label>
+      <button class="danger" type="submit">Permanently delete account</button>
+    </form>
+    <p id="deleteMessage" class="message" aria-live="polite"></p>
+  </dialog>
+
+  <script type="module" src="script.js?v=20260815-1"></script>
 </body>
 </html>
