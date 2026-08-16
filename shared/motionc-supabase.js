@@ -115,7 +115,18 @@ async function bootPageSync() {
     return;
   }
 
-  accountBadge(session.user.email || "MotionC account");
+  let accountLabel = session.user.user_metadata?.username || "MotionC account";
+  try {
+    const { data: profile } = await supabase
+      .from("motionc_profiles")
+      .select("display_name")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (profile?.display_name) accountLabel = profile.display_name;
+  } catch {
+    // Keep the private email out of the site identity if profiles are offline.
+  }
+  accountBadge(accountLabel);
   let previous = JSON.stringify(captureLocalState());
   let busy = false;
   const syncIfChanged = async () => {
