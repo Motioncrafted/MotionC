@@ -208,6 +208,29 @@ function loadState() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     const loaded = saved ? JSON.parse(saved) : seedState();
+    loaded.entries = loaded.entries || {};
+    loaded.weeks = loaded.weeks || {};
+    loaded.profile = loaded.profile || {};
+
+    // Profile Info on Summary predates the shared Daily profile for some
+    // accounts. Recover those measurements once, without overwriting an
+    // established starting-weight baseline.
+    try {
+      const summary = JSON.parse(localStorage.getItem("motionc-mcp-summary-v1"));
+      const measurements = summary?.measurementData;
+      const summaryWeight = Number(measurements?.weightLbs);
+      const summaryWaist = Number(measurements?.waistInches);
+      const summaryHeight = Number(measurements?.heightInches);
+      const summaryAge = Number(measurements?.age);
+      if (!(Number(loaded.profile.startWeight) > 0) && summaryWeight > 0) loaded.profile.startWeight = summaryWeight;
+      if (summaryWeight > 0) loaded.profile.currentWeight = summaryWeight;
+      if (!(Number(loaded.profile.waist) > 0) && summaryWaist > 0) loaded.profile.waist = summaryWaist;
+      if (!(Number(loaded.profile.heightInches) > 0) && summaryHeight > 0) loaded.profile.heightInches = summaryHeight;
+      if (!(Number(loaded.profile.age) > 0) && summaryAge > 0) loaded.profile.age = summaryAge;
+      if (!loaded.profile.sex && measurements?.sex) loaded.profile.sex = measurements.sex;
+    } catch {
+      // Summary Profile is optional; Daily remains usable without it.
+    }
     const sharedVibratoryLine = Number(localStorage.getItem(WEIGHT_GOAL_STORAGE_KEY));
     if (sharedVibratoryLine > 0) {
       loaded.profile = loaded.profile || {};
@@ -840,7 +863,9 @@ function renderMilestones() {
   const availableDots = entries.length;
   const positivePercentage = availableDots ? Math.round(greenDays / availableDots * 100) : 0;
   const vibratoryLine = state.profile.vibratoryLine;
-  const displayedStart = displayWeight(startWeight);
+  const hasStartWeight = Number.isFinite(startWeight) && startWeight > 0;
+  const hasVibratoryLine = Number.isFinite(Number(vibratoryLine)) && Number(vibratoryLine) > 0;
+  const displayedStart = hasStartWeight ? displayWeight(startWeight) : 0;
   const decadeBoundary = Math.floor(displayedStart / 10) * 10;
   const decadeLabel = decadeBoundary - 10;
   const decadeReached = lowest ? displayWeight(lowest) < decadeBoundary : false;
@@ -852,7 +877,9 @@ function renderMilestones() {
   const averageDailyMinutes = timedWalkingDays.length
     ? timedWalkingDays.reduce((sum, entry) => sum + Number(entry.minutes || 0), 0) / timedWalkingDays.length
     : 0;
-  const loss = displayWeight(Math.max(0, startWeight - (latestWeight ?? startWeight)));
+  const loss = hasStartWeight && latestWeight !== null
+    ? displayWeight(Math.max(0, startWeight - latestWeight))
+    : null;
   const weightTiers = unitSystem === "metric" ? [2.5, 5, 10, 20, 30, 50] : [5, 10, 25, 50, 75, 100];
   const distanceTiers = unitSystem === "metric" ? [50, 100, 250, 500, 1000] : [25, 50, 100, 250, 500, 1000];
   const walkTiers = unitSystem === "metric" ? [1, 5, 10, 21.1, 42.2] : [1, 3, 5, 10, 13.1, 26.2];
@@ -872,9 +899,9 @@ function renderMilestones() {
   }
 
   const milestoneData = [
-    { label: "Total Weight Lost", reached: Number.isFinite(startWeight) && latestWeight !== null, detail: latestWeight !== null ? `${formatWeight(startWeight)} start → ${formatWeight(latestWeight)} latest (${loss.toFixed(1)} ${weightUnit()} lost)` : "Starting and latest weights needed" },
+    { label: "Total Weight Lost", reached: hasStartWeight && latestWeight !== null, detail: hasStartWeight && latestWeight !== null ? `${formatWeight(startWeight)} start → ${formatWeight(latestWeight)} latest (${loss.toFixed(1)} ${weightUnit()} lost)` : "Starting and latest weights needed" },
     { label: "Lowest Recorded Weight", reached: lowest !== null, detail: lowest !== null ? formatWeight(lowest) : "No weight recorded" },
-    { label: "Vibratory Set Line", reached: Number.isFinite(Number(vibratoryLine)), detail: formatWeight(vibratoryLine) },
+    { label: "Vibratory Set Line", reached: hasVibratoryLine, detail: hasVibratoryLine ? formatWeight(vibratoryLine) : "Set your line in Weekly check-in or on Summary" },
     { label: "Longest Daily Walk", reached: Boolean(longest), detail: longest ? `${longestDistance.toFixed(2)} ${distanceUnit()}` : "No walk recorded" },
     { label: `Total Cumulative ${unitSystem === "metric" ? "Kilometres" : "Miles"}`, reached: entries.length > 0, detail: `${totalDistance.toFixed(1)} ${distanceUnit()}` },
     { label: "Total Positive Dots", reached: availableDots > 0, detail: `${greenDays} / ${availableDots} (${positivePercentage}%)` }
@@ -1080,10 +1107,14 @@ function buildLifestyleForm() {
         <option value="1" ${week.values?.[key] === 1 ? "selected" : ""}>Supporting me</option>
       </select>
     </label>`).join("");
-  byId("weeklyWaist").value = displayWaist(state.profile.waist).toFixed(1);
-  byId("startingWeight").value = displayWeight(state.profile.startWeight).toFixed(1);
-  byId("vibratoryLine").value = displayWeight(state.profile.vibratoryLine).toFixed(1);
-  byId("motivationalGoal").value = displayWeight(state.profile.motivationalGoal).toFixed(1);
+  const setOptionalMeasurement = (id, storedValue, display) => {
+    const value = Number(storedValue);
+    byId(id).value = value > 0 && Number.isFinite(value) ? display(value).toFixed(1) : "";
+  };
+  setOptionalMeasurement("weeklyWaist", state.profile.waist, displayWaist);
+  setOptionalMeasurement("startingWeight", state.profile.startWeight, displayWeight);
+  setOptionalMeasurement("vibratoryLine", state.profile.vibratoryLine, displayWeight);
+  setOptionalMeasurement("motivationalGoal", state.profile.motivationalGoal, displayWeight);
 }
 
 function saveWeekly() {
