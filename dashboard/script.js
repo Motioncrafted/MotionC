@@ -116,6 +116,21 @@ function closeDrawer() {
     closeMcpInfo();
 }
 
+function profileMeasurementsComplete(measurements) {
+    return Boolean(
+        Number(measurements?.age) > 0 &&
+        measurements?.sex &&
+        Number(measurements?.heightInches) > 0 &&
+        Number(measurements?.weightLbs) > 0 &&
+        Number(measurements?.waistInches) > 0
+    );
+}
+
+function updateProfileReminder(measurements) {
+    const reminder = document.getElementById("profileReminder");
+    if (reminder) reminder.hidden = profileMeasurementsComplete(measurements);
+}
+
 
 function toggleDrawer() {
     if (isDrawerOpen()) {
@@ -129,6 +144,7 @@ function toggleDrawer() {
 /* MCP hotspot: mouse or touch */
 
 hotspot?.addEventListener("click", toggleDrawer);
+document.getElementById("completeProfileButton")?.addEventListener("click", openDrawer);
 
 
 /*
@@ -1221,7 +1237,12 @@ window.addEventListener(
         document.body.classList.remove(
             "page-fade-out"
         );
-        closeDrawer();
+        if (new URLSearchParams(location.search).get("complete-profile") === "1") {
+            openDrawer();
+            history.replaceState({}, "", location.pathname);
+        } else {
+            closeDrawer();
+        }
         restoreLifestyleSummary();
     }
 );
@@ -1812,6 +1833,7 @@ function renderSummaryData() {
     summaryGoalWeight = summaryDisplayWeight(canonicalGoal);
 
     const canonicalMcp = canonicalMcpSnapshot(savedMcp, entries);
+    updateProfileReminder(canonicalMcp?.measurementData);
     if (canonicalMcp) {
         updateMcpDashboard({
             system: canonicalMcp.measurementData.system,
@@ -1902,6 +1924,7 @@ document.addEventListener("motionc:mcp-updated", event => {
             updatedAt: new Date().toISOString()
         }));
         saveSharedProfileMeasurements(event.detail.measurementData);
+        updateProfileReminder(event.detail.measurementData);
     }
     updateModernMcpDisplay(event.detail);
 });
@@ -2079,5 +2102,7 @@ document.querySelectorAll('input[name="summaryUnitSystem"]').forEach(input => {
     });
 });
 
-window.addEventListener("DOMContentLoaded", renderSummaryData);
+window.addEventListener("DOMContentLoaded", () => {
+    renderSummaryData();
+});
 window.addEventListener("pageshow", renderSummaryData);
