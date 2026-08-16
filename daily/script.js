@@ -247,6 +247,19 @@ function persist() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
+function updateProfileReminder() {
+  const reminder = byId("profileReminder");
+  if (!reminder) return;
+  const profile = state.profile || {};
+  const complete =
+    Number(profile.age) > 0 &&
+    Boolean(profile.sex) &&
+    Number(profile.heightInches) > 0 &&
+    (Number(profile.currentWeight) > 0 || Number(profile.startWeight) > 0) &&
+    Number(profile.waist) > 0;
+  reminder.hidden = complete;
+}
+
 function syncLifestyleSummary() {
   try {
     const summary = JSON.parse(localStorage.getItem(LIFESTYLE_SUMMARY_STORAGE_KEY));
@@ -1140,6 +1153,7 @@ function renderAll(dateValue = isoDate()) {
   const yearStart = new Date(now.getFullYear(), 0, 1);
   const weekNumber = Math.floor((now - yearStart) / 604800000);
   byId("weeklyReflection").innerHTML = WEEKLY_REFLECTIONS[weekNumber % WEEKLY_REFLECTIONS.length];
+  updateProfileReminder();
   renderToday(dateValue);
   renderCalendar();
   renderWeekly();

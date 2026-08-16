@@ -45,6 +45,15 @@
       </header>
 
       <div class="content">
+        <aside class="profile-reminder" id="profileReminder" hidden aria-labelledby="profileReminderTitle">
+          <div class="profile-reminder-icon" aria-hidden="true">✓</div>
+          <div>
+            <strong id="profileReminderTitle">Complete your Profile Info</strong>
+            <p>Add your age, sex, height, weight, and waist once to unlock all personalized MotionC metrics. Your Daily information will be preserved.</p>
+          </div>
+          <a class="profile-reminder-action" href="/dashboard/?complete-profile=1">Complete Profile</a>
+        </aside>
+
         <section class="entry-card card">
           <div class="section-heading">
             <div>
@@ -330,7 +339,7 @@
     <button class="save-button full" id="saveWeekly" type="button">Save weekly check-in</button>
   </dialog>
 
-  <script src="/daily/script.js?v=20260816-1"></script>
+  <script src="/daily/script.js?v=20260816-2"></script>
   <script type="module" src="/shared/motionc-supabase.js?v=20260811-1"></script>
 </body>
 </html>

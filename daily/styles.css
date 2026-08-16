@@ -827,3 +827,29 @@ dialog::backdrop { background: rgba(9,18,20,.66); backdrop-filter: blur(3px); }
   .calendar-day { min-height: 48px; }
   .preferences-menu { top: 72px; left: 12px; }
 }
+
+.profile-reminder {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding: 16px 18px;
+  border: 1px solid #c9dfd3;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #f4faf6, #edf6f1);
+  color: #153f31;
+  box-shadow: 0 8px 22px rgba(24, 78, 56, .08);
+}
+.profile-reminder[hidden] { display: none; }
+.profile-reminder-icon { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: #1d8c5b; color: #fff; font-weight: 900; }
+.profile-reminder strong { display: block; font-size: 16px; }
+.profile-reminder p { margin: 4px 0 0; color: #557067; font-size: 13px; line-height: 1.45; }
+.profile-reminder-action { padding: 10px 14px; border-radius: 999px; background: #176744; color: #fff; font-size: 13px; font-weight: 800; text-decoration: none; white-space: nowrap; }
+.profile-reminder-action:hover { background: #104f34; }
+
+@media (max-width: 700px) {
+  .profile-reminder { grid-template-columns: auto 1fr; }
+  .profile-reminder-action { grid-column: 1 / -1; text-align: center; }
+}
