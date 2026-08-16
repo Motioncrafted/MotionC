@@ -1624,6 +1624,32 @@ function drawWalkingChart(points) {
     });
 }
 
+function saveSharedProfileMeasurements(measurementData) {
+    if (!measurementData) return;
+    const daily = readSummaryStorage(summaryDailyStorageKey, { entries: {}, weeks: {}, profile: {} });
+    daily.entries = daily.entries || {};
+    daily.weeks = daily.weeks || {};
+    daily.profile = daily.profile || {};
+
+    const weight = Number(measurementData.weightLbs);
+    const waist = Number(measurementData.waistInches);
+    const height = Number(measurementData.heightInches);
+    const age = Number(measurementData.age);
+
+    // The first valid Profile Info weight becomes the starting weight. Later
+    // profile updates must not erase the user's original progress baseline.
+    if (!(Number(daily.profile.startWeight) > 0) && weight > 0) {
+        daily.profile.startWeight = weight;
+    }
+    if (weight > 0) daily.profile.currentWeight = weight;
+    if (waist > 0) daily.profile.waist = waist;
+    if (height > 0) daily.profile.heightInches = height;
+    if (age > 0) daily.profile.age = age;
+    if (measurementData.sex) daily.profile.sex = measurementData.sex;
+    daily.profile.updatedAt = new Date().toISOString();
+    localStorage.setItem(summaryDailyStorageKey, JSON.stringify(daily));
+}
+
 function latestDailyWeight(entries) {
     return Object.values(entries || {})
         .filter(entry => entry?.date && Number(entry.weight) > 0)
@@ -1875,6 +1901,7 @@ document.addEventListener("motionc:mcp-updated", event => {
             ...event.detail,
             updatedAt: new Date().toISOString()
         }));
+        saveSharedProfileMeasurements(event.detail.measurementData);
     }
     updateModernMcpDisplay(event.detail);
 });
