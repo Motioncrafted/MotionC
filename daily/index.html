@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Daily | MotionC</title>
   <meta name="description" content="Your quick daily MotionC health check-in.">
-  <link rel="stylesheet" href="/daily/styles.css?v=20260811-3">
+  <link rel="stylesheet" href="/daily/styles.css?v=20260809-2">
 </head>
 <body>
   <div class="app-shell">
@@ -15,7 +15,7 @@
       </button>
       <nav>
         <a href="/landing-page/"><img src="/images/nav/home.png" alt=""><small>Home</small></a>
-        <a class="active" href="/daily/index.html" aria-current="page"><img src="/images/nav/daily.png" alt=""><small>Daily</small></a>
+        <a class="active" href="/daily/" aria-current="page"><img src="/images/nav/daily.png" alt=""><small>Daily</small></a>
         <a href="/dashboard/"><img src="/images/nav/mcp.png" alt=""><small>MCP</small></a>
         <a href="/library/"><img src="/images/nav/library.png" alt=""><small>Library</small></a>
         <a href="/walking/"><img src="/images/nav/walking.png" alt=""><small>Walking</small></a>
@@ -27,7 +27,7 @@
     <main>
       <header class="hero">
         <div>
-          <p class="eyebrow">MO-TRIBE</p>
+          <p class="eyebrow">THE CONDUCTOR</p>
           <h1>Daily</h1>
           <p>Three quick numbers. Four standing promises. Then get on with your day.</p>
         </div>
@@ -45,15 +45,6 @@
       </header>
 
       <div class="content">
-        <aside class="profile-reminder" id="profileReminder" hidden aria-labelledby="profileReminderTitle">
-          <div class="profile-reminder-icon" aria-hidden="true">✓</div>
-          <div>
-            <strong id="profileReminderTitle">Complete your Profile Info</strong>
-            <p>Add your age, sex, height, weight, and waist once to unlock all personalized MotionC metrics. Your Daily information will be preserved.</p>
-          </div>
-          <a class="profile-reminder-action" href="/dashboard/?complete-profile=1">Complete Profile</a>
-        </aside>
-
         <section class="entry-card card">
           <div class="section-heading">
             <div>
@@ -64,13 +55,10 @@
               <span>REFLECTION POINT</span>
               <q id="weeklyReflection"></q>
             </aside>
-            <div class="date-controls">
-              <label class="date-field">
-                Date
-                <input id="entryDate" type="date">
-              </label>
-              <button class="today-button" id="goToToday" type="button">Go to today</button>
-            </div>
+            <label class="date-field">
+              Date
+              <input id="entryDate" type="date">
+            </label>
           </div>
 
           <div class="number-grid">
@@ -170,59 +158,17 @@
             <span id="todayColor">Save this entry to create your dot</span>
             <button class="text-button" id="explainToday" type="button">Why this colour?</button>
           </div>
-        </section>
-
-        <section class="daily-gauges daily-gauges-card card" aria-labelledby="dailyGaugesTitle">
-            <div class="daily-gauges-heading">
-              <p class="eyebrow" id="dailyGaugesTitle">DAILY GAUGES</p>
-              <button class="gauge-info-button" id="gaugeInfoButton" type="button" aria-expanded="false" aria-controls="gaugeInfo">i</button>
-            </div>
-            <div class="gauge-info" id="gaugeInfo" hidden>
-              <strong>Your Lifestyle Profile shows your typical habits.</strong>
-              <span>Your Daily Gauges show what happened today.</span>
-              <span>When the two don't match, MotionC highlights the gap—because that's where real progress begins.</span>
-            </div>
-            <div class="gauge-grid">
-              <article class="daily-gauge hydration-gauge">
-                <output id="hydrationValue" for="hydrationInput">—</output><span class="gauge-unit">cups · 10 oz each</span>
-                <div class="gauge-tube"><input id="hydrationInput" type="range" min="0" max="16" step="1" value="0" aria-label="Ten-ounce cups of water today"><div class="mini-gauge-chart" id="hydrationMiniChart" aria-hidden="true"></div></div>
-                <div class="gauge-stepper"><button type="button" data-gauge-step="hydration" data-direction="-1" aria-label="Decrease hydration">−</button><strong>Hydration</strong><button type="button" data-gauge-step="hydration" data-direction="1" aria-label="Increase hydration">+</button></div>
-                <button class="gauge-save" id="saveHydration" type="button">Update</button><small id="hydrationStatus">Not recorded today</small>
-              </article>
-              <article class="daily-gauge stress-gauge">
-                <output id="stressValue" for="stressInput">—</output><span class="gauge-unit">of 5</span>
-                <div class="gauge-tube"><input id="stressInput" type="range" min="0" max="5" step="1" value="0" aria-label="Stress today from zero to five"><div class="mini-gauge-chart" id="stressMiniChart" aria-hidden="true"></div></div>
-                <div class="gauge-stepper"><button type="button" data-gauge-step="stress" data-direction="-1" aria-label="Decrease stress">−</button><strong>Stress</strong><button type="button" data-gauge-step="stress" data-direction="1" aria-label="Increase stress">+</button></div>
-                <button class="gauge-save" id="saveStress" type="button">Update</button><small id="stressStatus">Not recorded today</small>
-              </article>
-              <article class="daily-gauge sleep-gauge">
-                <output id="sleepValue" for="sleepInput">—</output><span class="gauge-unit">hours</span>
-                <div class="gauge-tube"><input id="sleepInput" type="range" min="0" max="12" step="0.25" value="0" aria-label="Hours of sleep"><div class="mini-gauge-chart" id="sleepMiniChart" aria-hidden="true"></div></div>
-                <div class="gauge-stepper"><button type="button" data-gauge-step="sleep" data-direction="-1" aria-label="Decrease sleep">−</button><strong>Sleep</strong><button type="button" data-gauge-step="sleep" data-direction="1" aria-label="Increase sleep">+</button></div>
-                <button class="gauge-save" id="saveSleep" type="button">Update</button><small id="sleepStatus">Not recorded today</small>
-              </article>
-            </div>
-            <section class="gauge-message-area" aria-labelledby="gaugeMessageTitle">
-              <p class="gauge-message-title" id="gaugeMessageTitle">Message:</p>
-              <div class="gauge-messages" id="gaugeMessages" aria-live="polite"></div>
-            </section>
+          <div class="score-layout-spacer" aria-hidden="true"></div>
         </section>
 
         <section class="calendar-card card">
-          <div class="section-heading calendar-heading">
+          <div class="section-heading">
             <div>
               <p class="eyebrow">DAILY HEALTH</p>
               <h2 id="calendarTitle">This month</h2>
             </div>
-            <div class="calendar-tools">
-              <div class="calendar-navigation" aria-label="Change calendar month">
-                <button id="previousMonth" type="button" aria-label="Previous month">←</button>
-                <button id="calendarToday" type="button">Today</button>
-                <button id="nextMonth" type="button" aria-label="Next month">→</button>
-              </div>
-              <div class="calendar-key" aria-label="Dot colour key">
-                <span class="green"></span><span class="light-green"></span><span class="yellow"></span><span class="orange"></span><span class="red"></span>
-              </div>
+            <div class="calendar-key" aria-label="Dot colour key">
+              <span class="green"></span><span class="light-green"></span><span class="yellow"></span><span class="orange"></span><span class="red"></span>
             </div>
           </div>
           <div class="weekday-row"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
@@ -339,7 +285,6 @@
     <button class="save-button full" id="saveWeekly" type="button">Save weekly check-in</button>
   </dialog>
 
-  <script src="/daily/script.js?v=20260816-2"></script>
-  <script type="module" src="/shared/motionc-supabase.js?v=20260811-1"></script>
+  <script src="/daily/script.js?v=20260802-1"></script>
 </body>
 </html>
