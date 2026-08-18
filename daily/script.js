@@ -1141,6 +1141,7 @@ function saveWeekly() {
   state.profile.vibratoryLine = byId("vibratoryLine").value ? storedWeight(Number(byId("vibratoryLine").value)) : state.profile.vibratoryLine;
   localStorage.setItem(WEIGHT_GOAL_STORAGE_KEY, String(state.profile.vibratoryLine));
   state.profile.motivationalGoal = byId("motivationalGoal").value ? storedWeight(Number(byId("motivationalGoal").value)) : state.profile.motivationalGoal;
+  state.profile.updatedAt = new Date().toISOString();
   persist();
   byId("weeklyDialog").close();
   renderAll(fields.date.value);
