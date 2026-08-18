@@ -2754,9 +2754,8 @@
     }
 
     function searchArticles(query) {
-      const words = query
-        .toLowerCase()
-        .trim()
+      const normalizedQuery = query.toLowerCase().trim().replace(/\s+/g, " ").slice(0, 100);
+      const words = normalizedQuery
         .split(/\s+/)
         .filter(Boolean);
 
@@ -2775,8 +2774,21 @@
         return words.every(word => searchable.includes(word));
       });
 
+      const containsContactInformation =
+        /[\w.%+-]+@[\w.-]+\.[a-z]{2,}/i.test(normalizedQuery) ||
+        /\d[\d ()+.-]{5,}\d/.test(normalizedQuery);
+      if (normalizedQuery.length >= 2 && !containsContactInformation) {
+        supabase.from("site_search_events").insert({
+          area: "library",
+          query: normalizedQuery,
+          results_count: results.length
+        }).then(({ error }) => {
+          if (error) console.warn("MotionC search analytics unavailable", error.message);
+        });
+      }
+
       openSection("search", {
-        title: `Search: “${query.trim()}”`,
+        title: `Search: “${normalizedQuery}”`,
         description: "Results from every Library section.",
         results
       });
