@@ -45,6 +45,8 @@ async function render() {
   const rows = await fetchRows(days);
   const starts = rows.filter((r) => r.event_type === "session_start");
   const views = rows.filter((r) => r.event_type === "page_view");
+  const articleViews = views.filter((r) => r.path.startsWith("/library/article/"));
+  const areaViews = views.filter((r) => !r.path.startsWith("/library/article/"));
   const sessionIds = new Set(rows.map((r) => r.session_id));
   const registeredIds = new Set(rows.filter((r) => r.is_registered).map((r) => r.session_id));
   const activeSeconds = rows.reduce((sum,r) => sum + Number(r.active_seconds || 0), 0);
@@ -53,7 +55,8 @@ async function render() {
   document.querySelector("#registered").textContent = registeredIds.size.toLocaleString();
   document.querySelector("#views").textContent = views.length.toLocaleString();
   document.querySelector("#active").textContent = `${Math.round(activeSeconds / 60).toLocaleString()}m`;
-  ranked("#pages", counts(views, "path"));
+  ranked("#pages", counts(areaViews, "path"));
+  ranked("#articles", counts(articleViews, "page_title"), "No articles opened yet");
   ranked("#entries", counts(starts.length ? starts : views, "entry_path"));
   ranked("#sources", counts(starts.length ? starts : views, "referrer_host", "Direct / unknown"));
 
