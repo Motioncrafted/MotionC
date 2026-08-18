@@ -58,9 +58,10 @@ export function startMotionCAnalytics(supabase, { isRegistered = false } = {}) {
     utm_campaign: params.get("utm_campaign")?.slice(0, 150) || null
   };
 
-  const record = (eventType, activeSeconds = 0) => {
+  const record = (eventType, activeSeconds = 0, overrides = {}) => {
     supabase.from("site_analytics_events").insert({
       ...base,
+      ...overrides,
       event_type: eventType,
       active_seconds: activeSeconds
     }).then(({ error }) => {
@@ -70,6 +71,14 @@ export function startMotionCAnalytics(supabase, { isRegistered = false } = {}) {
 
   if (newSession) record("session_start");
   record("page_view");
+  window.addEventListener("motionc:analytics-pageview", (event) => {
+    const detail = event.detail || {};
+    if (typeof detail.path !== "string" || !detail.path.startsWith("/")) return;
+    record("page_view", 0, {
+      path: detail.path.slice(0, 500),
+      page_title: String(detail.title || document.title).slice(0, 200)
+    });
+  });
 
   let visibleSince = document.visibilityState === "visible" ? Date.now() : null;
   const heartbeat = () => {
