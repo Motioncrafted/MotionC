@@ -39,10 +39,24 @@ async function fetchRows(days) {
   return rows;
 }
 
+async function fetchSearchRows(days) {
+  const since = new Date(Date.now() - days * 86400000).toISOString();
+  const rows = [];
+  for (let from = 0; from < 50000; from += 1000) {
+    const { data, error } = await supabase.from("site_search_events")
+      .select("searched_at,query,results_count")
+      .gte("searched_at", since).order("searched_at", { ascending: true }).range(from, from + 999);
+    if (error) throw error;
+    rows.push(...data);
+    if (data.length < 1000) break;
+  }
+  return rows;
+}
+
 async function render() {
   status.textContent = "Refreshing…";
   const days = Number(period.value);
-  const rows = await fetchRows(days);
+  const [rows, searchRows] = await Promise.all([fetchRows(days), fetchSearchRows(days)]);
   const starts = rows.filter((r) => r.event_type === "session_start");
   const views = rows.filter((r) => r.event_type === "page_view");
   const articleViews = views.filter((r) => r.path.startsWith("/library/article/"));
@@ -55,8 +69,11 @@ async function render() {
   document.querySelector("#registered").textContent = registeredIds.size.toLocaleString();
   document.querySelector("#views").textContent = views.length.toLocaleString();
   document.querySelector("#active").textContent = `${Math.round(activeSeconds / 60).toLocaleString()}m`;
+  document.querySelector("#searches").textContent = searchRows.length.toLocaleString();
   ranked("#pages", counts(areaViews, "path"));
   ranked("#articles", counts(articleViews, "page_title"), "No articles opened yet");
+  ranked("#searchTopics", counts(searchRows, "query"), "No Library searches yet");
+  ranked("#missingTopics", counts(searchRows.filter((r) => r.results_count === 0), "query"), "No unsuccessful searches");
   ranked("#entries", counts(starts.length ? starts : views, "entry_path"));
   ranked("#sources", counts(starts.length ? starts : views, "referrer_host", "Direct / unknown"));
 
