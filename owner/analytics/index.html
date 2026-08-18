@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>MotionC Owner Analytics</title>
+  <link rel="stylesheet" href="/owner/analytics/styles.css?v=20260818-1">
+</head>
+<body>
+  <header class="owner-header">
+    <a class="brand" href="/landing-page/" aria-label="Return to MotionC">
+      <img src="/images/nav/motionc-logo.png" alt="">
+      <span><strong>MotionC</strong><small>Owner room</small></span>
+    </a>
+    <a class="return-link" href="/landing-page/">Return to site</a>
+  </header>
+
+  <main>
+    <section id="gate" class="gate" aria-live="polite">
+      <p class="eyebrow">Private owner page</p>
+      <h1>Checking access…</h1>
+      <p>MotionC is confirming your signed-in account.</p>
+    </section>
+
+    <section id="dashboard" hidden>
+      <div class="title-row">
+        <div><p class="eyebrow">MotionC site signals</p><h1>Owner Analytics</h1></div>
+        <label>Period
+          <select id="period"><option value="7">Last 7 days</option><option value="30">Last 30 days</option></select>
+        </label>
+      </div>
+      <p class="privacy-note">Visits and engagement only. No names, email addresses, health measurements, posts, or precise locations are collected here.</p>
+
+      <div class="summary-grid">
+        <article><span>Visits</span><strong id="visits">—</strong><small>Distinct browsing sessions</small></article>
+        <article><span>Page views</span><strong id="views">—</strong><small>Pages opened</small></article>
+        <article><span>Active time</span><strong id="active">—</strong><small>Visible, engaged minutes</small></article>
+        <article><span>Registered</span><strong id="registered">—</strong><small>Share of sessions</small></article>
+      </div>
+
+      <div class="panel-grid">
+        <article class="panel"><h2>Visits by day</h2><div id="daily" class="bars"></div></article>
+        <article class="panel"><h2>Most visited areas</h2><ol id="pages" class="ranked"></ol></article>
+        <article class="panel"><h2>Entry pages</h2><ol id="entries" class="ranked"></ol></article>
+        <article class="panel"><h2>Where visitors arrived from</h2><ol id="sources" class="ranked"></ol></article>
+      </div>
+      <p id="status" class="status"></p>
+    </section>
+  </main>
+  <script type="module" src="/owner/analytics/script.js?v=20260818-1"></script>
+</body>
+</html>
