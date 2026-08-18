@@ -30,8 +30,7 @@
 
     .lifetime,
     .entry,
-    .history,
-    .summary {
+    .history {
       border-radius: 12px;
       background: rgba(224, 214, 196, .82);
     }
@@ -319,6 +318,21 @@
 
     .lifetime span { font-size: clamp(8px, 0.8vw, 14px); }
 
+    .lifetime .lifetime-total {
+      margin-top: clamp(2px, .3vw, 5px);
+      padding-top: clamp(2px, .3vw, 5px);
+      border-top: 1px solid rgba(38, 52, 58, .24);
+      font-size: clamp(6px, .57vw, 10px);
+      line-height: 1.25;
+      color: #38535d;
+    }
+
+    .lifetime .lifetime-total b {
+      color: #1763a6;
+      font: inherit;
+      font-weight: 700;
+    }
+
     .entry {
       left: 29.7%;
       top: 78%;
@@ -330,7 +344,7 @@
       gap: clamp(5px, 0.55vw, 10px);
     }
 
-    .entry h2, .history h2, .summary h2 {
+    .entry h2, .history h2 {
       margin: 0;
       font-size: clamp(11px, 1.15vw, 20px);
       color: #164e75;
@@ -556,6 +570,23 @@
       color: #52656d;
     }
 
+    .reserved-route-panel {
+      position: absolute;
+      left: 75.1%;
+      top: 78%;
+      width: 22.5%;
+      height: 18.3%;
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+    }
+
+    .reserved-route-panel img {
+      width: 43%;
+      height: auto;
+      filter: drop-shadow(0 5px 9px rgba(25, 45, 49, .22));
+    }
+
     .delete {
       float: right;
       min-width: 0;
@@ -564,17 +595,6 @@
       padding: 0;
       background: #a93b3b;
       font-size: clamp(10px, 0.85vw, 14px);
-    }
-
-    .summary {
-      left: 75.1%;
-      top: 78%;
-      width: 22.5%;
-      height: 18.3%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: clamp(4px, 0.45vw, 8px);
     }
 
     .jasper-celebration {
@@ -682,58 +702,11 @@
       }
     }
 
-    .totals {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 5px;
-      text-align: center;
-    }
-
-    .total {
-      padding: clamp(4px, 0.4vw, 7px);
-      border-radius: 6px;
-      background: rgba(226, 239, 245, .78);
-    }
-
-    .total strong {
-      display: block;
-      color: #1763a6;
-      font-size: clamp(13px, 1.35vw, 23px);
-    }
-
-    .total span { font-size: clamp(7px, 0.65vw, 11px); }
-    .data-actions { display: flex; gap: 5px; }
-    .data-actions button, .file-label {
-      flex: 1;
-      height: clamp(22px, 2vw, 34px);
-      font-size: clamp(8px, 0.7vw, 12px);
-    }
-
-    .data-actions .reset {
-      background: #a93b3b;
-    }
-
-    .data-actions .reset:hover {
-      background: #862d2d;
-    }
-
-    .file-label {
-      display: grid;
-      place-items: center;
-      padding: 0 6px;
-      border-radius: 6px;
-      color: #fff;
-      background: #1763a6;
-      cursor: pointer;
-    }
-
-    .file-label input { display: none; }
-
     @media (max-width: 700px), (max-height: 480px) {
       .panel { padding: 5px; }
       .entry { gap: 3px; }
-      .entry h2, .summary h2, .history h2 { font-size: 9px; }
-      label, .message, .walk-card, .total span { font-size: 6px; }
+      .entry h2, .history h2 { font-size: 9px; }
+      label, .message, .walk-card { font-size: 6px; }
       input, button { height: 20px; font-size: 7px; border-radius: 3px; }
       .fields { gap: 3px; }
       .history-head { margin-bottom: 3px; }
@@ -763,7 +736,7 @@
       </button>
       <nav>
         <a href="/landing-page/" aria-label="Home"><img src="/images/nav/home.png" alt=""><small>Home</small></a>
-        <a href="/daily/" aria-label="Daily"><img src="/images/nav/daily.png" alt=""><small>Daily</small></a>
+        <a href="/daily/index.html" aria-label="Daily"><img src="/images/nav/daily.png" alt=""><small>Daily</small></a>
         <a href="/dashboard/" aria-label="MCP"><img src="/images/nav/mcp.png" alt=""><small>MCP</small></a>
         <a href="/library/" aria-label="Library"><img src="/images/nav/library.png" alt=""><small>Library</small></a>
         <a class="current" href="/walking/" aria-current="page" aria-label="Walking"><img src="/images/nav/walking.png" alt=""><small>Walking</small></a>
@@ -790,11 +763,14 @@
     <section class="panel lifetime" aria-label="Walking page total">
       <strong id="walkingTotal">0.00</strong>
       <span id="walkingTotalLabel">Total Walking Miles</span>
+      <small class="lifetime-total">
+        Lifetime: <b id="lifetimeTotal">0.00</b> <span id="lifetimeTotalUnit">mi</span>
+      </small>
     </section>
 
     <section class="panel entry" aria-labelledby="entryTitle">
       <h2 id="entryTitle">Walking Progress</h2>
-      <p class="message">Your route updates automatically from walks recorded on the Daily page.</p>
+      <p class="message">Current Journey tracks this route. Lifetime includes every walk saved on Daily, even after starting a new journey.</p>
       <button class="journey-reset" id="resetJourney" type="button">Start New Journey</button>
       <form id="walkForm" hidden aria-hidden="true">
         <div class="fields">
@@ -852,19 +828,9 @@
       <div class="walk-list" id="historyList"></div>
     </section>
 
-    <section class="panel summary" aria-labelledby="summaryTitle">
-      <h2 id="summaryTitle">Selected Day</h2>
-      <div class="totals">
-        <div class="total"><strong id="dayWalks">0</strong><span>Daily Entries</span></div>
-        <div class="total"><strong id="dayMiles">0.00</strong><span id="dayDistanceLabel">Miles</span></div>
-        <div class="total"><strong id="dayMinutes">0</strong><span>Minutes</span></div>
-      </div>
-      <div class="data-actions" hidden aria-hidden="true">
-        <button type="button" id="exportData">Export All</button>
-        <label class="file-label">Import JSON<input id="importData" type="file" accept=".json,application/json"></label>
-        <button class="reset" type="button" id="resetData">Reset Test</button>
-      </div>
-    </section>
+    <div class="reserved-route-panel" aria-label="MotionC — reserved for future walking routes">
+      <img src="../images/nav/motionc-logo.png" alt="MotionC">
+    </div>
 
     <section
       class="jasper-celebration"
@@ -891,10 +857,20 @@
 
   <script>
     const DAILY_STORAGE_KEY = "motionc-daily-prototype-v1";
-    const JOURNEY_BASELINE_KEY = "walking_page_journey_baseline_v1";
-    const JASPER_CELEBRATION_KEY = "walking_page_jasper_celebrated_v1";
+    const JOURNEY_BASELINE_KEY = "motionc-walking-journey-baseline-v1";
+    const JASPER_CELEBRATION_KEY = "motionc-walking-jasper-celebrated-v1";
+    const LEGACY_JOURNEY_BASELINE_KEY = "walking_page_journey_baseline_v1";
+    const LEGACY_JASPER_CELEBRATION_KEY = "walking_page_jasper_celebrated_v1";
     const PREFERENCES_STORAGE_KEY = "motionc-preferences-v1";
     const KM_PER_MI = 1.609344;
+    if (localStorage.getItem(JOURNEY_BASELINE_KEY) === null && localStorage.getItem(LEGACY_JOURNEY_BASELINE_KEY) !== null) {
+      localStorage.setItem(JOURNEY_BASELINE_KEY, localStorage.getItem(LEGACY_JOURNEY_BASELINE_KEY));
+      localStorage.removeItem(LEGACY_JOURNEY_BASELINE_KEY);
+    }
+    if (localStorage.getItem(JASPER_CELEBRATION_KEY) === null && localStorage.getItem(LEGACY_JASPER_CELEBRATION_KEY) !== null) {
+      localStorage.setItem(JASPER_CELEBRATION_KEY, localStorage.getItem(LEGACY_JASPER_CELEBRATION_KEY));
+      localStorage.removeItem(LEGACY_JASPER_CELEBRATION_KEY);
+    }
     let unitSystem = "imperial";
     try {
       unitSystem = JSON.parse(localStorage.getItem(PREFERENCES_STORAGE_KEY))?.unitSystem === "metric"
@@ -1014,8 +990,6 @@
       unitSystem === "metric" ? "Current Journey Kilometres" : "Current Journey Miles";
     document.getElementById("walkDistanceLabel").textContent =
       unitSystem === "metric" ? "Kilometres Walked" : "Miles Walked";
-    document.getElementById("dayDistanceLabel").textContent =
-      unitSystem === "metric" ? "Kilometres" : "Miles";
     milesInput.value = unitSystem === "metric" ? "1.00" : "1.00";
     document.querySelectorAll('input[name="walkingUnitSystem"]').forEach(input => {
       input.checked = input.value === unitSystem;
@@ -1178,16 +1152,13 @@
       const selected = walks
         .filter(walk => walk.date === filterDate.value)
         .sort((a, b) => a.created_at.localeCompare(b.created_at));
-      const dayMiles = selected.reduce((sum, walk) => sum + walk.miles, 0);
-      const dayMinutes = selected.reduce((sum, walk) => sum + walk.minutes, 0);
       const lifetimeMiles = totalRecordedMiles();
       const walkingTotal = Math.max(0, lifetimeMiles - journeyBaselineMiles);
 
       document.getElementById("walkingTotal").textContent = displayDistance(walkingTotal).toFixed(2);
+      document.getElementById("lifetimeTotal").textContent = displayDistance(lifetimeMiles).toFixed(2);
+      document.getElementById("lifetimeTotalUnit").textContent = distanceUnit();
       updateRouteMarker(walkingTotal);
-      document.getElementById("dayWalks").textContent = selected.length ? "1" : "0";
-      document.getElementById("dayMiles").textContent = displayDistance(dayMiles).toFixed(2);
-      document.getElementById("dayMinutes").textContent = dayMinutes;
 
       renderUpcoming(walkingTotal);
       renderWalkHistory(selected);
@@ -1266,77 +1237,6 @@
       render();
     });
 
-    document.getElementById("exportData").addEventListener("click", () => {
-      const sortedDates = walks.map(walk => walk.date).sort();
-      const firstDate = sortedDates[0] || "no-walks";
-      const lastDate = sortedDates[sortedDates.length - 1] || "no-walks";
-      const now = new Date();
-      const exportTime = [
-        String(now.getHours()).padStart(2, "0"),
-        String(now.getMinutes()).padStart(2, "0"),
-        String(now.getSeconds()).padStart(2, "0")
-      ].join("");
-      const data = {
-        version: 1,
-        exported_at: now.toISOString(),
-        first_walk_date: sortedDates.length ? firstDate : null,
-        last_walk_date: sortedDates.length ? lastDate : null,
-        walk_count: walks.length,
-        walking_total: Number(walks.reduce((sum, walk) => sum + walk.miles, 0).toFixed(2)),
-        walks
-      };
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "walking-data-" + firstDate + "-to-" + lastDate +
-        "-exported-" + localToday() + "-" + exportTime + ".json";
-      link.click();
-      URL.revokeObjectURL(link.href);
-    });
-
-    document.getElementById("importData").addEventListener("change", async event => {
-      const file = event.target.files[0];
-      if (!file) return;
-      try {
-        const data = JSON.parse(await file.text());
-        const imported = Array.isArray(data) ? data : data.walks;
-        if (!Array.isArray(imported)) throw new Error();
-        walks = imported.map(walk => ({
-          id: String(walk.id || Date.now() + Math.random()),
-          user_id: String(walk.user_id || "local_user"),
-          date: String(walk.date),
-          miles: Number(Number(walk.miles).toFixed(2)),
-          minutes: Math.round(Number(walk.minutes)),
-          source: "walking_page",
-          created_at: String(walk.created_at || new Date().toISOString())
-        })).filter(walk => walk.date && walk.miles > 0 && walk.minutes > 0);
-        saveWalks();
-        message.textContent = walks.length + " walks imported.";
-        render();
-      } catch {
-        alert("That file is not a valid walking-data JSON file.");
-      }
-      event.target.value = "";
-    });
-
-    document.getElementById("resetData").addEventListener("click", () => {
-      const confirmed = confirm(
-        "Reset all walking test data?\n\n" +
-        "This removes every walk stored in this browser and returns the marker " +
-        "to Calgary. Downloaded JSON backup files will not be deleted."
-      );
-      if (!confirmed) return;
-
-      walks = [];
-      saveWalks();
-      dateInput.value = localToday();
-      filterDate.value = localToday();
-      milesInput.value = "1.00";
-      minutesInput.value = "30";
-      message.textContent = "Test data reset. The marker is back in Calgary.";
-      render();
-    });
-
     window.addEventListener("storage", event => {
       if (event.key !== DAILY_STORAGE_KEY) return;
       walks = loadWalks();
@@ -1350,5 +1250,6 @@
 
     render();
   </script>
+  <script type="module" src="/shared/motionc-supabase.js?v=20260818-2"></script>
 </body>
 </html>
