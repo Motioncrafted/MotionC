@@ -2869,6 +2869,12 @@
       activeArticle = articles.find(article => article.id === articleId);
       if (!activeArticle) return;
 
+      window.dispatchEvent(new CustomEvent("motionc:analytics-pageview", {
+        detail: {
+          path: `/library/article/${encodeURIComponent(activeArticle.id)}`,
+          title: activeArticle.title
+        }
+      }));
       if (activeSectionId) sectionScrollPositions.set(activeSectionId, sectionContent.scrollTop);
       renderContinuousArticle();
       readerOverlay.hidden = false;
