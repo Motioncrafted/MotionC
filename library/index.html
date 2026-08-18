@@ -67,7 +67,7 @@
       width: min(100vw, 150vh);
       aspect-ratio: 3 / 2;
       overflow: hidden;
-      background: url("../images/library-index-ornament.png") center / 100% 100% no-repeat;
+      background: url("../images/library.webp") center / 100% 100% no-repeat;
       isolation: isolate;
     }
 
@@ -86,185 +86,43 @@
       opacity: 1;
     }
 
-    /* Shared MotionC navigation, rebuilt over the artwork's original rail. */
-    .motionc-sidebar {
+    /* Wider Library version of the standard MotionC menu. */
+    .library-sidebar {
       position: absolute;
       inset: 0 auto 0 0;
-      z-index: 20;
-      display: flex;
+      z-index: 8;
       width: var(--rail-width);
-      padding: 1.6% .7% 1.5%;
-      flex-direction: column;
-      overflow: visible;
-      background: linear-gradient(180deg, #132522, #0a1716);
-      box-shadow: 6px 0 18px rgba(0, 0, 0, .12);
-      font-family: Arial, sans-serif;
-    }
-
-    .motionc-brand {
-      display: grid;
-      width: clamp(42px, 5.4vw, 68px);
-      aspect-ratio: 1;
-      margin: 0 auto clamp(10px, 1.35vh, 18px);
-      padding: 3px;
-      place-items: center;
-      border: 1px solid rgba(255, 255, 255, .24);
-      border-radius: 17px;
-      background: #183831;
-      box-shadow: inset 0 1px rgba(255, 255, 255, .1), 0 7px 18px rgba(0, 0, 0, .2);
-    }
-
-    .motionc-brand img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-
-    .motionc-nav {
-      display: grid;
-      min-height: 0;
-      flex: 1;
-      grid-template-rows: repeat(6, minmax(0, 1fr));
-      gap: 2px;
-    }
-
-    .motionc-nav a,
-    .mobile-more-toggle {
-      position: relative;
-      display: grid;
-      min-height: 0;
-      padding: 3px 1px;
-      place-items: center;
-      align-content: center;
-      gap: 3px;
-      border: 1px solid transparent;
-      border-radius: 12px;
-      color: rgba(255, 255, 255, .74);
+      overflow: hidden;
       background: transparent;
-      text-decoration: none;
     }
 
-    .motionc-nav a img {
-      width: clamp(26px, 3.2vw, 42px);
-      height: clamp(26px, 3.2vw, 42px);
-      object-fit: contain;
-    }
-
-    .motionc-nav a small,
-    .mobile-more-toggle small {
-      font-size: clamp(7px, .76vw, 11px);
-      font-weight: 800;
-      letter-spacing: .05em;
-      line-height: 1;
-      text-align: center;
-      text-transform: uppercase;
-    }
-
-    .motionc-nav a:hover,
-    .motionc-nav a:focus-visible,
-    .motionc-nav a.active {
-      border-color: transparent;
-      color: #fff;
-      background: transparent;
-      outline: none;
-    }
-
-    .motionc-nav a.active img {
-      box-sizing: border-box;
-      width: clamp(40px, 4.55vw, 58px);
-      height: clamp(40px, 4.55vw, 58px);
-      padding: clamp(6px, .7vw, 9px);
-      border: 1px solid rgba(183, 221, 199, .42);
-      border-radius: 15px;
-      background: linear-gradient(145deg, rgba(53, 102, 73, .96), rgba(31, 73, 52, .96));
-      box-shadow: inset 0 1px rgba(255, 255, 255, .14), 0 7px 14px rgba(0, 0, 0, .24);
-    }
-
-    .motionc-nav a.active small { color: #eef8ef; }
-
-    .motionc-nav a::before,
-    .mobile-more-toggle::before {
+    .sidebar-link {
       position: absolute;
-      z-index: 3;
-      top: 50%;
+      z-index: 2;
       left: 50%;
-      width: clamp(43px, 4.9vw, 64px);
-      height: clamp(43px, 4.9vw, 64px);
-      border: 3px solid #f0b429;
-      border-radius: 14px;
-      content: "";
-      opacity: 0;
-      pointer-events: none;
-      transform: translate(-50%, -50%);
-    }
-
-    .nav-visualization .motionc-nav a:hover::before,
-    .nav-visualization .motionc-nav a:focus-visible::before,
-    .nav-visualization .mobile-more-toggle:hover::before,
-    .nav-visualization .mobile-more-toggle:focus-visible::before,
-    .nav-visualization .mobile-more-toggle:active::before {
-      opacity: 1;
-      box-shadow: 0 0 14px rgba(240, 180, 41, .6);
-    }
-
-    .mobile-more-toggle,
-    .mobile-more-menu { display: none; }
-
-    .preferences-menu {
-      position: absolute;
-      z-index: 70;
-      top: 2%;
-      left: calc(var(--rail-width) + 1.2%);
-      width: 225px;
-      padding: 16px;
-      border: 1px solid rgba(255, 255, 255, .2);
-      border-radius: 13px;
-      color: #17352c;
-      background: rgba(255, 255, 255, .97);
-      box-shadow: 0 14px 32px rgba(0, 0, 0, .24);
-      font-family: Arial, sans-serif;
-    }
-
-    .preferences-menu[hidden] { display: none; }
-    .preferences-menu > strong { display: block; font-size: 16px; }
-    .preferences-menu > p { margin: 5px 0 12px; color: #687771; font-size: 11px; }
-
-    .preferences-menu label {
-      display: flex;
-      gap: 8px;
-      margin-top: 8px;
-      padding: 9px;
-      align-items: center;
-      border-radius: 8px;
-      background: #f2f6f2;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 800;
-    }
-
-    .preferences-menu label small { margin-left: auto; color: #728078; }
-
-    .preferences-close {
-      position: absolute;
-      top: 7px;
-      right: 8px;
-      width: 28px;
-      height: 28px;
-      padding: 0;
-      border: 0;
-      border-radius: 7px;
-      color: #607069;
+      width: 67%;
+      height: 9.7%;
+      border: 3px solid transparent;
+      border-radius: 12px;
+      transform: translateX(-50%);
       background: transparent;
-      font-size: 21px;
-      line-height: 1;
     }
 
-    .preferences-close:hover,
-    .preferences-close:focus-visible {
-      color: #17352c;
-      background: #e8efe9;
+    .sidebar-link:hover,
+    .sidebar-link:focus-visible,
+    .sidebar-link.active {
       outline: none;
+      border-color: #f0b429;
+      background: rgba(240, 180, 41, .10);
+      box-shadow: 0 0 15px rgba(240, 180, 41, .45);
     }
+
+    .sidebar-link.home { top: 14.3%; }
+    .sidebar-link.walking { top: 25.1%; }
+    .sidebar-link.mcp { top: 36.7%; }
+    .sidebar-link.library { top: 47.2%; }
+    .sidebar-link.drop-zone { top: 57.3%; }
+    .sidebar-link.settings { top: 67%; }
 
     /* Invisible category targets over the printed Library Index artwork. */
     .index-hotspots {
@@ -290,6 +148,7 @@
       background: transparent;
     }
 
+    .index-choice:hover,
     .index-choice:focus-visible {
       outline: none;
       border-color: rgba(215, 151, 52, .72);
@@ -341,9 +200,6 @@
       100% { opacity: 0; transform: rotateY(88deg) scale(.97); }
     }
 
-    /* Keep the book still while its contents change. */
-    .book-transition { display: none; }
-
     /* Results text sits directly over the authentic blank book artwork. */
     .book-interface {
       position: absolute;
@@ -374,76 +230,48 @@
 
     .book-page.left {
       left: 5%;
-      padding-right: 1%;
-      padding-left: 7%;
       text-align: left;
     }
 
     .book-page.right {
       right: 5%;
-      padding-right: 7%;
-      padding-left: 1%;
       text-align: left;
     }
 
     .book-title {
-      display: grid;
-      min-height: 2.3em;
-      margin: 0 0 3%;
-      padding: 0 6%;
-      align-content: center;
+      margin: 0 0 6%;
       color: #51331c;
-      font-size: clamp(11px, 1.16vw, 19px);
-      line-height: 1.08;
-      text-align: center;
-    }
-
-    .book-page-label {
-      display: grid;
-      min-height: 2.3em;
-      margin: 0 0 3%;
-      padding: 0 6%;
-      align-content: center;
-      color: #80552a;
-      font: 700 clamp(8px, .72vw, 12px) "Kalam", cursive;
-      line-height: 1.15;
+      font-size: clamp(12px, 1.28vw, 21px);
+      line-height: 1.1;
       text-align: center;
     }
 
     .book-subtitle {
-      min-height: 1.35em;
       margin: 0 0 3%;
       color: #80552a;
       font: 700 clamp(7px, .62vw, 11px) "Kalam", cursive;
-      line-height: 1.2;
       text-align: center;
     }
 
     .book-list {
       display: grid;
-      gap: clamp(4px, .4vw, 7px);
+      gap: 8%;
       margin: 0;
       padding: 0;
-      align-content: start;
       list-style: none;
     }
 
-    .book-list li { min-width: 0; }
-
     .book-choice {
-      display: flex;
       width: 100%;
-      height: clamp(38px, 3vw, 52px);
-      padding: clamp(6px, .55vw, 9px) 3%;
-      align-items: center;
-      justify-content: center;
+      min-height: clamp(25px, 2.4vw, 42px);
+      padding: 5% 3%;
       border: 0;
       border-bottom: 1px solid rgba(126, 79, 34, .38);
       color: #38271b;
       background: rgba(255, 244, 218, .06);
       font-size: clamp(9px, .9vw, 15px);
-      line-height: 1.15;
-      text-align: center;
+      line-height: 1.22;
+      text-align: inherit;
     }
 
     .book-choice:hover,
@@ -515,7 +343,6 @@
       inset: 7%;
       border: 3px solid transparent;
       border-radius: 50%;
-      transform: translateX(-22%);
       transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
     }
 
@@ -523,7 +350,7 @@
     .magnifier-hotspot:focus-visible::after {
       border-color: rgba(255, 211, 111, .8);
       box-shadow: 0 0 18px rgba(255, 202, 73, .78);
-      transform: translate(-22%, -2px);
+      transform: translateY(-2px);
     }
 
     .magnifier-hotspot:focus-visible {
@@ -585,146 +412,11 @@
       background: #60401e;
     }
 
-    /* Scrollable section catalogue: a cool MotionC sage layer between book and article. */
-    .section-overlay {
-      position: absolute;
-      inset: 0;
-      z-index: 20;
-      display: grid;
-      place-items: center;
-      padding: 3.2%;
-      background: rgba(12, 27, 23, .62);
-      backdrop-filter: blur(3px);
-      opacity: 0;
-      transition: opacity 420ms ease;
-    }
-
-    .section-overlay[hidden] { display: none; }
-    .section-overlay.open { opacity: 1; }
-
-    .section-sheet {
-      position: relative;
-      display: grid;
-      grid-template-rows: auto auto minmax(0, 1fr) auto;
-      width: 88%;
-      height: 91%;
-      overflow: hidden;
-      padding: clamp(24px, 3.3vw, 54px) clamp(28px, 5vw, 82px) clamp(22px, 2.8vw, 46px);
-      border: 3px solid #6f9b82;
-      border-radius: 18px 30px 20px 28px;
-      color: #18372d;
-      background:
-        linear-gradient(105deg, rgba(34, 92, 65, .10), transparent 18%, transparent 82%, rgba(34, 92, 65, .10)),
-        repeating-linear-gradient(0deg, rgba(25, 72, 53, .025) 0 1px, transparent 1px 5px),
-        #edf4ef;
-      box-shadow: 0 22px 70px rgba(0, 0, 0, .66);
-      opacity: 0;
-      transform: translateY(14%) scale(.78);
-      transition: opacity 420ms ease, transform 520ms cubic-bezier(.2, .78, .2, 1);
-    }
-
-    .section-overlay.open .section-sheet { opacity: 1; transform: none; }
-    .section-kicker {
-      margin: 0 0 .25em;
-      color: #287a43;
-      font: 700 clamp(10px, .9vw, 15px) "Kalam", cursive;
-      letter-spacing: .12em;
-      text-align: center;
-      text-transform: uppercase;
-    }
-    .section-heading {
-      margin: 0;
-      color: #173f30;
-      font-size: clamp(25px, 2.8vw, 48px);
-      line-height: 1.1;
-      text-align: center;
-    }
-    .section-description {
-      margin: .35em 0 1.1em;
-      color: #557166;
-      font: 700 clamp(11px, 1vw, 17px) "Kalam", cursive;
-      text-align: center;
-    }
-    .section-content {
-      min-height: 0;
-      overflow-y: auto;
-      scrollbar-gutter: stable;
-      padding: 0 clamp(4px, 1vw, 18px) 1rem;
-      scrollbar-color: #71a085 #d7e6dc;
-    }
-    .section-content::-webkit-scrollbar { width: 14px; }
-    .section-content::-webkit-scrollbar-track { border-radius: 999px; background: #d7e6dc; }
-    .section-content::-webkit-scrollbar-thumb { border: 3px solid #d7e6dc; border-radius: 999px; background: #71a085; }
-    .section-article-list { display: grid; gap: 10px; max-width: 78ch; margin: 0 auto; padding: 0; list-style: none; }
-    .section-article {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 5px 18px;
-      width: 100%;
-      padding: clamp(13px, 1.25vw, 20px);
-      border: 1px solid #bdd2c5;
-      border-radius: 12px;
-      color: #18372d;
-      background: rgba(255,255,255,.72);
-      text-align: left;
-      box-shadow: 0 4px 12px rgba(25, 70, 51, .07);
-    }
-    .section-article:hover,
-    .section-article:focus-visible { border-color: #287a43; outline: 3px solid rgba(240,180,41,.75); background: #fff; }
-    .section-article strong {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      font-size: clamp(15px, 1.3vw, 22px);
-    }
-    .mo-learning-badge {
-      display: inline-grid;
-      width: clamp(34px, 3.2vw, 46px);
-      aspect-ratio: 1;
-      flex: 0 0 auto;
-      overflow: hidden;
-      place-items: center;
-      border: 2px solid #8b908a;
-      border-radius: 50%;
-      background: #d9dccf;
-      box-shadow: 0 3px 8px rgba(39, 54, 48, .18);
-    }
-    .mo-learning-badge img {
-      width: 220%;
-      max-width: none;
-      height: auto;
-    }
-    .section-article small { grid-column: 1; color: #5b756b; font-size: clamp(11px, .9vw, 15px); line-height: 1.4; }
-    .section-article i { grid-column: 2; grid-row: 1 / span 2; align-self: center; color: #287a43; font-size: 1.4em; font-style: normal; }
-    .section-empty { color: #557166; font-style: italic; text-align: center; }
-    .section-controls {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: center;
-      gap: 12px;
-      padding-top: 14px;
-    }
-    .section-controls button {
-      min-height: clamp(36px, 3vw, 50px);
-      border: 1px solid #4e8067;
-      border-radius: 8px;
-      padding: 0 1em;
-      color: #fff;
-      background: #287a43;
-      font: 700 clamp(9px, .9vw, 15px) "Kalam", cursive;
-    }
-    .section-controls button:hover,
-    .section-controls button:focus-visible { outline: 3px solid #f0b429; background: #1f6035; }
-    .section-controls button:disabled { opacity: .3; }
-    #sectionPrevious { justify-self: start; }
-    #sectionNext { justify-self: end; }
-    .section-count { color: #557166; font: 700 clamp(9px, .8vw, 14px) "Kalam", cursive; }
-
-    /* Large warm reading page above the cool catalogue layer. */
+    /* Large reading page. It grows out of the book instead of appearing abruptly. */
     .reader-overlay {
       position: absolute;
       inset: 0;
-      z-index: 30;
+      z-index: 20;
       display: grid;
       place-items: center;
       padding: 4%;
@@ -744,9 +436,6 @@
 
     .reader-sheet {
       position: relative;
-      display: grid;
-      grid-template-rows: auto auto minmax(0, 1fr);
-      align-content: start;
       width: 84%;
       height: 88%;
       overflow: hidden;
@@ -785,10 +474,7 @@
     .reader-heading {
       position: relative;
       z-index: 1;
-      display: grid;
-      align-content: end;
-      min-height: 2.2em;
-      margin: 0 auto .6%;
+      margin: 0 auto 1%;
       max-width: 26ch;
       color: #4d301a;
       font-size: clamp(25px, 2.8vw, 48px);
@@ -799,8 +485,7 @@
     .reader-category {
       position: relative;
       z-index: 1;
-      min-height: 1.35em;
-      margin: 0 0 1.8%;
+      margin: 0 0 2.5%;
       color: #287a43;
       font: 700 clamp(11px, 1vw, 17px) "Kalam", cursive;
       text-align: center;
@@ -809,107 +494,14 @@
     .reader-content {
       position: relative;
       z-index: 1;
-      width: 100%;
       max-width: 76ch;
-      min-height: 0;
-      max-height: 100%;
-      overflow: auto;
-      scrollbar-gutter: stable;
       margin: 0 auto;
-      padding: 0 clamp(2px, .8vw, 14px) .75rem;
       font-size: clamp(12px, 1.12vw, 19px);
       line-height: 1.72;
-      scrollbar-color: #c49558 #ead8b4;
-      scrollbar-width: auto;
-    }
-
-    .reader-content::-webkit-scrollbar {
-      width: 14px;
-    }
-
-    .reader-content::-webkit-scrollbar-track {
-      border-radius: 999px;
-      background: #ead8b4;
-      box-shadow: inset 0 0 0 1px rgba(116, 76, 35, .18);
-    }
-
-    .reader-content::-webkit-scrollbar-thumb {
-      border: 3px solid #ead8b4;
-      border-radius: 999px;
-      background: #c49558;
-    }
-
-    .reader-content::-webkit-scrollbar-thumb:hover {
-      background: #ae7940;
     }
 
     .reader-content p {
       margin: 0 0 1em;
-    }
-
-    .reader-content h2 {
-      margin: 0 0 .55em;
-      color: #5b351c;
-      font-size: 1.35em;
-      line-height: 1.18;
-    }
-
-    .reader-content h3 {
-      margin: .85em 0 .3em;
-      color: #75451f;
-      font-size: 1.08em;
-      line-height: 1.2;
-    }
-
-    .reader-content ul,
-    .reader-content ol {
-      margin: .35em 0 1em;
-      padding-left: 1.4em;
-    }
-
-    .reader-content li {
-      margin: 0 0 .38em;
-      padding-left: .15em;
-    }
-
-    .reader-content strong {
-      color: #4f311d;
-    }
-
-    .article-explainer {
-      margin: 2em auto .5em;
-      text-align: center;
-    }
-
-    .article-explainer img {
-      display: block;
-      width: min(100%, 760px);
-      height: auto;
-      margin: 0 auto;
-      border: 1px solid rgba(30, 96, 153, .3);
-      border-radius: 18px;
-      box-shadow: 0 12px 30px rgba(37, 71, 93, .18);
-    }
-
-    .article-explainer figcaption {
-      margin-top: .65em;
-      color: #687a72;
-      font: 700 .82em "Kalam", cursive;
-    }
-
-    .reader-content .mcp-plain-language {
-      margin: 1em 0;
-      padding: .7em 1em;
-      border-left: 4px solid #b97a2c;
-      background: rgba(255, 246, 218, .58);
-    }
-
-    .reader-content > :first-child {
-      margin-top: 0;
-    }
-
-    .reader-content > :last-child {
-      margin-bottom: 0;
     }
 
     .reader-content p:first-child::first-letter {
@@ -928,7 +520,7 @@
       right: 6%;
       bottom: 3.7%;
       display: grid;
-      grid-template-columns: 1fr auto;
+      grid-template-columns: 1fr auto 1fr;
       align-items: center;
       gap: 2%;
     }
@@ -959,159 +551,24 @@
     }
 
     .reader-page-number {
-      padding: .55em .9em;
-      border: 1px solid rgba(140, 91, 40, .35);
-      border-radius: 999px;
       color: #765638;
-      background: rgba(247, 225, 182, .72);
-      box-shadow: 0 2px 7px rgba(87, 52, 22, .12);
       font: 700 clamp(9px, .8vw, 14px) "Kalam", cursive;
-      white-space: nowrap;
+    }
+
+    .reader-page-buttons {
+      display: flex;
+      justify-self: end;
+      gap: 8px;
+    }
+
+    .reader-page-buttons button {
+      min-width: clamp(42px, 4vw, 68px);
     }
 
     @media (max-width: 800px), (max-height: 560px) {
       .book-page { padding: 2.5% 3%; }
       .book-choice { min-height: 16px; }
       .reader-sheet { padding-top: 24px; }
-    }
-
-    @media (max-width: 700px) {
-      .page {
-        /* Crop the retired sidebar that is baked into the Library artwork. */
-        left: -16.8vw;
-        width: calc(100vw / .856);
-        max-width: none;
-      }
-
-      .motionc-sidebar {
-        position: fixed;
-        z-index: 60;
-        inset: auto 0 0;
-        display: block;
-        width: 100%;
-        height: 70px;
-        padding: 5px 8px max(5px, env(safe-area-inset-bottom));
-        overflow: visible;
-        border-top: 1px solid rgba(255, 255, 255, .16);
-        background: rgba(10, 27, 24, .97);
-        box-shadow: 0 -8px 24px rgba(7, 24, 20, .28);
-        /* Keep the top-left logo anchored to the viewport, not this bottom rail. */
-        backdrop-filter: none;
-      }
-
-      .motionc-brand {
-        position: fixed;
-        z-index: 62;
-        top: 10px;
-        left: 10px;
-        width: 48px;
-        height: 48px;
-        margin: 0;
-        border-radius: 14px;
-      }
-
-      .preferences-menu {
-        position: fixed;
-        top: 66px;
-        left: 10px;
-        width: min(260px, calc(100vw - 20px));
-      }
-
-      .motionc-nav {
-        display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
-        grid-template-rows: 1fr;
-        gap: 3px;
-      }
-
-      .motionc-nav a,
-      .mobile-more-toggle {
-        display: grid;
-        min-width: 0;
-        min-height: 58px;
-        padding: 3px 1px;
-        font-size: inherit;
-      }
-
-      .motionc-nav a img { width: 25px; height: 25px; }
-      .motionc-nav a.active img { width: 38px; height: 38px; padding: 7px; border-radius: 12px; }
-
-      .motionc-nav a small,
-      .mobile-more-toggle small { font-size: 7px; }
-
-      .motionc-nav a::before,
-      .mobile-more-toggle::before { top: calc(50% - 4px); width: 42px; height: 42px; border-radius: 11px; }
-
-      .nav-home { order: 1; }
-      .nav-daily { order: 2; }
-      .nav-mcp { order: 3; }
-      .nav-library { order: 4; }
-      .mobile-more-toggle { order: 5; }
-
-      .motionc-nav .nav-walking,
-      .motionc-nav .nav-drop-zone { display: none; }
-
-      .mobile-more-toggle {
-        border: 0;
-        color: rgba(255, 255, 255, .74);
-      }
-
-      .more-glyph {
-        display: grid;
-        width: 34px;
-        height: 34px;
-        place-items: center;
-        border: 1px solid rgba(255, 255, 255, .38);
-        border-radius: 11px;
-        color: #fff;
-        font-size: 15px;
-        font-weight: 900;
-        letter-spacing: 1px;
-        line-height: 1;
-      }
-
-      .mobile-more-toggle[aria-expanded="true"] .more-glyph {
-        border-color: rgba(183, 221, 199, .46);
-        background: linear-gradient(145deg, #356649, #1f4934);
-        box-shadow: 0 7px 14px rgba(0, 0, 0, .24);
-      }
-
-      .mobile-more-menu {
-        position: fixed;
-        z-index: 61;
-        right: 10px;
-        bottom: calc(78px + env(safe-area-inset-bottom));
-        display: grid;
-        width: min(230px, calc(100vw - 20px));
-        gap: 6px;
-        padding: 10px;
-        border: 1px solid rgba(255, 255, 255, .2);
-        border-radius: 15px;
-        background: rgba(13, 37, 32, .98);
-        box-shadow: 0 16px 38px rgba(0, 0, 0, .34);
-        backdrop-filter: blur(16px);
-      }
-
-      .mobile-more-menu[hidden] { display: none; }
-
-      .mobile-more-menu a {
-        display: flex;
-        gap: 12px;
-        padding: 11px 12px;
-        align-items: center;
-        border-radius: 10px;
-        color: #fff;
-        font-family: Arial, sans-serif;
-        text-decoration: none;
-      }
-
-      .mobile-more-menu a:hover,
-      .mobile-more-menu a:focus-visible {
-        outline: 2px solid #f0b429;
-        background: rgba(255, 255, 255, .08);
-      }
-
-      .mobile-more-menu img { width: 30px; height: 30px; object-fit: contain; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -1127,39 +584,25 @@
   </style>
 </head>
 
-<body class="nav-visualization">
+<body>
   <main class="page">
-    <aside class="motionc-sidebar" aria-label="MotionC navigation">
-      <button class="motionc-brand" id="preferencesToggle" type="button"
-        aria-label="Open preferences" aria-expanded="false" aria-controls="preferencesMenu">
-        <img src="/images/nav/motionc-logo.png" alt="">
-      </button>
-      <nav class="motionc-nav">
-        <a class="nav-home" href="/landing-page/"><img src="/images/nav/home.png" alt=""><small>Home</small></a>
-        <a class="nav-daily" href="/daily/index.html"><img src="/images/nav/daily.png" alt=""><small>Daily</small></a>
-        <a class="nav-mcp" href="/dashboard/"><img src="/images/nav/mcp.png" alt=""><small>MCP</small></a>
-        <a class="nav-library active" href="/library/" aria-current="page"><img src="/images/nav/library.png" alt=""><small>Library</small></a>
-        <a class="nav-walking" href="/walking/"><img src="/images/nav/walking.png" alt=""><small>Walking</small></a>
-        <a class="nav-drop-zone" href="/drop-zone/"><img src="/images/nav/drop-zone.png" alt=""><small>Drop Zone</small></a>
-        <button class="mobile-more-toggle" id="mobileMoreToggle" type="button"
-          aria-label="Open more navigation" aria-expanded="false" aria-controls="mobileMoreMenu">
-          <span class="more-glyph" aria-hidden="true">•••</span>
-          <small>More</small>
-        </button>
-      </nav>
-      <div class="mobile-more-menu" id="mobileMoreMenu" hidden>
-        <a href="/walking/"><img src="/images/nav/walking.png" alt=""><span>Walking</span></a>
-        <a href="/drop-zone/"><img src="/images/nav/drop-zone.png" alt=""><span>Drop Zone</span></a>
-      </div>
-    </aside>
-
-    <div class="preferences-menu" id="preferencesMenu" hidden>
-      <button class="preferences-close" id="preferencesClose" type="button" aria-label="Close preferences">×</button>
-      <strong>Preferences</strong>
-      <p>Measurement system</p>
-      <label><input type="radio" name="unitSystem" value="imperial"> Imperial <small>lb · mi · in</small></label>
-      <label><input type="radio" name="unitSystem" value="metric"> Metric <small>kg · km · cm</small></label>
-    </div>
+    <nav class="library-sidebar" aria-label="MotionC sections">
+      <a class="sidebar-link home" href="/landing-page/" aria-label="Open Home"></a>
+      <a class="sidebar-link walking" href="/walking/" aria-label="Open Walking"></a>
+      <a class="sidebar-link mcp" href="/dashboard/" aria-label="Open MCP"></a>
+      <span
+        class="sidebar-link library active"
+        aria-label="Library — current page"
+        aria-current="page"
+      ></span>
+      <a class="sidebar-link drop-zone" href="/drop-zone/" aria-label="Open Drop Zone"></a>
+      <button
+        class="sidebar-link settings"
+        type="button"
+        aria-label="Open Settings"
+        title="Settings"
+      ></button>
+    </nav>
 
     <section class="index-hotspots" id="indexHotspots" aria-label="Library sections">
       <button
@@ -1236,32 +679,6 @@
     </form>
 
     <section
-      class="section-overlay"
-      id="sectionOverlay"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="sectionHeading"
-      hidden
-    >
-      <article class="section-sheet">
-        <p class="section-kicker">Library catalogue</p>
-        <div>
-          <h1 class="section-heading" id="sectionHeading"></h1>
-          <p class="section-description" id="sectionDescription"></p>
-        </div>
-        <div class="section-content" id="sectionContent"></div>
-        <div class="section-controls">
-          <button id="sectionPrevious" type="button">← Previous Section</button>
-          <div>
-            <button id="sectionIndex" type="button">Back to Library</button>
-            <span class="section-count" id="sectionCount"></span>
-          </div>
-          <button id="sectionNext" type="button">Next Section →</button>
-        </div>
-      </article>
-    </section>
-
-    <section
       class="reader-overlay"
       id="readerOverlay"
       role="dialog"
@@ -1276,17 +693,25 @@
 
         <div class="reader-controls">
           <button class="reader-index" id="readerIndex" type="button">
-            ← Section Titles
+            ← Library Index
           </button>
 
           <span class="reader-page-number" id="readerPageNumber"></span>
+
+          <div class="reader-page-buttons">
+            <button id="readerPrevious" type="button" aria-label="Previous article page">
+              ←
+            </button>
+            <button id="readerNext" type="button" aria-label="Next article page">
+              →
+            </button>
+          </div>
         </div>
       </article>
     </section>
   </main>
 
-  <script type="module">
-    import { supabase } from "../shared/motionc-supabase.js";
+  <script>
     const categories = [
       {
         id: "walking",
@@ -1323,31 +748,9 @@
     /*
       Starter catalogue:
       Replace or expand these entries with finished MotionC articles.
-      Each string inside `pages` remains an ordered article section. The reader joins
-      those sections into one continuous scroll.
+      Each string inside `pages` becomes one reader page.
     */
-    const fallbackArticles = [
-      {
-        id: "power-of-a-simple-greeting",
-        category: "walking",
-        title: "The Power of a Simple Greeting",
-        tags: ["walking", "connection", "kindness", "community", "mental well-being", "morning walk"],
-        summary: "How a smile, wave, or simple hello can create connection along a shared walking path.",
-        pages: [
-          `<h2>Introduction: The Morning Walk as a Microcosm of Life</h2>
-           <p>Every morning, as I walk along a familiar path, I find myself surrounded by others who share this quiet ritual. These are people who, like me, seek a moment of peace, reflection, or movement to start their day. On this path, I make a small but intentional effort: when passing others, I offer a gentle hello or a slight wave. It’s never pushy or intrusive—just a simple acknowledgment of our shared presence.</p>`,
-          `<h2>The Simple Act of Saying Hello</h2>
-           <p>This small gesture often receives a warm return—a smile, a nod, or a wave back. It’s a brief but meaningful exchange that creates a subtle sense of connection. These moments remind me that beneath the surface of our busy lives, there is a hidden network of shared humanity. Saying hello is more than politeness; it’s a way of saying, “I see you,” and that acknowledgment can be deeply comforting.</p>
-           <h2>The Feeling of Being Seen</h2>
-           <p>In our fast-paced, often disconnected daily routines, many people go unnoticed. A simple greeting can leave someone with the rare and precious feeling of being seen or acknowledged. This recognition, even if fleeting, can uplift spirits and remind us that we are not alone. It’s a small act that fills a gap often left by the anonymity of modern life.</p>`,
-          `<h2>The Unseen Stories Behind Each Passerby</h2>
-           <p>Of course, not everyone responds. Some people walk by without a glance, absorbed in their own thoughts or struggles. At first, this bothered me. But I’ve come to understand that everyone truly has their own “path to walk.” We don’t know the stories, challenges, or emotions that others carry with them. Perhaps my smile or hello is a small light in their day, even if they don’t outwardly show it.</p>
-           <h2>Why These Moments Matter</h2>
-           <p>These brief interactions may seem insignificant, but they hold real power. Small social connections can improve mental well-being, reduce feelings of isolation, and foster a sense of community. When we acknowledge others, we contribute to a ripple effect of kindness that can extend far beyond the moment.</p>`,
-          `<h2>Conclusion: Embracing Our Shared Journey</h2>
-           <p>Our daily paths are more than just routes from point A to point B—they are opportunities for connection, empathy, and kindness. By embracing the simple act of greeting others, we nurture the hidden bonds that unite us all. So next time you pass someone on your path, offer a smile or a hello. You might just brighten their day—and yours.</p>`
-        ]
-      },
+    const articles = [
       {
         id: "mindful-walking",
         category: "walking",
@@ -1378,52 +781,13 @@
         id: "visceral-fat",
         category: "metrics",
         title: "Understanding Visceral Fat",
-        tags: ["visceral fat", "waist", "waist-to-hip ratio", "health", "body composition", "walking", "nutrition"],
-        summary: "What visceral fat is, why it matters, and the practical ways it can be estimated or measured.",
+        tags: ["visceral fat", "waist", "health", "body composition"],
+        summary: "A plain-language look at the fat stored around internal organs.",
         pages: [
-          `<h2>What It Is, Why It Matters, and How to Measure It</h2>
-           <p>If you’ve never heard of <strong>visceral fat</strong> before, you’re not alone. It’s one of those health terms that doesn’t come up in everyday conversation, but it’s actually pretty important—especially if you’re interested in staying healthy and active.</p>
-           <h2>What Is Visceral Fat?</h2>
-           <p>Visceral fat is the fat that lives deep inside your belly, wrapped around your organs like your liver, pancreas, and intestines. Unlike the fat you can pinch just under your skin (called <strong>subcutaneous fat</strong>), visceral fat is hidden away inside. While a little fat is normal and necessary, too much visceral fat can affect your health in ways you might not expect, quietly increasing your risk of several serious health conditions.</p>
-           <p>Why? Because visceral fat isn’t just sitting there quietly. It’s active tissue that releases chemicals and hormones that can increase inflammation and interfere with how your body functions. This can raise your risk for serious health issues like <strong>heart disease</strong>, <strong>type 2 diabetes</strong>, and other metabolic problems.</p>`,
-          `<h2>Why Motion Matters</h2>
-           <p>Here’s the good news: visceral fat responds well to movement. That’s where walking and staying active come in. At <strong>MotionC</strong>, we believe <strong>Motion Creates Change</strong>—and that includes changes inside your body that you might not see right away but will definitely feel over time.</p>
-           <p>Walking is one of the simplest and most effective ways to start reducing <strong>visceral fat</strong>. It helps your body burn calories, improves circulation, and boosts your metabolism. Plus, it’s easy to fit into your day, no matter your fitness level.</p>
-           <p>When you commit to moving regularly, you start to <strong>See Positive Change</strong>—whether it’s more energy, better sleep, or just feeling stronger and more confident in your own skin. Motion doesn’t just change how you look — it changes how you live.</p>`,
-          `<h2>Diet and Visceral Fat: What to Eat</h2>
-           <p>Eating the right foods can support your efforts to reduce visceral fat. Focus on nutrient-dense options like <strong>fruits and vegetables</strong> (rich in fiber and antioxidants), <strong>whole grains</strong> (such as oats, brown rice, and quinoa), <strong>lean proteins</strong> (such as chicken, fish, beans, and legumes), <strong>healthy fats</strong> (found in avocados, nuts, seeds, and olive oil), and <strong>foods rich in omega-3 fatty acids</strong> (like salmon, flaxseeds, and walnuts).</p>
-           <p>You might wonder what exactly “unhealthy fats” are, since fats aren’t all bad. Unhealthy fats typically refer to <strong>trans fats</strong> and excessive <strong>saturated fats</strong>. Trans fats are artificially created fats found in many processed and fried foods, and they can raise bad cholesterol levels while lowering good cholesterol. Saturated fats, found in some fatty meats and full-fat dairy, can also contribute to <strong>heart disease</strong> if consumed in excess. Limiting these fats helps reduce inflammation and supports healthier fat distribution in the body.</p>`,
-          `<h2>Diet and Visceral Fat: What to Limit</h2>
-           <p>On the other hand, limiting foods that are high in sugar, refined carbs, unhealthy fats, and excessive alcohol can make a big difference. Avoid or reduce intake of:</p>
-           <ul>
-             <li><strong>Sugary drinks and snacks</strong> (soda, candy, and pastries)</li>
-             <li><strong>Refined carbs</strong> (white bread, white rice, and many processed foods)</li>
-             <li><strong>Fried and fast foods</strong> (high in unhealthy fats and calories)</li>
-             <li><strong>Excessive alcohol</strong> (which can contribute to fat accumulation)</li>
-             <li><strong>High-sodium processed foods</strong> (which can cause water retention and other issues)</li>
-           </ul>`,
-          `<h2>How Can You Measure Visceral Fat?</h2>
-           <p>Since <strong>visceral fat</strong> is hidden deep inside your abdomen around your organs, it’s not something you can see or easily pinch. But there are a few practical ways to get an idea of whether you might have too much of it:</p>
-           <h3>1. Waist Measurement</h3>
-           <p>One of the simplest and most practical methods is measuring your waist circumference. Using a tape measure, wrap it around your bare stomach, just above your hip bones (usually at the level of your belly button). Make sure the tape is snug but not squeezing your skin.</p>
-           <ul>
-             <li>For men, a waist measurement over about 40 inches (102 cm) can indicate excess visceral fat.</li>
-             <li>For women, a waist measurement over about 35 inches (88 cm) can be a warning sign.</li>
-           </ul>
-           <p>While this doesn’t measure visceral fat directly, it’s a good indicator because visceral fat tends to increase belly size.</p>`,
-          `<h2>Other Ways to Estimate Visceral Fat</h2>
-           <h3>2. Waist-to-Hip Ratio</h3>
-           <p>This method compares the size of your waist to your hips. Measure your hips at the widest part, then divide your waist measurement by your hip measurement. Higher ratios suggest more visceral fat.</p>
-           <ul>
-             <li>A ratio above 0.90 for men and 0.85 for women may indicate higher <strong>visceral fat</strong> levels.</li>
-           </ul>
-           <h3>3. Body Composition Scales and Devices</h3>
-           <p>Some advanced bathroom scales and handheld devices use bioelectrical impedance to estimate body fat percentage, including visceral fat. While convenient, these can vary in accuracy and are best used as a general guide rather than a precise measurement.</p>`,
-          `<h2>4. Medical Imaging (Most Accurate)</h2>
-           <p>The most accurate way to measure visceral fat is through medical imaging like <strong>MRI</strong> or <strong>CT scans</strong>. These are usually done in clinical settings and aren’t practical for everyday tracking but can provide detailed information if needed.</p>
-           <h2>Final Thoughts</h2>
-           <p>Visceral fat might sound intimidating, but it’s something you can take control of. By embracing motion and making walking a part of your daily routine, you’re not just fighting fat—you’re creating a healthier, happier you. Every step you take is a step toward positive change.</p>
-           <p>So, lace up your shoes and get moving. Because at <strong>MotionC</strong>, <strong>We want you to ‘See what Change Looks Like’</strong>.</p>`
+          `<p>Body weight alone cannot describe where fat is stored. Visceral fat sits deeper in the abdomen around internal organs, which makes waist-related measurements useful alongside weight.</p>
+           <p>No single home measurement is a diagnosis. Trends are most helpful when viewed over time and interpreted in context.</p>`,
+          `<p>Waist circumference and waist-to-height ratio can add information that a scale cannot provide by itself.</p>
+           <p>Use measurements as signals for informed action—not as verdicts about your worth or your effort.</p>`
         ]
       },
       {
@@ -1440,72 +804,6 @@
         ]
       },
       {
-        id: "understanding-mcp-score",
-        category: "metrics",
-        title: "Understanding Your MCP Score",
-        tags: ["MCP", "Motion Core Prime", "BMI", "waist-to-height ratio", "health score", "motivation"],
-        summary: "A motivational guide to what the Motion Core Prime score measures and how to read its four zones.",
-        pages: [
-          `<h2>🔥 A Motivational Guide</h2>
-           <p>Your health journey isn’t just numbers — it’s movement, momentum, and the story of your progress. The <strong>MCP Score (Motion Core Prime)</strong> was created to give you a clear, powerful way to see that story unfold. It’s a single number that shows how hard your body is working behind the scenes, using simple measurements anyone can take at home.</p>
-           <p>No confusion. No guesswork. Just a direct reflection of your effort, your habits, and your direction.</p>
-           <p>This is where <strong>MotionC Creates aChange</strong> — and where you begin to <strong>See What Change Looks Like</strong>.</p>`,
-          `<h2>What is the MCP Score?</h2>
-           <p>The MCP Score is your personal metabolic snapshot — a quick way to understand how much strain your body carries day-to-day. Lower scores mean your body is cruising. Higher scores mean your body is pushing harder than it needs to.</p>
-           <p>It’s built from four meaningful factors:</p>
-           <ul>
-             <li><strong>BMI</strong> — your mass relative to height</li>
-             <li><strong>Waist-to-Height Ratio</strong> — a powerful indicator of visceral fat</li>
-             <li><strong>Sex</strong> — because biology shapes how we store energy</li>
-             <li><strong>Age</strong> — because your body changes as you grow</li>
-           </ul>
-           <p>Together, they create a score that reflects your real-world health load.</p>`,
-          `<h2>Why these measurements matter</h2>
-           <h3>BMI</h3>
-           <p>It’s a simple starting point — not perfect, but useful when paired with other metrics.</p>
-           <h3>Waist-to-Height Ratio</h3>
-           <p>This is your secret weapon. WHtR helps reveal hidden strain around your organs. When your waist shrinks, your MCP responds immediately.</p>
-           <h3>Sex</h3>
-           <p>Men and women store fat differently. A small adjustment keeps the score fair and balanced.</p>
-           <h3>Age</h3>
-           <p>Your metabolism evolves. Your MCP respects that reality and adjusts accordingly.</p>`,
-          `<h2>What do the MCP ranges mean?</h2>
-           <p>Your MCP falls into one of four zones — each one telling a different part of your story:</p>
-           <h3>🟢 Core Zone (&lt;25)</h3>
-           <p>You’re operating at your strongest. Your habits are aligned, your body is balanced, and your momentum is powerful.</p>
-           <h3>🔵 Healthy (25–35)</h3>
-           <p>You’re in a solid place. With a few consistent changes, you can push into the Core Zone and feel the difference.</p>`,
-          `<h3>🟠 Elevated (35–43)</h3>
-           <p>Your body is working harder than it needs to. This is your opportunity — small steps here create big wins.</p>
-           <h3>🔴 Watch Zone (&gt;43)</h3>
-           <p>Your body is carrying more strain. This is your moment to take action, build momentum, and reclaim your energy.</p>`,
-          `<h2>Is the MCP a medical diagnosis?</h2>
-           <p>No — and it doesn’t need to be.</p>
-           <p>Your MCP is a <strong>movement tool</strong>, not a medical test. It helps you understand your direction, your habits, and your progress. It’s designed to empower you, not replace your doctor.</p>
-           <h2>Why your MCP helps you move forward</h2>
-           <p>Because it’s:</p>
-           <ul>
-             <li><strong>Clear</strong> — one number, instantly understandable</li>
-             <li><strong>Responsive</strong> — it changes as <em>you</em> change</li>
-             <li><strong>Motivating</strong> — progress becomes visible</li>
-             <li><strong>Action-driven</strong> — every improvement shows up in your MCP</li>
-             <li><strong>Accessible</strong> — no special equipment, no barriers</li>
-           </ul>
-           <p>It’s built to help you stay aware, stay engaged, and stay moving.</p>`,
-          `<h2>How often should you update your measurements?</h2>
-           <p>Weekly or monthly works best. Your MCP is about momentum — not day-to-day noise.</p>
-           <h2>In plain English</h2>
-           <p>Your MCP tells you:</p>
-           <p class="mcp-plain-language"><strong>“How much strain is my body carrying right now?”</strong></p>
-           <p><strong>Lower MCP</strong> → less strain<br><strong>Higher MCP</strong> → more strain</p>
-           <p>Every improvement you make — every walk, every better choice, every small win — nudges your MCP in the right direction.</p>`,
-          `<h2>Why this matters</h2>
-           <p>Your health isn’t defined by a single moment. It’s defined by movement — the choices you make, the habits you build, and the direction you’re heading.</p>
-           <p>Your MCP helps you see that direction clearly. It shows your progress. It shows your momentum. It shows your change.</p>
-           <p>This is where <strong>MotionC Creates aChange</strong> — and where you truly <strong>See What Change Looks Like</strong>.</p>`
-        ]
-      },
-      {
         id: "everyday-fuel",
         category: "nutrition",
         title: "Everyday Fuel",
@@ -1519,536 +817,6 @@
         ]
       },
       {
-        id: "understanding-insulin-spikes",
-        category: "nutrition",
-        title: "Understanding Insulin Spikes",
-        tags: ["insulin", "blood sugar", "nutrition", "energy", "hunger", "walking", "Mo Explains"],
-        summary: "How insulin spikes work, why they matter, and how they influence fat loss.",
-        pages: [
-          `<p><strong>How they work, why they matter, and how they influence fat loss.</strong></p>
-           <p>Insulin is one of the most misunderstood hormones in the body. Most people know it helps control blood sugar, but fewer realize it also influences hunger, cravings, energy stability, and how easily your body can access stored fat.</p>
-           <p>Once you understand insulin spikes, you understand why some foods support fat loss — and why others quietly slow it down.</p>
-           <p>This guide explains insulin in clear MotionC terms.</p>`,
-          `<h2>⭐ 1. What Is an Insulin Spike?</h2>
-           <p>An insulin spike happens when your blood sugar rises quickly after eating fast-digesting foods. Your pancreas releases insulin to bring sugar levels back down.</p>
-           <p><strong>Insulin’s main jobs:</strong></p>
-           <ul>
-             <li>move sugar out of your bloodstream</li>
-             <li>store excess energy</li>
-             <li>shift your body away from using stored fat</li>
-           </ul>
-           <p>This shift is temporary — but important.</p>`,
-          `<h2>⭐ 2. What Causes Insulin Spikes?</h2>
-           <p><strong>Foods that can produce a faster response, depending on portion, ripeness, preparation, and what accompanies them:</strong></p>
-           <ul>
-             <li>sugar</li><li>juice</li><li>white bread</li><li>cereal</li><li>pastries</li>
-             <li>bananas</li><li>grapes</li><li>dried fruit</li><li>rice</li><li>pasta</li>
-             <li>candy</li><li>chips</li><li>chocolate</li><li>high-carb meals eaten without protein</li>
-           </ul>
-           <p>These foods digest quickly and raise blood sugar faster — and insulin responds accordingly.</p>`,
-          `<h2>⭐ 3. The Two Metabolic Modes</h2>
-           <p>Your metabolism <strong>leans toward</strong> one of two general modes depending on insulin levels.</p>
-           <h3>Mode 1 — Fat-Burning Mode (Lower Insulin)</h3>
-           <ul><li>glucagon rises</li><li>body taps stored fat</li><li>hunger stabilizes</li><li>energy stays steady</li><li>mood stays calm</li></ul>
-           <p>MotionC aims to help you spend more time here.</p>
-           <h3>Mode 2 — Fat-Storing Mode (Higher Insulin)</h3>
-           <ul><li>body prioritizes incoming calories</li><li>fat-burning slows</li><li>hunger rises</li><li>cravings increase</li><li>energy becomes less stable</li></ul>
-           <p>This mode is normal — but you don’t want to live in it all day.</p>`,
-          `<h2>⭐ 4. Can You Burn Fat During an Insulin Spike?</h2>
-           <p>Fat-burning <strong>drops sharply</strong> during an insulin spike.</p>
-           <p>Insulin signals your body:</p>
-           <p class="mcp-plain-language"><strong>“Use the incoming energy first.”</strong></p>
-           <p>This makes it harder to access stored fat until insulin settles back down.</p>
-           <p>This is why snacking, grazing, sugary breakfasts, carb-heavy meals, and late-night eating can reduce your daily fat-burning window.</p>
-           <p>Each spike <strong>delays</strong> your return to fat-burning mode.</p>`,
-          `<h2>⭐ 5. How Long Does Fat-Storing Mode Last?</h2>
-           <p>An insulin spike often lasts <strong>several hours</strong>, depending on:</p>
-           <ul><li>meal size</li><li>sugar content</li><li>your metabolic health</li><li>your activity level</li></ul>
-           <p><strong>Repeated eating can extend the time insulin remains elevated</strong>, reducing the hours your body spends accessing stored fat.</p>
-           <p>This is why timing matters.</p>`,
-          `<h2>⭐ 6. Are Insulin Spikes Always Bad?</h2>
-           <p>No — insulin spikes serve important purposes.</p>
-           <p>They help with:</p>
-           <ul><li>muscle building</li><li>post-workout recovery</li><li>nutrient absorption</li><li>energy replenishment</li><li>stabilizing blood sugar after meals</li></ul>
-           <p>The goal isn’t to avoid spikes — it’s to <strong>control when they happen</strong>.</p>`,
-          `<h2>⭐ 7. How to Reduce Insulin Spikes</h2>
-           <p>MotionC teaches simple strategies:</p>
-           <h3>✔ Eat protein first</h3><p>Slows digestion and reduces spikes.</p>
-           <h3>✔ Add fiber</h3><p>Slows sugar absorption.</p>
-           <h3>✔ Avoid sugary breakfasts</h3><p>Start the day in fat-burning mode.</p>
-           <h3>✔ Move before or after eating</h3><p>Both help; post-meal walking is especially effective for reducing glucose.</p>
-           <h3>✔ Choose low-glycemic fruits</h3><p>Green apples, berries, kiwi, grapefruit.</p>
-           <h3>✔ Avoid frequent snacking</h3><p>Most snacks trigger small insulin rises.</p>
-           <h3>✔ Drink water first</h3><p>Hydration stabilizes hunger signals.</p>
-           <p><strong>Small steps. Large gains.</strong></p>`,
-          `<h2>⭐ 8. The MotionC Takeaway</h2>
-           <p>Insulin spikes aren’t the enemy — they’re a signal.</p>
-           <p>They tell your body:</p>
-           <p class="mcp-plain-language"><strong>“Store incoming energy now.”</strong></p>
-           <p>When you understand how spikes work, you can control hunger, cravings, fat loss, energy, mood, and metabolism.</p>
-           <p>MotionC helps you spend more time in fat-burning mode — not through restriction, but through awareness and smart timing.</p>
-           <h2>Mo Explains: A Visual Guide</h2>
-           <figure class="article-explainer">
-             <img src="/images/mo-explains-insulin-spikes-two-modes-revised.png" alt="Mo Explains visual guide to insulin spikes and the body’s two general metabolic modes" loading="lazy">
-             <figcaption>Mo Explains: Understanding Insulin Spikes — The Two Modes</figcaption>
-           </figure>`
-        ]
-      },
-      {
-        id: "mo-explains-insulin-spikes-two-modes",
-        category: "nutrition",
-        title: "Mo Explains: Understanding Insulin Spikes — The Two Modes",
-        tags: ["Mo", "Mo Explains", "All Mo", "visual learning", "insulin", "blood sugar", "fat loss", "nutrition"],
-        summary: "An all-Mo visual guide to insulin spikes, metabolic modes, timing, movement, and food choices.",
-        pages: [
-          `<figure class="article-explainer">
-             <img src="/images/mo-explains-insulin-spikes-two-modes-revised.png" alt="Mo Explains visual guide to insulin spikes and the body’s two general metabolic modes" loading="lazy">
-             <figcaption>Mo Explains: Understanding Insulin Spikes — The Two Modes</figcaption>
-          </figure>`
-        ]
-      },
-      {
-        id: "mo-explains-why-bananas-spike-insulin",
-        category: "nutrition",
-        title: "Mo Explains: Why Bananas Spike Insulin More Than You Think",
-        tags: ["Mo", "Mo Explains", "All Mo", "visual learning", "bananas", "insulin", "blood sugar", "ripeness", "food timing", "nutrition"],
-        summary: "An all-Mo visual guide to banana ripeness, insulin response, food pairing, and movement timing.",
-        pages: [
-          `<figure class="article-explainer">
-             <img src="/images/mo-explains-why-bananas-spike-insulin.png" alt="Mo Explains visual guide to bananas, ripeness, insulin response, and movement timing" loading="lazy">
-             <figcaption>Mo Explains: Why Bananas Spike Insulin More Than You Think</figcaption>
-          </figure>`
-        ]
-      },
-      {
-        id: "eggs-101-everything-you-need-to-know",
-        category: "nutrition",
-        title: "Eggs 101: Everything You Need to Know",
-        tags: ["eggs", "beginner guide", "protein", "breakfast", "nutrition", "satiety", "meal prep", "cholesterol", "healthy eating"],
-        summary: "A practical beginner’s guide to egg nutrition, preparation, add-ins, routines, and how eggs fit into MotionC.",
-        pages: [
-          `<h2>⭐ MotionC Beginner’s Guide</h2>
-           <h3>Eggs 101: Everything You Need to Know</h3>
-           <p>Eggs are one of the simplest, most powerful foods you can add to your daily routine. They’re inexpensive, fast to cook, nutrient-dense, and incredibly versatile. Whether you’re trying to lose weight, build muscle, improve energy, or simply eat cleaner, eggs fit into almost every goal.</p>
-           <p>This guide breaks down everything you need to know — without hype, without complication, just the MotionC fundamentals.</p>`,
-          `<h2>⭐ 1. Why Eggs Matter</h2>
-           <p>Eggs are a “small food with big impact.” They deliver:</p>
-           <ul><li>High-quality protein</li><li>Essential vitamins</li><li>Healthy fats</li><li>Strong satiety (they keep you full)</li><li>Extremely low cost per serving</li><li>Fast prep time</li></ul>
-           <p>They’re one of the rare foods that check every box for health, convenience, and affordability.</p>`,
-          `<h2>⭐ 2. The Nutritional Breakdown</h2>
-           <p>One large egg contains:</p>
-           <ul><li>6 grams of complete protein</li><li>5 grams of healthy fats</li><li>70–80 calories</li><li>Zero carbs</li><li>Choline (brain health)</li><li>Vitamin D (rare in food)</li><li>B12 (energy)</li><li>Selenium (immune support)</li></ul>
-           <p>This combination makes eggs a perfect anchor for breakfast, a stabilizer for lunch, or a protein boost anytime.</p>`,
-          `<h2>⭐ 3. Why Eggs Keep You Full</h2>
-           <p>Eggs are one of the most satiating foods you can eat.</p>
-           <p>Here’s why:</p>
-           <ul><li>Protein slows digestion</li><li>Fat stabilizes hunger hormones</li><li>Zero sugar = no crash</li><li>They trigger fullness signals early</li></ul>
-           <p>This is why people who switch from cereal or toast to eggs often notice:</p>
-           <ul><li>fewer cravings</li><li>less snacking</li><li>more stable energy</li><li>easier weight loss</li></ul>
-           <p>It’s not magic — it’s biology.</p>`,
-          `<h2>⭐ 4. How Many Eggs Should You Eat?</h2>
-           <p>For most people, 2–3 eggs is the sweet spot.</p>
-           <p>It gives you:</p>
-           <ul><li>12–18g of protein</li><li>Enough fat to stay full</li><li>A balanced calorie load</li><li>A strong start to the day</li></ul>
-           <p>If you need more protein, add:</p>
-           <ul><li>egg whites</li><li>cottage cheese</li><li>Greek yogurt</li><li>lean meat</li><li>tofu</li></ul>
-           <p>Eggs are the foundation — you can build around them.</p>`,
-          `<h2>⭐ 5. The Best Ways to Cook Eggs</h2>
-           <p>Eggs are flexible. Choose the method that fits your lifestyle:</p>
-           <ul><li><strong>Boiled</strong> — easiest, portable, no cleanup</li><li><strong>Scrambled</strong> — fast, customizable</li><li><strong>Poached</strong> — clean, light, elegant</li><li><strong>Fried</strong> — quick, satisfying</li><li><strong>Omelet</strong> — great for adding veggies</li><li><strong>Baked egg cups</strong> — meal-prep friendly</li></ul>
-           <p><strong>MotionC principle:</strong> Choose the method that removes friction.</p>
-           <p>If boiling eggs makes your mornings easier, that’s the right method.</p>`,
-          `<h2>⭐ 6. Add-Ins That Upgrade Eggs</h2>
-           <p>Eggs pair well with almost everything:</p>
-           <ul><li>Spinach</li><li>Mushrooms</li><li>Tomatoes</li><li>Peppers</li><li>Avocado</li><li>Salsa</li><li>Herbs</li><li>Cheese (light amounts)</li><li>Hot sauce</li><li>Smoked salmon</li><li>Lean ham or turkey</li></ul>
-           <p>These add-ins boost flavor, nutrients, and satisfaction without complicating the meal.</p>`,
-          `<h2>⭐ 7. Eggs and Cholesterol: The Real Story</h2>
-           <p>For most people, eggs are safe and beneficial.</p>
-           <p>Modern research shows:</p>
-           <ul><li>Dietary cholesterol ≠ blood cholesterol</li><li>Eggs raise HDL (the good cholesterol)</li><li>Eggs do not increase heart disease risk in healthy individuals</li><li>Whole eggs are more nutritious than egg whites alone</li></ul>
-           <p>If you have specific medical conditions, follow your doctor’s guidance — but for the majority, eggs are a healthy staple.</p>`,
-          `<h2>⭐ 8. Why Eggs Fit Perfectly Into MotionC</h2>
-           <p>Eggs align with MotionC principles:</p>
-           <ul><li>Simple</li><li>Accessible</li><li>High-impact</li><li>Low friction</li><li>Easy to repeat daily</li><li>Supports small steps that create large gains</li></ul>
-           <p>They’re the kind of food that helps you build momentum without effort.</p>`,
-          `<h2>⭐ 9. Beginner-Friendly Egg Routine</h2>
-           <p>If you want a simple starting point:</p>
-           <p><strong>Option A — Morning Boost</strong><br>2 eggs + fruit + water</p>
-           <p><strong>Option B — Protein Anchor</strong><br>3 eggs + veggies</p>
-           <p><strong>Option C — On-the-Go</strong><br>2 boiled eggs + yogurt or cheese stick</p>
-           <p><strong>Option D — Light Lunch</strong><br>Eggs + salad + olive oil</p>
-           <p>These routines are easy, repeatable, and effective.</p>`,
-          `<h2>⭐ 10. The MotionC Takeaway</h2>
-           <p>Eggs aren’t fancy. They’re not trendy. They’re not complicated.</p>
-           <p>They’re just reliable — and reliability builds consistency.</p>
-           <p>Consistency builds momentum. Momentum builds change.</p>
-           <p>Eggs are one of the simplest ways to support your future self, one meal at a time.</p>`
-        ]
-      },
-      {
-        id: "chia-seeds-a-beginners-guide",
-        category: "nutrition",
-        title: "Chia Seeds: A Beginner’s Guide",
-        tags: ["chia seeds", "beginner guide", "fiber", "omega-3", "protein", "digestion", "fullness", "heart health", "chia pudding", "nutrition", "Mo Explains", "visual learning"],
-        summary: "What they are, why they matter, and how to start.",
-        pages: [
-          `<p>If you’ve never used chia seeds before, they can seem a little mysterious. They’re tiny, they look simple, and yet people talk about them like they’re a nutrition powerhouse.</p>
-           <p>The truth is: chia seeds are one of the easiest daily habits you can add to support your health — and they require almost no effort.</p>`,
-          `<h2>What Chia Seeds Actually Are</h2>
-           <p>Chia seeds come from a flowering plant in the mint family. They’re small, neutral-tasting seeds that absorb liquid and form a gel-like texture.</p>
-           <p>This unique ability to absorb water is part of what makes them so useful.</p>
-           <p>Chia seeds contain:</p>
-           <ul><li>Fiber</li><li>Omega-3 fatty acids</li><li>Protein</li><li>Antioxidants</li><li>Minerals like calcium and magnesium</li></ul>
-           <p>They’re simple, but surprisingly nutrient-dense.</p>`,
-          `<h2>Why People Use Chia Seeds</h2>
-           <p>Chia seeds are popular because they’re:</p>
-           <ul><li>easy to add to meals</li><li>high in fiber</li><li>supportive for digestion</li><li>helpful for fullness</li><li>rich in plant-based omega-3s</li></ul>
-           <p>You don’t need to cook them, soak them, or prepare them in any complicated way. They fit into almost any eating style.</p>`,
-          `<h2>The Benefits (Beginner-Friendly)</h2>
-           <h3>1. Supports Digestion</h3>
-           <p>Chia seeds are high in soluble fiber. When they absorb water, they form a gentle gel that helps support regular digestion and smoother bowel movements.</p>
-           <h3>2. Helps You Stay Full Longer</h3>
-           <p>The combination of fiber, protein, and water absorption helps increase satiety. This can support appetite control and more stable eating patterns.</p>
-           <h3>3. Plant-Based Omega-3s</h3>
-           <p>Chia seeds are one of the richest plant sources of omega-3 fatty acids. Omega-3s support heart health, inflammation control, and overall wellness.</p>
-           <h3>4. Easy to Add to Anything</h3>
-           <p>Chia seeds have almost no flavor. You can add them to yogurt, smoothies, oatmeal, salads, or even water.</p>
-           <h3>5. Simple, Flexible Habit</h3>
-           <p>You don’t need a recipe. You don’t need a routine. You just sprinkle them into whatever you’re already eating.</p>`,
-          `<h2>Do You Need to Soak Them?</h2>
-           <p>You can soak chia seeds, but you don’t have to.</p>
-           <p>Soaking makes them softer and creates a pudding-like texture. Eating them dry is also fine — just make sure you drink a little water with them.</p>`,
-          `<h2>How to Start (Beginner Tips)</h2>
-           <ul><li>Begin with 1 tablespoon per day</li><li>Add them to yogurt, smoothies, or oatmeal</li><li>If eating dry, drink extra water</li><li>If soaking, use a 1:4 ratio (chia to liquid)</li><li>Try chia pudding if you want a simple breakfast option</li></ul>
-           <p>Chia seeds are forgiving — there’s no wrong way to use them.</p>`,
-          `<h2>Takeaway</h2>
-           <p>Chia seeds are a beginner-friendly habit that supports digestion, fullness, heart health, and daily nutrition. They’re simple, versatile, and easy to add to your routine without changing how you eat.</p>
-           <h2>Mo Explains: A Visual Guide</h2>
-           <figure class="article-explainer">
-             <img src="/images/mo-explains-chia-seeds-beginners-guide.png" alt="Mo Explains visual beginner’s guide to chia seeds, digestion, fullness, omega-3s, soaking, and daily use" loading="lazy">
-             <figcaption>Mo Explains: Chia Seeds — A Beginner’s Guide</figcaption>
-           </figure>`
-        ]
-      },
-      {
-        id: "psyllium-husk-a-friendly-beginner-guide",
-        category: "nutrition",
-        title: "Psyllium Husk: A Friendly MotionC Beginner Guide",
-        tags: ["psyllium husk", "psyllium", "soluble fiber", "fiber", "digestion", "appetite", "blood sugar", "gut health", "LDL cholesterol", "visceral fat", "beginner guide", "Mo Explains", "visual learning"],
-        summary: "What psyllium is, what it does, how to use it, and what to realistically expect during the first few weeks.",
-        pages: [
-          `<p>Psyllium husk is one of the simplest, safest, and most quietly powerful tools you can add to your daily routine. It doesn’t come with hype, marketing, or dramatic promises — just steady, reliable benefits that build over time.</p>
-           <p>If you’re new to it, this guide will walk you through what psyllium is, what it does, how to use it, and what to realistically expect in the first few weeks.</p>`,
-          `<h2>🌱 What Is Psyllium Husk?</h2>
-           <p>Psyllium comes from the seeds of the <em>Plantago ovata</em> plant. The husk is a natural soluble fiber, meaning it absorbs water and forms a gentle gel inside your digestive system.</p>
-           <p>It’s not a supplement in the flashy sense. It’s literally just pure fiber, harvested, dried, and ground.</p>`,
-          `<h2>🛒 Where Do You Get It?</h2>
-           <p>You can find psyllium husk almost anywhere:</p>
-           <ul><li>Grocery stores</li><li>Pharmacies</li><li>Health food stores</li><li>Bulk food stores</li><li>Online retailers</li></ul>
-           <p>It usually comes as:</p>
-           <ul><li>Loose powder (best for MotionC)</li><li>Capsules (easy, but lower dose per serving)</li><li>Pre-mixed fiber drinks (often pricier)</li></ul>
-           <p>For MotionC, the plain powder is ideal — clean, simple, and easy to measure.</p>`,
-          `<h2>💡 What Does Psyllium Husk Do?</h2>
-           <p>Here’s the beginner-friendly breakdown of its main benefits.</p>
-           <h3>1. Helps Control Appetite</h3>
-           <p>Psyllium expands when mixed with water, creating a gentle feeling of fullness. This naturally reduces snacking and overeating.</p>
-           <h3>2. Smooths Out Digestion</h3>
-           <p>It supports regularity — not too fast, not too slow. Great for anyone dealing with bloating or irregular mornings.</p>
-           <h3>3. Stabilizes Blood Sugar</h3>
-           <p>Soluble fiber slows down how quickly your body absorbs carbs. This means fewer spikes and crashes — a core MotionC principle.</p>`,
-          `<h3>4. Feeds Healthy Gut Bacteria</h3>
-           <p>Psyllium acts as a prebiotic, giving your good gut microbes something to thrive on. A healthier gut = better metabolism and lower inflammation.</p>
-           <h3>5. Helps Lower LDL Cholesterol</h3>
-           <p>It binds to cholesterol in the digestive tract and helps carry it out.</p>
-           <h3>6. Supports Visceral Fat Reduction</h3>
-           <p>By improving insulin response, reducing inflammation, and stabilizing appetite, psyllium quietly helps create the conditions your body needs to burn visceral fat.</p>`,
-          `<h2>🥄 How Do You Use It?</h2>
-           <p>The simplest method:</p>
-           <ol><li>Add 1 teaspoon of psyllium husk to a glass.</li><li>Pour in 8–12 oz of water.</li><li>Stir quickly.</li><li>Drink before it thickens too much.</li></ol>
-           <p>You can take it:</p>
-           <ul><li>before lunch</li><li>after your morning walk</li><li>with dinner</li></ul>
-           <p>Start small — psyllium is powerful. Increase slowly if needed.</p>`,
-          `<h2>⏳ Expectations vs Reality</h2>
-           <h3>Why Psyllium Takes Time to “Kick In”</h3>
-           <p>Most people expect psyllium to work immediately. But psyllium is a system tool, not a quick fix.</p>
-           <p>Here’s the realistic timeline:</p>
-           <h3>Day 1–3: Adjustment Phase</h3>
-           <p>Your gut is figuring out what to do with the new fiber. Effects may be mild or inconsistent.</p>
-           <h3>Day 4–7: Regulation Phase</h3>
-           <p>Digestion becomes more predictable. You start noticing smoother mornings and fewer swings.</p>
-           <h3>Day 7–14: Full Effect</h3>
-           <p>This is where psyllium becomes daily-effective:</p>
-           <ul><li>regularity</li><li>appetite control</li><li>less bloating</li><li>calmer gut</li><li>more stable hunger signals</li></ul>
-           <p>This slow build is normal — and actually a sign that psyllium is working with your biology, not against it.</p>`,
-          `<h2>👥 A Real-World Example</h2>
-           <p>Many beginners report the same pattern:</p>
-           <p>At first, they feel frustrated — nothing seems to be happening. But after about two weeks, they begin noticing subtle changes:</p>
-           <ul><li>smoother digestion</li><li>less bloating</li><li>more predictable hunger</li><li>a gentle, steady drop in weight</li></ul>
-           <p>Often, they haven’t changed their food intake or routine. The shift comes from psyllium finally settling in and doing its job.</p>
-           <p>This is the pattern most people see:</p>
-           <ul><li>Week 1: “Is this doing anything?”</li><li>Week 2: “I feel different.”</li><li>Week 3+: “My weight is slowly trending down.”</li></ul>
-           <p>It’s not magic — it’s mechanism + consistency.</p>`,
-          `<h2>⚠️ Friendly Tips</h2>
-           <ul><li>Drink enough water — psyllium needs it.</li><li>Don’t take it at the same time as medications.</li><li>If bloating happens early, reduce the dose and build up slowly.</li><li>Choose unsweetened, plain psyllium.</li></ul>`,
-          `<h2>⭐ Why MotionC Recommends Psyllium</h2>
-           <p>MotionC is built around simple, evidence-based tools that support:</p>
-           <ul><li>metabolic stability</li><li>gut health</li><li>inflammation reduction</li><li>sustainable fat loss</li><li>daily routine consistency</li></ul>
-           <p>Psyllium fits perfectly because it’s:</p>
-           <ul><li>inexpensive</li><li>safe</li><li>natural</li><li>beginner-friendly</li><li>effective even at low doses</li><li>easy to add to any routine</li></ul>
-           <p>It’s one of those rare things where the benefits are big and the effort is tiny.</p>
-           <h2>Mo Explains: A Visual Guide</h2>
-           <figure class="article-explainer">
-             <img src="/images/mo-explains-soluble-fiber-powerhouses.png" alt="Mo Explains visual guide comparing ground flaxseed, chia seeds, and psyllium husk as soluble-fiber powerhouses" loading="lazy">
-             <figcaption>A Beginner’s Guide to Soluble Fiber Powerhouses</figcaption>
-           </figure>`
-        ]
-      },
-      {
-        id: "kimchi-a-beginners-guide",
-        category: "nutrition",
-        title: "Kimchi: A Beginner’s Guide",
-        tags: ["kimchi", "fermented foods", "fermentation", "probiotics", "gut health", "digestion", "inflammation", "immune system", "metabolism", "blood sugar", "salt", "beginner guide", "Mo Explains", "visual learning"],
-        summary: "What kimchi is, why it matters, and how to start.",
-        pages: [
-          `<p>If you’ve never heard of kimchi before, you’re not alone. Kimchi is a traditional Korean food made from vegetables — usually cabbage — that are seasoned and then fermented. It’s tangy, a little spicy, and packed with natural health benefits.</p>
-           <p>Think of it as a small daily habit that quietly supports your body in big ways.</p>`,
-          `<h2>What Kimchi Actually Is</h2>
-           <p>Kimchi starts with simple ingredients:</p>
-           <ul><li>Cabbage or radish</li><li>Garlic</li><li>Ginger</li><li>Chili</li><li>Salt</li></ul>
-           <p>These ingredients are mixed together and left to ferment. During fermentation, beneficial bacteria grow — the same kind that support gut health.</p>
-           <p>The result is a flavorful, probiotic-rich food that has been enjoyed for centuries.</p>`,
-          `<h2>Why Fermentation Matters</h2>
-           <p>Fermentation is what makes kimchi special. It creates:</p>
-           <ul><li>Probiotics that support digestion</li><li>Natural compounds that help calm inflammation</li><li>Antioxidants that support your immune system</li></ul>
-           <p>It’s one of the easiest ways to add fermented foods to your routine.</p>`,
-          `<h2>The Benefits (Beginner-Friendly)</h2>
-           <h3>1. Better Digestion</h3>
-           <p>Kimchi contains live probiotics that help balance your gut. This can support smoother digestion and reduce bloating.</p>
-           <h3>2. Natural Anti-Inflammatory Support</h3>
-           <p>Fermented foods produce compounds that help calm inflammation. This supports joint comfort and overall wellness.</p>
-           <h3>3. Stronger Immune Resilience</h3>
-           <p>A healthier gut supports a stronger immune system. Kimchi’s probiotics and antioxidants help reinforce your daily defenses.</p>
-           <h3>4. More Stable Metabolism</h3>
-           <p>Kimchi can help support blood sugar balance and appetite regulation. This contributes to metabolic stability — a key part of long-term health.</p>
-           <h3>5. Easy to Add to Your Routine</h3>
-           <p>Kimchi requires no prep and pairs easily with meals. A small serving goes a long way.</p>`,
-          `<h2>What About the Salt?</h2>
-           <p>Kimchi is salty — that’s part of fermentation. Salt may cause temporary water retention, but it does not affect fat gain or long-term weight.</p>
-           <p>Small scale fluctuations are normal and simply reflect water shifts.</p>`,
-          `<h2>How to Start (Beginner Tips)</h2>
-           <ul><li>Begin with 1–2 tablespoons</li><li>Choose fermented, refrigerated kimchi</li><li>Add it to lunch or supper</li><li>Pair it with protein</li><li>Drink a little extra water</li></ul>
-           <p>You don’t need to eat a lot. Consistency is what makes the difference.</p>`,
-          `<h2>Takeaway</h2>
-           <p>Kimchi is a simple, beginner-friendly way to support gut health, inflammation control, immunity, and metabolic stability. It’s a small habit with meaningful benefits — and easy to add to your day.</p>
-           <h2>Mo Explains: A Visual Guide</h2>
-           <figure class="article-explainer">
-             <img src="/images/mo-explains-kimchi-top-five-benefits.png" alt="Mo Explains visual guide to kimchi’s benefits for gut health, inflammation, immunity, metabolism, and daily habits" loading="lazy">
-             <figcaption>Mo Explains: Kimchi — Top 5 Benefits</figcaption>
-           </figure>`
-        ]
-      },
-      {
-        id: "pumpkin-seeds-a-simple-powerful-source-of-magnesium",
-        category: "nutrition",
-        title: "Pumpkin Seeds: A Simple, Powerful Source of Magnesium",
-        tags: ["pumpkin seeds", "pepitas", "magnesium", "whole-food magnesium", "magnesium glycinate", "sleep", "stress", "recovery", "zinc", "tryptophan", "protein", "antioxidants", "fiber", "Mo Explains", "visual learning"],
-        summary: "How pumpkin seeds contribute magnesium and other nutrients—and how they complement magnesium glycinate.",
-        pages: [
-          `<p>Pumpkin seeds (also called pepitas) are one of the richest natural sources of magnesium you can eat. They’re small, crunchy, and surprisingly nutrient-dense — which makes them perfect for MotionC’s “small choices create momentum” philosophy.</p>
-           <p>Let’s break down what they actually do for you.</p>`,
-          `<h2>🌱 1. How Much Magnesium Do Pumpkin Seeds Give You?</h2>
-           <p>Pumpkin seeds are loaded with magnesium.</p>
-           <p><strong>1 ounce (about a small handful)<br>→ 150–170 mg of magnesium</strong></p>
-           <p>For context:</p>
-           <ul><li>Most adults need 300–400 mg per day</li><li>Pumpkin seeds give you about half of that in one handful</li></ul>
-           <p>So yes — they give you a meaningful amount.</p>
-           <p>But are they “enough” on their own?</p>
-           <p><strong>Short answer:</strong><br>They help a LOT… but most people still fall short without additional sources.</p>
-           <p>Pumpkin seeds are a strong contributor, not a complete solution.</p>`,
-          `<h2>🌙 2. Why Do We Even Need Magnesium?</h2>
-           <p>Magnesium is involved in over 300 processes in your body. Here are the ones your readers actually care about:</p>
-           <ul><li>Better sleep</li><li>Lower stress</li><li>Muscle relaxation</li><li>Heart health</li><li>Blood sugar regulation</li><li>Mood stability</li><li>Energy production</li><li>Reduced inflammation</li><li>Fewer nighttime cramps</li><li>Better recovery from walking/exercise</li></ul>
-           <p>It’s one of the most important minerals for feeling calm, balanced, and steady — which is why MotionC focuses on it so much.</p>`,
-          `<h2>🧩 3. Is Magnesium From Pumpkin Seeds the Same as Magnesium From Pills?</h2>
-           <p>This is a GREAT question — and most people don’t know the answer.</p>
-           <p><strong>Yes and no.</strong></p>
-           <p><strong>YES:</strong><br>It’s the same elemental magnesium your body needs.</p>
-           <p><strong>NO:</strong><br>It’s not the same form.</p>
-           <p>Food magnesium is naturally bound to proteins and fibers. Supplement magnesium is bound to specific compounds (glycine, citrate, malate, etc.) that change how your body absorbs it.</p>
-           <p><strong>What this means:</strong></p>
-           <ul><li>Food magnesium = steady, gentle absorption</li><li>Supplement magnesium = targeted effects (sleep, digestion, energy, etc.)</li></ul>
-           <p>Pumpkin seeds give you whole-food magnesium, which is excellent for daily baseline intake — but they won’t replace magnesium glycinate for sleep or stress.</p>
-           <p>Think of pumpkin seeds as foundation, and magnesium glycinate as reinforcement.</p>`,
-          `<h2>⭐ 4. What Else Do Pumpkin Seeds Do for You?</h2>
-           <p>Pumpkin seeds are one of the most underrated foods on the planet.</p>
-           <p>Here’s what they bring to the table:</p>
-           <p><strong>✔ Zinc</strong><br>Supports immunity, hormone balance, and nighttime recovery.</p>
-           <p><strong>✔ Healthy fats</strong><br>Good for heart health and inflammation.</p>
-           <p><strong>✔ Tryptophan</strong><br>An amino acid that helps produce serotonin → melatonin → better sleep.</p>
-           <p><strong>✔ Protein</strong><br>Helps stabilize appetite and blood sugar.</p>
-           <p><strong>✔ Antioxidants</strong><br>Reduce inflammation and support long-term health.</p>
-           <p><strong>✔ Fiber</strong><br>Supports digestion and keeps you full longer.</p>
-           <p>Pumpkin seeds are basically a tiny multivitamin disguised as a snack.</p>`,
-          `<h2>🌙 5. Are Pumpkin Seeds Good Before Bed?</h2>
-           <p>Yes — surprisingly good.</p>
-           <p>Here’s why:</p>
-           <ul><li>Magnesium → muscle relaxation</li><li>Tryptophan → melatonin production</li><li>Healthy fats → stabilize nighttime blood sugar</li><li>Zinc → supports nighttime recovery</li></ul>
-           <p>A small handful before bed can help you feel calmer and sleep deeper.</p>
-           <p>They’re not as strong as magnesium glycinate, but they support the same systems.</p>`,
-          `<h2>🧭 MotionC Summary</h2>
-           <p>Pumpkin seeds are one of the best whole-food sources of magnesium you can eat. They give you about half your daily magnesium in a single handful, plus zinc, tryptophan, healthy fats, and antioxidants.</p>
-           <p>They support:</p>
-           <ul><li>Sleep</li><li>Stress</li><li>Recovery</li><li>Mood</li><li>Appetite control</li><li>Heart health</li><li>Inflammation</li><li>Daily metabolic balance</li></ul>
-           <p>They won’t replace magnesium glycinate — but they make your magnesium foundation stronger.</p>
-           <p class="mcp-plain-language"><strong>Remember: Balance Within, Strength Throughout</strong></p>
-           <h2>Mo Explains: A Visual Guide</h2>
-           <figure class="article-explainer">
-             <img src="/images/pumpkin-seeds-vs-magnesium-glycinate.png" alt="Visual comparison showing pumpkin seeds and magnesium glycinate working together for whole-food nutrition, sleep, calm, and recovery" loading="lazy">
-             <figcaption>Pumpkin Seeds vs Magnesium Glycinate — Better Together</figcaption>
-           </figure>`
-        ]
-      },
-      {
-        id: "magnesium-choosing-the-most-well-rounded-option",
-        category: "nutrition",
-        title: "Magnesium: Choosing the Most Well-Rounded Option for Daily Use",
-        tags: ["magnesium", "magnesium glycinate", "glycinate", "citrate", "L-threonate", "malate", "taurate", "chloride", "sleep", "stress", "recovery", "supplements", "vitamin D", "zinc", "vitamin B6", "omega-3", "Mo Explains", "visual learning"],
-        summary: "A practical comparison of magnesium forms and the most well-rounded option for everyday use.",
-        pages: [
-          `<p>Magnesium is one of those quiet nutrients — it works behind the scenes, supporting sleep, stress, muscle recovery, and metabolic balance. But walk into any store and you’ll see several different types, each claiming to be the best.</p>
-           <p>MotionC is built on clarity and practicality. If you want one magnesium that delivers the widest range of everyday benefits — sleep, calm, recovery, and metabolic support — magnesium glycinate is the most well-rounded choice.</p>`,
-          `<h2>🌙 Magnesium Glycinate (Bisglycinate)</h2>
-           <p><strong>Best for:</strong> Sleep, stress, calm, recovery</p>
-           <p>Glycinate is bound to glycine, an amino acid that naturally promotes relaxation. It absorbs well, it’s gentle on the stomach, and it supports the systems that help people feel balanced.</p>
-           <p><strong>Pros:</strong></p>
-           <ul><li>Excellent for sleep quality</li><li>Helps regulate stress and calm the nervous system</li><li>No laxative effect</li><li>Supports recovery from walking and exercise</li><li>Helps stabilize appetite and cravings through better sleep</li></ul>
-           <p><strong>Cons:</strong></p>
-           <ul><li>Slightly more expensive</li><li>Not a direct fat-burner (but supports weight-loss conditions)</li></ul>
-           <p><strong>MotionC reasoning:</strong> Better sleep → better recovery → better consistency → better metabolic momentum. Glycinate fits MotionC’s philosophy: internal balance creates external progress.</p>`,
-          `<h2>⚡ Magnesium Citrate</h2>
-           <p><strong>Best for:</strong> Digestion and regularity</p>
-           <p><strong>Pros:</strong></p>
-           <ul><li>Helps relieve constipation</li><li>Decent absorption</li></ul>
-           <p><strong>Cons:</strong></p>
-           <ul><li>Can cause loose stools</li><li>Not ideal for daily use unless digestion is the goal</li><li>Doesn’t support sleep or stress</li></ul>
-           <p><strong>MotionC reasoning:</strong> Useful for specific situations, but not a daily foundational supplement.</p>`,
-          `<h2>💭 Magnesium L-Threonate</h2>
-           <p><strong>Best for:</strong> Cognitive support</p>
-           <p><strong>Pros:</strong></p>
-           <ul><li>Crosses the blood-brain barrier</li><li>Supports memory and focus</li></ul>
-           <p><strong>Cons:</strong></p>
-           <ul><li>Expensive</li><li>Not necessary for general wellness</li></ul>
-           <p><strong>MotionC reasoning:</strong> Great for brain health, but too specialized for most people.</p>`,
-          `<h2>🔋 Magnesium Malate</h2>
-           <p><strong>Best for:</strong> Energy production</p>
-           <p><strong>Pros:</strong></p>
-           <ul><li>Supports daytime energy</li><li>Helps with muscle fatigue</li></ul>
-           <p><strong>Cons:</strong></p>
-           <ul><li>Not calming</li><li>Not ideal for nighttime use</li></ul>
-           <p><strong>MotionC reasoning:</strong> Good for people with chronic fatigue, but not the most balanced option.</p>`,
-          `<h2>❤️ Magnesium Taurate</h2>
-           <p><strong>Best for:</strong> Heart health</p>
-           <p><strong>Pros:</strong></p>
-           <ul><li>Supports blood pressure</li><li>Gentle on the stomach</li></ul>
-           <p><strong>Cons:</strong></p>
-           <ul><li>Narrow benefit range</li></ul>
-           <p><strong>MotionC reasoning:</strong> Strong for cardiovascular goals, but not broad enough for everyday use.</p>`,
-          `<h2>🧴 Magnesium Chloride</h2>
-           <p><strong>Best for:</strong> Topical use</p>
-           <p><strong>Pros:</strong></p>
-           <ul><li>Absorbs well through the skin</li><li>Good for muscle relaxation</li></ul>
-           <p><strong>Cons:</strong></p>
-           <ul><li>Not as effective orally for sleep or stress</li></ul>
-           <p><strong>MotionC reasoning:</strong> Useful as a spray or lotion, not the best daily supplement.</p>`,
-          `<h2>⭐ The Most Well-Rounded Choice</h2>
-           <p>Magnesium glycinate supports the widest range of MotionC pillars:</p>
-           <ul><li>Sleep quality</li><li>Stress regulation</li><li>Recovery</li><li>Mood stability</li><li>Appetite control</li><li>Metabolic balance</li></ul>
-           <p>It’s the “everyday magnesium” — the one that fits into real life without digestive issues or specialized goals.</p>`,
-          `<h2>🔧 Complementary Nutrients: Do You Need Anything Else?</h2>
-           <p>Magnesium works well on its own, but certain nutrients enhance its effects or help the body use it more efficiently.</p>
-           <h3>☀️ Vitamin D — The Most Important Partner</h3>
-           <p>Magnesium activates vitamin D. Vitamin D improves magnesium absorption.</p>
-           <p><strong>Why it matters:</strong></p>
-           <ul><li>Better mood</li><li>Better sleep</li><li>Better metabolic regulation</li><li>Better magnesium utilization</li></ul>
-           <p><strong>MotionC reasoning:</strong> If vitamin D is low, magnesium can’t perform at full strength.</p>
-           <h3>🛡️ Zinc — Helpful, but Only in Balance</h3>
-           <p>Zinc and magnesium share absorption pathways, but they complement each other in normal doses.</p>
-           <p><strong>Why it matters:</strong></p>
-           <ul><li>Supports hormone balance</li><li>Supports recovery</li><li>Supports stress response</li></ul>
-           <p><strong>MotionC reasoning:</strong> Zinc doesn’t “boost” magnesium, but together they support nighttime recovery — a core MotionC theme.</p>`,
-          `<h3>🌙 Vitamin B6 — Optional but Great for Sleep</h3>
-           <p>B6 helps convert magnesium into its active form inside cells.</p>
-           <p><strong>Why it matters:</strong></p>
-           <ul><li>Better sleep</li><li>Better mood regulation</li><li>Better magnesium utilization</li></ul>
-           <p><strong>MotionC reasoning:</strong> This pairing fits MotionC’s calm-at-night, momentum-in-the-morning philosophy.</p>
-           <h3>🐟 Omega-3 — A Synergy, Not a Requirement</h3>
-           <p>Omega-3 reduces inflammation. Magnesium regulates stress and sleep.</p>
-           <p>Together, they support metabolic balance.</p>
-           <p><strong>MotionC reasoning:</strong> Not required, but helpful for long-term health.</p>`,
-          `<h2>⚠️ What NOT to Pair With Magnesium</h2>
-           <p><strong>Iron:</strong> Competes for absorption.<br><strong>High-dose calcium:</strong> Can block magnesium uptake.</p>
-           <p>These notes help readers avoid common supplement mistakes.</p>`,
-          `<h2>🧭 MotionC Summary</h2>
-           <p>If someone wants one magnesium that supports sleep, stress, recovery, and metabolic balance — without digestive issues — magnesium glycinate is the most well-rounded choice.</p>
-           <p>Pair it with Vitamin D for best results. Add Zinc or B6 depending on personal goals. Skip the forms that act mainly as laxatives or are too specialized.</p>
-           <p class="mcp-plain-language"><strong>Remember: Balance Within, Strength Throughout</strong></p>
-           <h2>Mo Explains: A Visual Guide</h2>
-           <figure class="article-explainer">
-             <img src="/images/magnesium-types-compared.png" alt="Visual comparison of magnesium citrate, oxide, malate, threonate, and glycinate" loading="lazy">
-             <figcaption>Magnesium Types Compared: Different Forms, Different Benefits</figcaption>
-           </figure>`
-        ]
-      },
-      {
-        id: "chelated-minerals-why-they-matter",
-        category: "nutrition",
-        title: "Chelated Minerals: Why They Matter (Explained Simply)",
-        tags: ["chelated minerals", "minerals", "supplements", "absorption", "amino acids", "magnesium glycinate", "magnesium oxide", "iron bisglycinate", "iron sulfate", "zinc picolinate", "zinc oxide", "Mo Explains", "visual learning"],
-        summary: "A simple explanation of chelated minerals, absorption, tolerance, and familiar supplement examples.",
-        pages: [
-          `<p>In MotionC, we talk a lot about small internal changes that create external strength. Vitamins and minerals are part of that story — but only if your body can actually use them.</p>
-           <p>That’s where the word “chelated” comes in.</p>
-           <p>It sounds scientific, but the idea is simple enough for anyone to understand — even someone just getting into vitamins for the first time.</p>`,
-          `<h2>🌱 What “Chelated” Really Means</h2>
-           <p>Imagine your body is a busy city, and minerals are delivery trucks trying to get inside. Some trucks get stuck at the gate because the body doesn’t recognize them.</p>
-           <p>A chelated mineral is a mineral that’s been attached to an amino acid — basically a tiny protein. This attachment acts like a VIP pass that helps the mineral get through the gate and into the city.</p>
-           <p>Once inside, your body can actually use it.</p>
-           <p>That’s the whole idea. Chelated = easier to absorb. Non-chelated = harder to absorb.</p>`,
-          `<h2>🌿 Why Chelated Minerals Are Worth Considering</h2>
-           <p>When you choose a chelated mineral, you’re choosing something your body can absorb more easily and tolerate more comfortably.</p>
-           <h3>1. Better absorption</h3>
-           <p>Your body recognizes the amino acid and pulls the mineral in with it.</p>
-           <h3>2. Less stomach irritation</h3>
-           <p>Non-chelated minerals can be harsh — cramps, nausea, or bathroom trips. Chelated minerals are gentler.</p>
-           <h3>3. More predictable results</h3>
-           <p>If you’re taking magnesium for sleep, iron for energy, or zinc for immunity, chelated forms help you actually feel the intended effect.</p>
-           <h3>4. You don’t waste money</h3>
-           <p>Cheap non-chelated minerals look good on the shelf, but your body barely uses them.</p>`,
-          `<h2>🌙 Real Examples You’ll See in Stores</h2>
-           <h3>Magnesium Glycinate (Chelated)</h3>
-           <ul><li>Easy to absorb</li><li>Gentle on the stomach</li><li>Great for sleep and stress</li><li>Fits MotionC’s “calm at night, momentum in the morning” philosophy</li></ul>
-           <h3>Magnesium Oxide (Non-Chelated)</h3>
-           <ul><li>Poor absorption</li><li>Can cause diarrhea</li><li>Mostly acts as a laxative</li><li>Not ideal for daily use</li></ul>`,
-          `<h3>Iron Bisglycinate (Chelated)</h3>
-           <ul><li>High absorption</li><li>Less nausea</li><li>Better for people who need daily iron support</li><li>Helps maintain energy and consistency</li></ul>
-           <h3>Iron Sulfate (Non-Chelated)</h3>
-           <ul><li>More stomach irritation</li><li>Harder to tolerate long-term</li><li>Can disrupt daily routines</li></ul>`,
-          `<h3>Zinc Picolinate (Chelated)</h3>
-           <ul><li>High absorption</li><li>Good for immunity and hormone balance</li><li>Smooth on the stomach</li></ul>
-           <h3>Zinc Oxide (Non-Chelated)</h3>
-           <ul><li>Poor absorption</li><li>Cheap but ineffective</li><li>Not ideal for daily health goals</li></ul>`,
-          `<h2>🌤️ Why This Matters in MotionC</h2>
-           <p>MotionC is built on the idea that small internal improvements create external strength. Chelated minerals fit that philosophy perfectly:</p>
-           <ul><li>Better absorption → better results</li><li>Less irritation → better consistency</li><li>Better consistency → better momentum</li></ul>
-           <p>When your supplements work with your body instead of fighting it, everything becomes easier — sleep, energy, recovery, mood, and metabolic balance.</p>
-           <h2>Mo Explains: A Visual Guide</h2>
-           <figure class="article-explainer">
-             <img src="/images/chelated-minerals-explained.png" alt="Visual explanation comparing easier absorption of chelated minerals with harder absorption of non-chelated minerals" loading="lazy">
-             <figcaption>Chelated Minerals Explained: Easier Absorption</figcaption>
-           </figure>`
-        ]
-      },
-      {
         id: "small-food-changes",
         category: "nutrition",
         title: "Small Food Changes That Last",
@@ -2059,132 +827,6 @@
            <p>Add before you subtract: more water, more vegetables, or a reliable source of protein can improve a meal without making it feel punitive.</p>`,
           `<p>Change one repeatable situation at a time. Breakfast, workday snacks, or evening portions are easier to understand when they are not all being rebuilt at once.</p>
            <p>Progress becomes durable when the new choice stops requiring a daily argument.</p>`
-        ]
-      },
-      {
-        id: "hydration-a-beginners-guide",
-        category: "recovery",
-        title: "Hydration: A Beginner’s Guide",
-        tags: ["hydration", "water", "beginner guide", "morning", "metabolism", "energy", "walking", "digestion", "fat-burning", "recovery"],
-        summary: "How water shapes your metabolism, your mornings, and your daily energy.",
-        pages: [
-          `<p>Most people think hydration is just “drink 8 glasses a day.” But hydration is a timing system, not a number. Your body uses water differently at night, in the morning, during meals, and after movement — and understanding that rhythm changes everything.</p>
-           <p>This guide explains how hydration actually works, how much you need, and how to use water to support fat-burning, digestion, and daily performance.</p>`,
-          `<h2>🌙 1. Night Mode: Why You Wake Up Dehydrated</h2>
-           <p>During sleep, your body enters a quiet maintenance mode:</p>
-           <ul><li>Digestion slows</li><li>Breathing is steady</li><li>Sweat evaporates</li><li>Kidneys filter</li><li>Hormones reset</li><li>Blood volume drops slightly</li></ul>
-           <p>You lose water through:</p>
-           <ul><li>breathing</li><li>skin evaporation</li><li>overnight kidney filtration</li></ul>
-           <p>This is why most people wake up:</p>
-           <ul><li>thirsty</li><li>dry-mouthed</li><li>low-energy</li><li>slightly dehydrated</li></ul>
-           <p>Hydration is the first step in activating your morning metabolism.</p>`,
-          `<h2>🌅 2. The Wake-Up Window: When Water Matters Most</h2>
-           <p>The first hour after waking is a metabolic transition:</p>
-           <ul><li>cortisol peaks</li><li>insulin sensitivity is high</li><li>fat-burning pathways are open</li><li>digestion is still “off”</li><li>blood volume is low</li></ul>
-           <p>A small amount of water early in the morning:</p>
-           <ul><li>hydrates your bloodstream</li><li>reduces false hunger</li><li>wakes up your kidneys</li><li>supports fat mobilization</li><li>improves walking performance</li><li>helps the body switch smoothly into “day mode”</li></ul>
-           <p>Water is the lubrication that lets the morning engine turn.</p>`,
-          `<h2>🔵 3. How Much Water Do You Actually Need?</h2>
-           <p>The “8 glasses a day” rule is a generic average, not a personalized target.</p>
-           <p>A better guideline:</p>
-           <p><strong>Daily Hydration Formula</strong><br>Body weight (lbs) × 0.5 = ounces per day</p>
-           <p>Example: 180 lbs → 90 oz per day<br>200 lbs → 100 oz per day</p>
-           <p>This formula adjusts for:</p>
-           <ul><li>body size</li><li>metabolic rate</li><li>activity level</li></ul>
-           <p>But timing matters more than total.<br>Your body benefits most when water is spread across the day, not dumped in large amounts.</p>`,
-          `<h2>💧 4. Should You Drink Water Before Bed?</h2>
-           <p>A small amount of water before bed is helpful:</p>
-           <ul><li>prevents waking up bone-dry</li><li>supports overnight kidney function</li><li>reduces morning dehydration</li></ul>
-           <p>But avoid large amounts — too much water disrupts sleep.</p>
-           <p><strong>Best practice:</strong><br>A small sip or half-glass before bed.</p>`,
-          `<h2>🌅 5. Morning Hydration: Cold or Room Temperature?</h2>
-           <p><strong>Room temperature water</strong></p>
-           <ul><li>gentler on the stomach</li><li>easier for the body to absorb</li><li>doesn’t shock the digestive system</li><li>ideal immediately upon waking</li></ul>
-           <p><strong>Cold water</strong></p>
-           <ul><li>refreshing</li><li>slightly increases alertness</li><li>fine later in the day</li></ul>
-           <p><strong>Best practice:</strong><br>Room temperature water in the first hour of the morning.</p>`,
-          `<h2>🚶‍♂️ 6. Hydration and Walking: What Happens During Movement</h2>
-           <p>During a walk — especially a longer one — your body loses water through:</p>
-           <ul><li>sweat</li><li>breathing</li><li>skin evaporation</li><li>increased circulation</li></ul>
-           <p>Even if you don’t “feel sweaty,” dehydration still occurs.</p>
-           <p><strong>How dehydrated do you get?</strong><br>A simple estimate:</p>
-           <p><strong>Hydration Loss Formula</strong><br>0.5–1.0% of body weight per hour of light movement</p>
-           <p>Example: 200 lbs → 1–2 lbs of water lost per hour<br>180 lbs → 0.9–1.8 lbs lost</p>
-           <p>This is why people often feel:</p>
-           <ul><li>thirsty</li><li>dry-mouthed</li><li>slightly sluggish</li><li>hungry (false hunger) after a walk.</li></ul>
-           <p><strong>Best practice:</strong><br>Drink water after your walk to restore what was lost.</p>`,
-          `<h2>🍽️ 7. Water and Meals: Before, During, or After?</h2>
-           <p>There’s a lot of confusion about water and digestion.</p>
-           <p>Here’s the simple truth:</p>
-           <p><strong>✔ Water before a meal</strong></p>
-           <ul><li>reduces false hunger</li><li>helps portion control</li><li>supports digestion</li><li>does NOT “dilute stomach acid”</li></ul>
-           <p>Your stomach adjusts instantly — water does not cancel digestion.</p>
-           <p><strong>✔ Water during a meal</strong></p>
-           <ul><li>helps break down food</li><li>supports nutrient absorption</li><li>keeps digestion smooth</li></ul>
-           <p>This is perfectly fine.</p>
-           <p><strong>✔ Water after a meal</strong></p>
-           <ul><li>supports hydration</li><li>helps move food through the digestive tract</li></ul>
-           <p>Also fine.</p>
-           <p><strong>❌ Myth: “Water ruins digestion.”</strong></p>
-           <p>Not true. Your stomach acid is strong — water does not weaken it.</p>`,
-          `<h2>🔥 8. Hydration and Fat-Burning</h2>
-           <p>Water supports fat-burning by:</p>
-           <ul><li>improving blood flow</li><li>helping mobilize stored fat</li><li>supporting kidney function</li><li>reducing false hunger</li><li>improving movement performance</li></ul>
-           <p>Dehydration slows metabolism and increases cravings.</p>
-           <p>Hydration is not just “drinking water” — it’s a fat-burning tool.</p>`,
-          `<h2>🧭 9. The MotionC Hydration Rhythm</h2>
-           <p>A simple daily flow:</p>
-           <p class="mcp-plain-language"><strong>Wake → Water → Move → Water → Eat → Water → Afternoon → Water → Evening → Sip → Sleep</strong></p>
-           <p>This rhythm keeps hydration stable without overwhelming the system.</p>`,
-          `<h2>⭐ Takeaway</h2>
-           <p>Hydration is a timing system. Drink water when your body needs it most: after sleep, after movement, and throughout the day.</p>
-           <p>Water supports digestion, metabolism, fat-burning, and daily energy. Understanding hydration is understanding your body’s rhythm.</p>
-           <h2>Mo Explains: A Visual Guide</h2>
-           <figure class="article-explainer">
-             <img src="/images/mo-explains-hydration-beginners-guide.png" alt="Mo Explains visual guide to hydration, morning water, movement, meals, and daily hydration rhythm" loading="lazy">
-             <figcaption>Mo Explains: Hydration — A Beginner’s Guide</figcaption>
-           </figure>`
-        ]
-      },
-      {
-        id: "water-while-eating-myth",
-        category: "recovery",
-        title: "The Water-While-Eating Myth",
-        tags: ["water", "hydration", "meals", "eating", "palate", "flavor fatigue", "appetite", "calories", "digestion"],
-        summary: "Why sipping water during your meal can actually make you eat more.",
-        pages: [
-          `<p>For years, people believed:</p>
-           <p class="mcp-plain-language"><strong>“Sip water during your meal — it fills you up and helps you eat less.”</strong></p>
-           <p>But a recent study challenged that idea. Researchers found that sipping water between bites can actually increase calorie intake, not reduce it.</p>
-           <p>Here’s the science behind it.</p>`,
-          `<h2>🔬 1. Water Resets Your Palate</h2>
-           <p>Every meal has a natural “flavor fatigue curve.” As you eat:</p>
-           <ul><li>flavors become less intense</li><li>excitement drops</li><li>the body begins sending subtle “slow down” signals</li></ul>
-           <p>This is one of the ways your body helps you stop eating.</p>
-           <p>But when you sip water between bites:</p>
-           <ul><li>the palate gets rinsed</li><li>flavors reset</li><li>each bite feels “new” again</li><li>the brain treats it like a fresh experience</li></ul>
-           <p>This removes the natural stop signal.</p>
-           <p>Instead of getting full faster, people:</p>
-           <ul><li>enjoyed each bite more</li><li>ate for longer</li><li>consumed more calories</li></ul>
-           <p>This was the main finding of the study.</p>`,
-          `<h2>🔬 2. Water Makes Eating Easier</h2>
-           <p>Water doesn’t just reset flavor — it also:</p>
-           <ul><li>softens food</li><li>helps chewing</li><li>speeds swallowing</li><li>reduces “meal friction”</li></ul>
-           <p>Meals become smoother and easier to consume.</p>
-           <p>This is great for digestion… but not great for calorie control.</p>`,
-          `<h2>🔬 3. Why People Thought It Helped With Weight Loss</h2>
-           <p>The old advice came from two ideas:</p>
-           <p><strong>✔ Water before a meal</strong><br>Helps reduce false hunger. This part is true.</p>
-           <p><strong>❌ Water during every bite</strong><br>Was believed to slow eating. But the study showed it actually increases eating.</p>
-           <p>Because each sip resets the palate, the meal becomes more enjoyable, and the body’s natural “I’m done” signals get delayed.</p>`,
-          `<h2>🔬 4. What You Should Actually Do</h2>
-           <p><strong>✔ Drink water before your meal</strong><br>Helps appetite control.</p>
-           <p><strong>✔ Drink water after your meal</strong><br>Supports digestion.</p>
-           <p><strong>✔ Sip occasionally during your meal</strong><br>Totally fine.</p>
-           <p><strong>❌ Don’t sip water between every bite</strong><br>This is the pattern that increases calorie intake.</p>`,
-          `<h2>⭐ MotionC Takeaway</h2>
-           <p>Water belongs at the table — but sipping between every bite resets flavor and can lead to eating more.</p>
-           <p>Drink before. Drink after. Sip occasionally. Let your palate guide your fullness.</p>`
         ]
       },
       {
@@ -2214,185 +856,6 @@
         ]
       },
       {
-        id: "finding-time-to",
-        category: "mindset",
-        title: "Finding Time To…",
-        tags: ["time", "intention", "priority", "motivation", "habits", "walking", "reading", "exercise", "future self", "small steps"],
-        summary: "Why time isn’t the barrier — intention is.",
-        pages: [
-          `<p>Most people say they “don’t have time” to walk, read, lift weights, stretch, or work on themselves. But if you look closely, the problem isn’t time — it’s how we treat time.</p>
-           <p>We treat time like something that happens to us, instead of something we shape.</p>
-           <p>MotionC flips that thinking.</p>`,
-          `<h2>⭐ 1. If You Really Wanted To, You’d Make Time</h2>
-           <p>This sounds harsh, but it’s true — and freeing.</p>
-           <p>Think about it:</p>
-           <ul><li>If someone invited you to a restaurant last minute, you’d find time.</li><li>If your favorite show dropped a new episode, you’d find time.</li><li>If a friend needed help urgently, you’d find time.</li></ul>
-           <p>We are already experts at rearranging our schedule when something matters.</p>
-           <p>The trick is realizing that your health should matter just as much.</p>`,
-          `<h2>⭐ 2. You Don’t Need an Hour — You Need a Decision</h2>
-           <p>Most people imagine walking as a 45–60 minute commitment. But MotionC teaches something different:</p>
-           <p class="mcp-plain-language"><strong>Small steps create large gains.</strong></p>
-           <p>You don’t need an hour. You don’t even need 30 minutes.</p>
-           <p>You need 15 minutes.</p>
-           <p>Fifteen minutes of walking:</p>
-           <ul><li>boosts mood</li><li>lowers stress</li><li>improves insulin sensitivity</li><li>burns fat</li><li>compounds over time</li><li>builds identity</li></ul>
-           <p>Fifteen minutes is not a time problem — it’s a choice problem.</p>`,
-          `<h2>⭐ 3. Establish Your Real Time Requirement</h2>
-           <p>Before you say “I don’t have time,” ask:</p>
-           <p><strong>✔ How much time do I actually need?</strong></p>
-           <p>Not the fantasy version. Not the perfection version. The real version.</p>
-           <ul><li>Walking: 15 minutes</li><li>Reading: 10 pages</li><li>Weights: 20 minutes</li><li>Stretching: 5 minutes</li><li>Tidying: 3 minutes</li><li>Hydration: 30 seconds</li><li>Breathing: 1 minute</li></ul>
-           <p>When you define the real requirement, excuses fall apart.</p>`,
-          `<h2>⭐ 4. Trade One Thing for Another</h2>
-           <p>Time isn’t created — it’s traded.</p>
-           <p>If you want to read a book:</p>
-           <ul><li>watch one less TV episode</li><li>scroll 10 minutes less</li><li>go to bed 15 minutes earlier</li><li>wake up 10 minutes earlier</li></ul>
-           <p>If you want to walk:</p>
-           <ul><li>shorten one break</li><li>walk during a call</li><li>walk after dinner instead of sitting</li><li>walk while listening to your favorite show</li></ul>
-           <p>If you want to lift weights:</p>
-           <ul><li>do a 20-minute micro-session</li><li>skip the “I need a full workout” myth</li><li>use the time you normally waste deciding what to do</li></ul>
-           <p>You don’t need more time. You need better trades.</p>`,
-          `<h2>⭐ 5. Your Future Self Is Watching</h2>
-           <p>This is the part most people never think about.</p>
-           <p>Right now — this very moment — imagine your past self had walked:</p>
-           <ul><li>5 extra minutes a day</li><li>10 extra minutes a day</li><li>15 extra minutes a day</li></ul>
-           <p>How much fitter would you be today?</p>
-           <p>How much lighter? How much healthier? How much more confident?</p>
-           <p>Your past self didn’t do it. But your future self is begging you to start now.</p>
-           <p>Because the future version of you is built by the present version of you.</p>
-           <p>Every small step today is a gift to your future self.</p>`,
-          `<h2>⭐ 6. The MotionC Truth</h2>
-           <p>Finding time isn’t about time. It’s about priority.</p>
-           <p>It’s about identity. It’s about intention. It’s about choosing your future self over your current comfort.</p>
-           <p>MotionC teaches:</p>
-           <p class="mcp-plain-language"><strong>Motion Creates Change. Not giant leaps. Not perfect days. Just small, consistent motion.</strong></p>
-           <p>You don’t need more hours. You need more moments — and those moments already exist.</p>
-           <p>You just have to claim them.</p>`
-        ]
-      },
-      {
-        id: "identifying-triggers",
-        category: "mindset",
-        title: "Identifying Triggers",
-        tags: ["triggers", "patterns", "choices", "habits", "awareness", "snacking", "cravings", "chocolate", "convenience stores", "environment", "mindset"],
-        summary: "The quiet patterns that shape our choices.",
-        pages: [
-          `<p>I’ve learned something about myself over the years — something I didn’t see at first, something that quietly sabotaged me over and over again. Triggers.</p>
-           <p>Not hunger. Not cravings. Not weakness. Triggers.</p>
-           <p>One of mine happens when my wife gets on the phone with her sisters. They can talk for two hours straight, laughing, catching up, going on and on. And while she’s busy, I somehow end up in the background… with my head in the refrigerator, looking for something to snack on.</p>
-           <p>I didn’t know why. I didn’t even notice it at first. I just did it.</p>
-           <p>And later, I’d hate myself for it. I’d think I ruined my diet again. I’d think I had no discipline.</p>
-           <p>Then one day, a light bulb went off. It wasn’t random. It wasn’t “me being weak.” It happened every time she got on those calls.</p>
-           <p>That was the trigger.</p>
-           <p>Crazy how long it took to see it.</p>`,
-          `<p>Another trigger? Chocolate in the house.</p>
-           <p>If I open the cupboard — for anything, doesn’t matter what — and there’s chocolate sitting there, I’ll grab a piece. It’s automatic. It’s staring back at me, begging to be taken. And I take it.</p>
-           <p>Trigger.</p>
-           <p>That one’s at least manageable: Don’t bring it into the house. Don’t buy it. Don’t let it sit there waiting.</p>
-           <p>No chocolate, no trigger.</p>`,
-          `<p>But the biggest one? Convenience stores.</p>
-           <p>I used to go to 7‑11 or the corner store thinking I was just buying a lottery ticket. But my wife noticed something I didn’t: the moment I walked in, my whole demeanor changed. I lit up. I got happy.</p>
-           <p>She was right.</p>
-           <p>I’d walk down the aisles checking out new chips, new flavors, new snacks. I’d justify grabbing a “small” bag — because hey, I could’ve bought the big one, right? Look at my restraint.</p>
-           <p>That was when she was with me.</p>
-           <p>When I was alone? Different story.</p>
-           <p>If I needed gas on the way home, I’d stop at the same stores. And while I was there, I’d grab a candy bar and eat it in the car. Comfort food. Nothing wrong with that, right?</p>
-           <p>Except… I’d hide the wrapper before pulling into the driveway. Didn’t want the flack I’d get if she found out I was “cheating.”</p>
-           <p>Trigger.</p>`,
-          `<p>That one took a long time to see. But once I did, everything changed.</p>
-           <p>Now I’m aware of these triggers. I’ve identified them one by one. And once I owned the patterns, they lost their grip.</p>
-           <p>I still love chocolate. I still love chips. But now I choose how the story ends.</p>
-           <p>Not the trigger. Not the moment. Not the environment.</p>
-           <p class="mcp-plain-language"><strong>Me.</strong></p>`
-        ]
-      },
-      {
-        id: "discovering-my-c",
-        category: "mindset",
-        title: "Discovering My “C”",
-        tags: ["MotionC", "compass", "purpose", "reflection", "motivation", "personal meaning"],
-        summary: "A personal reflection on Compass—and an invitation to discover what the C in MotionC means to you.",
-        pages: [
-          `<p>When I first created <strong>MotionC</strong>, I never really thought about what the “C” stood for. It was always meant to be open — an invitation for each person to bring their own meaning. Some people see it as Challenge, others as Courage, Calm, or Commitment. For many, it becomes something deeply personal that guides their journey.</p>
-           <p>But as the site began to take shape, I found myself wondering what my own “C” might be. Not to define it for anyone else, but to deepen my connection to the journey we’re all on.</p>
-           <p>After some reflection, one word kept coming back:</p>
-           <p class="mcp-plain-language"><strong>Compass.</strong></p>`,
-          `<h2>Why Compass?</h2>
-           <p>A compass is a tool for guidance. It doesn’t tell you exactly where to go or how fast to get there — it simply points you in the right direction. It helps you navigate uncertainty, keeps you oriented when the path twists, and reminds you that progress is about moving forward even when you can’t see the whole journey at once.</p>
-           <p>For me, the “C” as Compass symbolizes how I find direction and purpose in my own journey. It’s a personal reminder that even when the path isn’t clear, I can trust my inner compass to guide me.</p>`,
-          `<h2>Discover Your Own “C”</h2>
-           <p>I share my interpretation not to define your journey, but to invite you to reflect on what your “C” might be. Instead, I hope it encourages you to ask yourself:</p>
-           <ul>
-             <li>What guides you?</li>
-             <li>What motivates you?</li>
-             <li>What gives your motion purpose?</li>
-           </ul>
-           <p>Maybe your “C” is <strong>Confidence</strong>.<br>Maybe it's <strong>Curiosity</strong>, <strong>Consistency</strong>, <strong>Compassion</strong>, or <strong>Connection</strong>.</p>
-           <p>There is no wrong answer.</p>
-           <p>The path may be winding, and progress may come one small step at a time. But with your own compass in hand, every step forward is progress.</p>
-           <p>Now it's your turn to discover yours</p>
-           <p>And always remember: <strong>Motion Creates Change.</strong></p>`
-        ]
-      },
-      {
-        id: "see-what-change-looks-like",
-        category: "mindset",
-        title: "See What Change Looks Like",
-        tags: ["small steps", "habits", "momentum", "motivation", "walking", "progress", "MotionC"],
-        summary: "How small, repeatable actions create momentum and turn ambitious goals into visible progress.",
-        pages: [
-          `<h2>The Power of Small Steps</h2>
-           <h3>Introduction: The Journey Begins with a Single Step</h3>
-           <p>Change can feel overwhelming. When we face big goals—losing weight, improving fitness, or building a healthier lifestyle—it’s easy to believe we need to overhaul everything overnight. But lasting change doesn’t come from giant leaps. It comes from <strong>small, consistent steps</strong> taken day after day.</p>
-           <p>This is the heart of our message: <strong>Motion Creates Change.</strong></p>
-           <p>Imagine walking from <strong>Okotoks to Jasper</strong>—a journey of more than 200 miles. You don’t get there in one stride. You get there by breaking the journey into manageable segments and celebrating each town you pass along the way. Every step forward is progress. Every milestone is a victory.</p>
-           <p><strong>This is what change looks like.</strong></p>`,
-          `<h2>The Science Behind Small Steps</h2>
-           <p>Psychology and neuroscience agree: small, incremental changes are more sustainable and more effective than trying to transform your life all at once.</p>
-           <p>Here’s why small steps work:</p>
-           <ul>
-             <li><strong>Habit Formation:</strong> Simple, achievable actions reduce resistance and make habits stick.</li>
-             <li><strong>The Compound Effect:</strong> Tiny improvements accumulate over time, creating big results.</li>
-             <li><strong>Reduced Overwhelm:</strong> Small goals prevent burnout and keep motivation high.</li>
-             <li><strong>Positive Reinforcement:</strong> Each small win releases dopamine, strengthening your commitment.</li>
-           </ul>
-           <p>Small steps don’t just feel easier—they’re scientifically proven to create lasting change.</p>`,
-          `<h2>Real-Life Examples: Small Steps, Big Results</h2>
-           <p>People everywhere have transformed their lives by embracing small, steady progress:</p>
-           <ul>
-             <li>A woman who began with a 10-minute walk each day eventually lost 30 pounds in a year.</li>
-             <li>A man who replaced one sugary drink with water noticed better energy and mood within weeks.</li>
-             <li>A community walking challenge—tracking progress town by town—created motivation, connection, and long-term consistency.</li>
-           </ul>
-           <p>Your journey doesn’t have to be perfect or fast.<br>It just has to be <strong>forward</strong>.</p>`,
-          `<h2>How to Start Your Own Journey</h2>
-           <p>Ready to begin? Start small. Start simple. Start today.</p>
-           <ol>
-             <li><strong>Choose One Small Habit:</strong> A 5-minute walk after lunch. One extra glass of water. A tiny change you can repeat.</li>
-             <li><strong>Make It Manageable:</strong> Your step should feel easy enough to do daily without stress.</li>
-             <li><strong>Track Your Progress:</strong> Use a journal, an app, or our interactive walking route tracker to visualize your journey.</li>
-             <li><strong>Celebrate Every Win:</strong> No matter how small, acknowledge your effort.</li>
-             <li><strong>Build Gradually:</strong> Once your first habit feels natural, add another small step.</li>
-           </ol>
-           <p>Small steps build momentum. Momentum builds change.</p>`,
-          `<h2>Tracking and Celebrating Progress</h2>
-           <p>Seeing your progress is powerful. That’s why we created tools like our <strong>interactive walking route tracker</strong>, where you can virtually walk from town to town and check off milestones along the way. Visual progress keeps you motivated and reminds you that every step counts.</p>
-           <p>Celebrate your wins—privately or publicly. Share them on our community bragging wall or with friends and family.</p>
-           <p>Remember: <strong>Motion Creates Change</strong>, and every move forward is a victory.</p>`,
-          `<h2>Overcoming Common Barriers</h2>
-           <p>Change isn’t always smooth. You’ll face setbacks, dips in motivation, and days where you feel stuck. Here’s how to keep going:</p>
-           <ul>
-             <li><strong>Be Kind to Yourself:</strong> Progress isn’t linear. Setbacks are part of the journey.</li>
-             <li><strong>Focus on Consistency, Not Perfection:</strong> Daily small actions beat occasional big efforts.</li>
-             <li><strong>Find Support:</strong> Walk with a friend, join a community, or share your goals.</li>
-             <li><strong>Adjust as Needed:</strong> If a step feels too hard, scale it back. Make it easier. Keep moving.</li>
-           </ul>`,
-          `<h2>Call to Action: Start Seeing Your Change Today</h2>
-           <p>You don’t need to run a marathon or transform your life overnight. Start with one small step today. Walk a little farther. Eat a little healthier. Breathe a little deeper. Track your progress. Celebrate your wins.</p>
-           <p>And remember: <strong>Motion Creates Change.</strong></p>`
-        ]
-      },
-      {
         id: "invisible-progress",
         category: "mindset",
         title: "Invisible Progress",
@@ -2416,37 +879,6 @@
            <p>The interruption is rarely the real problem. The story that says you must restart perfectly can keep you away much longer.</p>`,
           `<p>Choose the smallest credible return: one walk, one prepared meal, or one earlier bedtime.</p>
            <p>You are not beginning from nothing. You are returning with experience.</p>`
-        ]
-      },
-      {
-        id: "eight-core-principles",
-        category: "guides",
-        title: "The 8 Core Principles of Health",
-        tags: ["MotionC", "health principles", "sleep", "hydration", "nutrition", "walking", "stress", "alcohol", "smoking", "activity"],
-        summary: "A friendly, no-pressure guide to the eight connected habits behind feeling and living well.",
-        pages: [
-          `<h2>Your Friendly Guide to Feeling Great with MotionC</h2>
-           <p>At <strong>MotionC</strong>, we know that getting healthy isn’t about turning your life upside down overnight or following a strict, joyless regimen. Instead, it’s about small, meaningful steps that add up to big changes. We call it the power of motion — because <strong>Motion Creates Change</strong>.</p>
-           <p>To help you on your journey, here are the 8 core principles we focus on, explained in a friendly, no-pressure way.</p>`,
-          `<h2>1. Sleep Quality: Your Body’s Nightly Recharge Station</h2>
-           <p>Think of sleep as your body’s ultimate reset button. It’s where recovery happens, hormones get balanced, your appetite gets regulated, and your brain sharpens up for decision-making. Skimp on sleep, and everything else starts to wobble. So, treat yourself to good sleep—it’s the foundation of feeling energized and ready to take on the day.</p>
-           <h2>2. Hydration: More Than Just Quenching Thirst</h2>
-           <p>Water is your body’s best friend. It keeps your blood flowing smoothly, helps regulate your temperature (no overheating here!), boosts physical performance, and even plays a sneaky role in how hungry you feel. So, keep that water bottle handy and sip your way to better health.</p>`,
-          `<h2>3. Nutrition: Fueling Your Body’s Engine</h2>
-           <p>Food isn’t just about filling your stomach; it’s about giving your body the right fuel and nutrients to repair itself and function like a well-oiled machine. Think colorful veggies, wholesome grains, and proteins that make you feel good inside and out. Your body will thank you with more energy and better mood.</p>
-           <h2>4. Walking: The Simple Superstar</h2>
-           <p>Walking is like that reliable friend who’s always there for you. It’s one of the easiest ways to boost your heart health, rev up your metabolism, lift your mood, and keep your joints moving smoothly. Plus, it’s free, fun, and you can do it almost anywhere. So, lace up and enjoy the stroll!</p>`,
-          `<h2>5. Stress Management: Keeping Calm in the Chaos</h2>
-           <p>Life throws curveballs, and chronic stress can sneakily mess with your sleep, eating habits, blood pressure, and motivation. Finding ways to manage stress—whether it’s through breathing exercises, hobbies, or just taking a moment to pause—can make a huge difference in how you feel day to day.</p>
-           <h2>6. Alcohol: Enjoy in Moderation</h2>
-           <p>We’re not here to preach, but it’s good to know that alcohol can impact your recovery, sleep quality, calorie intake, and long-term health. Enjoying a drink now and then is part of life, but being mindful helps you keep feeling your best.</p>`,
-          `<h2>7. Current Smoking Status: Recognizing Progress</h2>
-           <p>Quitting smoking is one of the biggest wins for your health, and we celebrate every step toward that goal. At <strong>MotionC</strong>, we recognize where you are right now and applaud the healthy choices you’re making. Every positive change counts, and quitting smoking is a game-changer.</p>
-           <h2>8. Activity Level: Keep Moving, Keep Thriving</h2>
-           <p>Strength, flexibility, and regular movement are your tickets to independence and overall fitness. Whether it’s stretching, lifting, dancing, or walking, staying active helps you feel strong and ready for whatever life throws your way.</p>`,
-          `<h2>Bringing It All Together: The Magic of MotionC’s Philosophy</h2>
-           <p>Here’s the best part: none of these habits exist in isolation. Improving just one often makes the others easier. Better sleep can lead to smarter food choices. A daily walk can melt away stress. Staying hydrated can boost your energy to move more. It’s a beautiful cycle where <strong>Motion Creates Change</strong>, and positive habits reinforce each other.</p>
-           <p>So don’t worry about being perfect. You don’t need to overhaul your life overnight. Start somewhere—anywhere—and watch how one good habit leads to another. At MotionC, we’re here to help you <strong>See what Change Looks Like</strong>, one step, one sip, one breath at a time.</p>`
         ]
       },
       {
@@ -2477,7 +909,6 @@
       }
     ];
 
-    let articles = fallbackArticles;
     const categoryMap = new Map(categories.map(category => [category.id, category]));
     const page = document.querySelector(".page");
     const indexHotspots = document.getElementById("indexHotspots");
@@ -2490,19 +921,13 @@
     const magnifierHotspot = document.getElementById("magnifierHotspot");
     const searchPanel = document.getElementById("searchPanel");
     const librarySearch = document.getElementById("librarySearch");
-    const sectionOverlay = document.getElementById("sectionOverlay");
-    const sectionHeading = document.getElementById("sectionHeading");
-    const sectionDescription = document.getElementById("sectionDescription");
-    const sectionContent = document.getElementById("sectionContent");
-    const sectionPrevious = document.getElementById("sectionPrevious");
-    const sectionNext = document.getElementById("sectionNext");
-    const sectionIndex = document.getElementById("sectionIndex");
-    const sectionCount = document.getElementById("sectionCount");
     const readerOverlay = document.getElementById("readerOverlay");
     const readerHeading = document.getElementById("readerHeading");
     const readerCategory = document.getElementById("readerCategory");
     const readerContent = document.getElementById("readerContent");
     const readerPageNumber = document.getElementById("readerPageNumber");
+    const readerPrevious = document.getElementById("readerPrevious");
+    const readerNext = document.getElementById("readerNext");
     const readerIndex = document.getElementById("readerIndex");
 
     let currentMode = "index";
@@ -2510,9 +935,9 @@
     let currentResultTitle = "";
     let resultSpread = 0;
     let activeArticle = null;
-    let activeSectionId = null;
-    let sectionResultArticles = [];
-    const sectionScrollPositions = new Map();
+    let activeArticlePage = 0;
+    let turnTimer = null;
+    let turnCleanupTimer = null;
 
     function escapeHtml(value) {
       return String(value)
@@ -2524,8 +949,19 @@
     }
 
     function turnBook(update) {
+      window.clearTimeout(turnTimer);
+      window.clearTimeout(turnCleanupTimer);
       page.classList.remove("turning-book");
-      update();
+      void page.offsetWidth;
+      page.classList.add("turning-book");
+
+      turnTimer = window.setTimeout(() => {
+        update();
+      }, 220);
+
+      turnCleanupTimer = window.setTimeout(() => {
+        page.classList.remove("turning-book");
+      }, 460);
     }
 
     function categoryButton(category, index) {
@@ -2574,24 +1010,12 @@
       const leftArticles = spreadArticles.slice(0, splitAt);
       const rightArticles = spreadArticles.slice(splitAt);
       const totalSpreads = Math.max(1, Math.ceil(currentResults.length / perSpread));
-      const completeSpreads = Math.floor(currentResults.length / perSpread);
-      const remainingArticles = currentResults.length % perSpread;
-      const totalListingPages = Math.max(
-        1,
-        completeSpreads * 2 + (remainingArticles === 0 ? 0 : remainingArticles === 1 ? 1 : 2)
-      );
-      const leftListingPage = resultSpread * 2 + 1;
-      const rightListingPage = leftListingPage + 1;
-      const leftHeading = resultSpread === 0
-        ? `<h2 class="book-title">${escapeHtml(currentResultTitle)}</h2>`
-        : `<h2 class="book-page-label">Page ${leftListingPage} of ${totalListingPages}</h2>`;
-      const leftSubtitle = resultSpread === 0
-        ? `${currentResults.length} ${currentResults.length === 1 ? "article" : "articles"} found`
-        : "";
 
       leftBookPage.innerHTML = `
-        ${leftHeading}
-        <p class="book-subtitle">${leftSubtitle}</p>
+        <h2 class="book-title">${escapeHtml(currentResultTitle)}</h2>
+        <p class="book-subtitle">
+          ${currentResults.length} ${currentResults.length === 1 ? "article" : "articles"} found
+        </p>
         ${
           leftArticles.length
             ? `<ul class="book-list">${leftArticles.map(articleButton).join("")}</ul>`
@@ -2600,10 +1024,8 @@
       `;
 
       rightBookPage.innerHTML = `
-        <h2 class="book-page-label">
-          ${rightArticles.length ? `Page ${rightListingPage} of ${totalListingPages}` : ""}
-        </h2>
-        <p class="book-subtitle"></p>
+        <h2 class="book-title">${rightArticles.length ? "More to Explore" : ""}</h2>
+        <p class="book-subtitle">Spread ${resultSpread + 1} of ${totalSpreads}</p>
         ${
           rightArticles.length
             ? `<ul class="book-list">${rightArticles.map(articleButton).join("")}</ul>`
@@ -2620,11 +1042,11 @@
       const category = categoryMap.get(categoryId);
       if (!category) return;
 
-      openSection(categoryId, {
-        title: category.title,
-        description: category.description,
-        results: articles.filter(article => article.category === categoryId)
-      });
+      currentMode = "results";
+      currentResults = articles.filter(article => article.category === categoryId);
+      currentResultTitle = category.title;
+      resultSpread = 0;
+      turnBook(renderResults);
     }
 
     function searchArticles(query) {
@@ -2634,9 +1056,14 @@
         .split(/\s+/)
         .filter(Boolean);
 
-      if (!words.length) return;
+      if (!words.length) {
+        turnBook(renderIndex);
+        return;
+      }
 
-      const results = articles.filter(article => {
+      currentMode = "results";
+      currentResultTitle = `Search: “${query.trim()}”`;
+      currentResults = articles.filter(article => {
         const category = categoryMap.get(article.category);
         const searchable = [
           article.title,
@@ -2648,103 +1075,27 @@
 
         return words.every(word => searchable.includes(word));
       });
-
-      openSection("search", {
-        title: `Search: “${query.trim()}”`,
-        description: "Results from every Library section.",
-        results
-      });
+      resultSpread = 0;
+      turnBook(renderResults);
     }
 
-    function sectionArticleButton(article) {
-      const category = categoryMap.get(article.category);
-      const visualBadge = ["understanding-insulin-spikes", "hydration-a-beginners-guide", "chia-seeds-a-beginners-guide", "psyllium-husk-a-friendly-beginner-guide", "kimchi-a-beginners-guide", "pumpkin-seeds-a-simple-powerful-source-of-magnesium", "magnesium-choosing-the-most-well-rounded-option", "chelated-minerals-why-they-matter"].includes(article.id)
-        ? `<span class="mo-learning-badge" role="img" aria-label="Includes a Mo visual explainer" title="Includes a Mo visual explainer"><img src="/images/mo-visual-explainer-grey.png" alt=""></span>`
-        : ["mo-explains-insulin-spikes-two-modes", "mo-explains-why-bananas-spike-insulin"].includes(article.id)
-          ? `<span class="mo-learning-badge" role="img" aria-label="All-Mo visual article" title="All-Mo visual article"><img src="/images/mo-visual-explainer-blue.png" alt=""></span>`
-          : "";
-      return `<li>
-        <button class="section-article" type="button" data-article="${article.id}">
-          <strong>${visualBadge}${escapeHtml(article.title)}</strong>
-          <small>${escapeHtml(article.summary)}${activeSectionId === "search" ? ` · ${escapeHtml(category?.title || "")}` : ""}</small>
-          <i aria-hidden="true">→</i>
-        </button>
-      </li>`;
-    }
-
-    function renderSection(scrollTop = 0) {
-      sectionHeading.textContent = activeSectionId === "search"
-        ? currentResultTitle
-        : categoryMap.get(activeSectionId)?.title || "Library";
-      sectionDescription.textContent = activeSectionId === "search"
-        ? "Results from every Library section."
-        : categoryMap.get(activeSectionId)?.description || "";
-      sectionContent.innerHTML = sectionResultArticles.length
-        ? `<ul class="section-article-list">${sectionResultArticles.map(sectionArticleButton).join("")}</ul>`
-        : '<p class="section-empty">No matching articles were found. Try another word or subject.</p>';
-      sectionCount.textContent = `${sectionResultArticles.length} ${sectionResultArticles.length === 1 ? "article" : "articles"}`;
-      const categoryIndex = categories.findIndex(category => category.id === activeSectionId);
-      sectionPrevious.disabled = categoryIndex < 0;
-      sectionNext.disabled = categoryIndex < 0;
-      requestAnimationFrame(() => { sectionContent.scrollTop = scrollTop; });
-    }
-
-    function openSection(sectionId, options = {}) {
-      if (activeSectionId) sectionScrollPositions.set(activeSectionId, sectionContent.scrollTop);
-      const changingSection = activeSectionId !== sectionId;
-      activeSectionId = sectionId;
-      currentResultTitle = options.title || categoryMap.get(sectionId)?.title || "Library";
-      sectionResultArticles = options.results || articles.filter(article => article.category === sectionId);
-      renderSection(changingSection ? 0 : sectionScrollPositions.get(sectionId) || 0);
-      sectionOverlay.hidden = false;
-      requestAnimationFrame(() => {
-        sectionOverlay.classList.add("open");
-        sectionIndex.focus();
-      });
-    }
-
-    function closeSectionToIndex() {
-      if (activeSectionId) sectionScrollPositions.set(activeSectionId, sectionContent.scrollTop);
-      sectionOverlay.classList.remove("open");
-      window.setTimeout(() => {
-        sectionOverlay.hidden = true;
-        activeSectionId = null;
-        renderIndex();
-      }, 440);
-    }
-
-    function moveSection(direction) {
-      const currentIndex = categories.findIndex(category => category.id === activeSectionId);
-      if (currentIndex < 0) return;
-      const nextIndex = (currentIndex + direction + categories.length) % categories.length;
-      const next = categories[nextIndex];
-      openSection(next.id, {
-        title: next.title,
-        description: next.description,
-        results: articles.filter(article => article.category === next.id)
-      });
-    }
-
-    function renderContinuousArticle() {
+    function renderReaderPage() {
       if (!activeArticle) return;
       readerHeading.textContent = activeArticle.title;
       readerCategory.textContent = categoryMap.get(activeArticle.category)?.title || "MotionC Library";
-      readerContent.innerHTML = activeArticle.pages
-        .filter(page => typeof page === "string" && page.trim())
-        .join("");
-      readerContent.querySelectorAll("h2, h3").forEach(heading => {
-        if (/\bcontinued\b/i.test(heading.textContent)) heading.remove();
-      });
-      readerContent.scrollTop = 0;
-      readerPageNumber.textContent = "Complete article • Scroll to read";
+      readerContent.innerHTML = activeArticle.pages[activeArticlePage];
+      readerPageNumber.textContent =
+        `Page ${activeArticlePage + 1} of ${activeArticle.pages.length}`;
+      readerPrevious.disabled = activeArticlePage === 0;
+      readerNext.disabled = activeArticlePage >= activeArticle.pages.length - 1;
     }
 
     function openArticle(articleId) {
       activeArticle = articles.find(article => article.id === articleId);
       if (!activeArticle) return;
 
-      if (activeSectionId) sectionScrollPositions.set(activeSectionId, sectionContent.scrollTop);
-      renderContinuousArticle();
+      activeArticlePage = 0;
+      renderReaderPage();
       readerOverlay.hidden = false;
       requestAnimationFrame(() => {
         readerOverlay.classList.add("open");
@@ -2752,16 +1103,12 @@
       });
     }
 
-    function closeReaderToSection() {
+    function closeReaderToIndex() {
       readerOverlay.classList.remove("open");
       window.setTimeout(() => {
         readerOverlay.hidden = true;
         activeArticle = null;
-        const savedPosition = sectionScrollPositions.get(activeSectionId) || 0;
-        requestAnimationFrame(() => {
-          sectionContent.scrollTop = savedPosition;
-          sectionIndex.focus();
-        });
+        turnBook(renderIndex);
       }, 540);
     }
 
@@ -2807,21 +1154,25 @@
       magnifierHotspot.setAttribute("aria-expanded", "false");
     });
 
-    sectionIndex.addEventListener("click", closeSectionToIndex);
-    sectionPrevious.addEventListener("click", () => moveSection(-1));
-    sectionNext.addEventListener("click", () => moveSection(1));
-    readerIndex.addEventListener("click", closeReaderToSection);
+    readerIndex.addEventListener("click", closeReaderToIndex);
+
+    readerPrevious.addEventListener("click", () => {
+      if (activeArticlePage <= 0) return;
+      activeArticlePage -= 1;
+      renderReaderPage();
+    });
+
+    readerNext.addEventListener("click", () => {
+      if (!activeArticle || activeArticlePage >= activeArticle.pages.length - 1) return;
+      activeArticlePage += 1;
+      renderReaderPage();
+    });
 
     document.addEventListener("keydown", event => {
       if (event.key !== "Escape") return;
 
       if (!readerOverlay.hidden) {
-        closeReaderToSection();
-        return;
-      }
-
-      if (!sectionOverlay.hidden) {
-        closeSectionToIndex();
+        closeReaderToIndex();
         return;
       }
 
@@ -2831,133 +1182,6 @@
         magnifierHotspot.focus();
       }
     });
-
-    const preferencesStorageKey = "motionc-preferences-v1";
-    const preferencesToggle = document.getElementById("preferencesToggle");
-    const preferencesMenu = document.getElementById("preferencesMenu");
-    const preferencesClose = document.getElementById("preferencesClose");
-
-    function loadLibraryUnitSystem() {
-      try {
-        return JSON.parse(localStorage.getItem(preferencesStorageKey))?.unitSystem === "metric"
-          ? "metric"
-          : "imperial";
-      } catch {
-        return "imperial";
-      }
-    }
-
-    function syncLibraryUnitChoices() {
-      const selected = loadLibraryUnitSystem();
-      document.querySelectorAll('input[name="unitSystem"]').forEach(input => {
-        input.checked = input.value === selected;
-      });
-    }
-
-    function closeLibraryPreferences() {
-      preferencesMenu.hidden = true;
-      preferencesToggle.setAttribute("aria-expanded", "false");
-    }
-
-    preferencesToggle.addEventListener("click", event => {
-      event.preventDefault();
-      event.stopPropagation();
-      const willOpen = preferencesMenu.hidden;
-      if (willOpen) syncLibraryUnitChoices();
-      preferencesMenu.hidden = !willOpen;
-      preferencesToggle.setAttribute("aria-expanded", String(willOpen));
-    });
-
-    preferencesMenu.addEventListener("click", event => event.stopPropagation());
-    preferencesClose.addEventListener("click", closeLibraryPreferences);
-    document.addEventListener("click", closeLibraryPreferences);
-
-    document.querySelectorAll('input[name="unitSystem"]').forEach(input => {
-      input.addEventListener("change", () => {
-        const unitSystem = input.value === "metric" ? "metric" : "imperial";
-        localStorage.setItem(
-          preferencesStorageKey,
-          JSON.stringify({ unitSystem, updatedAt: new Date().toISOString() })
-        );
-        window.dispatchEvent(new CustomEvent("motionc:preferences-updated", { detail: { unitSystem } }));
-      });
-    });
-
-    window.addEventListener("storage", event => {
-      if (event.key === preferencesStorageKey) syncLibraryUnitChoices();
-    });
-
-    const mobileMoreToggle = document.getElementById("mobileMoreToggle");
-    const mobileMoreMenu = document.getElementById("mobileMoreMenu");
-
-    function setMobileMoreMenu(open) {
-      mobileMoreMenu.hidden = !open;
-      mobileMoreToggle.setAttribute("aria-expanded", String(open));
-      mobileMoreToggle.setAttribute(
-        "aria-label",
-        open ? "Close more navigation" : "Open more navigation"
-      );
-    }
-
-    mobileMoreToggle.addEventListener("click", () => {
-      setMobileMoreMenu(mobileMoreMenu.hidden);
-    });
-
-    document.addEventListener("click", event => {
-      if (
-        mobileMoreMenu.hidden ||
-        mobileMoreMenu.contains(event.target) ||
-        mobileMoreToggle.contains(event.target)
-      ) return;
-      setMobileMoreMenu(false);
-    });
-
-    document.addEventListener("keydown", event => {
-      if (event.key === "Escape" && !mobileMoreMenu.hidden) {
-        setMobileMoreMenu(false);
-        mobileMoreToggle.focus();
-      }
-      if (event.key === "Escape" && !preferencesMenu.hidden) {
-        closeLibraryPreferences();
-        preferencesToggle.focus();
-      }
-    });
-
-    window.addEventListener("resize", () => {
-      if (window.innerWidth > 700 && !mobileMoreMenu.hidden) setMobileMoreMenu(false);
-    });
-
-    syncLibraryUnitChoices();
-    async function loadPublishedArticles() {
-      const { data, error } = await supabase
-        .from("library_articles")
-        .select("slug, category, title, summary, tags, pages, display_order")
-        .order("display_order", { ascending: true })
-        .order("title", { ascending: true });
-
-      if (error) throw error;
-      if (!Array.isArray(data) || !data.length) return;
-
-      const cloudArticles = data.map(article => ({
-        id: article.slug,
-        category: article.category,
-        title: article.title,
-        summary: article.summary || "",
-        tags: Array.isArray(article.tags) ? article.tags : [],
-        pages: Array.isArray(article.pages) ? article.pages : []
-      }));
-      const cloudIds = new Set(cloudArticles.map(article => article.id));
-      articles = [
-        ...cloudArticles,
-        ...fallbackArticles.filter(article => !cloudIds.has(article.id))
-      ];
-    }
-
-    try {
-      await loadPublishedArticles();
-    } catch (error) {
-      console.error("MotionC Library could not load Supabase articles; using the embedded fallback.", error);
-    }
 
     renderIndex();
   </script>
