@@ -30,7 +30,7 @@ async function fetchRows(days) {
   const rows = [];
   for (let from = 0; from < 50000; from += 1000) {
     const { data, error } = await supabase.from("site_analytics_events")
-      .select("occurred_at,session_id,event_type,path,entry_path,referrer_host,is_registered,active_seconds")
+      .select("occurred_at,session_id,event_type,path,page_title,entry_path,referrer_host,is_registered,active_seconds")
       .gte("occurred_at", since).order("occurred_at", { ascending: true }).range(from, from + 999);
     if (error) throw error;
     rows.push(...data);
