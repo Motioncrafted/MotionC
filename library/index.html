@@ -1429,14 +1429,62 @@
       {
         id: "mindful-walking",
         category: "walking",
-        title: "Mindful Walking",
-        tags: ["walking", "mindfulness", "outdoors", "attention"],
-        summary: "Turn an ordinary walk into time that restores both body and mind.",
+        title: "Mindfulness Walking",
+        tags: ["walking", "mindfulness", "presence", "breathing", "nature", "community", "stress", "body awareness", "Mo Explains"],
+        summary: "Rediscover presence through breath, movement, sensory awareness, and connection to your surroundings.",
         pages: [
-          `<p>A walk does not need to be fast, long, or impressive to matter. It only needs your attention. Mindful walking begins when you notice the rhythm of your steps, the feeling of the ground, and the small details that usually pass unnoticed.</p>
-           <p>Leave a little room between yourself and the numbers. Pace and distance can be useful, but they do not have to occupy every walk.</p>`,
-          `<p>Try choosing one sense at a time. Notice sound for several minutes, then colour, temperature, or the movement of your breathing.</p>
-           <p>The goal is not to empty your mind. It is to return gently to the walk whenever your thoughts carry you elsewhere.</p>`
+          `<p><strong>Rediscover the Joy of Being Present</strong></p>
+           <p>Walking is one of the simplest forms of movement — but <em>how</em> you walk shapes the experience. In a world filled with headphones, notifications, and constant input, mindful walking invites you to return to something rare: <strong>presence</strong>.</p>
+           <p>Mindfulness walking is the practice of moving through your environment with full awareness — of your breath, your body, your surroundings, and the people you pass. It’s not about tuning out. It’s about tuning <em>in</em>.</p>`,
+          `<h2>Why Mindfulness Walking Matters</h2>
+           <p>Mindfulness walking transforms an ordinary walk into a grounding ritual. Instead of filling the silence with music or podcasts, you let the world speak for itself — the birds, the breeze, the rhythm of your steps, the subtle human connections along your path.</p>
+           <p><strong>Presence becomes the point. Movement becomes the anchor.</strong></p>`,
+          `<h2>Benefits of Mindful Walking</h2>
+           <h3>Mental Clarity &amp; Creativity</h3>
+           <p>Quiet surroundings create space for ideas to surface naturally. Many people find their clearest thinking happens during undistracted movement.</p>
+           <h3>Reduced Stress &amp; Anxiety</h3>
+           <p>Mindful breathing and sensory awareness calm the nervous system. The walk becomes a moving meditation — steady, grounding, restorative.</p>
+           <h3>Connection to Nature &amp; Community</h3>
+           <p>You notice more: the color of the sky, the sound of leaves, the smile of a passerby. These small moments build gratitude and belonging.</p>
+           <h3>Better Posture &amp; Body Awareness</h3>
+           <p>Attention to movement improves balance, alignment, and coordination. You walk with intention instead of autopilot.</p>`,
+          `<h2>The Headphone Trade-Off</h2>
+           <p>Music and podcasts can motivate, educate, or entertain — but they also pull you away from the present moment.</p>
+           <p>With headphones on, you’re more likely to miss:</p>
+           <ul>
+             <li>the creek’s gentle flow</li>
+             <li>the birds calling across the path</li>
+             <li>the breeze shifting against your skin</li>
+             <li>the simple human connection of a shared hello</li>
+           </ul>
+           <p>Mindfulness walking isn’t anti-audio. It’s pro-presence. It’s about choosing moments where the world itself becomes the soundtrack.</p>`,
+          `<h2>How to Practice Mindfulness Walking</h2>
+           <h3>1. Set an Intention</h3>
+           <p>Before you begin, decide: <em>This walk is for presence.</em></p>
+           <h3>2. Engage Your Senses</h3>
+           <p>Notice what you see, hear, smell, and feel. Let the environment come alive.</p>
+           <h3>3. Focus on Breath &amp; Steps</h3>
+           <p>Feel the rhythm of your stride. Let your breath guide your pace.</p>
+           <h3>4. Return Gently When Distracted</h3>
+           <p>If your mind wanders, bring it back without judgment. Presence is a practice, not a performance.</p>
+           <h3>5. Connect with Others</h3>
+           <p>A smile, a nod, a quiet hello — small gestures that strengthen community.</p>`,
+          `<h2>Tips for Building the Habit</h2>
+           <ul>
+             <li>Choose quiet or natural paths when possible.</li>
+             <li>Walk at a pace that lets you notice details.</li>
+             <li>Leave headphones behind, or use them only part of the time.</li>
+             <li>Alternate between mindful walking and audio walking.</li>
+             <li>Use mindful walking to start your day with clarity and calm.</li>
+           </ul>
+           <h2>MotionC Perspective</h2>
+           <p>Mindfulness walking is movement with awareness. It’s the practice of being fully present in the world you’re moving through.</p>
+           <p class="mcp-plain-language"><strong>Motion creates change. Presence creates peace.</strong></p>
+           <h2>Mo Explains: Mindfulness Walking</h2>
+           <figure class="article-explainer">
+             <img src="/images/mo-explains-mindfulness-walking.png" alt="Mo Explains visual guide to slowing down, using your senses, breathing with your steps, and trying one minute without headphones" loading="lazy">
+             <figcaption>Mo Explains: Mindfulness Walking</figcaption>
+           </figure>`
         ]
       },
       {
@@ -2736,7 +2784,7 @@
 
     function sectionArticleButton(article) {
       const category = categoryMap.get(article.category);
-      const visualBadge = ["understanding-insulin-spikes", "hydration-a-beginners-guide", "chia-seeds-a-beginners-guide", "psyllium-husk-a-friendly-beginner-guide", "kimchi-a-beginners-guide", "pumpkin-seeds-a-simple-powerful-source-of-magnesium", "magnesium-choosing-the-most-well-rounded-option", "chelated-minerals-why-they-matter"].includes(article.id)
+      const visualBadge = ["mindful-walking", "understanding-insulin-spikes", "hydration-a-beginners-guide", "chia-seeds-a-beginners-guide", "psyllium-husk-a-friendly-beginner-guide", "kimchi-a-beginners-guide", "pumpkin-seeds-a-simple-powerful-source-of-magnesium", "magnesium-choosing-the-most-well-rounded-option", "chelated-minerals-why-they-matter"].includes(article.id)
         ? `<span class="mo-learning-badge" role="img" aria-label="Includes a Mo visual explainer" title="Includes a Mo visual explainer"><img src="/images/mo-visual-explainer-grey.png" alt=""></span>`
         : ["mo-explains-insulin-spikes-two-modes", "mo-explains-why-bananas-spike-insulin", "win-eat-real-food", "win-eat-more-plants", "win-eat-slowly", "win-80-percent-rule", "win-eat-together"].includes(article.id)
           ? `<span class="mo-learning-badge" role="img" aria-label="All-Mo visual article" title="All-Mo visual article"><img src="/images/mo-visual-explainer-blue.png" alt=""></span>`
