@@ -1204,6 +1204,17 @@ byId("gaugeInfoButton").addEventListener("click", () => {
 });
 byId("saveEntry").addEventListener("click", saveEntry);
 byId("addWalk").addEventListener("click", toggleAddWalk);
+byId("openWalkCalculator").addEventListener("click", () => {
+  const calculator = byId("walkCalculator");
+  calculator.hidden = false;
+  byId("openWalkCalculator").setAttribute("aria-expanded", "true");
+  byId("calcTime").focus();
+});
+byId("closeWalkCalculator").addEventListener("click", () => {
+  byId("walkCalculator").hidden = true;
+  byId("openWalkCalculator").setAttribute("aria-expanded", "false");
+  byId("openWalkCalculator").focus();
+});
 byId("walkList").addEventListener("click", event => {
   const button = event.target.closest("button[data-walk-action]");
   if (!button) return;
@@ -1267,7 +1278,15 @@ byId("preferencesMenu").addEventListener("click", event => event.stopPropagation
 byId("preferencesClose").addEventListener("click", closePreferences);
 document.addEventListener("click", closePreferences);
 document.addEventListener("keydown", event => {
-  if (event.key === "Escape") closePreferences();
+  if (event.key === "Escape") {
+    closePreferences();
+    const calculator = byId("walkCalculator");
+    if (!calculator.hidden) {
+      calculator.hidden = true;
+      byId("openWalkCalculator").setAttribute("aria-expanded", "false");
+      byId("openWalkCalculator").focus();
+    }
+  }
 });
 
 document.querySelectorAll('input[name="unitSystem"]').forEach(input => {

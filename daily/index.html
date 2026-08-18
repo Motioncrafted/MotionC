@@ -155,9 +155,12 @@
           </div>
 
           <div class="entry-actions">
-            <button class="secondary-button" id="weeklyButton" type="button">Weekly check-in</button>
-            <button class="secondary-button" id="addWalk" type="button" hidden>+ Add another walk</button>
-            <button class="save-button" id="saveEntry" type="button">Save walk</button>
+            <button class="calculator-launch" id="openWalkCalculator" type="button" aria-controls="walkCalculator" aria-expanded="false">Walking calculator</button>
+            <div class="entry-actions-primary">
+              <button class="secondary-button" id="weeklyButton" type="button">Weekly check-in</button>
+              <button class="secondary-button" id="addWalk" type="button" hidden>+ Add another walk</button>
+              <button class="save-button" id="saveEntry" type="button">Save walk</button>
+            </div>
           </div>
           <p class="save-status" id="saveStatus" aria-live="polite"></p>
         </section>
@@ -261,7 +264,8 @@
           <div class="milestone-list" id="milestoneList"></div>
         </section>
 
-        <section class="walk-calculator card" aria-labelledby="walkCalculatorTitle">
+        <section class="walk-calculator floating-calculator card" id="walkCalculator" role="dialog" aria-modal="false" aria-labelledby="walkCalculatorTitle" hidden>
+          <button class="calculator-close" id="closeWalkCalculator" type="button" aria-label="Close walking calculator">×</button>
           <div class="section-heading">
             <div>
               <p class="eyebrow">PLAN YOUR NEXT MOVE</p>

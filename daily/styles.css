@@ -408,7 +408,19 @@ main { min-width: 0; }
 
 .notes-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 12px; margin-top: 14px; }
 .notes-grid label { display: grid; gap: 6px; color: var(--muted); font-size: 12px; font-weight: 800; }
-.entry-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+.entry-actions { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 18px; }
+.entry-actions-primary { display: flex; justify-content: flex-end; gap: 10px; }
+.calculator-launch {
+  min-height: 45px;
+  border: 1px solid #21734f;
+  border-radius: 9px;
+  padding: 0 18px;
+  color: #145b3c;
+  background: #eef8f2;
+  font-weight: 850;
+}
+.calculator-launch:hover,
+.calculator-launch:focus-visible { border-color: #128953; background: #e2f3e9; outline: none; }
 .save-button,
 .secondary-button {
   min-height: 45px;
@@ -615,6 +627,40 @@ summary { color: #30454b; font-weight: 850; cursor: pointer; }
     radial-gradient(circle at 95% 2%, rgba(35,190,115,.12), transparent 31%),
     var(--card);
 }
+.floating-calculator {
+  position: fixed;
+  z-index: 1000;
+  top: 92px;
+  right: 28px;
+  width: min(430px, calc(100vw - 40px));
+  max-height: calc(100vh - 120px);
+  overflow: auto;
+  align-self: auto;
+  border-color: #b9d4c7;
+  box-shadow: 0 22px 60px rgba(18, 48, 39, .28);
+}
+.floating-calculator[hidden] { display: none; }
+.floating-calculator > .section-heading { padding-right: 42px; }
+.calculator-close {
+  position: absolute;
+  z-index: 2;
+  top: 13px;
+  right: 13px;
+  display: grid;
+  width: 32px;
+  aspect-ratio: 1;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  color: #fff;
+  background: #c94747;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+.calculator-close:hover,
+.calculator-close:focus-visible { background: #a92f2f; outline: 3px solid rgba(201, 71, 71, .2); }
 .calculator-badge {
   border-radius: 999px;
   padding: 6px 10px;
@@ -823,6 +869,16 @@ dialog::backdrop { background: rgba(9,18,20,.66); backdrop-filter: blur(3px); }
   .walk-row > strong, .walk-actions { grid-column: 1 / -1; }
   .walk-actions { justify-content: flex-end; }
   .promise-grid, .lifestyle-grid { grid-template-columns: 1fr; }
+  .entry-actions { align-items: stretch; flex-direction: column; }
+  .entry-actions-primary { display: grid; grid-template-columns: 1fr 1fr; }
+  .entry-actions-primary #addWalk:not([hidden]) { grid-column: 1 / -1; }
+  .floating-calculator {
+    top: auto;
+    right: 10px;
+    bottom: 10px;
+    width: calc(100vw - 20px);
+    max-height: 82vh;
+  }
   .weekly-stats { grid-template-columns: repeat(2, 1fr); }
   .calendar-day { min-height: 48px; }
   .preferences-menu { top: 72px; left: 12px; }
