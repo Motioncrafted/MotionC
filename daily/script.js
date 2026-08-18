@@ -88,6 +88,7 @@ syncLifestyleSummary();
 let activeScoreDate = null;
 let addingWalk = false;
 let editingWalkIndex = null;
+let calendarViewDate = new Date();
 
 function isoDate(date = new Date()) {
   const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
@@ -125,11 +126,14 @@ function calculateEntry(entry, weeklyScore) {
   const distancePoints = Math.min(6, Number(entry.distance || 0) / 5 * 6);
   const timePoints = Math.min(6, Number(entry.minutes || 0) / 60 * 6);
   const movement = roundHalf(distancePoints + timePoints);
-  const weightRecordedPoint = entry.weight ? 1 : 0;
-  const lifestyle = Math.min(10, roundHalf(Number(weeklyScore || 0) + weightRecordedPoint));
-  const total = roundHalf(food + movement + lifestyle);
-  const percent = Math.round(total / 30 * 100);
-  return { food, movement, lifestyle, total, percent, color: colorFor(percent) };
+  const lifestyleAssessed = weeklyScore !== null && weeklyScore !== undefined && Number.isFinite(Number(weeklyScore));
+  const lifestyle = lifestyleAssessed
+    ? Math.min(10, roundHalf(Number(weeklyScore)))
+    : null;
+  const maximum = lifestyleAssessed ? 30 : 20;
+  const total = roundHalf(food + movement + (lifestyle ?? 0));
+  const percent = Math.round(total / maximum * 100);
+  return { food, movement, lifestyle, lifestyleAssessed, total, maximum, percent, color: colorFor(percent) };
 }
 
 function colorFor(percent) {
@@ -204,11 +208,35 @@ function loadState() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     const loaded = saved ? JSON.parse(saved) : seedState();
+    loaded.entries = loaded.entries || {};
+    loaded.weeks = loaded.weeks || {};
+    loaded.profile = loaded.profile || {};
+
+    // Profile Info on Summary predates the shared Daily profile for some
+    // accounts. Recover those measurements once, without overwriting an
+    // established starting-weight baseline.
+    try {
+      const summary = JSON.parse(localStorage.getItem("motionc-mcp-summary-v1"));
+      const measurements = summary?.measurementData;
+      const summaryWeight = Number(measurements?.weightLbs);
+      const summaryWaist = Number(measurements?.waistInches);
+      const summaryHeight = Number(measurements?.heightInches);
+      const summaryAge = Number(measurements?.age);
+      if (!(Number(loaded.profile.startWeight) > 0) && summaryWeight > 0) loaded.profile.startWeight = summaryWeight;
+      if (summaryWeight > 0) loaded.profile.currentWeight = summaryWeight;
+      if (!(Number(loaded.profile.waist) > 0) && summaryWaist > 0) loaded.profile.waist = summaryWaist;
+      if (!(Number(loaded.profile.heightInches) > 0) && summaryHeight > 0) loaded.profile.heightInches = summaryHeight;
+      if (!(Number(loaded.profile.age) > 0) && summaryAge > 0) loaded.profile.age = summaryAge;
+      if (!loaded.profile.sex && measurements?.sex) loaded.profile.sex = measurements.sex;
+    } catch {
+      // Summary Profile is optional; Daily remains usable without it.
+    }
     const sharedVibratoryLine = Number(localStorage.getItem(WEIGHT_GOAL_STORAGE_KEY));
     if (sharedVibratoryLine > 0) {
       loaded.profile = loaded.profile || {};
       loaded.profile.vibratoryLine = sharedVibratoryLine;
     }
+    loaded.dailyGauges = loaded.dailyGauges || {};
     return loaded;
   } catch {
     return seedState();
@@ -219,24 +247,39 @@ function persist() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
+function updateProfileReminder() {
+  const reminder = byId("profileReminder");
+  if (!reminder) return;
+  const profile = state.profile || {};
+  const complete =
+    Number(profile.age) > 0 &&
+    Boolean(profile.sex) &&
+    Number(profile.heightInches) > 0 &&
+    (Number(profile.currentWeight) > 0 || Number(profile.startWeight) > 0) &&
+    Number(profile.waist) > 0;
+  reminder.hidden = complete;
+}
+
 function syncLifestyleSummary() {
   try {
     const summary = JSON.parse(localStorage.getItem(LIFESTYLE_SUMMARY_STORAGE_KEY));
-    if (!summary?.week || !Number.isFinite(Number(summary.baseScore))) return false;
+    if (!Number.isFinite(Number(summary?.score))) return false;
+    const summaryWeek = summary.week || weekKey(new Date());
 
-    const existing = state.weeks[summary.week];
-    if (existing?.summaryUpdatedAt === summary.updatedAt && existing?.scoreLogicVersion === 2) return false;
+    const existing = state.weeks[summaryWeek];
+    if (existing?.summaryUpdatedAt === summary.updatedAt && existing?.scoreLogicVersion === 4) return false;
 
-    const waistPoint = state.profile.waist ? 1 : 0;
-    const score = Math.min(9, roundHalf(Number(summary.baseScore) + waistPoint));
+    const maximumScore = Number(summary.maximumScore) > 0 ? Number(summary.maximumScore) : 24;
+    const score = Math.min(10, roundHalf(Number(summary.score) / maximumScore * 10));
 
-    state.weeks[summary.week] = {
+    state.weeks[summaryWeek] = {
       ...existing,
       values: summary.values || existing?.values || {},
       score,
+      assessed: true,
       summaryScore: Number(summary.score),
       summaryUpdatedAt: summary.updatedAt,
-      scoreLogicVersion: 2,
+      scoreLogicVersion: 4,
       updatedAt: new Date().toISOString()
     };
     persist();
@@ -248,11 +291,18 @@ function syncLifestyleSummary() {
 
 function weeklyForDate(dateValue) {
   const key = weekKey(dateFromIso(dateValue));
-  return state.weeks[key] || weeklyTemplate(6);
+  const savedWeek = state.weeks[key];
+  if (savedWeek && savedWeek.assessed !== false && Number.isFinite(Number(savedWeek.score))) return savedWeek;
+
+  const latestAssessed = Object.values(state.weeks || {})
+    .filter(week => week?.assessed === true && Number.isFinite(Number(week.score)))
+    .sort((a, b) => String(b.updatedAt || b.summaryUpdatedAt || "").localeCompare(String(a.updatedAt || a.summaryUpdatedAt || "")))[0];
+  return latestAssessed || { values: {}, score: null, assessed: false };
 }
 
 function scoreForEntry(entry) {
-  return calculateEntry(entry, weeklyForDate(entry.date).score);
+  const weekly = weeklyForDate(entry.date);
+  return calculateEntry(entry, weekly.assessed === false ? null : weekly.score);
 }
 
 function formatShortDate(value) {
@@ -318,6 +368,177 @@ function loadEntry(dateValue) {
   updateWalkEntryMode();
   renderWalkBreakdown();
   renderToday(dateValue);
+  loadDailyGauges(dateValue);
+  renderDailyInsights(dateValue);
+}
+
+const DAILY_GAUGE_CONFIG = {
+  hydration: { input: "hydrationInput", value: "hydrationValue", status: "hydrationStatus", miniChart: "hydrationMiniChart", label: "Hydration", unit: "cups", maximum: 16, color: "#075da8" },
+  stress: { input: "stressInput", value: "stressValue", status: "stressStatus", miniChart: "stressMiniChart", label: "Stress", unit: "of 5", maximum: 5, color: "#dc4545" },
+  sleep: { input: "sleepInput", value: "sleepValue", status: "sleepStatus", miniChart: "sleepMiniChart", label: "Sleep", unit: "hours", maximum: 12, color: "#315fa8" }
+};
+
+const INSIGHT_RULES = {
+  hydrationLitresPerHour: 0.4,
+  litresPerCup: 0.295735,
+  hydrationMinimumCups: 1,
+  sleepLookbackDays: 7,
+  sleepMinimumEntries: 4,
+  sleepAverageThreshold: 5,
+  stressRecordedDays: 5,
+  stressMinimumHighDays: 3,
+  stressHighLevel: 4,
+  maximumMessages: 2
+};
+
+function displayGaugeValue(key, value) {
+  if (key !== "sleep") return String(Number(value));
+  return Number(value).toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
+}
+
+function setGaugeAppearance(key, value) {
+  const input = byId(DAILY_GAUGE_CONFIG[key].input);
+  const percent = ((Number(value) - Number(input.min)) / (Number(input.max) - Number(input.min))) * 100;
+  input.style.setProperty("--gauge-fill", `${Math.max(0, Math.min(100, percent))}%`);
+}
+
+function loadDailyGauges(dateValue) {
+  const gauges = state.dailyGauges?.[dateValue] || {};
+  Object.entries(DAILY_GAUGE_CONFIG).forEach(([key, config]) => {
+    const input = byId(config.input);
+    const saved = gauges[key];
+    const recorded = saved && Number.isFinite(Number(saved.value));
+    input.value = recorded ? saved.value : 0;
+    byId(config.value).textContent = recorded ? displayGaugeValue(key, saved.value) : "—";
+    byId(config.status).textContent = recorded
+      ? `Updated ${new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" }).format(new Date(saved.updatedAt))}`
+      : "Not recorded today";
+    input.closest(".daily-gauge").classList.toggle("is-recorded", Boolean(recorded));
+    setGaugeAppearance(key, input.value);
+  });
+}
+
+function previewDailyGauge(key) {
+  const config = DAILY_GAUGE_CONFIG[key];
+  const value = Number(byId(config.input).value);
+  byId(config.value).textContent = displayGaugeValue(key, value);
+  setGaugeAppearance(key, value);
+}
+
+function stepDailyGauge(key, direction) {
+  const input = byId(DAILY_GAUGE_CONFIG[key].input);
+  const step = Number(input.step) || 1;
+  const next = Math.max(Number(input.min), Math.min(Number(input.max), Number(input.value) + (step * direction)));
+  input.value = String(next);
+  previewDailyGauge(key);
+}
+
+function saveDailyGauge(key) {
+  const dateValue = fields.date.value || isoDate();
+  const config = DAILY_GAUGE_CONFIG[key];
+  const value = Number(byId(config.input).value);
+  state.dailyGauges = state.dailyGauges || {};
+  state.dailyGauges[dateValue] = state.dailyGauges[dateValue] || {};
+  state.dailyGauges[dateValue][key] = { value, updatedAt: new Date().toISOString() };
+  persist();
+  loadDailyGauges(dateValue);
+  renderDailyInsights(dateValue);
+  renderMiniGaugeCharts();
+}
+
+function miniChartDateLabel(dateValue) {
+  return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(dateFromIso(dateValue));
+}
+
+function renderMiniGaugeChart(key) {
+  const config = DAILY_GAUGE_CONFIG[key];
+  const chart = byId(config.miniChart);
+  const today = dateFromIso(isoDate());
+  const dates = Array.from({ length: 7 }, (_, index) => isoDate(addDays(today, index - 7)));
+  const values = dates.map(date => {
+    const saved = state.dailyGauges?.[date]?.[key];
+    return saved && Number.isFinite(Number(saved.value)) ? Number(saved.value) : null;
+  });
+  const hasData = values.some(value => value !== null);
+  const width = 190;
+  const height = 72;
+  const chartTop = 8;
+  const chartBottom = 56;
+  const slotWidth = width / dates.length;
+  const bars = values.map((value, index) => {
+    if (value === null) return `<rect class="mini-chart-missing" x="${(index * slotWidth + 7).toFixed(1)}" y="${chartBottom - 2}" width="${(slotWidth - 12).toFixed(1)}" height="2" rx="1"></rect>`;
+    const barHeight = Math.max(3, (Math.min(config.maximum, value) / config.maximum) * (chartBottom - chartTop));
+    return `<rect x="${(index * slotWidth + 7).toFixed(1)}" y="${(chartBottom - barHeight).toFixed(1)}" width="${(slotWidth - 12).toFixed(1)}" height="${barHeight.toFixed(1)}" rx="3" fill="${config.color}"><title>${miniChartDateLabel(dates[index])}: ${displayGaugeValue(key, value)} ${config.unit}</title></rect>`;
+  }).join("");
+  chart.innerHTML = `<strong>${config.label} · previous 7 completed days</strong>${hasData ? `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${config.label} over the previous seven completed days"><line x1="0" y1="${chartBottom}" x2="${width}" y2="${chartBottom}" class="mini-chart-axis"></line>${bars}<text x="2" y="70">${miniChartDateLabel(dates[0])}</text><text x="188" y="70" text-anchor="end">${miniChartDateLabel(dates.at(-1))}</text></svg>` : `<span>No completed data yet</span>`}`;
+}
+
+function renderMiniGaugeCharts() {
+  Object.keys(DAILY_GAUGE_CONFIG).forEach(renderMiniGaugeChart);
+}
+
+function completedGaugeSamples(key, beforeDate, calendarDays = null) {
+  const before = dateFromIso(beforeDate);
+  const earliest = calendarDays === null ? null : addDays(before, -calendarDays);
+  return Object.entries(state.dailyGauges || {})
+    .filter(([date, gauges]) => {
+      const sampleDate = dateFromIso(date);
+      return date < beforeDate && (!earliest || sampleDate >= earliest) && Number.isFinite(Number(gauges?.[key]?.value));
+    })
+    .sort(([dateA], [dateB]) => dateB.localeCompare(dateA));
+}
+
+function estimatedHydrationDeficit(dateValue) {
+  const entry = state.entries[dateValue];
+  const walkingMinutes = walksForEntry(entry).reduce((sum, walk) => sum + Number(walk.minutes || 0), 0);
+  if (walkingMinutes <= 0) return 0;
+  const cups = ((walkingMinutes / 60) * INSIGHT_RULES.hydrationLitresPerHour) / INSIGHT_RULES.litresPerCup;
+  return Math.round(cups * 2) / 2;
+}
+
+function buildDailyInsights(dateValue) {
+  if (dateValue !== isoDate()) return [];
+  const immediate = [];
+  const patterns = [];
+  const hydrationDeficit = estimatedHydrationDeficit(dateValue);
+
+  if (hydrationDeficit >= INSIGHT_RULES.hydrationMinimumCups) {
+    immediate.push({
+      priority: 100 + hydrationDeficit,
+      html: `<strong>Estimated hydration deficit from today's walking: ${displayGaugeValue("sleep", hydrationDeficit)} ${hydrationDeficit === 1 ? "10 oz cup" : "10 oz cups"}.</strong>`
+    });
+  }
+
+  const sleepSamples = completedGaugeSamples("sleep", dateValue, INSIGHT_RULES.sleepLookbackDays);
+  if (sleepSamples.length >= INSIGHT_RULES.sleepMinimumEntries) {
+    const sleepValues = sleepSamples.map(([, gauges]) => Number(gauges.sleep.value));
+    const sleepAverage = sleepValues.reduce((sum, value) => sum + value, 0) / sleepValues.length;
+    if (sleepAverage < INSIGHT_RULES.sleepAverageThreshold) {
+      patterns.push({
+        priority: INSIGHT_RULES.sleepAverageThreshold - sleepAverage,
+        html: `<strong>A pattern worth noticing:</strong> Your sleep averaged ${displayGaugeValue("sleep", sleepAverage)} hours across ${sleepValues.length} recorded nights. <a href="/library/">Explore sleep articles in the MotionC Library</a>.`
+      });
+    }
+  }
+
+  const stressSamples = completedGaugeSamples("stress", dateValue).slice(0, INSIGHT_RULES.stressRecordedDays);
+  if (stressSamples.length === INSIGHT_RULES.stressRecordedDays) {
+    const highStressDays = stressSamples.filter(([, gauges]) => Number(gauges.stress.value) >= INSIGHT_RULES.stressHighLevel).length;
+    if (highStressDays >= INSIGHT_RULES.stressMinimumHighDays) {
+      patterns.push({
+        priority: highStressDays / INSIGHT_RULES.stressRecordedDays,
+        html: `<strong>Stress has remained elevated:</strong> ${highStressDays} of your last ${INSIGHT_RULES.stressRecordedDays} recorded days were level 4 or 5. <a href="/library/">Explore stress articles in the MotionC Library</a>.`
+      });
+    }
+  }
+
+  patterns.sort((a, b) => b.priority - a.priority);
+  return [...immediate, ...patterns].slice(0, INSIGHT_RULES.maximumMessages);
+}
+
+function renderDailyInsights(dateValue) {
+  const messages = buildDailyInsights(dateValue);
+  byId("gaugeMessages").innerHTML = messages.map(message => `<p class="gauge-message">${message.html}</p>`).join("");
 }
 
 function readDayFields(existing = {}) {
@@ -492,8 +713,8 @@ function renderToday(dateValue) {
   activeScoreDate = dateValue;
 }
 
-function renderCalendar(focusDateValue) {
-  const focus = dateFromIso(focusDateValue);
+function renderCalendar() {
+  const focus = calendarViewDate;
   const year = focus.getFullYear();
   const month = focus.getMonth();
   byId("calendarTitle").textContent = new Intl.DateTimeFormat(undefined, { month: "long", year: "numeric" }).format(focus);
@@ -572,6 +793,22 @@ function weeklySummary(start) {
   };
 }
 
+function weekNotesHtml(entries, emptyMessage) {
+  const notes = entries.filter(entry => entry.weightNote || entry.observation);
+  if (!notes.length) return `<p class="no-week-notes">${emptyMessage}</p>`;
+
+  return notes.map(entry => {
+    const comments = [];
+    if (entry.weightNote) {
+      comments.push(`<span><b>Weight note:</b> ${escapeHtml(entry.weightNote)}</span>`);
+    }
+    if (entry.observation) {
+      comments.push(`<span><b>Observation:</b> ${escapeHtml(entry.observation)}</span>`);
+    }
+    return `<p class="week-note"><strong>${formatShortDate(entry.date)}:</strong>${comments.join("")}</p>`;
+  }).join("");
+}
+
 function renderWeekly() {
   const start = startOfWeek(new Date());
   const end = addDays(start, 6);
@@ -588,23 +825,34 @@ function renderWeekly() {
   byId("weeklyStats").innerHTML = stats.map(([label, value]) =>
     `<div class="weekly-stat"><span>${label}</span><strong>${value}</strong></div>`
   ).join("");
-  const notes = summary.entries.filter(entry => entry.weightNote || entry.observation);
-  byId("weeklyNotes").innerHTML = notes.length
-    ? notes.map(entry => `<p><strong>${formatShortDate(entry.date)}:</strong> ${escapeHtml(entry.weightNote || entry.observation)}</p>`).join("")
-    : "<p>No notes recorded this week.</p>";
+  byId("weeklyNotes").innerHTML = weekNotesHtml(summary.entries, "No notes recorded this week.");
 
   const previous = byId("previousWeeks");
   previous.replaceChildren();
-  for (let offset = 1; offset <= 3; offset += 1) {
-    const weekStart = addDays(start, -7 * offset);
+  const previousWeekKeys = [...new Set(
+    Object.values(state.entries)
+      .filter(entry => dateFromIso(entry.date) < start)
+      .map(entry => weekKey(dateFromIso(entry.date)))
+  )].sort((a, b) => b.localeCompare(a));
+
+  if (!previousWeekKeys.length) {
+    previous.innerHTML = '<p class="no-week-notes">No previous weeks recorded yet.</p>';
+  }
+
+  previousWeekKeys.forEach(key => {
+    const weekStart = dateFromIso(key);
     const weekEnd = addDays(weekStart, 6);
     const old = weeklySummary(weekStart);
     const block = document.createElement("div");
     block.className = "previous-week";
     block.innerHTML = `<strong>${formatShortDate(isoDate(weekStart))}–${formatShortDate(isoDate(weekEnd))}</strong>
-      <p>${formatDistance(old.totalDistance)} · ${old.average || 0}% average · ${old.entries.length} entries</p>`;
+      <p>${formatDistance(old.totalDistance)} · ${old.average || 0}% average · ${old.entries.length} entries</p>
+      <div class="previous-week-notes">
+        <span class="previous-week-notes-title">Notes</span>
+        ${weekNotesHtml(old.entries, "No notes recorded.")}
+      </div>`;
     previous.append(block);
-  }
+  });
 }
 
 function longestWalk() {
@@ -628,7 +876,9 @@ function renderMilestones() {
   const availableDots = entries.length;
   const positivePercentage = availableDots ? Math.round(greenDays / availableDots * 100) : 0;
   const vibratoryLine = state.profile.vibratoryLine;
-  const displayedStart = displayWeight(startWeight);
+  const hasStartWeight = Number.isFinite(startWeight) && startWeight > 0;
+  const hasVibratoryLine = Number.isFinite(Number(vibratoryLine)) && Number(vibratoryLine) > 0;
+  const displayedStart = hasStartWeight ? displayWeight(startWeight) : 0;
   const decadeBoundary = Math.floor(displayedStart / 10) * 10;
   const decadeLabel = decadeBoundary - 10;
   const decadeReached = lowest ? displayWeight(lowest) < decadeBoundary : false;
@@ -640,7 +890,9 @@ function renderMilestones() {
   const averageDailyMinutes = timedWalkingDays.length
     ? timedWalkingDays.reduce((sum, entry) => sum + Number(entry.minutes || 0), 0) / timedWalkingDays.length
     : 0;
-  const loss = displayWeight(Math.max(0, startWeight - (latestWeight ?? startWeight)));
+  const loss = hasStartWeight && latestWeight !== null
+    ? displayWeight(Math.max(0, startWeight - latestWeight))
+    : null;
   const weightTiers = unitSystem === "metric" ? [2.5, 5, 10, 20, 30, 50] : [5, 10, 25, 50, 75, 100];
   const distanceTiers = unitSystem === "metric" ? [50, 100, 250, 500, 1000] : [25, 50, 100, 250, 500, 1000];
   const walkTiers = unitSystem === "metric" ? [1, 5, 10, 21.1, 42.2] : [1, 3, 5, 10, 13.1, 26.2];
@@ -660,9 +912,9 @@ function renderMilestones() {
   }
 
   const milestoneData = [
-    { label: "Total Weight Lost", reached: Number.isFinite(startWeight) && latestWeight !== null, detail: latestWeight !== null ? `${formatWeight(startWeight)} start → ${formatWeight(latestWeight)} latest (${loss.toFixed(1)} ${weightUnit()} lost)` : "Starting and latest weights needed" },
+    { label: "Total Weight Lost", reached: hasStartWeight && latestWeight !== null, detail: hasStartWeight && latestWeight !== null ? `${formatWeight(startWeight)} start → ${formatWeight(latestWeight)} latest (${loss.toFixed(1)} ${weightUnit()} lost)` : "Starting and latest weights needed" },
     { label: "Lowest Recorded Weight", reached: lowest !== null, detail: lowest !== null ? formatWeight(lowest) : "No weight recorded" },
-    { label: "Vibratory Set Line", reached: Number.isFinite(Number(vibratoryLine)), detail: formatWeight(vibratoryLine) },
+    { label: "Vibratory Set Line", reached: hasVibratoryLine, detail: hasVibratoryLine ? formatWeight(vibratoryLine) : "Set your line in Weekly check-in or on Summary" },
     { label: "Longest Daily Walk", reached: Boolean(longest), detail: longest ? `${longestDistance.toFixed(2)} ${distanceUnit()}` : "No walk recorded" },
     { label: `Total Cumulative ${unitSystem === "metric" ? "Kilometres" : "Miles"}`, reached: entries.length > 0, detail: `${totalDistance.toFixed(1)} ${distanceUnit()}` },
     { label: "Total Positive Dots", reached: availableDots > 0, detail: `${greenDays} / ${availableDots} (${positivePercentage}%)` }
@@ -820,10 +1072,18 @@ function openScore(dateValue) {
   const weak = Object.entries(weekly.values || {}).filter(([, value]) => value < 1).map(([key]) => LIFESTYLE_ITEMS.find(item => item[0] === key)?.[1]).filter(Boolean);
   const dailyImpact = score.food >= 8 ? "Strong positive" : score.food >= 6 ? "Mild negative" : "Needs attention";
   const moveImpact = score.movement >= 9 ? "Strong positive" : score.movement >= 5 ? "Positive" : "Limited movement";
-  const lifestyleImpact = score.lifestyle >= 8 ? "Strong" : score.lifestyle >= 6 ? "Moderate" : "Moderate negative";
+  const lifestyleImpact = score.lifestyleAssessed
+    ? (score.lifestyle >= 8 ? "Strong" : score.lifestyle >= 6 ? "Moderate" : "Moderate negative")
+    : "Not included";
+  const lifestyleDetail = score.lifestyleAssessed
+    ? (weak.length ? `Needs attention: ${escapeHtml(weak.slice(0, 3).join(", "))}.` : "Your weekly lifestyle is supporting today’s dot.")
+    : "Complete the Lifestyle Profile to include this section in the Daily score.";
+  const conclusion = score.lifestyleAssessed
+    ? (score.lifestyle < 6 ? "This week’s lifestyle is lowering the overall result slightly." : "Your weekly foundation is supporting today’s choices.")
+    : "Lifestyle is not included until the profile is completed.";
   byId("scoreDetails").innerHTML = `
     <p class="eyebrow">${escapeHtml(formatFullDate(dateValue).toUpperCase())}</p>
-    <div class="score-summary"><span class="dot ${score.color}"></span><div><h2>${score.percent}% · ${colorLabel(score.color)}</h2><span>${score.total}/30 points</span></div></div>
+    <div class="score-summary"><span class="dot ${score.color}"></span><div><h2>${score.percent}% · ${colorLabel(score.color)}</h2><span>${score.total}/${score.maximum} assessed points</span></div></div>
     <div class="daily-measurement">
       <span>Weight recorded</span>
       <strong>${entry.weight ? formatWeight(entry.weight) : "Not recorded"}</strong>
@@ -840,10 +1100,9 @@ function openScore(dateValue) {
       <li><span>Distance</span><strong>${formatDistance(entry.distance || 0)}</strong></li>
       ${walksForEntry(entry).length > 1 ? walksForEntry(entry).map((walk, index) => `<li><span>Walk ${index + 1}</span><strong>${formatDistance(walk.distance || 0)} · ${Number(walk.minutes || 0)} min</strong></li>`).join("") : ""}
     </ul><p class="impact">Impact: ${moveImpact}</p></section>
-    <section class="score-section"><header><h3>Your lifestyle this week</h3><strong>${score.lifestyle}/10</strong></header>
-      <p>${weak.length ? `Needs attention: ${escapeHtml(weak.slice(0, 3).join(", "))}.` : "Your weekly lifestyle is supporting today’s dot."}</p>
-      <p class="impact">Impact: ${lifestyleImpact}</p></section>
-    <p class="score-conclusion">${score.movement >= 8 ? "Your movement was strong today. " : ""}${score.lifestyle < 6 ? "This week’s lifestyle is lowering the overall result slightly." : "Your weekly foundation is supporting today’s choices."}</p>`;
+    <section class="score-section"><header><h3>Your lifestyle this week</h3><strong>${score.lifestyleAssessed ? `${score.lifestyle}/10` : "Not assessed"}</strong></header>
+      <p>${lifestyleDetail}</p><p class="impact">Impact: ${lifestyleImpact}</p></section>
+    <p class="score-conclusion">${score.movement >= 8 ? "Your movement was strong today. " : ""}${conclusion}</p>`;
   byId("scoreDialog").showModal();
 }
 
@@ -861,19 +1120,22 @@ function buildLifestyleForm() {
         <option value="1" ${week.values?.[key] === 1 ? "selected" : ""}>Supporting me</option>
       </select>
     </label>`).join("");
-  byId("weeklyWaist").value = displayWaist(state.profile.waist).toFixed(1);
-  byId("startingWeight").value = displayWeight(state.profile.startWeight).toFixed(1);
-  byId("vibratoryLine").value = displayWeight(state.profile.vibratoryLine).toFixed(1);
-  byId("motivationalGoal").value = displayWeight(state.profile.motivationalGoal).toFixed(1);
+  const setOptionalMeasurement = (id, storedValue, display) => {
+    const value = Number(storedValue);
+    byId(id).value = value > 0 && Number.isFinite(value) ? display(value).toFixed(1) : "";
+  };
+  setOptionalMeasurement("weeklyWaist", state.profile.waist, displayWaist);
+  setOptionalMeasurement("startingWeight", state.profile.startWeight, displayWeight);
+  setOptionalMeasurement("vibratoryLine", state.profile.vibratoryLine, displayWeight);
+  setOptionalMeasurement("motivationalGoal", state.profile.motivationalGoal, displayWeight);
 }
 
 function saveWeekly() {
   const values = {};
   document.querySelectorAll("[data-lifestyle]").forEach(select => values[select.dataset.lifestyle] = Number(select.value));
   const lifestyleBase = Object.values(values).reduce((sum, value) => sum + value, 0);
-  const waistPoint = byId("weeklyWaist").value ? 1 : 0;
-  const score = Math.min(9, roundHalf(lifestyleBase + waistPoint));
-  state.weeks[weekKey(new Date())] = { values, score, scoreLogicVersion: 2, updatedAt: new Date().toISOString() };
+  const score = Math.min(10, roundHalf(lifestyleBase / LIFESTYLE_ITEMS.length * 10));
+  state.weeks[weekKey(new Date())] = { values, score, assessed: true, scoreLogicVersion: 4, updatedAt: new Date().toISOString() };
   state.profile.startWeight = byId("startingWeight").value ? storedWeight(Number(byId("startingWeight").value)) : state.profile.startWeight;
   state.profile.waist = byId("weeklyWaist").value ? storedWaist(Number(byId("weeklyWaist").value)) : state.profile.waist;
   state.profile.vibratoryLine = byId("vibratoryLine").value ? storedWeight(Number(byId("vibratoryLine").value)) : state.profile.vibratoryLine;
@@ -891,13 +1153,54 @@ function renderAll(dateValue = isoDate()) {
   const yearStart = new Date(now.getFullYear(), 0, 1);
   const weekNumber = Math.floor((now - yearStart) / 604800000);
   byId("weeklyReflection").innerHTML = WEEKLY_REFLECTIONS[weekNumber % WEEKLY_REFLECTIONS.length];
+  updateProfileReminder();
   renderToday(dateValue);
-  renderCalendar(dateValue);
+  renderCalendar();
   renderWeekly();
   renderMilestones();
+  renderDailyInsights(dateValue);
+  renderMiniGaugeCharts();
 }
 
-fields.date.addEventListener("change", () => loadEntry(fields.date.value));
+fields.date.addEventListener("change", () => {
+  if (!fields.date.value) return;
+  calendarViewDate = dateFromIso(fields.date.value);
+  loadEntry(fields.date.value);
+  renderCalendar();
+});
+byId("goToToday").addEventListener("click", () => {
+  const today = isoDate();
+  fields.date.value = today;
+  calendarViewDate = dateFromIso(today);
+  loadEntry(today);
+  renderCalendar();
+});
+byId("previousMonth").addEventListener("click", () => {
+  calendarViewDate = new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth() - 1, 1, 12);
+  renderCalendar();
+});
+byId("nextMonth").addEventListener("click", () => {
+  calendarViewDate = new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth() + 1, 1, 12);
+  renderCalendar();
+});
+byId("calendarToday").addEventListener("click", () => {
+  calendarViewDate = new Date();
+  renderCalendar();
+});
+Object.keys(DAILY_GAUGE_CONFIG).forEach(key => {
+  byId(DAILY_GAUGE_CONFIG[key].input).addEventListener("input", () => previewDailyGauge(key));
+});
+byId("saveHydration").addEventListener("click", () => saveDailyGauge("hydration"));
+byId("saveStress").addEventListener("click", () => saveDailyGauge("stress"));
+byId("saveSleep").addEventListener("click", () => saveDailyGauge("sleep"));
+document.querySelectorAll("[data-gauge-step]").forEach(button => {
+  button.addEventListener("click", () => stepDailyGauge(button.dataset.gaugeStep, Number(button.dataset.direction)));
+});
+byId("gaugeInfoButton").addEventListener("click", () => {
+  const info = byId("gaugeInfo");
+  info.hidden = !info.hidden;
+  byId("gaugeInfoButton").setAttribute("aria-expanded", String(!info.hidden));
+});
 byId("saveEntry").addEventListener("click", saveEntry);
 byId("addWalk").addEventListener("click", toggleAddWalk);
 byId("walkList").addEventListener("click", event => {
@@ -923,9 +1226,16 @@ byId("scoreDialog").addEventListener("click", event => {
 });
 byId("weeklyButton").addEventListener("click", () => {
   buildLifestyleForm();
-  byId("weeklyDialog").showModal();
+  const dialog = byId("weeklyDialog");
+  if (dialog.open) return;
+  if (typeof dialog.showModal === "function") dialog.showModal();
+  else dialog.setAttribute("open", "");
 });
-byId("closeWeekly").addEventListener("click", () => byId("weeklyDialog").close());
+byId("closeWeekly").addEventListener("click", () => {
+  const dialog = byId("weeklyDialog");
+  if (typeof dialog.close === "function") dialog.close();
+  else dialog.removeAttribute("open");
+});
 byId("saveWeekly").addEventListener("click", saveWeekly);
 window.addEventListener("focus", () => {
   if (syncLifestyleSummary()) renderAll(fields.date.value);
@@ -966,8 +1276,23 @@ document.querySelectorAll('input[name="unitSystem"]').forEach(input => {
   });
 });
 
+function scheduleDailyGaugeReset() {
+  const scheduledDate = isoDate();
+  const now = new Date();
+  const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 50);
+  window.setTimeout(() => {
+    if (fields.date.value === scheduledDate) {
+      fields.date.value = isoDate();
+      loadEntry(fields.date.value);
+      renderAll(fields.date.value);
+    }
+    scheduleDailyGaugeReset();
+  }, nextMidnight.getTime() - now.getTime());
+}
+
 persist();
 loadEntry(isoDate());
 renderAll();
 setupWalkingCalculator();
 applyUnitSystem();
+scheduleDailyGaugeReset();
