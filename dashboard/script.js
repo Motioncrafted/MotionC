@@ -52,7 +52,6 @@ const metricHeightFields =
 
 const weightInput = document.getElementById("weight");
 const waistInput = document.getElementById("waist");
-const hipInput = document.getElementById("hip");
 
 const heightFeetInput =
     document.getElementById("height-feet");
@@ -117,6 +116,21 @@ function closeDrawer() {
     closeMcpInfo();
 }
 
+function profileMeasurementsComplete(measurements) {
+    return Boolean(
+        Number(measurements?.age) > 0 &&
+        measurements?.sex &&
+        Number(measurements?.heightInches) > 0 &&
+        Number(measurements?.weightLbs) > 0 &&
+        Number(measurements?.waistInches) > 0
+    );
+}
+
+function updateProfileReminder(measurements) {
+    const reminder = document.getElementById("profileReminder");
+    if (reminder) reminder.hidden = profileMeasurementsComplete(measurements);
+}
+
 
 function toggleDrawer() {
     if (isDrawerOpen()) {
@@ -130,6 +144,7 @@ function toggleDrawer() {
 /* MCP hotspot: mouse or touch */
 
 hotspot?.addEventListener("click", toggleDrawer);
+document.getElementById("completeProfileButton")?.addEventListener("click", openDrawer);
 
 
 /*
@@ -303,11 +318,6 @@ function updateUnitLabels(system) {
             'label[for="waist"]'
         );
 
-    const hipLabel =
-        document.querySelector(
-            'label[for="hip"]'
-        );
-
     if (system === "metric") {
         if (weightLabel) {
             weightLabel.textContent = "Weight — kg";
@@ -321,17 +331,10 @@ function updateUnitLabels(system) {
             weightInput.placeholder = "kg";
         }
 
-        if (hipLabel) {
-            hipLabel.textContent = "Hip — cm";
-        }
-
         if (waistInput) {
             waistInput.placeholder = "cm";
         }
 
-        if (hipInput) {
-            hipInput.placeholder = "cm";
-        }
     } else {
         if (weightLabel) {
             weightLabel.textContent = "Weight — lb";
@@ -345,17 +348,10 @@ function updateUnitLabels(system) {
             weightInput.placeholder = "lb";
         }
 
-        if (hipLabel) {
-            hipLabel.textContent = "Hip — in";
-        }
-
         if (waistInput) {
             waistInput.placeholder = "in";
         }
 
-        if (hipInput) {
-            hipInput.placeholder = "in";
-        }
     }
 }
 
@@ -435,10 +431,6 @@ function getMeasurementData() {
 
     const enteredWeight = readNumber(weightInput);
     const enteredWaist = readNumber(waistInput);
-    const enteredHipValue = readNumber(hipInput);
-    const enteredHip = Number.isFinite(enteredHipValue) && enteredHipValue > 0
-        ? enteredHipValue
-        : null;
     const age = readNumber(ageInput);
     const sex = sexInput?.value ?? "";
 
@@ -448,9 +440,6 @@ function getMeasurementData() {
 
     let waistCm;
     let waistInches;
-
-    let hipCm = null;
-    let hipInches = null;
 
     let weightKg;
     let weightLbs;
@@ -462,11 +451,6 @@ function getMeasurementData() {
 
         waistCm = enteredWaist;
         waistInches = waistCm / 2.54;
-
-        if (enteredHip !== null) {
-            hipCm = enteredHip;
-            hipInches = hipCm / 2.54;
-        }
 
         weightKg = enteredWeight;
         weightLbs = weightKg / 0.453592;
@@ -480,11 +464,6 @@ function getMeasurementData() {
 
         waistInches = enteredWaist;
         waistCm = waistInches * 2.54;
-
-        if (enteredHip !== null) {
-            hipInches = enteredHip;
-            hipCm = hipInches * 2.54;
-        }
 
         weightLbs = enteredWeight;
         weightKg = weightLbs * 0.453592;
@@ -533,7 +512,6 @@ function getMeasurementData() {
         system,
         enteredWeight,
         enteredWaist,
-        enteredHip,
         age,
         sex,
 
@@ -543,9 +521,6 @@ function getMeasurementData() {
 
         waistCm,
         waistInches,
-
-        hipCm,
-        hipInches,
 
         weightKg,
         weightLbs
@@ -599,7 +574,6 @@ function calculateMcp({
     heightCm,
     heightMetres,
     waistCm,
-    hipCm,
     weightKg,
     age,
     sex
@@ -614,11 +588,6 @@ function calculateMcp({
 
     const whtr =
         waistCm / heightCm;
-
-    const whr =
-        Number.isFinite(hipCm) && hipCm > 0
-            ? waistCm / hipCm
-            : null;
 
     const bodyK50 =
         (bmi * whtr) * 2;
@@ -648,7 +617,6 @@ function calculateMcp({
     return {
         bmi,
         whtr,
-        whr,
         bodyK50,
         sexAdjustment,
         ageAdjustment,
@@ -783,8 +751,7 @@ calculateMcpButton?.addEventListener(
             alert(
                 `Your MCP is ${results.mcp.toFixed(1)}.\n` +
                 `Your BMI is ${results.bmi.toFixed(1)}.\n` +
-                `Your WHtR is ${results.whtr.toFixed(2)}.` +
-                (Number.isFinite(results.whr) ? `\nYour WHR is ${results.whr.toFixed(2)}.` : "")
+                `Your WHtR is ${results.whtr.toFixed(2)}.`
             );
 
             /*
@@ -872,7 +839,7 @@ function saveLifestyleSummary(score) {
             week: currentLifestyleWeekKey(),
             score,
             maximumScore: 24,
-            baseScore: score / 3,
+            baseScore: score / 24 * 10,
             values,
             updatedAt: new Date().toISOString()
         })
@@ -1270,75 +1237,15 @@ window.addEventListener(
         document.body.classList.remove(
             "page-fade-out"
         );
-        closeDrawer();
+        if (new URLSearchParams(location.search).get("complete-profile") === "1") {
+            openDrawer();
+            history.replaceState({}, "", location.pathname);
+        } else {
+            closeDrawer();
+        }
         restoreLifestyleSummary();
     }
 );
-
-/* ==========================================================
-   TEMP LOCATION MARKER
-   MCP "YOU ARE HERE" PLACEHOLDER
-   ========================================================== */
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    const dashboardWrapper =
-        document.querySelector(
-            ".dashboard-wrapper"
-        );
-
-    if (!dashboardWrapper) {
-        console.warn(
-            "MCP location marker: dashboard wrapper not found."
-        );
-
-        return;
-    }
-
-    const existingMarker =
-        document.getElementById(
-            "mcp-location-marker"
-        );
-
-    if (existingMarker) {
-        return;
-    }
-
-    const mcpLocationMarker =
-        document.createElement(
-            "div"
-        );
-
-    mcpLocationMarker.id =
-        "mcp-location-marker";
-
-    mcpLocationMarker.setAttribute(
-        "aria-hidden",
-        "true"
-    );
-
-    Object.assign(
-        mcpLocationMarker.style,
-        {
-            position: "absolute",
-            top: "35.6%",
-            left: "1.3%",
-            width: "6.9%",
-            height: "10.3%",
-            border: "3px solid #ffd400",
-            borderRadius: "6px",
-            background: "transparent",
-            boxSizing: "border-box",
-            pointerEvents: "none",
-            zIndex: "20"
-        }
-    );
-
-    dashboardWrapper.appendChild(
-        mcpLocationMarker
-    );
-
-});
 
 /* =========================================
    Modern Summary data and chart layer
@@ -1377,32 +1284,6 @@ function readSummaryStorage(key, fallback) {
     } catch {
         return fallback;
     }
-}
-
-function syncMcpWithDailyWaist(savedMcp, daily) {
-    const waistInches = Number(daily?.profile?.waist);
-    if (!(waistInches > 0) || !savedMcp?.measurementData) return savedMcp;
-
-    const measurementData = {
-        ...savedMcp.measurementData,
-        enteredWaist: savedMcp.measurementData.system === "metric" ? waistInches * 2.54 : waistInches,
-        waistInches,
-        waistCm: waistInches * 2.54
-    };
-    const results = calculateMcp(measurementData);
-    const syncedMcp = {
-        ...savedMcp,
-        measurementData,
-        results,
-        updatedAt: new Date().toISOString()
-    };
-
-    const previousWaist = Number(savedMcp.measurementData.waistInches);
-    if (!Number.isFinite(previousWaist) || Math.abs(previousWaist - waistInches) > .0001) {
-        localStorage.setItem(summaryMcpStorageKey, JSON.stringify(syncedMcp));
-    }
-
-    return syncedMcp;
 }
 
 function saveSharedVibratoryLine(pounds) {
@@ -1764,13 +1645,172 @@ function drawWalkingChart(points) {
     });
 }
 
+function saveSharedProfileMeasurements(measurementData) {
+    if (!measurementData) return;
+    const daily = readSummaryStorage(summaryDailyStorageKey, { entries: {}, weeks: {}, profile: {} });
+    daily.entries = daily.entries || {};
+    daily.weeks = daily.weeks || {};
+    daily.profile = daily.profile || {};
+
+    const weight = Number(measurementData.weightLbs);
+    const waist = Number(measurementData.waistInches);
+    const height = Number(measurementData.heightInches);
+    const age = Number(measurementData.age);
+
+    // The first valid Profile Info weight becomes the starting weight. Later
+    // profile updates must not erase the user's original progress baseline.
+    if (!(Number(daily.profile.startWeight) > 0) && weight > 0) {
+        daily.profile.startWeight = weight;
+    }
+    if (weight > 0) daily.profile.currentWeight = weight;
+    if (waist > 0) daily.profile.waist = waist;
+    if (height > 0) daily.profile.heightInches = height;
+    if (age > 0) daily.profile.age = age;
+    if (measurementData.sex) daily.profile.sex = measurementData.sex;
+    daily.profile.updatedAt = new Date().toISOString();
+    localStorage.setItem(summaryDailyStorageKey, JSON.stringify(daily));
+}
+
+function latestDailyWeight(entries) {
+    return Object.values(entries || {})
+        .filter(entry => entry?.date && Number(entry.weight) > 0)
+        .sort((first, second) => String(first.date).localeCompare(String(second.date)))
+        .at(-1)?.weight ?? null;
+}
+
+function canonicalMcpSnapshot(savedMcp, entries) {
+    const measurementData = savedMcp?.measurementData;
+    if (!measurementData) return null;
+
+    const dailyWeightLbs = Number(latestDailyWeight(entries));
+    const weightLbs = dailyWeightLbs > 0 ? dailyWeightLbs : Number(measurementData.weightLbs);
+    const heightInches = Number(measurementData.heightInches);
+    const waistInches = Number(measurementData.waistInches);
+    const age = Number(measurementData.age);
+
+    if (![weightLbs, heightInches, waistInches, age].every(value => Number.isFinite(value) && value > 0)) {
+        return null;
+    }
+
+    const system = measurementData.system === "metric" ? "metric" : "imperial";
+    const canonicalMeasurements = {
+        ...measurementData,
+        system,
+        enteredWeight: system === "metric" ? weightLbs * summaryKgPerLb : weightLbs,
+        enteredWaist: system === "metric" ? waistInches * 2.54 : waistInches,
+        heightCm: heightInches * 2.54,
+        heightMetres: heightInches * 0.0254,
+        heightInches,
+        waistCm: waistInches * 2.54,
+        waistInches,
+        weightKg: weightLbs * summaryKgPerLb,
+        weightLbs,
+        age
+    };
+
+    return {
+        measurementData: canonicalMeasurements,
+        results: calculateMcp(canonicalMeasurements)
+    };
+}
+
+const DAILY_TREND_CONFIG = {
+    hydration: { label: "Hydration", unit: "10 oz cups", maximum: 16, color: "#0872b9" },
+    stress: { label: "Stress", unit: "of 5", maximum: 5, color: "#d94d48" },
+    sleep: { label: "Sleep", unit: "hours", maximum: 12, color: "#3d68ae" }
+};
+
+function formatDailyTrendValue(value) {
+    return Number(value).toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
+}
+
+function drawDailyGaugeTrend(key, dates, gauges) {
+    const config = DAILY_TREND_CONFIG[key];
+    const canvas = document.getElementById(`${key}-trend-chart`);
+    const empty = document.getElementById(`${key}-trend-empty`);
+    if (!canvas || !empty) return;
+    const points = dates.map(date => {
+        const saved = gauges?.[date]?.[key];
+        return { date, value: saved && Number.isFinite(Number(saved.value)) ? Number(saved.value) : null };
+    });
+    const recorded = points.filter(point => point.value !== null);
+    if (!recorded.length) {
+        empty.hidden = false;
+        canvas.hidden = true;
+        setText(`${key}-trend-summary`, "No completed entries");
+        return;
+    }
+
+    empty.hidden = true;
+    canvas.hidden = false;
+    const { context, width, height } = prepareCanvas(canvas);
+    const padding = { top: 18, right: 14, bottom: 34, left: 24 };
+    const chartWidth = width - padding.left - padding.right;
+    const chartHeight = height - padding.top - padding.bottom;
+    const slot = chartWidth / points.length;
+    drawGrid(context, width, height, padding);
+
+    const coordinates = points.map((point, index) => ({
+        ...point,
+        x: padding.left + slot * (index + .5),
+        y: point.value === null ? null : padding.top + chartHeight * (1 - Math.min(config.maximum, point.value) / config.maximum)
+    }));
+    canvas._hitPoints = coordinates.filter(point => point.value !== null);
+
+    context.beginPath();
+    let segmentStarted = false;
+    coordinates.forEach(point => {
+        if (point.value === null) {
+            segmentStarted = false;
+            return;
+        }
+        if (segmentStarted) context.lineTo(point.x, point.y);
+        else context.moveTo(point.x, point.y);
+        segmentStarted = true;
+    });
+    context.strokeStyle = config.color;
+    context.lineWidth = 3;
+    context.lineCap = "round";
+    context.lineJoin = "round";
+    context.stroke();
+
+    coordinates.forEach((point, index) => {
+        if (point.value === null) {
+            context.beginPath();
+            context.arc(point.x, height - padding.bottom, 2, 0, Math.PI * 2);
+            context.fillStyle = "#cbd4d1";
+            context.fill();
+        } else {
+            context.beginPath();
+            context.arc(point.x, point.y, 4, 0, Math.PI * 2);
+            context.fillStyle = "#fff";
+            context.fill();
+            context.strokeStyle = config.color;
+            context.lineWidth = 2;
+            context.stroke();
+        }
+        if (index === 0 || index === coordinates.length - 1 || index % 4 === 0) {
+            context.fillStyle = "#7a8782";
+            context.font = "9px Arial";
+            context.textAlign = "center";
+            context.fillText(shortChartDate(point.date), point.x, height - 11);
+        }
+    });
+
+    context.fillStyle = "#7a8782";
+    context.font = "9px Arial";
+    context.textAlign = "left";
+    context.fillText(String(config.maximum), 2, padding.top + 3);
+    context.fillText("0", 8, height - padding.bottom + 3);
+
+    const average = recorded.reduce((sum, point) => sum + point.value, 0) / recorded.length;
+    setText(`${key}-trend-summary`, `${formatDailyTrendValue(average)} ${config.unit} avg · ${recorded.length} recorded`);
+}
+
 function renderSummaryData() {
     const daily = readSummaryStorage(summaryDailyStorageKey, { entries: {}, profile: {} });
     const lifestyle = readSummaryStorage(lifestyleSummaryStorageKey, null);
-    const savedMcp = syncMcpWithDailyWaist(
-        readSummaryStorage(summaryMcpStorageKey, null),
-        daily
-    );
+    const savedMcp = readSummaryStorage(summaryMcpStorageKey, null);
     const preferences = readSummaryStorage(summaryPreferencesStorageKey, {});
     summaryUnitSystem = preferences?.unitSystem === "metric" ? "metric" : "imperial";
     document.querySelectorAll('input[name="summaryUnitSystem"]').forEach(input => {
@@ -1780,21 +1820,29 @@ function renderSummaryData() {
     const dates14 = recentDateKeys(14);
     const dates7 = dates14.slice(-7);
     const entries = daily?.entries || {};
+    const lifetimeMiles = Object.values(entries).reduce(
+        (total, entry) => total + Number(entry?.distance || 0),
+        0
+    );
+    setText("display-lifetime-distance", summaryDisplayDistance(lifetimeMiles).toFixed(2));
+    setText("display-lifetime-distance-unit", summaryDistanceUnit());
     const savedGoal = Number(readSummaryStorage(summaryGoalStorageKey, null));
     const profileLine = Number(daily?.profile?.vibratoryLine);
     const profileGoal = Number(daily?.profile?.motivationalGoal);
     const canonicalGoal = savedGoal > 0 ? savedGoal : profileLine > 0 ? profileLine : profileGoal > 0 ? profileGoal : 195;
     summaryGoalWeight = summaryDisplayWeight(canonicalGoal);
 
-    if (savedMcp?.measurementData && savedMcp?.results) {
+    const canonicalMcp = canonicalMcpSnapshot(savedMcp, entries);
+    updateProfileReminder(canonicalMcp?.measurementData);
+    if (canonicalMcp) {
         updateMcpDashboard({
-            system: savedMcp.measurementData.system,
-            enteredWeight: Number(savedMcp.measurementData.enteredWeight),
-            enteredWaist: Number(savedMcp.measurementData.enteredWaist),
-            results: savedMcp.results
+            system: canonicalMcp.measurementData.system,
+            enteredWeight: Number(canonicalMcp.measurementData.enteredWeight),
+            enteredWaist: Number(canonicalMcp.measurementData.enteredWaist),
+            results: canonicalMcp.results
         });
         document.dispatchEvent(new CustomEvent("motionc:mcp-summary-restored", {
-            detail: savedMcp
+            detail: canonicalMcp
         }));
     }
 
@@ -1824,12 +1872,15 @@ function renderSummaryData() {
     });
     drawWalkingChart(walkPoints);
 
+    const completedDates14 = recentDateKeys(15).slice(0, -1);
+    Object.keys(DAILY_TREND_CONFIG).forEach(key => drawDailyGaugeTrend(key, completedDates14, daily?.dailyGauges || {}));
+
     const recentWalks = walkPoints.filter(point => dates7.includes(point.date));
     const weeklyMiles = recentWalks.reduce((total, point) => total + point.miles, 0);
     const weeklyMinutes = recentWalks.reduce((total, point) => total + point.minutes, 0);
     setText("weekly-miles", `${weeklyMiles.toFixed(2)} ${summaryDistanceUnit()}`);
     setText("weekly-minutes", `${Math.round(weeklyMinutes)} min`);
-    setText("walking-chart-summary", `${weeklyMiles.toFixed(1)} ${summaryDistanceUnit()} · ${Math.round(weeklyMinutes)} min this week`);
+    setText("walking-chart-summary", `${weeklyMiles.toFixed(1)} ${summaryDistanceUnit()} · ${Math.round(weeklyMinutes)} min in the last 7 days`);
 
     renderWalkingMetrics(entries, dates14);
 
@@ -1841,65 +1892,30 @@ function updateModernMcpDisplay(detail) {
     const mcp = Number(eventDetail.results?.mcp);
     const bmi = Number(eventDetail.results?.bmi);
     if (Number.isFinite(mcp)) {
+        const gauge = document.getElementById("mcp-ring");
+        const zone = mcp < 25
+            ? { key: "core", label: "Core Zone" }
+            : mcp < 35
+                ? { key: "healthy", label: "Healthy Zone" }
+                : mcp < 43
+                    ? { key: "elevated", label: "Elevated Zone" }
+                    : { key: "watch", label: "Watch Zone" };
+
         setText("display-mcp-ring", mcp.toFixed(1));
-        setRingValue("mcp-ring", mcp / 50 * 100);
-        setText("mcp-status", mcp >= 45 ? "Core zone" : mcp >= 30 ? "Healthy zone" : mcp >= 20 ? "Caution zone" : "At-risk zone");
+        setText("mcp-zone-status", zone.label);
+        if (gauge) {
+            gauge.classList.remove("zone-core", "zone-healthy", "zone-elevated", "zone-watch");
+            gauge.classList.add("is-assessed", `zone-${zone.key}`);
+            const markerAngle = 195 + ((60 - Math.max(0, Math.min(60, mcp))) / 60 * 330);
+            gauge.style.setProperty("--mcp-marker-angle", `${markerAngle}deg`);
+            gauge.setAttribute("aria-label", `MCP ${mcp.toFixed(1)}, ${zone.label}`);
+        }
         setText("momentum-message", mcp >= 30 ? "You’re building healthy momentum. Consistency is doing its quiet work." : "Every small improvement moves the score. Choose one habit to strengthen today.");
     }
     if (Number.isFinite(bmi)) {
         setText("bmi-status", bmi < 18.5 ? "Below healthy range" : bmi < 25 ? "Healthy range" : bmi < 30 ? "Above healthy range" : "High range");
     }
-    updateWhrMetric(eventDetail);
 }
-
-function updateWhrMetric(detail) {
-    const whr = Number(detail?.results?.whr);
-    const sex = String(detail?.measurementData?.sex || "").toLowerCase();
-    const threshold = sex === "female" ? .85 : sex === "male" ? .90 : null;
-    const userMarker = document.getElementById("whr-user-marker");
-    const thresholdMarker = document.getElementById("whr-threshold-marker");
-    const referenceTrack = document.getElementById("whr-reference-track");
-
-    if (!Number.isFinite(whr) || !(threshold > 0)) {
-        setText("display-whr", "—");
-        setText("whr-status", "Add a hip measurement");
-        setText("whr-threshold-label", "Reference depends on sex");
-        setText("whr-explainer-text", "Waist-to-hip ratio compares your waist with your hips and helps describe where your body tends to carry weight.");
-        if (userMarker) userMarker.hidden = true;
-        if (thresholdMarker) thresholdMarker.style.left = "50%";
-        if (referenceTrack) referenceTrack.style.setProperty("--whr-threshold-position", "50%");
-        return;
-    }
-
-    const scalePosition = value => Math.max(4, Math.min(96, (value - .65) / .5 * 100));
-    const higherCentral = whr >= threshold;
-    setText("display-whr", whr.toFixed(2));
-    setText("whr-status", higherCentral ? "More central (apple) pattern" : "Lower central distribution");
-    setText("whr-threshold-label", `${threshold.toFixed(2)} reference`);
-    setText("whr-explainer-text", `Your waist is ${Math.round(whr * 100)}% of your hip circumference. This ${higherCentral ? "is above" : "is below"} the commonly used ${threshold.toFixed(2)} reference point for ${sex === "female" ? "women" : "men"}.`);
-    if (thresholdMarker) thresholdMarker.style.left = `${scalePosition(threshold)}%`;
-    if (referenceTrack) referenceTrack.style.setProperty("--whr-threshold-position", `${scalePosition(threshold)}%`);
-    if (userMarker) {
-        userMarker.hidden = false;
-        userMarker.style.left = `${scalePosition(whr)}%`;
-        userMarker.setAttribute("aria-label", `Your WHR is ${whr.toFixed(2)}`);
-    }
-}
-
-const whrInfoButton = document.getElementById("whr-info-button");
-whrInfoButton?.addEventListener("click", event => {
-    event.stopPropagation();
-    const expanded = whrInfoButton.getAttribute("aria-expanded") === "true";
-    whrInfoButton.setAttribute("aria-expanded", String(!expanded));
-});
-document.addEventListener("click", event => {
-    if (!event.target.closest(".whr-card")) {
-        whrInfoButton?.setAttribute("aria-expanded", "false");
-    }
-});
-document.addEventListener("keydown", event => {
-    if (event.key === "Escape") whrInfoButton?.setAttribute("aria-expanded", "false");
-});
 
 document.addEventListener("motionc:mcp-updated", event => {
     if (event.detail?.measurementData && event.detail?.results) {
@@ -1907,6 +1923,8 @@ document.addEventListener("motionc:mcp-updated", event => {
             ...event.detail,
             updatedAt: new Date().toISOString()
         }));
+        saveSharedProfileMeasurements(event.detail.measurementData);
+        updateProfileReminder(event.detail.measurementData);
     }
     updateModernMcpDisplay(event.detail);
 });
@@ -1923,10 +1941,6 @@ document.addEventListener("motionc:lifestyle-updated", event => {
 window.addEventListener("resize", () => {
     window.clearTimeout(window.motioncSummaryResize);
     window.motioncSummaryResize = window.setTimeout(renderSummaryData, 120);
-});
-
-window.addEventListener("storage", event => {
-    if (event.key === summaryDailyStorageKey) renderSummaryData();
 });
 
 const summaryWeightCanvas = document.getElementById("weight-chart");
@@ -2042,6 +2056,14 @@ attachChartTooltip(
     point => `<strong>${fullChartDate(point.date)}</strong><span>Weight: ${point.value.toFixed(1)} ${summaryWeightUnit()}</span>`
 );
 
+Object.entries(DAILY_TREND_CONFIG).forEach(([key, config]) => {
+    attachChartTooltip(
+        `${key}-trend-chart`,
+        `${key}-trend-tooltip`,
+        point => `<strong>${fullChartDate(point.date)}</strong><span>${config.label}: ${formatDailyTrendValue(point.value)} ${config.unit}</span>`
+    );
+});
+
 attachChartTooltip(
     "walking-chart",
     "walking-chart-tooltip",
@@ -2080,5 +2102,7 @@ document.querySelectorAll('input[name="summaryUnitSystem"]').forEach(input => {
     });
 });
 
-window.addEventListener("DOMContentLoaded", renderSummaryData);
+window.addEventListener("DOMContentLoaded", () => {
+    renderSummaryData();
+});
 window.addEventListener("pageshow", renderSummaryData);
