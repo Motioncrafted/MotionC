@@ -25,6 +25,13 @@ function escapeHtml(value) {
   const div = document.createElement("div"); div.textContent = value; return div.innerHTML;
 }
 
+function formatDuration(totalSeconds) {
+  const seconds = Math.max(0, Math.round(totalSeconds));
+  const minutes = Math.floor(seconds / 60);
+  const remainder = seconds % 60;
+  return minutes ? `${minutes}m ${remainder}s` : `${remainder}s`;
+}
+
 async function fetchRows(days) {
   const since = new Date(Date.now() - days * 86400000).toISOString();
   const rows = [];
@@ -69,6 +76,7 @@ async function render() {
   document.querySelector("#registered").textContent = registeredIds.size.toLocaleString();
   document.querySelector("#views").textContent = views.length.toLocaleString();
   document.querySelector("#active").textContent = `${Math.round(activeSeconds / 60).toLocaleString()}m`;
+  document.querySelector("#averageActive").textContent = formatDuration(sessionIds.size ? activeSeconds / sessionIds.size : 0);
   document.querySelector("#searches").textContent = searchRows.length.toLocaleString();
   ranked("#pages", counts(areaViews, "path"));
   ranked("#articles", counts(articleViews, "page_title"), "No articles opened yet");
