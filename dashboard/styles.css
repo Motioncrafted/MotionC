@@ -1460,10 +1460,10 @@ body {
 .mcp-zone-label-healthy { top: 6px; left: 56%; transform: translateX(-50%); }
 .mcp-zone-label-elevated { top: 38px; left: -4px; }
 .mcp-zone-label-watch { bottom: 30px; left: -2px; }
-.mcp-zone-gauge.zone-core .mcp-zone-label-core,
-.mcp-zone-gauge.zone-healthy .mcp-zone-label-healthy,
-.mcp-zone-gauge.zone-elevated .mcp-zone-label-elevated,
-.mcp-zone-gauge.zone-watch .mcp-zone-label-watch { color: #173d31; }
+.mcp-zone-gauge.zone-core .mcp-zone-label-core { color: #267865; }
+.mcp-zone-gauge.zone-healthy .mcp-zone-label-healthy { color: #2f7d43; }
+.mcp-zone-gauge.zone-elevated .mcp-zone-label-elevated { color: #ad7100; }
+.mcp-zone-gauge.zone-watch .mcp-zone-label-watch { color: #b24942; }
 .lifestyle-ring { --ring-color: #d69b28; }
 .lifestyle-ring strong {
     color: #74500b;
