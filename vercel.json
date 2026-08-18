@@ -24,6 +24,14 @@
     {
       "source": "/auth/",
       "destination": "/auth/index.html"
+    },
+    {
+      "source": "/owner/analytics",
+      "destination": "/owner/analytics/index.html"
+    },
+    {
+      "source": "/owner/analytics/",
+      "destination": "/owner/analytics/index.html"
     }
   ],
   "headers": [
@@ -65,6 +73,28 @@
     },
     {
       "source": "/auth/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    },
+    {
+      "source": "/owner/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "private, no-store"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    },
+    {
+      "source": "/shared/:path*",
       "headers": [
         {
           "key": "Cache-Control",
