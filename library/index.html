@@ -785,8 +785,10 @@
     .reader-heading {
       position: relative;
       z-index: 1;
-      display: grid;
-      align-content: end;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .4em;
       min-height: 1.2em;
       margin: 0 auto .25%;
       max-width: 34ch;
@@ -885,7 +887,7 @@
       display: inline-grid;
       width: 1.35em;
       height: 1.35em;
-      margin-right: .45em;
+      flex: 0 0 auto;
       place-items: center;
       overflow: hidden;
       border-radius: 50%;
@@ -896,6 +898,10 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+    }
+
+    .reader-title-text {
+      min-width: 0;
     }
 
     .reader-content .series-poster {
@@ -2799,7 +2805,7 @@
 
     function renderContinuousArticle() {
       if (!activeArticle) return;
-      readerHeading.innerHTML = `${activeArticle.series ? '<span class="win-title-icon" aria-hidden="true"><img src="/images/mo-visual-explainer-blue.png" alt=""></span>' : ""}${escapeHtml(activeArticle.title)}`;
+      readerHeading.innerHTML = `${activeArticle.series ? '<span class="win-title-icon" aria-hidden="true"><img src="/images/mo-visual-explainer-blue.png" alt=""></span>' : ""}<span class="reader-title-text">${escapeHtml(activeArticle.title)}</span>`;
       readerCategory.textContent = activeArticle.series || categoryMap.get(activeArticle.category)?.title || "MotionC Library";
       readerContent.innerHTML = activeArticle.pages
         .filter(page => typeof page === "string" && page.trim())
