@@ -49,9 +49,10 @@ async function render() {
   const registeredIds = new Set(rows.filter((r) => r.is_registered).map((r) => r.session_id));
   const activeSeconds = rows.reduce((sum,r) => sum + Number(r.active_seconds || 0), 0);
   document.querySelector("#visits").textContent = (starts.length || sessionIds.size).toLocaleString();
+  document.querySelector("#visitors").textContent = Math.max(0, sessionIds.size - registeredIds.size).toLocaleString();
+  document.querySelector("#registered").textContent = registeredIds.size.toLocaleString();
   document.querySelector("#views").textContent = views.length.toLocaleString();
   document.querySelector("#active").textContent = `${Math.round(activeSeconds / 60).toLocaleString()}m`;
-  document.querySelector("#registered").textContent = sessionIds.size ? `${Math.round(registeredIds.size / sessionIds.size * 100)}%` : "0%";
   ranked("#pages", counts(views, "path"));
   ranked("#entries", counts(starts.length ? starts : views, "entry_path"));
   ranked("#sources", counts(starts.length ? starts : views, "referrer_host", "Direct / unknown"));
