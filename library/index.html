@@ -200,6 +200,9 @@
       100% { opacity: 0; transform: rotateY(88deg) scale(.97); }
     }
 
+    /* Keep the book still while category and search contents change. */
+    .book-transition { display: none; }
+
     /* Results text sits directly over the authentic blank book artwork. */
     .book-interface {
       position: absolute;
@@ -216,6 +219,9 @@
       position: absolute;
       inset: 0;
       transition: opacity 180ms ease;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-gutter: stable;
     }
 
     .book-page {
@@ -223,7 +229,7 @@
       top: 5%;
       bottom: 10%;
       width: 43%;
-      overflow: hidden;
+      overflow: visible;
       padding: 3% 4%;
       background: transparent;
     }
@@ -450,6 +456,9 @@
 
     .reader-sheet {
       position: relative;
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr);
+      align-content: start;
       width: 84%;
       height: 88%;
       overflow: hidden;
@@ -508,8 +517,15 @@
     .reader-content {
       position: relative;
       z-index: 1;
+      width: 100%;
       max-width: 76ch;
+      min-height: 0;
+      max-height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-gutter: stable;
       margin: 0 auto;
+      padding: 0 clamp(2px, .8vw, 14px) .75rem;
       font-size: clamp(12px, 1.12vw, 19px);
       line-height: 1.72;
     }
@@ -1035,19 +1051,8 @@
     }
 
     function turnBook(update) {
-      window.clearTimeout(turnTimer);
-      window.clearTimeout(turnCleanupTimer);
       page.classList.remove("turning-book");
-      void page.offsetWidth;
-      page.classList.add("turning-book");
-
-      turnTimer = window.setTimeout(() => {
-        update();
-      }, 220);
-
-      turnCleanupTimer = window.setTimeout(() => {
-        page.classList.remove("turning-book");
-      }, 460);
+      update();
     }
 
     function categoryButton(category, index) {
@@ -1092,13 +1097,10 @@
       indexHotspots.hidden = true;
       bookPages.hidden = false;
 
-      const perSpread = 6;
-      const start = resultSpread * perSpread;
-      const spreadArticles = currentResults.slice(start, start + perSpread);
+      const spreadArticles = currentResults;
       const splitAt = Math.ceil(spreadArticles.length / 2);
       const leftArticles = spreadArticles.slice(0, splitAt);
       const rightArticles = spreadArticles.slice(splitAt);
-      const totalSpreads = Math.max(1, Math.ceil(currentResults.length / perSpread));
 
       leftBookPage.innerHTML = `
         <h2 class="book-title">${escapeHtml(currentResultTitle)}</h2>
@@ -1114,7 +1116,7 @@
 
       rightBookPage.innerHTML = `
         <h2 class="book-title">${rightArticles.length ? "More to Explore" : ""}</h2>
-        <p class="book-subtitle">Spread ${resultSpread + 1} of ${totalSpreads}</p>
+        <p class="book-subtitle">${rightArticles.length ? "Continue browsing" : ""}</p>
         ${
           rightArticles.length
             ? `<ul class="book-list">${rightArticles.map(articleButton).join("")}</ul>`
@@ -1123,8 +1125,8 @@
       `;
 
       bookIndex.hidden = false;
-      bookPrevious.hidden = resultSpread === 0;
-      bookNext.hidden = resultSpread >= totalSpreads - 1;
+      bookPrevious.hidden = true;
+      bookNext.hidden = true;
     }
 
     function showCategory(categoryId) {
@@ -1173,6 +1175,7 @@
       readerHeading.innerHTML = `${activeArticle.marker ? `<span class="mo-title-icon" aria-hidden="true">${escapeHtml(activeArticle.marker)}</span>` : ""}${escapeHtml(activeArticle.title)}`;
       readerCategory.textContent = activeArticle.series || categoryMap.get(activeArticle.category)?.title || "MotionC Library";
       readerContent.innerHTML = activeArticle.pages[activeArticlePage];
+      readerContent.scrollTop = 0;
       readerPageNumber.textContent =
         `Page ${activeArticlePage + 1} of ${activeArticle.pages.length}`;
       readerPrevious.disabled = activeArticlePage === 0;
