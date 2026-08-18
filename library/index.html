@@ -274,6 +274,20 @@
       text-align: inherit;
     }
 
+    .mo-title-icon {
+      display: inline-grid;
+      width: 1.65em;
+      height: 1.65em;
+      margin-right: .45em;
+      place-items: center;
+      border-radius: 50%;
+      color: #fff;
+      background: linear-gradient(145deg, #10a9e8, #0756bd 70%);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .45), 0 2px 5px rgba(8, 76, 145, .28);
+      font: 800 .72em/1 Arial, sans-serif;
+      vertical-align: middle;
+    }
+
     .book-choice:hover,
     .book-choice:focus-visible {
       outline: none;
@@ -511,6 +525,18 @@
       font-size: 3.2em;
       font-weight: 700;
       line-height: .82;
+    }
+
+    .reader-content .series-poster {
+      display: block;
+      width: auto;
+      max-width: 100%;
+      height: auto;
+      max-height: 68vh;
+      margin: 0 auto;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(61, 43, 25, .2);
+      object-fit: contain;
     }
 
     .reader-controls {
@@ -752,6 +778,66 @@
     */
     const articles = [
       {
+        id: "win-eat-real-food",
+        category: "nutrition",
+        series: "WIN — Walking Involves Nutrition",
+        marker: "Mo",
+        title: "Eat Real Food",
+        tags: ["WIN", "walking involves nutrition", "nutrition", "real food", "whole foods", "series"],
+        summary: "Choose foods your body recognizes for steadier energy and walking comfort.",
+        pages: [
+          `<img class="series-poster" src="series/win-nutrition/01-eat-real-food.png" alt="Eat Real Food — a WIN Walking Involves Nutrition guide">`
+        ]
+      },
+      {
+        id: "win-eat-more-plants",
+        category: "nutrition",
+        series: "WIN — Walking Involves Nutrition",
+        marker: "Mo",
+        title: "Eat More Plants",
+        tags: ["WIN", "walking involves nutrition", "nutrition", "plants", "fibre", "series"],
+        summary: "Use colourful plants to support digestion, recovery, and steady walking energy.",
+        pages: [
+          `<img class="series-poster" src="series/win-nutrition/02-eat-more-plants.png" alt="Eat More Plants — a WIN Walking Involves Nutrition guide">`
+        ]
+      },
+      {
+        id: "win-eat-slowly",
+        category: "nutrition",
+        series: "WIN — Walking Involves Nutrition",
+        marker: "Mo",
+        title: "Eat Slowly",
+        tags: ["WIN", "walking involves nutrition", "nutrition", "mindful eating", "digestion", "series"],
+        summary: "Give your body time to notice food and recognize fullness.",
+        pages: [
+          `<img class="series-poster" src="series/win-nutrition/03-eat-slowly.png" alt="Eat Slowly — a WIN Walking Involves Nutrition guide">`
+        ]
+      },
+      {
+        id: "win-80-percent-rule",
+        category: "nutrition",
+        series: "WIN — Walking Involves Nutrition",
+        marker: "Mo",
+        title: "The 80% Rule",
+        tags: ["WIN", "walking involves nutrition", "nutrition", "portions", "mindful eating", "series"],
+        summary: "Eat until comfortably satisfied to keep energy steady and walking comfortable.",
+        pages: [
+          `<img class="series-poster" src="series/win-nutrition/04-the-80-percent-rule.png" alt="The 80 percent rule — a WIN Walking Involves Nutrition guide">`
+        ]
+      },
+      {
+        id: "win-eat-together",
+        category: "nutrition",
+        series: "WIN — Walking Involves Nutrition",
+        marker: "Mo",
+        title: "Eat Together",
+        tags: ["WIN", "walking involves nutrition", "nutrition", "shared meals", "mindfulness", "series"],
+        summary: "Shared meals encourage connection, calm eating, and mindful choices.",
+        pages: [
+          `<img class="series-poster" src="series/win-nutrition/05-eat-together.png" alt="Eat Together — a WIN Walking Involves Nutrition guide">`
+        ]
+      },
+      {
         id: "mindful-walking",
         category: "walking",
         title: "Mindful Walking",
@@ -989,10 +1075,13 @@
     }
 
     function articleButton(article) {
+      const marker = article.marker
+        ? `<span class="mo-title-icon" aria-hidden="true">${escapeHtml(article.marker)}</span>`
+        : "";
       return `
         <li>
           <button class="book-choice" type="button" data-article="${article.id}">
-            ${escapeHtml(article.title)}
+            ${marker}${escapeHtml(article.title)}
           </button>
         </li>
       `;
@@ -1081,8 +1170,8 @@
 
     function renderReaderPage() {
       if (!activeArticle) return;
-      readerHeading.textContent = activeArticle.title;
-      readerCategory.textContent = categoryMap.get(activeArticle.category)?.title || "MotionC Library";
+      readerHeading.innerHTML = `${activeArticle.marker ? `<span class="mo-title-icon" aria-hidden="true">${escapeHtml(activeArticle.marker)}</span>` : ""}${escapeHtml(activeArticle.title)}`;
+      readerCategory.textContent = activeArticle.series || categoryMap.get(activeArticle.category)?.title || "MotionC Library";
       readerContent.innerHTML = activeArticle.pages[activeArticlePage];
       readerPageNumber.textContent =
         `Page ${activeArticlePage + 1} of ${activeArticle.pages.length}`;
