@@ -750,7 +750,7 @@
       width: 84%;
       height: 88%;
       overflow: hidden;
-      padding: clamp(30px, 4.5vw, 76px) clamp(36px, 7vw, 118px)
+      padding: clamp(18px, 2.2vw, 36px) clamp(36px, 7vw, 118px)
         clamp(54px, 5.5vw, 92px);
       border: 3px solid #b87b2d;
       border-radius: 20px 34px 22px 30px;
@@ -787,20 +787,20 @@
       z-index: 1;
       display: grid;
       align-content: end;
-      min-height: 2.2em;
-      margin: 0 auto .6%;
-      max-width: 26ch;
+      min-height: 1.2em;
+      margin: 0 auto .25%;
+      max-width: 34ch;
       color: #4d301a;
-      font-size: clamp(25px, 2.8vw, 48px);
-      line-height: 1.1;
+      font-size: clamp(21px, 2vw, 34px);
+      line-height: 1.06;
       text-align: center;
     }
 
     .reader-category {
       position: relative;
       z-index: 1;
-      min-height: 1.35em;
-      margin: 0 0 1.8%;
+      min-height: 1.15em;
+      margin: 0 0 .75%;
       color: #287a43;
       font: 700 clamp(11px, 1vw, 17px) "Kalam", cursive;
       text-align: center;
@@ -883,16 +883,19 @@
 
     .win-title-icon {
       display: inline-grid;
-      width: 1.65em;
-      height: 1.65em;
+      width: 1.35em;
+      height: 1.35em;
       margin-right: .45em;
       place-items: center;
+      overflow: hidden;
       border-radius: 50%;
-      color: #fff;
-      background: linear-gradient(145deg, #10a9e8, #0756bd 70%);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.45), 0 2px 5px rgba(8,76,145,.28);
-      font: 800 .45em/1 Arial, sans-serif;
       vertical-align: middle;
+    }
+
+    .win-title-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .reader-content .series-poster {
@@ -2729,7 +2732,7 @@
       const category = categoryMap.get(article.category);
       const visualBadge = ["understanding-insulin-spikes", "hydration-a-beginners-guide", "chia-seeds-a-beginners-guide", "psyllium-husk-a-friendly-beginner-guide", "kimchi-a-beginners-guide", "pumpkin-seeds-a-simple-powerful-source-of-magnesium", "magnesium-choosing-the-most-well-rounded-option", "chelated-minerals-why-they-matter"].includes(article.id)
         ? `<span class="mo-learning-badge" role="img" aria-label="Includes a Mo visual explainer" title="Includes a Mo visual explainer"><img src="/images/mo-visual-explainer-grey.png" alt=""></span>`
-        : ["mo-explains-insulin-spikes-two-modes", "mo-explains-why-bananas-spike-insulin"].includes(article.id)
+        : ["mo-explains-insulin-spikes-two-modes", "mo-explains-why-bananas-spike-insulin", "win-eat-real-food", "win-eat-more-plants", "win-eat-slowly", "win-80-percent-rule", "win-eat-together"].includes(article.id)
           ? `<span class="mo-learning-badge" role="img" aria-label="All-Mo visual article" title="All-Mo visual article"><img src="/images/mo-visual-explainer-blue.png" alt=""></span>`
           : "";
       return `<li>
@@ -2796,7 +2799,7 @@
 
     function renderContinuousArticle() {
       if (!activeArticle) return;
-      readerHeading.innerHTML = `${activeArticle.series ? '<span class="win-title-icon" aria-hidden="true">Mo</span>' : ""}${escapeHtml(activeArticle.title)}`;
+      readerHeading.innerHTML = `${activeArticle.series ? '<span class="win-title-icon" aria-hidden="true"><img src="/images/mo-visual-explainer-blue.png" alt=""></span>' : ""}${escapeHtml(activeArticle.title)}`;
       readerCategory.textContent = activeArticle.series || categoryMap.get(activeArticle.category)?.title || "MotionC Library";
       readerContent.innerHTML = activeArticle.pages
         .filter(page => typeof page === "string" && page.trim())
