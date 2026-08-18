@@ -1,4 +1,5 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+import { startMotionCAnalytics } from "/shared/motionc-analytics.js?v=20260818-1";
 
 const SUPABASE_URL = "https://fzduvafeshrrouaejots.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_Kg00R81ExPx9Z1-Wcd-Ffg_mQaXHRrI";
@@ -12,6 +13,7 @@ function dataKeys() {
   return Object.keys(localStorage).filter((key) =>
     key.startsWith(DATA_PREFIX) &&
     !key.startsWith(AUTH_PREFIX) &&
+    !key.startsWith("motionc-analytics-") &&
     key !== "motionc-visitor-commons-wall-v1"
   );
 }
@@ -104,6 +106,7 @@ async function bootPageSync() {
   if (location.pathname.includes("/auth")) return;
   let session;
   try { session = await getSession(); } catch { accountBadge("Account offline"); return; }
+  startMotionCAnalytics(supabase, { isRegistered: Boolean(session?.user && !session.user.is_anonymous) });
   if (!session) { accountBadge("Local mode · Sign in"); return; }
 
   const userId = session.user.id;
