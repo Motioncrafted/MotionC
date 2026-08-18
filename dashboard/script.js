@@ -1678,14 +1678,19 @@ function latestDailyWeight(entries) {
         .at(-1)?.weight ?? null;
 }
 
-function canonicalMcpSnapshot(savedMcp, entries) {
+function canonicalMcpSnapshot(savedMcp, entries, sharedProfile = {}) {
     const measurementData = savedMcp?.measurementData;
     if (!measurementData) return null;
 
     const dailyWeightLbs = Number(latestDailyWeight(entries));
     const weightLbs = dailyWeightLbs > 0 ? dailyWeightLbs : Number(measurementData.weightLbs);
     const heightInches = Number(measurementData.heightInches);
-    const waistInches = Number(measurementData.waistInches);
+    // Weekly check-in and Summary share the Daily profile. Prefer its waist
+    // measurement so an update made on Daily is reflected here immediately.
+    const sharedWaistInches = Number(sharedProfile?.waist);
+    const waistInches = sharedWaistInches > 0
+        ? sharedWaistInches
+        : Number(measurementData.waistInches);
     const age = Number(measurementData.age);
 
     if (![weightLbs, heightInches, waistInches, age].every(value => Number.isFinite(value) && value > 0)) {
@@ -1832,7 +1837,7 @@ function renderSummaryData() {
     const canonicalGoal = savedGoal > 0 ? savedGoal : profileLine > 0 ? profileLine : profileGoal > 0 ? profileGoal : 195;
     summaryGoalWeight = summaryDisplayWeight(canonicalGoal);
 
-    const canonicalMcp = canonicalMcpSnapshot(savedMcp, entries);
+    const canonicalMcp = canonicalMcpSnapshot(savedMcp, entries, daily?.profile);
     updateProfileReminder(canonicalMcp?.measurementData);
     if (canonicalMcp) {
         updateMcpDashboard({
