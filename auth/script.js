@@ -9,6 +9,8 @@ const ACTIVE_USER_KEY = "motionc-auth-active-user";
 let mode = "signin";
 let activeSession = null;
 let passwordMode = "recovery";
+let usernameCheckTimer = null;
+let usernameCheckSequence = 0;
 const params = new URLSearchParams(location.search);
 const requestedNext = params.get("next");
 const safeNext = requestedNext?.startsWith("/") && !requestedNext.startsWith("//") ? requestedNext : null;
@@ -89,6 +91,8 @@ function setMode(next) {
   $("createTab").classList.toggle("active", creating);
   $("usernameField").classList.toggle("hidden", !creating);
   $("username").required = creating;
+  $("username").setCustomValidity("");
+  $("usernameAvailability").textContent = "";
   $("createPasswordConfirmationField").classList.toggle("hidden", !creating);
   $("createPasswordConfirmation").required = creating;
   if (!creating) {
@@ -99,6 +103,31 @@ function setMode(next) {
   $("password").autocomplete = creating ? "new-password" : "current-password";
   $("forgotPasswordButton").classList.toggle("hidden", creating);
   $("formMessage").textContent = "";
+}
+
+async function checkUsernameAvailability() {
+  if (mode !== "create") return true;
+  const username = $("username").value.trim();
+  const status = $("usernameAvailability");
+  if (!USERNAME_PATTERN.test(username)) {
+    $("username").setCustomValidity("");
+    status.textContent = "";
+    return false;
+  }
+
+  const sequence = ++usernameCheckSequence;
+  status.textContent = "Checking username…";
+  status.classList.remove("available", "unavailable");
+  const { data, error } = await supabase.rpc("motionc_username_available", { candidate: username });
+  if (sequence !== usernameCheckSequence) return false;
+  if (error) throw error;
+
+  const available = data === true;
+  $("username").setCustomValidity(available ? "" : "That username is already in use.");
+  status.textContent = available ? "Username is available." : "That username is already in use.";
+  status.classList.toggle("available", available);
+  status.classList.toggle("unavailable", !available);
+  return available;
 }
 
 async function readOrCreateProfile(user) {
@@ -144,6 +173,28 @@ async function finishLogin(session, { stayOnAccount = false } = {}) {
 
 $("signInTab").addEventListener("click", () => setMode("signin"));
 $("createTab").addEventListener("click", () => setMode("create"));
+$("username").addEventListener("input", () => {
+  window.clearTimeout(usernameCheckTimer);
+  usernameCheckSequence += 1;
+  $("username").setCustomValidity("");
+  $("usernameAvailability").textContent = "";
+  $("usernameAvailability").classList.remove("available", "unavailable");
+  if (mode === "create" && USERNAME_PATTERN.test($("username").value.trim())) {
+    usernameCheckTimer = window.setTimeout(() => {
+      checkUsernameAvailability().catch(() => {
+        $("usernameAvailability").textContent = "Username check is temporarily unavailable.";
+      });
+    }, 350);
+  }
+});
+$("username").addEventListener("blur", () => {
+  window.clearTimeout(usernameCheckTimer);
+  if (mode === "create" && USERNAME_PATTERN.test($("username").value.trim())) {
+    checkUsernameAvailability().catch(() => {
+      $("usernameAvailability").textContent = "Username check is temporarily unavailable.";
+    });
+  }
+});
 
 $("accountForm").addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -155,6 +206,10 @@ $("accountForm").addEventListener("submit", async (event) => {
     if (mode === "create") {
       const username = $("username").value.trim();
       if (!USERNAME_PATTERN.test(username)) throw new Error("Choose a username using 3–24 letters, numbers, or underscores.");
+      if (!await checkUsernameAvailability()) {
+        $("username").focus();
+        throw new Error("That username is already in use.");
+      }
       if (password !== $("createPasswordConfirmation").value) throw new Error("The passwords do not match.");
       result = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: confirmationReturn, data: { username } } });
     } else {

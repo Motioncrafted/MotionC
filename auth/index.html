@@ -23,6 +23,7 @@
         <label id="usernameField" class="hidden">Username
           <input id="username" type="text" autocomplete="username" minlength="3" maxlength="24" pattern="[A-Za-z0-9_]+" placeholder="Letters, numbers, and underscores">
           <small>This is your public MotionC identity. Your email stays private.</small>
+          <small id="usernameAvailability" class="username-availability" aria-live="polite"></small>
         </label>
         <label>Email<input id="email" type="email" autocomplete="email" required></label>
         <label>Password<input id="password" type="password" autocomplete="current-password" minlength="8" required></label>
@@ -125,6 +126,6 @@
       }
     });
   </script>
-  <script type="module" src="script.js?v=20260819-4"></script>
+  <script type="module" src="script.js?v=20260819-5"></script>
 </body>
 </html>
