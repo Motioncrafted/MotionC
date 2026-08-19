@@ -18,6 +18,19 @@ function dataKeys() {
   );
 }
 
+function hasPersonalLocalState() {
+  return dataKeys().some((key) => {
+    if (key !== "motionc-daily-prototype-v1") return true;
+    try {
+      const daily = JSON.parse(localStorage.getItem(key) || "{}");
+      return ["entries", "weeks", "profile", "dailyGauges"]
+        .some((section) => Object.keys(daily?.[section] || {}).length > 0);
+    } catch {
+      return true;
+    }
+  });
+}
+
 export function captureLocalState() {
   const storage = {};
   dataKeys().sort().forEach((key) => { storage[key] = localStorage.getItem(key); });
@@ -140,11 +153,12 @@ async function bootPageSync() {
   try { session = await getSession(); } catch { accountBadge("Account offline"); return; }
   startMotionCAnalytics(supabase, { isRegistered: Boolean(session?.user && !session.user.is_anonymous) });
   if (!session) {
-    // If an account session expired outside the normal sign-out flow, do not
-    // leave that account's health data visible in the shared browser profile.
-    if (localStorage.getItem(ACTIVE_USER_KEY)) {
-      clearLocalState();
-      localStorage.removeItem(ACTIVE_USER_KEY);
+    // Signed-out pages never retain health records. This also removes orphaned
+    // prototype data created before account ownership was tracked.
+    const hadPersonalState = hasPersonalLocalState();
+    clearLocalState();
+    localStorage.removeItem(ACTIVE_USER_KEY);
+    if (hadPersonalState) {
       location.reload();
       return;
     }
