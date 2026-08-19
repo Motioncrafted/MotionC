@@ -148,66 +148,19 @@ function colorLabel(color) {
   return color.split("-").map(word => word[0].toUpperCase() + word.slice(1)).join(" ");
 }
 
-function seedState() {
-  const today = new Date();
-  const entries = {};
-  const distances = [2.4, 3.1, 0, 4.2, 5.4, 2.8, 0, 3.7, 4.9, 2.1, 5.8, 0, 6.1, 4.3, 3.6, 5.2, 4.7, 0, 5.36, 3.9, 0];
-  const weights = [203.2, 202.8, 202.9, 202.3, 201.9, 201.6, 201.8, 201.1, 200.8, 200.4, 200.6, 200.1, 199.8, 199.6, 199.4, 199.7, 199.2, 198.9, 198.7, 198.8, 198.5];
-
-  for (let index = 20; index >= 0; index -= 1) {
-    const date = addDays(today, -index);
-    const arrayIndex = 20 - index;
-    const distance = distances[arrayIndex];
-    const promises = {
-      noRestaurant: arrayIndex !== 5 && arrayIndex !== 15,
-      noFastFood: arrayIndex !== 9,
-      noJunkFood: arrayIndex !== 3 && arrayIndex !== 17,
-      oneTreat: arrayIndex !== 12
-    };
-    const minutes = distance ? Math.round(distance * (18 + (arrayIndex % 4))) : 0;
-    entries[isoDate(date)] = {
-      date: isoDate(date),
-      weight: weights[arrayIndex],
-      distance,
-      minutes,
-      weightNote: arrayIndex === 12 ? "Entered the 190s" : "",
-      observation: arrayIndex === 18 ? "Long route felt easier today" : "",
-      ...promises,
-      updatedAt: new Date().toISOString()
-    };
-  }
-
-  const currentWeek = weekKey(today);
-  const previousWeek = weekKey(addDays(today, -7));
-  const earlierWeek = weekKey(addDays(today, -14));
+function emptyState() {
   return {
-    entries,
-    weeks: {
-      [earlierWeek]: weeklyTemplate(6),
-      [previousWeek]: weeklyTemplate(7),
-      [currentWeek]: weeklyTemplate(6.5)
-    },
-    profile: {
-      waist: 38.5,
-      vibratoryLine: 200,
-      motivationalGoal: 195,
-      startWeight: 217
-    }
+    entries: {},
+    weeks: {},
+    profile: {},
+    dailyGauges: {}
   };
-}
-
-function weeklyTemplate(score) {
-  const values = {};
-  LIFESTYLE_ITEMS.forEach(([key], index) => {
-    values[key] = index < Math.round(score) ? 1 : index < Math.round(score) + 2 ? .5 : 0;
-  });
-  return { values, score, updatedAt: new Date().toISOString() };
 }
 
 function loadState() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    const loaded = saved ? JSON.parse(saved) : seedState();
+    const loaded = saved ? JSON.parse(saved) : emptyState();
     loaded.entries = loaded.entries || {};
     loaded.weeks = loaded.weeks || {};
     loaded.profile = loaded.profile || {};
@@ -239,7 +192,7 @@ function loadState() {
     loaded.dailyGauges = loaded.dailyGauges || {};
     return loaded;
   } catch {
-    return seedState();
+    return emptyState();
   }
 }
 
