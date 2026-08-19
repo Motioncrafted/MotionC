@@ -106,10 +106,10 @@ function installPreferenceSignOut() {
   const menu = document.querySelector(
     "#preferencesMenu, #summaryPreferencesMenu, #walkingPreferencesMenu, #enginePreferencesMenu"
   );
-  if (document.querySelector(".motionc-preferences-signout, .motionc-page-signout")) return;
+  if (!menu || menu.querySelector(".motionc-preferences-signout")) return;
 
   const action = document.createElement("button");
-  action.className = menu ? "motionc-preferences-signout" : "motionc-page-signout";
+  action.className = "motionc-preferences-signout";
   action.type = "button";
   action.textContent = "Sign out";
   action.addEventListener("click", async () => {
@@ -124,12 +124,12 @@ function installPreferenceSignOut() {
       action.textContent = "Sign out";
     }
   });
-  (menu || document.body).appendChild(action);
+  menu.appendChild(action);
 
   if (!document.getElementById("motionc-preferences-account-style")) {
     const style = document.createElement("style");
     style.id = "motionc-preferences-account-style";
-    style.textContent = `.motionc-preferences-signout{display:block;width:100%;margin-top:14px;padding:12px 2px 2px;border:0;border-top:1px solid #cad7d1;border-radius:0;background:transparent;color:#8a3d35;font:800 13px/1.2 system-ui;text-align:left;cursor:pointer}.motionc-preferences-signout:hover{color:#a63d32;text-decoration:underline}.motionc-preferences-signout:disabled{opacity:.65;cursor:wait}.motionc-page-signout{position:fixed;right:18px;bottom:64px;z-index:9999;padding:4px 2px;border:0;background:transparent;color:#8a3d35;font:800 12px/1 system-ui;text-decoration:underline;text-underline-offset:3px;cursor:pointer}.motionc-page-signout:hover{color:#a63d32}.motionc-page-signout:disabled{opacity:.65;cursor:wait}`;
+    style.textContent = `.motionc-preferences-signout{display:block;width:100%;margin-top:14px;padding:12px 2px 2px;border:0;border-top:1px solid #cad7d1;border-radius:0;background:transparent;color:#8a3d35;font:800 13px/1.2 system-ui;text-align:left;cursor:pointer}.motionc-preferences-signout:hover{color:#a63d32;text-decoration:underline}.motionc-preferences-signout:disabled{opacity:.65;cursor:wait}`;
     document.head.appendChild(style);
   }
 }
