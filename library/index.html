@@ -1857,6 +1857,51 @@
         ]
       },
       {
+        id: "yogurt-a-beginners-guide",
+        category: "nutrition",
+        title: "Yogurt: A Beginner’s Guide",
+        tags: ["yogurt", "beginner guide", "fermentation", "probiotics", "gut health", "digestion", "protein", "Greek yogurt", "Skyr", "live cultures", "nutrition", "Mo Explains", "visual learning"],
+        summary: "What it is, why people eat it, and how to start.",
+        pages: [
+          `<p>If you’ve never really thought about yogurt before, you’re not alone. Most people see it as a breakfast food or a snack, but yogurt is actually one of the simplest ways to support your gut, metabolism, and daily nutrition.</p>
+           <p>It’s a small habit with surprisingly big benefits.</p>`,
+          `<h2>What Yogurt Actually Is</h2>
+           <p>Yogurt is made by fermenting milk with live cultures — beneficial bacteria that turn the milk thicker, tangier, and easier to digest.</p>
+           <p>Those live cultures are the key. They’re the reason yogurt supports gut health and why it’s considered a functional food.</p>
+           <p>Common types you’ll see:</p>
+           <ul><li>Regular yogurt</li><li>Greek yogurt (thicker, higher protein)</li><li>Skyr (Icelandic style, very high protein)</li><li>Probiotic yogurt (extra live cultures added)</li></ul>
+           <p>All of them can be healthy choices — the difference is mainly texture and protein content.</p>`,
+          `<h2>Why Fermentation Matters</h2>
+           <p>Fermentation is what gives yogurt its health benefits. During fermentation, live bacteria grow and create:</p>
+           <ul><li>Probiotics that support digestion</li><li>Enzymes that help break down lactose</li><li>Natural compounds that support immune function</li></ul>
+           <p>This makes yogurt easier to digest than milk and more supportive for your gut.</p>`,
+          `<h2>The Benefits (Beginner-Friendly)</h2>
+           <h3>1. Supports Gut Health</h3>
+           <p>Yogurt contains live probiotics that help balance your gut microbiome. This can support smoother digestion, reduce bloating, and improve nutrient absorption.</p>
+           <h3>2. High in Protein (Especially Greek or Skyr)</h3>
+           <p>Protein helps keep you full, supports muscle repair, and stabilizes blood sugar. Greek yogurt and Skyr are especially good choices if you want more protein per serving.</p>
+           <h3>3. Helps Support Immune Function</h3>
+           <p>A healthier gut supports a stronger immune system. Yogurt’s probiotics and nutrients help reinforce your daily defenses.</p>
+           <h3>4. Easy on Digestion</h3>
+           <p>Fermentation breaks down much of the lactose in milk. This makes yogurt easier to digest for many people who struggle with regular dairy.</p>
+           <h3>5. Simple, Versatile, and Quick</h3>
+           <p>Yogurt requires no prep and fits into almost any routine. You can eat it plain, mix it with fruit, add it to breakfast, or use it as a snack.</p>`,
+          `<h2>What About Sugar?</h2>
+           <p>Some yogurts contain added sugar — especially flavored ones. This doesn’t make them “bad,” but it’s something to be aware of.</p>
+           <p><strong>Beginner tip:</strong> Choose plain yogurt and add your own fruit or a drizzle of honey if you want sweetness.</p>`,
+          `<h2>How to Start (Beginner Tips)</h2>
+           <ul><li>Choose plain Greek yogurt or Skyr for higher protein</li><li>Look for “live and active cultures” on the label</li><li>Add fruit, nuts, or seeds for flavor</li><li>Use it as a morning or midday habit</li><li>Start with one small serving per day</li></ul>
+           <p>Yogurt is flexible — you can use it in breakfast bowls, smoothies, or even savory dishes.</p>`,
+          `<h2>Takeaway</h2>
+           <p>Yogurt is a simple, beginner-friendly habit that supports gut health, digestion, immunity, and daily nutrition. It’s easy to add to your routine and works well with almost any eating style.</p>
+           <h2>Mo Explains: Yogurt — A Beginner’s Guide</h2>
+           <figure class="article-explainer">
+             <img src="/images/mo-explains-yogurt-beginners-guide.png" alt="Mo Explains visual beginner’s guide to yogurt, fermentation, probiotics, protein, sugar, and simple daily use" loading="lazy">
+             <figcaption>Mo Explains: Yogurt — A Beginner’s Guide</figcaption>
+           </figure>`
+        ]
+      },
+      {
         id: "psyllium-husk-a-friendly-beginner-guide",
         category: "nutrition",
         title: "Psyllium Husk: A Friendly MotionC Beginner Guide",
@@ -2796,7 +2841,7 @@
 
     function sectionArticleButton(article) {
       const category = categoryMap.get(article.category);
-      const visualBadge = ["mindful-walking", "understanding-insulin-spikes", "hydration-a-beginners-guide", "chia-seeds-a-beginners-guide", "psyllium-husk-a-friendly-beginner-guide", "kimchi-a-beginners-guide", "pumpkin-seeds-a-simple-powerful-source-of-magnesium", "magnesium-choosing-the-most-well-rounded-option", "chelated-minerals-why-they-matter"].includes(article.id)
+      const visualBadge = ["mindful-walking", "understanding-insulin-spikes", "hydration-a-beginners-guide", "chia-seeds-a-beginners-guide", "yogurt-a-beginners-guide", "psyllium-husk-a-friendly-beginner-guide", "kimchi-a-beginners-guide", "pumpkin-seeds-a-simple-powerful-source-of-magnesium", "magnesium-choosing-the-most-well-rounded-option", "chelated-minerals-why-they-matter"].includes(article.id)
         ? `<span class="mo-learning-badge" role="img" aria-label="Includes a Mo visual explainer" title="Includes a Mo visual explainer"><img src="/images/mo-visual-explainer-grey.png" alt=""></span>`
         : ["mo-explains-insulin-spikes-two-modes", "mo-explains-why-bananas-spike-insulin", "win-eat-real-food", "win-eat-more-plants", "win-eat-slowly", "win-80-percent-rule", "win-eat-together"].includes(article.id)
           ? `<span class="mo-learning-badge" role="img" aria-label="All-Mo visual article" title="All-Mo visual article"><img src="/images/mo-visual-explainer-blue.png" alt=""></span>`
