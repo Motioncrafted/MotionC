@@ -1,7 +1,7 @@
 import {
   supabase, getSession, readCloudState, activateUser,
   makeFreshState, clearLocalState
-} from "../shared/motionc-supabase.js?v=20260819-1";
+} from "../shared/motionc-supabase.js?v=20260819-2";
 
 const $ = (id) => document.getElementById(id);
 const USERNAME_PATTERN = /^[A-Za-z0-9_]{3,24}$/;

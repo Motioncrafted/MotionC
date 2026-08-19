@@ -106,6 +106,23 @@
     <p id="deleteMessage" class="message" aria-live="polite"></p>
   </dialog>
 
-  <script type="module" src="script.js?v=20260819-2"></script>
+  <script type="module">
+    import { signOutAndClear } from "../shared/motionc-supabase.js?v=20260819-2";
+
+    const signOutButton = document.getElementById("signOutButton");
+    const syncStatus = document.getElementById("syncStatus");
+    signOutButton?.addEventListener("click", async () => {
+      signOutButton.disabled = true;
+      syncStatus.textContent = "Saving before signing out…";
+      try {
+        await signOutAndClear();
+        location.assign("/landing-page/");
+      } catch (error) {
+        syncStatus.textContent = error.message || "Could not sign out.";
+        signOutButton.disabled = false;
+      }
+    });
+  </script>
+  <script type="module" src="script.js?v=20260819-3"></script>
 </body>
 </html>
