@@ -139,7 +139,18 @@ async function bootPageSync() {
   let session;
   try { session = await getSession(); } catch { accountBadge("Account offline"); return; }
   startMotionCAnalytics(supabase, { isRegistered: Boolean(session?.user && !session.user.is_anonymous) });
-  if (!session) { accountBadge("Local mode · Sign in"); return; }
+  if (!session) {
+    // If an account session expired outside the normal sign-out flow, do not
+    // leave that account's health data visible in the shared browser profile.
+    if (localStorage.getItem(ACTIVE_USER_KEY)) {
+      clearLocalState();
+      localStorage.removeItem(ACTIVE_USER_KEY);
+      location.reload();
+      return;
+    }
+    accountBadge("Local mode · Sign in");
+    return;
+  }
 
   const userId = session.user.id;
   if (localStorage.getItem(ACTIVE_USER_KEY) !== userId) {
