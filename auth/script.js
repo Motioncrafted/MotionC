@@ -1,7 +1,7 @@
 import {
   supabase, getSession, readCloudState, activateUser,
   makeFreshState, clearLocalState
-} from "../shared/motionc-supabase.js?v=20260819-2";
+} from "../shared/motionc-supabase.js?v=20260819-4";
 
 const $ = (id) => document.getElementById(id);
 const USERNAME_PATTERN = /^[A-Za-z0-9_]{3,24}$/;
@@ -34,6 +34,41 @@ function closeDialog(id) {
   else dialog.removeAttribute("open");
 }
 
+const eyeIcon = (visible) => visible
+  ? `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 10.7a2 2 0 0 0 2.7 2.7"/><path d="M9.9 4.2A10.8 10.8 0 0 1 12 4c5.5 0 9 6 9 6a16.5 16.5 0 0 1-2.1 2.8M6.6 6.6C4.3 8.1 3 10 3 10s3.5 6 9 6c1 0 2-.2 2.9-.5"/></svg>`
+  : `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>`;
+
+function setPasswordVisibility(input, visible) {
+  const button = input.parentElement?.querySelector(".password-toggle");
+  input.type = visible ? "text" : "password";
+  if (!button) return;
+  button.setAttribute("aria-pressed", String(visible));
+  button.setAttribute("aria-label", visible ? "Hide password" : "Show password");
+  button.title = visible ? "Hide password" : "Show password";
+  button.innerHTML = eyeIcon(visible);
+}
+
+function installPasswordToggles() {
+  document.querySelectorAll('input[type="password"]').forEach((input) => {
+    const control = document.createElement("span");
+    control.className = "password-control";
+    input.parentNode.insertBefore(control, input);
+    control.appendChild(input);
+    const button = document.createElement("button");
+    button.className = "password-toggle";
+    button.type = "button";
+    control.appendChild(button);
+    setPasswordVisibility(input, false);
+    button.addEventListener("click", () => {
+      const start = input.selectionStart;
+      const end = input.selectionEnd;
+      setPasswordVisibility(input, input.type === "password");
+      input.focus({ preventScroll: true });
+      if (start !== null && end !== null) input.setSelectionRange(start, end);
+    });
+  });
+}
+
 function openPasswordDialog(nextMode) {
   passwordMode = nextMode;
   const authenticatedChange = passwordMode === "authenticated";
@@ -42,6 +77,7 @@ function openPasswordDialog(nextMode) {
   $("currentPasswordField").classList.toggle("hidden", !authenticatedChange);
   $("currentPassword").required = authenticatedChange;
   $("passwordForm").reset();
+  ["currentPassword", "newPassword", "confirmPassword"].forEach((id) => setPasswordVisibility($(id), false));
   $("passwordMessage").textContent = "";
   openDialog("passwordDialog");
 }
@@ -53,6 +89,12 @@ function setMode(next) {
   $("createTab").classList.toggle("active", creating);
   $("usernameField").classList.toggle("hidden", !creating);
   $("username").required = creating;
+  $("createPasswordConfirmationField").classList.toggle("hidden", !creating);
+  $("createPasswordConfirmation").required = creating;
+  if (!creating) {
+    $("createPasswordConfirmation").value = "";
+    setPasswordVisibility($("createPasswordConfirmation"), false);
+  }
   $("submitButton").textContent = creating ? "Create account" : "Sign in";
   $("password").autocomplete = creating ? "new-password" : "current-password";
   $("forgotPasswordButton").classList.toggle("hidden", creating);
@@ -113,6 +155,7 @@ $("accountForm").addEventListener("submit", async (event) => {
     if (mode === "create") {
       const username = $("username").value.trim();
       if (!USERNAME_PATTERN.test(username)) throw new Error("Choose a username using 3–24 letters, numbers, or underscores.");
+      if (password !== $("createPasswordConfirmation").value) throw new Error("The passwords do not match.");
       result = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: confirmationReturn, data: { username } } });
     } else {
       result = await supabase.auth.signInWithPassword({ email, password });
@@ -228,6 +271,7 @@ supabase.auth.onAuthStateChange((event) => {
   if (event === "PASSWORD_RECOVERY") openPasswordDialog("recovery");
 });
 
+installPasswordToggles();
 setMode(requestedMode === "create" ? "create" : "signin");
 show("signedOutPanel");
 const recoveryRequested = requestedMode === "recovery" || location.hash.includes("type=recovery");
