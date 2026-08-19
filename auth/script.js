@@ -1,7 +1,7 @@
 import {
   supabase, getSession, readCloudState, activateUser,
-  makeFreshState, signOutAndClear, clearLocalState
-} from "../shared/motionc-supabase.js";
+  makeFreshState, clearLocalState
+} from "../shared/motionc-supabase.js?v=20260819-1";
 
 const $ = (id) => document.getElementById(id);
 const USERNAME_PATTERN = /^[A-Za-z0-9_]{3,24}$/;
@@ -13,6 +13,7 @@ const params = new URLSearchParams(location.search);
 const requestedNext = params.get("next");
 const safeNext = requestedNext?.startsWith("/") && !requestedNext.startsWith("//") ? requestedNext : null;
 const requestedMode = params.get("mode");
+const manageRequested = params.get("manage") === "1";
 const recoveryReturn = `${location.origin}/auth/?mode=recovery`;
 const confirmationReturn = `${location.origin}/auth/?confirmed=1`;
 
@@ -77,7 +78,7 @@ async function readOrCreateProfile(user) {
   return data?.display_name || "";
 }
 
-async function finishLogin(session) {
+async function finishLogin(session, { stayOnAccount = false } = {}) {
   activeSession = session;
   const cloud = await readCloudState(session.user.id);
   const accountState = Object.keys(cloud.state?.storage || {}).length ? cloud.state : makeFreshState();
@@ -89,6 +90,10 @@ async function finishLogin(session) {
   }
   if (safeNext) {
     location.assign(safeNext);
+    return;
+  }
+  if (!stayOnAccount) {
+    location.assign("/landing-page/");
     return;
   }
   $("currentUsername").textContent = username;
@@ -139,8 +144,7 @@ $("usernameForm").addEventListener("submit", async (event) => {
     return;
   }
   await supabase.auth.updateUser({ data: { username } });
-  $("currentUsername").textContent = username;
-  show("signedInPanel");
+  location.assign(safeNext || "/landing-page/");
 });
 
 $("forgotPasswordButton").addEventListener("click", () => {
@@ -185,21 +189,6 @@ $("passwordForm").addEventListener("submit", async (event) => {
 
 $("changePasswordButton").addEventListener("click", () => openPasswordDialog("authenticated"));
 $("closePasswordDialog").addEventListener("click", () => closeDialog("passwordDialog"));
-
-$("switchButton").addEventListener("click", async () => {
-  $("switchButton").disabled = true;
-  $("syncStatus").textContent = "Saving before signing out…";
-  try {
-    await signOutAndClear();
-    $("accountForm").reset();
-    setMode("signin");
-    show("signedOutPanel");
-  } catch (error) {
-    $("syncStatus").textContent = error.message || "Could not sign out.";
-  } finally {
-    $("switchButton").disabled = false;
-  }
-});
 
 $("deleteAccountButton").addEventListener("click", () => {
   $("deleteConfirmation").value = "";
@@ -247,7 +236,7 @@ if (recoveryRequested) {
   openPasswordDialog("recovery");
 } else if (existing) {
   try {
-    await finishLogin(existing);
+    await finishLogin(existing, { stayOnAccount: manageRequested });
   } catch (error) {
     $("formMessage").textContent = error.message || "The account could not be opened.";
     show("signedOutPanel");
