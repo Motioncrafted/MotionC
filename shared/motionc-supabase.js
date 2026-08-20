@@ -105,9 +105,13 @@ export async function signOutAndClear() {
 
 function accountBadge(label, href = "/auth/") {
   const signedIn = href.includes("manage=1");
+  const returnPath = `${location.pathname}${location.search}${location.hash}`;
+  const accountHref = signedIn
+    ? `${href}${href.includes("?") ? "&" : "?"}next=${encodeURIComponent(returnPath)}`
+    : href;
   const landingAccount = document.querySelector(".member-sign-in");
   if (landingAccount) {
-    landingAccount.href = href;
+    landingAccount.href = accountHref;
     landingAccount.textContent = signedIn ? label : "Sign In";
     landingAccount.setAttribute(
       "aria-label",
@@ -126,7 +130,7 @@ function accountBadge(label, href = "/auth/") {
       link.className = "motionc-menu-account";
       menu.prepend(link);
     }
-    link.href = href;
+    link.href = accountHref;
     link.textContent = signedIn ? label : "Sign in";
     link.dataset.accountState = signedIn ? "signed-in" : "signed-out";
     link.setAttribute(
@@ -144,7 +148,7 @@ function accountBadge(label, href = "/auth/") {
 
   const link = document.createElement("a");
   link.className = "motionc-account-badge";
-  link.href = href;
+  link.href = accountHref;
   link.textContent = label;
   link.setAttribute("aria-label", `${label}. Open account switcher.`);
   document.body.appendChild(link);
