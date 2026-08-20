@@ -18,6 +18,7 @@ const LIFESTYLE_ITEMS = [
 const WEEKLY_REFLECTIONS = [
   "I may not be there yet, but I’m closer than I was yesterday.",
   "Change Happens One Step at a Time.",
+  "MotionC wasn’t built in one giant leap. It was built the same way change happens: one deliberate step at a time.",
   "All Truly Great Thoughts are Conceived While Walking.",
   "Strive for <u>Progress</u>, not Perfection."
 ];
