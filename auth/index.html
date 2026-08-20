@@ -9,7 +9,7 @@
 </head>
 <body>
   <main class="account-shell">
-    <a class="back" href="/drop-zone/">← Continue to The Commons</a>
+    <a class="back" id="accountBack" href="/landing-page/">← Back to Previous Page</a>
     <p class="eyebrow">YOUR MOTIONC ACCOUNT</p>
     <h1>Your journey. Your private space.</h1>
     <p class="intro">Use your email privately to secure your account. Around MotionC, other members see only the username you choose.</p>
@@ -110,7 +110,7 @@
   </dialog>
 
   <script type="module">
-    import { signOutAndClear } from "../shared/motionc-supabase.js?v=20260820-1";
+    import { signOutAndClear } from "../shared/motionc-supabase.js?v=20260820-2";
 
     const signOutButton = document.getElementById("signOutButton");
     const syncStatus = document.getElementById("syncStatus");
@@ -126,6 +126,6 @@
       }
     });
   </script>
-  <script type="module" src="script.js?v=20260820-2"></script>
+  <script type="module" src="script.js?v=20260820-3"></script>
 </body>
 </html>
