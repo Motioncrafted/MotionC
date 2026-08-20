@@ -501,6 +501,7 @@ main { min-width: 0; }
   padding-top: 7px;
   border-top: 1px solid #e1e9e5;
 }
+.gauge-indicators.no-light { padding-top: 13px; }
 .gauge-average, .gauge-trend {
   display: flex;
   min-width: 0;

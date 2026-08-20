@@ -490,33 +490,36 @@ function renderGaugeIndicators(dateValue) {
     setGaugeAverage("stressAverage", null, "pending", `Need ${7 - stressSamples.length} more day${7 - stressSamples.length === 1 ? "" : "s"}`);
   }
 
-  const renderThreeDayTrend = (key, id, lowerIsBetter = false) => {
-    const samples = completedGaugeSamples(key, dateValue, 6);
-    if (samples.length < 6) {
-      setGaugeTrend(id, "—", `Need ${6 - samples.length} more day${6 - samples.length === 1 ? "" : "s"}`);
-      return;
-    }
-    const recent = averageGaugeSamples(samples.slice(0, 3), key);
-    const previous = averageGaugeSamples(samples.slice(3, 6), key);
+  const sleepTrendSamples = completedGaugeSamples("sleep", dateValue, 6);
+  if (sleepTrendSamples.length < 6) {
+    setGaugeTrend("sleepTrend", "—", `Need ${6 - sleepTrendSamples.length} more day${6 - sleepTrendSamples.length === 1 ? "" : "s"}`);
+  } else {
+    const recent = averageGaugeSamples(sleepTrendSamples.slice(0, 3), "sleep");
+    const previous = averageGaugeSamples(sleepTrendSamples.slice(3, 6), "sleep");
     const change = recent - previous;
-    if (key === "stress") {
-      if (change <= -1) setGaugeTrend(id, "↓↓", "Strong improvement");
-      else if (change < -.25) setGaugeTrend(id, "↓", "Improving");
-      else if (change >= 1) setGaugeTrend(id, "↑↑", "Strong increase");
-      else if (change > .25) setGaugeTrend(id, "↑", "Slight increase");
-      else setGaugeTrend(id, "→", "No change");
-      return;
-    }
-    if (Math.abs(change) <= .25) setGaugeTrend(id, "→", "Stable");
-    else if ((lowerIsBetter && change < 0) || (!lowerIsBetter && change > 0)) setGaugeTrend(id, lowerIsBetter ? "↓" : "↑", "Improving");
-    else setGaugeTrend(id, lowerIsBetter ? "↑" : "↓", "Declining");
-  };
+    if (change >= 1) setGaugeTrend("sleepTrend", "↓↓", "Strong improvement");
+    else if (change > .25) setGaugeTrend("sleepTrend", "↓", "Improvement");
+    else if (change <= -1) setGaugeTrend("sleepTrend", "↑↑", "Strong decline");
+    else if (change < -.25) setGaugeTrend("sleepTrend", "↑", "Decline");
+    else setGaugeTrend("sleepTrend", "→", "Stable");
+  }
 
-  renderThreeDayTrend("stress", "stressTrend", true);
-  renderThreeDayTrend("sleep", "sleepTrend", false);
+  const selectedStress = state.dailyGauges?.[dateValue]?.stress;
+  const yesterdayDate = isoDate(addDays(dateFromIso(dateValue), -1));
+  const yesterdayStress = state.dailyGauges?.[yesterdayDate]?.stress;
+  if (!selectedStress || !yesterdayStress) {
+    setGaugeTrend("stressTrend", "—", "Need yesterday");
+  } else {
+    const change = Number(selectedStress.value) - Number(yesterdayStress.value);
+    if (change <= -2) setGaugeTrend("stressTrend", "↓↓", "Strong improvement");
+    else if (change <= -1) setGaugeTrend("stressTrend", "↓", "Improvement");
+    else if (change >= 2) setGaugeTrend("stressTrend", "↑↑", "Strong increase");
+    else if (change >= 1) setGaugeTrend("stressTrend", "↑", "Slight increase");
+    else setGaugeTrend("stressTrend", "→", "No change");
+  }
 
   const selectedDate = state.dailyGauges?.[dateValue]?.hydration;
-  const yesterday = state.dailyGauges?.[isoDate(addDays(dateFromIso(dateValue), -1))]?.hydration;
+  const yesterday = state.dailyGauges?.[yesterdayDate]?.hydration;
   if (!selectedDate || !yesterday) {
     setGaugeTrend("hydrationTrend", "—", "Need yesterday");
   } else {
