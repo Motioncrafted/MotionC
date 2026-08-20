@@ -30,16 +30,19 @@ document.addEventListener("DOMContentLoaded", () => {
         waistInches: 0
     };
 
-    function readLatestDailyWeight() {
+    function readDailyState() {
         try {
-            const daily = JSON.parse(localStorage.getItem(dailyStorageKey));
-            const latest = Object.values(daily?.entries || {})
-                .filter((entry) => entry?.date && Number(entry.weight) > 0)
-                .sort((first, second) => String(second.date).localeCompare(String(first.date)))[0];
-            return latest ? Number(latest.weight) : null;
+            return JSON.parse(localStorage.getItem(dailyStorageKey)) || {};
         } catch {
-            return null;
+            return {};
         }
+    }
+
+    function readLatestDailyWeight(daily = readDailyState()) {
+        const latest = Object.values(daily?.entries || {})
+            .filter((entry) => entry?.date && Number(entry.weight) > 0)
+            .sort((first, second) => String(second.date).localeCompare(String(first.date)))[0];
+        return latest ? Number(latest.weight) : null;
     }
 
     function readSummaryProfile() {
@@ -47,15 +50,25 @@ document.addEventListener("DOMContentLoaded", () => {
             const saved = JSON.parse(
                 localStorage.getItem(summaryMcpStorageKey)
             );
-            const measurementData = saved?.measurementData;
+            const measurementData = saved?.measurementData || {};
+            const daily = readDailyState();
+            const sharedProfile = daily?.profile || {};
 
-            const latestDailyWeight = readLatestDailyWeight();
-            if (!measurementData) return { ...emptyProfile, weightPounds: latestDailyWeight || 0 };
-
-            const totalHeightInches = Number(measurementData.heightInches);
-            const weightPounds = latestDailyWeight || Number(measurementData.weightLbs);
-            const waistInches = Number(measurementData.waistInches);
-            const age = Number(measurementData.age);
+            const latestDailyWeight = readLatestDailyWeight(daily);
+            const totalHeightInches = Number(sharedProfile.heightInches) > 0
+                ? Number(sharedProfile.heightInches)
+                : Number(measurementData.heightInches);
+            const profileWeight = Number(sharedProfile.currentWeight) > 0
+                ? Number(sharedProfile.currentWeight)
+                : Number(sharedProfile.startWeight);
+            const weightPounds = latestDailyWeight || profileWeight || Number(measurementData.weightLbs);
+            const waistInches = Number(sharedProfile.waist) > 0
+                ? Number(sharedProfile.waist)
+                : Number(measurementData.waistInches);
+            const age = Number(sharedProfile.age) > 0
+                ? Number(sharedProfile.age)
+                : Number(measurementData.age);
+            const sex = sharedProfile.sex || measurementData.sex || "M";
 
             if (
                 !Number.isFinite(totalHeightInches) ||
@@ -74,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             return {
                 age,
-                sex: String(measurementData.sex || "M"),
+                sex: String(sex),
                 heightFeet,
                 heightInches: totalHeightInches - (heightFeet * 12),
                 weightPounds,
