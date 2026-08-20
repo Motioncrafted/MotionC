@@ -473,8 +473,21 @@ main { min-width: 0; }
 .daily-gauges-heading { display: flex; align-items: center; justify-content: center; gap: 7px; }
 .daily-gauges-heading .eyebrow { margin: 0; }
 .gauge-info-button { display: grid; width: 20px; aspect-ratio: 1; place-items: center; border: 1px solid #9eafad; border-radius: 50%; color: #496064; background: #fff; font: 850 12px/1 Georgia, serif; }
-.gauge-info { margin: 9px 0; border-radius: 9px; padding: 10px; color: #3f5357; background: #f2f7f5; font-size: 11px; line-height: 1.35; text-align: left; }
-.gauge-info strong, .gauge-info span { display: block; }
+.gauge-info { margin: 9px 0; border-radius: 9px; padding: 12px; color: #3f5357; background: #f2f7f5; font-size: 10px; line-height: 1.4; text-align: left; }
+.gauge-info-intro strong, .gauge-info-intro span { display: block; }
+.gauge-info-intro span { margin-top: 3px; }
+.gauge-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+.gauge-info-grid section { border: 1px solid #d8e5df; border-radius: 8px; padding: 9px; background: rgba(255,255,255,.72); }
+.gauge-info-grid section > strong { display: block; color: #174b36; font-size: 10px; }
+.gauge-info-grid p { margin: 6px 0; }
+.gauge-info-grid small { display: block; color: #60736f; font-size: 9px; line-height: 1.4; }
+.legend-light { display: inline-block; width: 8px; height: 8px; border-radius: 50%; vertical-align: baseline; }
+.legend-light.green { background: #23ad68; }
+.legend-light.yellow { background: #e7b72f; }
+.legend-light.orange { background: #ed791f; }
+.legend-light.red { background: #dc4545; }
+.legend-light.deep-red { background: #941f2c; }
+.arrow-legend b { color: #173f34; font-size: 12px; }
 .gauge-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
 .daily-gauge { display: grid; justify-items: center; min-width: 0; }
 .daily-gauge output { min-height: 28px; color: var(--ink); font-size: 24px; font-weight: 900; line-height: 1; }
@@ -983,6 +996,7 @@ dialog::backdrop { background: rgba(9,18,20,.66); backdrop-filter: blur(3px); }
   .entry-actions { align-items: stretch; flex-direction: column; }
   .entry-actions-tools, .entry-actions-primary { display: grid; grid-template-columns: 1fr 1fr; }
   .entry-actions-primary #addWalk[hidden] + #saveEntry { grid-column: 1 / -1; }
+  .gauge-info-grid { grid-template-columns: 1fr; }
   .floating-calculator {
     top: auto;
     right: 10px;

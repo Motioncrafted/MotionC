@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Daily | MotionC</title>
   <meta name="description" content="Your quick daily MotionC health check-in.">
-  <link rel="stylesheet" href="/daily/styles.css?v=20260820-4">
+  <link rel="stylesheet" href="/daily/styles.css?v=20260820-5">
 </head>
 <body>
   <div class="app-shell">
@@ -183,9 +183,23 @@
               <button class="gauge-info-button" id="gaugeInfoButton" type="button" aria-expanded="false" aria-controls="gaugeInfo">i</button>
             </div>
             <div class="gauge-info" id="gaugeInfo" hidden>
-              <strong>Your Lifestyle Profile shows your typical habits.</strong>
-              <span>Your Daily Gauges show what happened today.</span>
-              <span>When the two don't match, MotionC highlights the gap—because that's where real progress begins.</span>
+              <div class="gauge-info-intro">
+                <strong>Two signals, two different jobs.</strong>
+                <span>The light shows your recent level. The arrow shows which direction you are moving. A concerning light and an improving arrow can both be correct.</span>
+              </div>
+              <div class="gauge-info-grid">
+                <section>
+                  <strong>Status light · 7-day average</strong>
+                  <p><b>Sleep:</b> <i class="legend-light green"></i> 7+ hrs · <i class="legend-light yellow"></i> 6–6.99 · <i class="legend-light orange"></i> 5–5.99 · <i class="legend-light red"></i> below 5</p>
+                  <p><b>Stress:</b> <i class="legend-light green"></i> 0–1 · <i class="legend-light yellow"></i> over 1–2 · <i class="legend-light orange"></i> over 2–3 · <i class="legend-light red"></i> over 3–4 · <i class="legend-light deep-red"></i> over 4</p>
+                  <small>Hydration has no status light.</small>
+                </section>
+                <section>
+                  <strong>Trend arrow · direction only</strong>
+                  <p class="arrow-legend"><b>↓↓</b> strong improvement · <b>↓</b> improvement · <b>→</b> stable/no change · <b>↑</b> decline/increase · <b>↑↑</b> strong decline/increase</p>
+                  <small>Sleep compares the latest 3 completed days with the previous 3. Stress and Hydration compare today with yesterday.</small>
+                </section>
+              </div>
             </div>
             <div class="gauge-grid">
               <article class="daily-gauge hydration-gauge">
