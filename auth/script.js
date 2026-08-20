@@ -333,9 +333,9 @@ const recoveryRequested = requestedMode === "recovery" || location.hash.includes
 const existing = await getSession();
 if (recoveryRequested) {
   openPasswordDialog("recovery");
-} else if (existing) {
+} else if (existing && manageRequested) {
   try {
-    await finishLogin(existing, { stayOnAccount: manageRequested });
+    await finishLogin(existing, { stayOnAccount: true });
   } catch (error) {
     $("formMessage").textContent = error.message || "The account could not be opened.";
     show("signedOutPanel");
