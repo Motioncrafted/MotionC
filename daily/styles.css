@@ -833,11 +833,72 @@ dialog::backdrop { background: rgba(9,18,20,.66); backdrop-filter: blur(3px); }
 .impact { border-radius: 8px; padding: 9px 11px; color: #5a4934; background: #fff6dd; font-size: 13px; }
 .score-conclusion { margin-top: 18px; border-radius: 10px; padding: 14px; color: #174b35; background: #e5f6ec; font-weight: 700; }
 .dialog-intro { color: var(--muted); }
+.weekly-dialog { width: min(760px, calc(100vw - 28px)); }
+.weekly-profile {
+  margin-top: 20px;
+  border: 1px solid #cfe0d6;
+  border-radius: 12px;
+  padding: 0;
+  background: #f4f8f5;
+}
+.weekly-profile summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  width: 100%;
+  padding: 14px 16px;
+  color: #173f30;
+  font-weight: 850;
+  cursor: pointer;
+  list-style: none;
+}
+.weekly-profile summary::-webkit-details-marker { display: none; }
+.weekly-profile summary::before { content: "▸"; color: var(--green); }
+.weekly-profile[open] summary::before { content: "▾"; }
+.weekly-profile summary span { margin-right: auto; }
+.weekly-profile summary strong {
+  border-radius: 999px;
+  padding: 4px 9px;
+  color: #17613f;
+  background: #e1f2e7;
+  font-size: 11px;
+}
+.weekly-profile.is-incomplete summary strong { color: #914b17; background: #fff0d8; }
+.weekly-profile .weekly-section-note { margin: 0 16px; }
+.weekly-profile .weekly-measures { margin: 14px 16px 16px; }
+.weekly-section { margin-top: 22px; border-top: 1px solid var(--line); padding-top: 18px; }
+.weekly-section-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; }
+.weekly-section-heading h3 { margin: 2px 0 0; font-size: 17px; }
+.weekly-section-heading .eyebrow { margin: 0; }
+.weekly-section-note { color: var(--muted); font-size: 12px; line-height: 1.45; }
+.weekly-score-preview {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  border-radius: 999px;
+  padding: 7px 11px;
+  color: #17613f;
+  background: #e4f3e9;
+  font-size: 19px;
+}
+.weekly-score-preview small { font-size: 11px; }
 .lifestyle-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 18px; }
 .lifestyle-grid label { display: grid; gap: 5px; color: #33464d; font-size: 13px; font-weight: 800; }
 .lifestyle-grid select { min-height: 42px; border: 1px solid var(--line); border-radius: 8px; padding: 0 9px; background: #fbfdfc; }
 .weekly-measures { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 18px; }
 .weekly-measures .input-with-unit input { font-size: 18px; padding: 10px; }
+.weekly-select {
+  min-height: 43px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 0 11px;
+  color: var(--ink);
+  background: #f9fbfa;
+  font-size: 15px;
+  font-weight: 750;
+}
+.weekly-goals { margin-bottom: 20px; }
 
 @media (max-width: 1000px) {
   .app-shell { grid-template-columns: 92px minmax(0, 1fr); }

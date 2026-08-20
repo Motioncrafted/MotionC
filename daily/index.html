@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Daily | MotionC</title>
   <meta name="description" content="Your quick daily MotionC health check-in.">
-  <link rel="stylesheet" href="/daily/styles.css?v=20260820-1">
+  <link rel="stylesheet" href="/daily/styles.css?v=20260820-2">
 </head>
 <body>
   <div class="app-shell">
@@ -332,18 +332,45 @@
     <button class="dialog-close" id="closeWeekly" type="button" aria-label="Close">×</button>
     <p class="eyebrow">YOUR LIFESTYLE THIS WEEK</p>
     <h2>Weekly check-in</h2>
-    <p class="dialog-intro">A quick background check plus the personal measurements used throughout MotionC.</p>
-    <div class="lifestyle-grid" id="lifestyleGrid"></div>
-    <div class="weekly-measures">
-      <label>Starting Weight <span class="input-with-unit"><input id="startingWeight" type="number" step="0.1" min="20" max="700"><small id="startWeightUnit">lb</small></span></label>
-      <label>Waist <span class="input-with-unit"><input id="weeklyWaist" type="number" step="0.1" min="15" max="300"><small id="waistUnit">in</small></span></label>
-      <label>Vibratory Set Line <span class="input-with-unit"><input id="vibratoryLine" type="number" step="0.1" min="20" max="700"><small id="lineWeightUnit">lb</small></span></label>
-      <label>Motivational goal <span class="input-with-unit"><input id="motivationalGoal" type="number" step="0.1" min="20" max="700"><small id="goalWeightUnit">lb</small></span></label>
-    </div>
+    <p class="dialog-intro">Update your profile when needed, then check in on the habits supporting you this week.</p>
+
+    <details class="weekly-profile" id="weeklyProfile">
+      <summary><span>Personal profile</span><strong id="weeklyProfileStatus">Complete</strong></summary>
+      <p class="weekly-section-note">These measurements power your MCP and progress results. Current weight continues to come from Record today.</p>
+      <div class="weekly-measures profile-measures">
+        <label>Age <span class="input-with-unit"><input id="weeklyAge" type="number" step="1" min="18" max="120" inputmode="numeric"></span></label>
+        <label>Sex
+          <select class="weekly-select" id="weeklySex">
+            <option value="">Choose</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </label>
+        <label>Height <span class="input-with-unit"><input id="weeklyHeight" type="number" step="0.1" min="20" max="300" inputmode="decimal"><small id="heightUnit">in</small></span></label>
+        <label>Starting weight <span class="input-with-unit"><input id="startingWeight" type="number" step="0.1" min="20" max="700" inputmode="decimal"><small id="startWeightUnit">lb</small></span></label>
+        <label>Waist <span class="input-with-unit"><input id="weeklyWaist" type="number" step="0.1" min="15" max="300" inputmode="decimal"><small id="waistUnit">in</small></span></label>
+      </div>
+    </details>
+
+    <section class="weekly-section" aria-labelledby="weeklyLifestyleTitle">
+      <div class="weekly-section-heading">
+        <div><p class="eyebrow">YOUR LIFESTYLE THIS WEEK</p><h3 id="weeklyLifestyleTitle">Eight habits, one weekly picture</h3></div>
+        <strong class="weekly-score-preview"><span id="weeklyScorePreview">—</span><small>/24</small></strong>
+      </div>
+      <div class="lifestyle-grid" id="lifestyleGrid"></div>
+    </section>
+
+    <section class="weekly-section weekly-goals" aria-labelledby="weeklyGoalsTitle">
+      <div class="weekly-section-heading"><div><p class="eyebrow">GOALS</p><h3 id="weeklyGoalsTitle">Your two weight markers</h3></div></div>
+      <div class="weekly-measures">
+        <label>Vibratory Set Line <span class="input-with-unit"><input id="vibratoryLine" type="number" step="0.1" min="20" max="700"><small id="lineWeightUnit">lb</small></span></label>
+        <label>Motivational goal <span class="input-with-unit"><input id="motivationalGoal" type="number" step="0.1" min="20" max="700"><small id="goalWeightUnit">lb</small></span></label>
+      </div>
+    </section>
     <button class="save-button full" id="saveWeekly" type="button">Save weekly check-in</button>
   </dialog>
 
-  <script src="/daily/script.js?v=20260819-2"></script>
+  <script src="/daily/script.js?v=20260820-3"></script>
   <script type="module" src="/shared/motionc-supabase.js?v=20260820-2"></script>
 </body>
 </html>

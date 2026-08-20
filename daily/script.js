@@ -18,11 +18,9 @@ const LIFESTYLE_ITEMS = [
 const WEEKLY_REFLECTIONS = [
   "I may not be there yet, but I’m closer than I was yesterday.",
   "Change Happens One Step at a Time.",
-  "All Truly Great Thoughts are Conceived While Walking.",
-  "Strive for <u>Progress</u>, not Perfection.",
   "MotionC wasn’t built in one giant leap. It was built the same way change happens: one deliberate step at a time.",
-  "MotionC doesn’t punish the gap. It welcomes the return.",
-  "I Don’t Know Where I Am Going, But I Sure Ain’t Lost."
+  "All Truly Great Thoughts are Conceived While Walking.",
+  "Strive for <u>Progress</u>, not Perfection."
 ];
 
 const byId = id => document.getElementById(id);
@@ -50,6 +48,8 @@ const displayDistance = miles => unitSystem === "metric" ? miles * KM_PER_MI : m
 const storedDistance = value => unitSystem === "metric" ? value / KM_PER_MI : value;
 const displayWaist = inches => unitSystem === "metric" ? inches * CM_PER_IN : inches;
 const storedWaist = value => unitSystem === "metric" ? value / CM_PER_IN : value;
+const displayHeight = inches => unitSystem === "metric" ? inches * CM_PER_IN : inches;
+const storedHeight = value => unitSystem === "metric" ? value / CM_PER_IN : value;
 const weightUnit = () => unitSystem === "metric" ? "kg" : "lb";
 const distanceUnit = () => unitSystem === "metric" ? "km" : "mi";
 const waistUnit = () => unitSystem === "metric" ? "cm" : "in";
@@ -75,6 +75,7 @@ function applyUnitSystem() {
   byId("weightUnit").textContent = weightUnit();
   byId("distanceUnit").textContent = distanceUnit();
   byId("waistUnit").textContent = waistUnit();
+  byId("heightUnit").textContent = waistUnit();
   byId("startWeightUnit").textContent = weightUnit();
   byId("lineWeightUnit").textContent = weightUnit();
   byId("goalWeightUnit").textContent = weightUnit();
@@ -228,14 +229,19 @@ function syncLifestyleSummary() {
     const maximumScore = Number(summary.maximumScore) > 0 ? Number(summary.maximumScore) : 24;
     const score = Math.min(10, roundHalf(Number(summary.score) / maximumScore * 10));
 
+    const values = Object.fromEntries(Object.entries(summary.values || {}).map(([key, value]) => {
+      const numeric = Number(value);
+      return [key, Number.isFinite(numeric) ? Math.max(1, Math.min(3, Math.round(numeric * 3))) : 1];
+    }));
     state.weeks[summaryWeek] = {
       ...existing,
-      values: summary.values || existing?.values || {},
+      values: Object.keys(values).length ? values : existing?.values || {},
       score,
       assessed: true,
       summaryScore: Number(summary.score),
       summaryUpdatedAt: summary.updatedAt,
       scoreLogicVersion: 4,
+      lifestyleScale: 3,
       updatedAt: new Date().toISOString()
     };
     persist();
@@ -919,7 +925,8 @@ function refreshWalkingCalculator(resetValues = false) {
   byId("calcLossUnit").textContent = weightUnit();
 
   if (resetValues) {
-    byId("calcWeight").value = displayWeight(latestRecordedWeight()).toFixed(1);
+    const latestWeight = Number(latestRecordedWeight());
+    byId("calcWeight").value = latestWeight > 0 && Number.isFinite(latestWeight) ? displayWeight(latestWeight).toFixed(1) : "";
     byId("calcSpeed").value = displayDistance(recentWalkingSpeed()).toFixed(2);
     byId("calcDistance").value = "";
     byId("calcTime").value = "";
@@ -1025,14 +1032,20 @@ function openScore(dateValue) {
   if (!entry) return;
   const score = scoreForEntry(entry);
   const weekly = weeklyForDate(dateValue);
-  const weak = Object.entries(weekly.values || {}).filter(([, value]) => value < 1).map(([key]) => LIFESTYLE_ITEMS.find(item => item[0] === key)?.[1]).filter(Boolean);
+  const scaledLifestyleValue = value => weekly.lifestyleScale === 3 ? Number(value) : Number(value) * 3;
+  const needsAttention = Object.entries(weekly.values || {}).filter(([, value]) => scaledLifestyleValue(value) <= 1).map(([key]) => LIFESTYLE_ITEMS.find(item => item[0] === key)?.[1]).filter(Boolean);
+  const couldStrengthen = Object.entries(weekly.values || {}).filter(([, value]) => scaledLifestyleValue(value) > 1 && scaledLifestyleValue(value) < 3).map(([key]) => LIFESTYLE_ITEMS.find(item => item[0] === key)?.[1]).filter(Boolean);
   const dailyImpact = score.food >= 8 ? "Strong positive" : score.food >= 6 ? "Mild negative" : "Needs attention";
   const moveImpact = score.movement >= 9 ? "Strong positive" : score.movement >= 5 ? "Positive" : "Limited movement";
   const lifestyleImpact = score.lifestyleAssessed
     ? (score.lifestyle >= 8 ? "Strong" : score.lifestyle >= 6 ? "Moderate" : "Moderate negative")
     : "Not included";
   const lifestyleDetail = score.lifestyleAssessed
-    ? (weak.length ? `Needs attention: ${escapeHtml(weak.slice(0, 3).join(", "))}.` : "Your weekly lifestyle is supporting today’s dot.")
+    ? (needsAttention.length
+      ? `Needs attention: ${escapeHtml(needsAttention.slice(0, 3).join(", "))}.`
+      : couldStrengthen.length
+        ? `Could strengthen: ${escapeHtml(couldStrengthen.slice(0, 3).join(", "))}.`
+        : "Your weekly lifestyle is supporting today’s dot.")
     : "Complete the Lifestyle Profile to include this section in the Daily score.";
   const conclusion = score.lifestyleAssessed
     ? (score.lifestyle < 6 ? "This week’s lifestyle is lowering the overall result slightly." : "Your weekly foundation is supporting today’s choices.")
@@ -1068,36 +1081,91 @@ function escapeHtml(value) {
 
 function buildLifestyleForm() {
   const week = weeklyForDate(isoDate());
+  const choiceFor = key => {
+    const value = Number(week.values?.[key]);
+    if (!Number.isFinite(value)) return 2;
+    if (week.lifestyleScale === 3) return Math.max(1, Math.min(3, Math.round(value)));
+    return Math.max(1, Math.min(3, Math.round(value * 3)));
+  };
+  const choices = {
+    sleep: ["Usually sleep less than 6 hours", "Usually sleep around 6 hours", "Usually sleep 7–8 hours each night"],
+    hydration: ["Rarely drink enough water", "Drink some water but could improve", "Drink enough water most days"],
+    nutrition: ["Mostly unhealthy food choices", "A mix of healthy and unhealthy choices", "Mostly healthy food choices"],
+    activity: ["Rarely exercise", "Exercise occasionally", "Exercise regularly"],
+    stress: ["High stress most days", "Moderate stress most days", "Stress is usually well managed"],
+    alcohol: ["High alcohol intake", "Moderate alcohol intake", "Low alcohol intake"],
+    smoking: ["Current smoker", "Former smoker", "Non-smoker"],
+    movement: ["Average under 3,000 steps per day", "Average 3,000–8,000 steps per day", "Average over 8,000 steps per day"]
+  };
   byId("lifestyleGrid").innerHTML = LIFESTYLE_ITEMS.map(([key, label]) => `
     <label>${label}
       <select data-lifestyle="${key}">
-        <option value="0" ${week.values?.[key] === 0 ? "selected" : ""}>Needs attention</option>
-        <option value="0.5" ${week.values?.[key] === .5 ? "selected" : ""}>Fair</option>
-        <option value="1" ${week.values?.[key] === 1 ? "selected" : ""}>Supporting me</option>
+        ${choices[key].map((choice, index) => `<option value="${index + 1}" ${choiceFor(key) === index + 1 ? "selected" : ""}>${choice}</option>`).join("")}
       </select>
     </label>`).join("");
   const setOptionalMeasurement = (id, storedValue, display) => {
     const value = Number(storedValue);
     byId(id).value = value > 0 && Number.isFinite(value) ? display(value).toFixed(1) : "";
   };
+  byId("weeklyAge").value = Number(state.profile.age) > 0 ? String(state.profile.age) : "";
+  byId("weeklySex").value = state.profile.sex || "";
+  setOptionalMeasurement("weeklyHeight", state.profile.heightInches, displayHeight);
   setOptionalMeasurement("weeklyWaist", state.profile.waist, displayWaist);
   setOptionalMeasurement("startingWeight", state.profile.startWeight, displayWeight);
   setOptionalMeasurement("vibratoryLine", state.profile.vibratoryLine, displayWeight);
   setOptionalMeasurement("motivationalGoal", state.profile.motivationalGoal, displayWeight);
+  updateWeeklyProfileStatus(true);
+  updateWeeklyScorePreview();
+  document.querySelectorAll("[data-lifestyle]").forEach(select => select.addEventListener("change", updateWeeklyScorePreview));
+  ["weeklyAge", "weeklySex", "weeklyHeight", "startingWeight", "weeklyWaist"].forEach(id => {
+    byId(id)[id === "weeklySex" ? "onchange" : "oninput"] = () => updateWeeklyProfileStatus(false);
+  });
+}
+
+function updateWeeklyScorePreview() {
+  const score = [...document.querySelectorAll("[data-lifestyle]")]
+    .reduce((sum, select) => sum + Number(select.value || 0), 0);
+  byId("weeklyScorePreview").textContent = String(score);
+}
+
+function updateWeeklyProfileStatus(setInitialOpenState = false) {
+  const complete =
+    Number(byId("weeklyAge").value) > 0 &&
+    Boolean(byId("weeklySex").value) &&
+    Number(byId("weeklyHeight").value) > 0 &&
+    Number(byId("startingWeight").value) > 0 &&
+    Number(byId("weeklyWaist").value) > 0;
+  const details = byId("weeklyProfile");
+  byId("weeklyProfileStatus").textContent = complete ? "Complete" : "Needs information";
+  details.classList.toggle("is-incomplete", !complete);
+  if (setInitialOpenState) details.open = !complete;
 }
 
 function saveWeekly() {
   const values = {};
   document.querySelectorAll("[data-lifestyle]").forEach(select => values[select.dataset.lifestyle] = Number(select.value));
-  const lifestyleBase = Object.values(values).reduce((sum, value) => sum + value, 0);
-  const score = Math.min(10, roundHalf(lifestyleBase / LIFESTYLE_ITEMS.length * 10));
-  state.weeks[weekKey(new Date())] = { values, score, assessed: true, scoreLogicVersion: 4, updatedAt: new Date().toISOString() };
+  const lifestyleScore = Object.values(values).reduce((sum, value) => sum + value, 0);
+  const score = Math.min(10, roundHalf(lifestyleScore / 24 * 10));
+  const updatedAt = new Date().toISOString();
+  const currentWeek = weekKey(new Date());
+  state.weeks[currentWeek] = { values, score, summaryScore: lifestyleScore, assessed: true, scoreLogicVersion: 4, lifestyleScale: 3, updatedAt };
+  state.profile.age = byId("weeklyAge").value ? Number(byId("weeklyAge").value) : state.profile.age;
+  state.profile.sex = byId("weeklySex").value || state.profile.sex;
+  state.profile.heightInches = byId("weeklyHeight").value ? storedHeight(Number(byId("weeklyHeight").value)) : state.profile.heightInches;
   state.profile.startWeight = byId("startingWeight").value ? storedWeight(Number(byId("startingWeight").value)) : state.profile.startWeight;
   state.profile.waist = byId("weeklyWaist").value ? storedWaist(Number(byId("weeklyWaist").value)) : state.profile.waist;
   state.profile.vibratoryLine = byId("vibratoryLine").value ? storedWeight(Number(byId("vibratoryLine").value)) : state.profile.vibratoryLine;
   localStorage.setItem(WEIGHT_GOAL_STORAGE_KEY, String(state.profile.vibratoryLine));
   state.profile.motivationalGoal = byId("motivationalGoal").value ? storedWeight(Number(byId("motivationalGoal").value)) : state.profile.motivationalGoal;
-  state.profile.updatedAt = new Date().toISOString();
+  state.profile.updatedAt = updatedAt;
+  localStorage.setItem(LIFESTYLE_SUMMARY_STORAGE_KEY, JSON.stringify({
+    week: currentWeek,
+    score: lifestyleScore,
+    maximumScore: 24,
+    baseScore: lifestyleScore / 24 * 10,
+    values: Object.fromEntries(Object.entries(values).map(([key, value]) => [key, value / 3])),
+    updatedAt
+  }));
   persist();
   byId("weeklyDialog").close();
   renderAll(fields.date.value);
