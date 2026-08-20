@@ -1,7 +1,7 @@
 import {
   supabase, getSession, readCloudState, activateUser,
   makeFreshState, clearLocalState
-} from "../shared/motionc-supabase.js?v=20260820-1";
+} from "../shared/motionc-supabase.js?v=20260820-2";
 
 const $ = (id) => document.getElementById(id);
 const USERNAME_PATTERN = /^[A-Za-z0-9_]{3,24}$/;
@@ -14,6 +14,16 @@ let usernameCheckSequence = 0;
 const params = new URLSearchParams(location.search);
 const requestedNext = params.get("next");
 const safeNext = requestedNext?.startsWith("/") && !requestedNext.startsWith("//") ? requestedNext : null;
+let referrerReturn = null;
+try {
+  const referrer = new URL(document.referrer);
+  if (referrer.origin === location.origin && !referrer.pathname.startsWith("/auth")) {
+    referrerReturn = `${referrer.pathname}${referrer.search}${referrer.hash}`;
+  }
+} catch {
+  // Direct visits have no usable same-site referrer.
+}
+$("accountBack").href = safeNext || referrerReturn || "/landing-page/";
 const requestedMode = params.get("mode");
 const manageRequested = params.get("manage") === "1";
 const recoveryReturn = `${location.origin}/auth/?mode=recovery`;
@@ -159,16 +169,12 @@ async function finishLogin(session, { stayOnAccount = false } = {}) {
     show("usernamePanel");
     return;
   }
-  if (safeNext) {
-    location.assign(safeNext);
+  if (stayOnAccount) {
+    $("currentUsername").textContent = username;
+    show("signedInPanel");
     return;
   }
-  if (!stayOnAccount) {
-    location.assign("/landing-page/");
-    return;
-  }
-  $("currentUsername").textContent = username;
-  show("signedInPanel");
+  location.assign(safeNext || "/landing-page/");
 }
 
 $("signInTab").addEventListener("click", () => setMode("signin"));
