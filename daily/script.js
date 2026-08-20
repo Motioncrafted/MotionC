@@ -18,9 +18,11 @@ const LIFESTYLE_ITEMS = [
 const WEEKLY_REFLECTIONS = [
   "I may not be there yet, but I’m closer than I was yesterday.",
   "Change Happens One Step at a Time.",
-  "MotionC wasn’t built in one giant leap. It was built the same way change happens: one deliberate step at a time.",
   "All Truly Great Thoughts are Conceived While Walking.",
-  "Strive for <u>Progress</u>, not Perfection."
+  "Strive for <u>Progress</u>, not Perfection.",
+  "MotionC wasn’t built in one giant leap. It was built the same way change happens: one deliberate step at a time.",
+  "MotionC doesn’t punish the gap. It welcomes the return.",
+  "I Don’t Know Where I Am Going, But I Sure Ain’t Lost."
 ];
 
 const byId = id => document.getElementById(id);
