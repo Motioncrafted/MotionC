@@ -104,6 +104,44 @@ export async function signOutAndClear() {
 }
 
 function accountBadge(label, href = "/auth/") {
+  const signedIn = href.includes("manage=1");
+  const landingAccount = document.querySelector(".member-sign-in");
+  if (landingAccount) {
+    landingAccount.href = href;
+    landingAccount.textContent = signedIn ? label : "Sign In";
+    landingAccount.setAttribute(
+      "aria-label",
+      signedIn ? `${label}. Open account management.` : "Sign in to your MotionC account."
+    );
+    return;
+  }
+
+  const menu = document.querySelector(
+    "#preferencesMenu, #summaryPreferencesMenu, #walkingPreferencesMenu, #enginePreferencesMenu"
+  );
+  if (menu) {
+    let link = menu.querySelector(".motionc-menu-account");
+    if (!link) {
+      link = document.createElement("a");
+      link.className = "motionc-menu-account";
+      menu.prepend(link);
+    }
+    link.href = href;
+    link.textContent = signedIn ? label : "Sign in";
+    link.dataset.accountState = signedIn ? "signed-in" : "signed-out";
+    link.setAttribute(
+      "aria-label",
+      signedIn ? `${label}. Open account management.` : "Sign in to your MotionC account."
+    );
+    if (!document.getElementById("motionc-menu-account-style")) {
+      const menuStyle = document.createElement("style");
+      menuStyle.id = "motionc-menu-account-style";
+      menuStyle.textContent = `.motionc-menu-account{display:block;margin:0 0 14px;padding:0 0 12px;border-bottom:1px solid #cad7d1;color:#164b3a;font:800 14px/1.25 system-ui;text-decoration:none;overflow-wrap:anywhere}.motionc-menu-account::before{display:block;margin-bottom:4px;color:#73827b;font:700 10px/1 system-ui;letter-spacing:.12em;text-transform:uppercase;content:"MotionC account"}.motionc-menu-account:hover{color:#1f7659;text-decoration:underline}`;
+      document.head.appendChild(menuStyle);
+    }
+    return;
+  }
+
   const link = document.createElement("a");
   link.className = "motionc-account-badge";
   link.href = href;
