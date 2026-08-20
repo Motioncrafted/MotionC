@@ -345,8 +345,8 @@ const INSIGHT_RULES = {
   litresPerCup: 0.295735,
   hydrationMinimumCups: 1,
   sleepLookbackDays: 7,
-  sleepMinimumEntries: 4,
-  sleepAverageThreshold: 5,
+  sleepMinimumEntries: 7,
+  sleepAverageThreshold: 6,
   stressRecordedDays: 5,
   stressMinimumHighDays: 3,
   stressHighLevel: 4,
@@ -378,6 +378,7 @@ function loadDailyGauges(dateValue) {
     input.closest(".daily-gauge").classList.toggle("is-recorded", Boolean(recorded));
     setGaugeAppearance(key, input.value);
   });
+  renderGaugeIndicators(dateValue);
 }
 
 function previewDailyGauge(key) {
@@ -448,6 +449,84 @@ function completedGaugeSamples(key, beforeDate, calendarDays = null) {
       return date < beforeDate && (!earliest || sampleDate >= earliest) && Number.isFinite(Number(gauges?.[key]?.value));
     })
     .sort(([dateA], [dateB]) => dateB.localeCompare(dateA));
+}
+
+function averageGaugeSamples(samples, key) {
+  if (!samples.length) return null;
+  return samples.reduce((sum, [, gauges]) => sum + Number(gauges[key].value), 0) / samples.length;
+}
+
+function setGaugeAverage(id, average, color, label) {
+  const element = byId(id);
+  const light = element.querySelector(".gauge-light");
+  light.className = `gauge-light ${color}`;
+  element.querySelector("span").textContent = label;
+  element.setAttribute("aria-label", label);
+}
+
+function setGaugeTrend(id, arrow, label) {
+  const element = byId(id);
+  element.querySelector("b").textContent = arrow;
+  element.querySelector("span").textContent = label;
+  element.setAttribute("aria-label", label);
+}
+
+function renderGaugeIndicators(dateValue) {
+  const sleepSamples = completedGaugeSamples("sleep", dateValue, 7);
+  if (sleepSamples.length === 7) {
+    const average = averageGaugeSamples(sleepSamples, "sleep");
+    const color = average >= 7 ? "green" : average >= 6 ? "yellow" : average >= 5 ? "orange" : "red";
+    setGaugeAverage("sleepAverage", average, color, `${displayGaugeValue("sleep", average)} hr avg`);
+  } else {
+    setGaugeAverage("sleepAverage", null, "pending", `Need ${7 - sleepSamples.length} more day${7 - sleepSamples.length === 1 ? "" : "s"}`);
+  }
+
+  const stressSamples = completedGaugeSamples("stress", dateValue, 7);
+  if (stressSamples.length === 7) {
+    const average = averageGaugeSamples(stressSamples, "stress");
+    const color = average <= 1 ? "green" : average <= 2 ? "yellow" : average <= 3 ? "orange" : average <= 4 ? "red" : "deep-red";
+    setGaugeAverage("stressAverage", average, color, `${average.toFixed(1)} avg`);
+  } else {
+    setGaugeAverage("stressAverage", null, "pending", `Need ${7 - stressSamples.length} more day${7 - stressSamples.length === 1 ? "" : "s"}`);
+  }
+
+  const renderThreeDayTrend = (key, id, lowerIsBetter = false) => {
+    const samples = completedGaugeSamples(key, dateValue, 6);
+    if (samples.length < 6) {
+      setGaugeTrend(id, "—", `Need ${6 - samples.length} more day${6 - samples.length === 1 ? "" : "s"}`);
+      return;
+    }
+    const recent = averageGaugeSamples(samples.slice(0, 3), key);
+    const previous = averageGaugeSamples(samples.slice(3, 6), key);
+    const change = recent - previous;
+    if (key === "stress") {
+      if (change <= -1) setGaugeTrend(id, "↓↓", "Strong improvement");
+      else if (change < -.25) setGaugeTrend(id, "↓", "Improving");
+      else if (change >= 1) setGaugeTrend(id, "↑↑", "Strong increase");
+      else if (change > .25) setGaugeTrend(id, "↑", "Slight increase");
+      else setGaugeTrend(id, "→", "No change");
+      return;
+    }
+    if (Math.abs(change) <= .25) setGaugeTrend(id, "→", "Stable");
+    else if ((lowerIsBetter && change < 0) || (!lowerIsBetter && change > 0)) setGaugeTrend(id, lowerIsBetter ? "↓" : "↑", "Improving");
+    else setGaugeTrend(id, lowerIsBetter ? "↑" : "↓", "Declining");
+  };
+
+  renderThreeDayTrend("stress", "stressTrend", true);
+  renderThreeDayTrend("sleep", "sleepTrend", false);
+
+  const selectedDate = state.dailyGauges?.[dateValue]?.hydration;
+  const yesterday = state.dailyGauges?.[isoDate(addDays(dateFromIso(dateValue), -1))]?.hydration;
+  if (!selectedDate || !yesterday) {
+    setGaugeTrend("hydrationTrend", "—", "Need yesterday");
+  } else {
+    const change = Number(selectedDate.value) - Number(yesterday.value);
+    if (change >= 2) setGaugeTrend("hydrationTrend", "↓↓", "Strong improvement");
+    else if (change >= 1) setGaugeTrend("hydrationTrend", "↓", "Improvement");
+    else if (change <= -2) setGaugeTrend("hydrationTrend", "↑↑", "Strong decline");
+    else if (change <= -1) setGaugeTrend("hydrationTrend", "↑", "Slight decline");
+    else setGaugeTrend("hydrationTrend", "→", "No change");
+  }
 }
 
 function estimatedHydrationDeficit(dateValue) {

@@ -492,6 +492,45 @@ main { min-width: 0; }
 .gauge-stepper button:hover, .gauge-stepper button:focus-visible { border-color: #158d58; color: #0d7045; background: #eff9f4; outline: none; }
 .gauge-save { min-height: 27px; margin-top: 5px; border: 0; border-radius: 7px; padding: 0 9px; color: #fff; background: #1b8f5a; font-size: 10px; font-weight: 850; }
 .daily-gauge small { min-height: 24px; margin-top: 4px; color: var(--muted); font-size: 8px; line-height: 1.2; }
+.gauge-indicators {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 1fr;
+  gap: 4px;
+  margin-top: 4px;
+  padding-top: 7px;
+  border-top: 1px solid #e1e9e5;
+}
+.gauge-average, .gauge-trend {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: #52666a;
+  font-size: 8px;
+  font-weight: 800;
+  line-height: 1.15;
+}
+.gauge-average span, .gauge-trend span { min-width: 0; }
+.gauge-light {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  border: 1px solid rgba(16, 48, 39, .16);
+  border-radius: 50%;
+  background: #aab6b2;
+  box-shadow: 0 0 0 2px rgba(170, 182, 178, .14);
+}
+.gauge-light.green { background: #23ad68; box-shadow: 0 0 0 2px rgba(35, 173, 104, .16); }
+.gauge-light.yellow { background: #e7b72f; box-shadow: 0 0 0 2px rgba(231, 183, 47, .16); }
+.gauge-light.orange { background: #ed791f; box-shadow: 0 0 0 2px rgba(237, 121, 31, .16); }
+.gauge-light.red { background: #dc4545; box-shadow: 0 0 0 2px rgba(220, 69, 69, .16); }
+.gauge-light.deep-red { background: #941f2c; box-shadow: 0 0 0 2px rgba(148, 31, 44, .18); }
+.gauge-light.neutral { background: #7f969d; box-shadow: none; }
+.gauge-light.pending { background: #c5cfcc; box-shadow: none; }
+.gauge-trend b { min-width: 18px; color: #173f34; font-size: 15px; line-height: 1; letter-spacing: -4px; text-align: center; }
 .gauge-message-area { flex: 1; min-height: 108px; margin-top: 12px; border-top: 0; border-radius: 10px; padding: 10px 11px; text-align: left; background: #f5f8f6; }
 .gauge-message-title { margin: 0; color: #28704f; font-size: 12px; font-weight: 900; }
 .gauge-messages { display: grid; gap: 8px; margin-top: 7px; }
