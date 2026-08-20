@@ -1237,12 +1237,7 @@ window.addEventListener(
         document.body.classList.remove(
             "page-fade-out"
         );
-        if (new URLSearchParams(location.search).get("complete-profile") === "1") {
-            openDrawer();
-            history.replaceState({}, "", location.pathname);
-        } else {
-            closeDrawer();
-        }
+        closeDrawer();
         restoreLifestyleSummary();
     }
 );
@@ -1429,7 +1424,7 @@ function renderLifestyleSummary(saved) {
     const values = saved?.values || {};
     container.innerHTML = Object.entries(summaryLifestyleMeta).map(([key, meta]) => {
         const numeric = Number(values[key]);
-        const level = Number.isFinite(numeric) ? Math.max(0, Math.min(2, Math.round(numeric * 2))) : -1;
+        const level = Number.isFinite(numeric) ? Math.max(0, Math.min(2, Math.round(numeric * 3) - 1)) : -1;
         const stateClass = level === 2 ? "good" : level === 1 ? "mid" : level === 0 ? "low" : "";
         const detail = level >= 0 ? meta[2][level] : "Not answered";
         return `
@@ -1679,25 +1674,30 @@ function latestDailyWeight(entries) {
 }
 
 function canonicalMcpSnapshot(savedMcp, entries, sharedProfile = {}) {
-    const measurementData = savedMcp?.measurementData;
-    if (!measurementData) return null;
+    const measurementData = savedMcp?.measurementData || {};
 
     const dailyWeightLbs = Number(latestDailyWeight(entries));
-    const weightLbs = dailyWeightLbs > 0 ? dailyWeightLbs : Number(measurementData.weightLbs);
-    const heightInches = Number(measurementData.heightInches);
-    // Weekly check-in and Summary share the Daily profile. Prefer its waist
-    // measurement so an update made on Daily is reflected here immediately.
+    const profileWeightLbs = Number(sharedProfile?.currentWeight) > 0
+        ? Number(sharedProfile.currentWeight)
+        : Number(sharedProfile?.startWeight);
+    const weightLbs = dailyWeightLbs > 0
+        ? dailyWeightLbs
+        : profileWeightLbs > 0 ? profileWeightLbs : Number(measurementData.weightLbs);
+    const sharedHeightInches = Number(sharedProfile?.heightInches);
+    const heightInches = sharedHeightInches > 0 ? sharedHeightInches : Number(measurementData.heightInches);
     const sharedWaistInches = Number(sharedProfile?.waist);
     const waistInches = sharedWaistInches > 0
         ? sharedWaistInches
         : Number(measurementData.waistInches);
-    const age = Number(measurementData.age);
+    const sharedAge = Number(sharedProfile?.age);
+    const age = sharedAge > 0 ? sharedAge : Number(measurementData.age);
+    const sex = sharedProfile?.sex || measurementData.sex;
 
-    if (![weightLbs, heightInches, waistInches, age].every(value => Number.isFinite(value) && value > 0)) {
+    if (![weightLbs, heightInches, waistInches, age].every(value => Number.isFinite(value) && value > 0) || !sex) {
         return null;
     }
 
-    const system = measurementData.system === "metric" ? "metric" : "imperial";
+    const system = summaryUnitSystem;
     const canonicalMeasurements = {
         ...measurementData,
         system,
@@ -1710,7 +1710,8 @@ function canonicalMcpSnapshot(savedMcp, entries, sharedProfile = {}) {
         waistInches,
         weightKg: weightLbs * summaryKgPerLb,
         weightLbs,
-        age
+        age,
+        sex
     };
 
     return {
