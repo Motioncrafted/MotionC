@@ -60,6 +60,39 @@
       box-shadow: none;
     }
 
+    .member-sign-in {
+      position: absolute;
+      z-index: 6;
+      top: 2.5%;
+      right: 2.3%;
+      display: grid;
+      min-width: 8.5%;
+      min-height: 5.2%;
+      padding: .45% 1.15%;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, .72);
+      border-radius: 999px;
+      color: #fff;
+      background: rgba(8, 35, 34, .7);
+      box-shadow: 0 3px 12px rgba(0, 0, 0, .28);
+      font-size: clamp(8px, .9vw, 16px);
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-decoration: none;
+      text-transform: uppercase;
+      backdrop-filter: blur(4px);
+    }
+
+    .member-sign-in:hover {
+      border-color: #a9cf3f;
+      background: rgba(17, 70, 55, .9);
+    }
+
+    .member-sign-in:focus-visible {
+      outline: 2px solid #a9cf3f;
+      outline-offset: 3px;
+    }
+
     .routes-lock {
       position: absolute;
       z-index: 4;
@@ -474,6 +507,12 @@
 </head>
 <body>
   <main class="landing-page">
+    <a
+      class="member-sign-in"
+      href="/auth/?mode=signin"
+      aria-label="Sign in to your MotionC account"
+    >Sign In</a>
+
     <a
       class="hotspot get-started"
       href="/daily/index.html"
