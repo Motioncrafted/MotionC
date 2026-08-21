@@ -1397,12 +1397,127 @@ function renderWalkingMetrics(entries, dates14) {
         }
     }
 
-    if (resting > 0) {
-        setText("display-resting-hr", Math.round(resting));
-        setText("resting-hr-status", restingEntry.date === latest.date ? "Measured · latest entry" : `Last measured ${shortChartDate(restingEntry.date)}`);
-    } else {
-        setText("resting-hr-status", "Not recorded · add it for recovery context");
-    }
+}
+
+function measuredWalkingDay(entry) {
+    const distance = Number(entry?.distance);
+    const minutes = Number(entry?.minutes);
+    const walkingHr = Number(entry?.walkingHr);
+    if (!(distance > 0 && minutes >= 15 && walkingHr > 0)) return null;
+    const pace = minutes / distance;
+    if (!(pace >= 12 && pace <= 30)) return null;
+    return { date: entry.date, walkingHr, pace, minutes };
+}
+
+function bodyLevel(delta) {
+    if (delta <= 0) return 0;
+    if (delta <= 2) return 1;
+    if (delta <= 5) return 2;
+    if (delta <= 8) return 3;
+    if (delta <= 12) return 4;
+    return 5;
+}
+
+function bodySignalForDay(day, earlierDays) {
+    const recent = earlierDays.slice(-28);
+    const comparable = recent.filter(candidate =>
+        Math.abs(candidate.pace - day.pace) <= Math.max(1.5, day.pace * .1)
+    );
+    if (comparable.length < 3) return null;
+    const baseline = median(comparable.map(candidate => candidate.walkingHr));
+    return {
+        value: bodyLevel(day.walkingHr - baseline),
+        baseline,
+        samples: comparable.length
+    };
+}
+
+function svgNode(name, attributes = {}) {
+    const node = document.createElementNS("http://www.w3.org/2000/svg", name);
+    Object.entries(attributes).forEach(([key, value]) => node.setAttribute(key, value));
+    return node;
+}
+
+function appendSignalSegments(svg, points, key, color) {
+    let segment = [];
+    const flush = () => {
+        if (!segment.length) return;
+        if (segment.length > 1) {
+            svg.append(svgNode("polyline", {
+                points: segment.map(point => `${point.x},${point.y}`).join(" "),
+                fill: "none", stroke: color, "stroke-width": "2.5",
+                "stroke-linecap": "round", "stroke-linejoin": "round"
+            }));
+        }
+        segment.forEach(point => svg.append(svgNode("circle", {
+            cx: point.x, cy: point.y, r: "2.3", fill: "white",
+            stroke: color, "stroke-width": "1.7"
+        })));
+        segment = [];
+    };
+    points.forEach(point => {
+        if (point[key] === null) return flush();
+        segment.push({ x: point.x, y: 34 - point[key] * 6 });
+    });
+    flush();
+}
+
+function stressSignalsMessage(points, baselineSamples) {
+    const paired = points.filter(point => point.felt !== null && point.body !== null);
+    if (baselineSamples < 3) return "Building your Body baseline.";
+    if (!paired.length) return "More measured walks will connect the signals.";
+    const bodyHigher = paired.filter(point => point.body > point.felt).length;
+    const feltHigher = paired.filter(point => point.felt > point.body).length;
+    if (bodyHigher > feltHigher && bodyHigher >= 2) return `Body ran higher on ${bodyHigher} of ${paired.length} days.`;
+    if (feltHigher > bodyHigher && feltHigher >= 2) return `Felt ran higher on ${feltHigher} of ${paired.length} days.`;
+    return "Felt and Body moved together this week.";
+}
+
+function renderStressSignals(entries, gauges) {
+    const svg = document.getElementById("stress-signals-chart");
+    if (!svg) return;
+    svg.replaceChildren();
+    [4, 16, 28].forEach(y => svg.append(svgNode("line", {
+        x1: "4", x2: "216", y1: y, y2: y, stroke: "#e2e8e5", "stroke-width": "1"
+    })));
+
+    const today = summaryIso(new Date());
+    const measured = Object.entries(entries)
+        .map(([date, entry]) => ({ ...entry, date: entry?.date || date }))
+        .filter(entry => entry.date < today)
+        .map(measuredWalkingDay)
+        .filter(Boolean)
+        .sort((a, b) => a.date.localeCompare(b.date));
+    const displayDates = recentDateKeys(8).slice(0, -1);
+    const scored = new Map();
+    measured.forEach((day, index) => {
+        const signal = bodySignalForDay(day, measured.slice(0, index));
+        if (signal) scored.set(day.date, signal);
+    });
+    const points = displayDates.map((date, index) => {
+        const feltSaved = gauges?.[date]?.stress;
+        const felt = feltSaved && Number.isFinite(Number(feltSaved.value))
+            ? Math.max(0, Math.min(5, Number(feltSaved.value))) : null;
+        return {
+            date,
+            x: 8 + index * 34,
+            felt,
+            body: scored.get(date)?.value ?? null
+        };
+    });
+    appendSignalSegments(svg, points, "felt", "#d94d48");
+    appendSignalSegments(svg, points, "body", "#16758e");
+
+    const baselineSamples = Math.max(0, ...Array.from(scored.values(), signal => signal.samples));
+    const confidence = baselineSamples < 3 ? "Need data"
+        : baselineSamples < 5 ? "Learning"
+            : baselineSamples < 14 ? "Early signal"
+                : baselineSamples < 28 ? "Active" : "Stable";
+    setText("stress-signals-confidence", confidence);
+    setText("stress-signals-message", stressSignalsMessage(points, baselineSamples));
+    const feltCount = points.filter(point => point.felt !== null).length;
+    const visibleBodyCount = points.filter(point => point.body !== null).length;
+    svg.setAttribute("aria-label", `Previous seven completed days on a zero-to-five scale: ${feltCount} Felt values and ${visibleBodyCount} Body values. ${stressSignalsMessage(points, baselineSamples)}`);
 }
 
 function shortChartDate(value) {
@@ -1880,6 +1995,7 @@ function renderSummaryData() {
 
     const completedDates14 = recentDateKeys(15).slice(0, -1);
     Object.keys(DAILY_TREND_CONFIG).forEach(key => drawDailyGaugeTrend(key, completedDates14, daily?.dailyGauges || {}));
+    renderStressSignals(entries, daily?.dailyGauges || {});
 
     const recentWalks = walkPoints.filter(point => dates7.includes(point.date));
     const weeklyMiles = recentWalks.reduce((total, point) => total + point.miles, 0);

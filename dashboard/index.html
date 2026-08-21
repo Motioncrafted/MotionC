@@ -141,11 +141,16 @@
                     <strong><span id="display-walking-hr">—</span> <small id="walking-hr-unit">bpm</small></strong>
                     <span id="walking-hr-status" class="metric-change">Optional measurement</span>
                 </article>
-                <article class="metric-card metric-card-rose">
-                    <div class="metric-icon" aria-hidden="true">○</div>
-                    <p>Resting HR</p>
-                    <strong><span id="display-resting-hr">—</span> <small>bpm</small></strong>
-                    <span id="resting-hr-status" class="metric-change">Optional recovery baseline</span>
+                <article class="metric-card metric-card-rose stress-signals-card" aria-labelledby="stress-signals-title">
+                    <div class="stress-signals-heading">
+                        <div><p>Stress signals</p><strong id="stress-signals-title">Felt &amp; Body</strong></div>
+                        <span id="stress-signals-confidence" class="stress-signals-confidence">Learning</span>
+                    </div>
+                    <svg id="stress-signals-chart" class="stress-signals-chart" viewBox="0 0 220 38" role="img" aria-label="Felt and Body signals over the previous seven completed days"></svg>
+                    <div class="stress-signals-footer">
+                        <span class="stress-signals-legend"><i class="felt-key"></i>Felt <i class="body-key"></i>Body</span>
+                        <span id="stress-signals-message">Building your Body baseline.</span>
+                    </div>
                 </article>
             </section>
 
@@ -936,7 +941,7 @@
          Dashboard JavaScript
          ===================================== -->
 
-    <script src="/dashboard/script.js?v=20260820-3"></script>
+    <script src="/dashboard/script.js?v=20260821-1"></script>
     <script type="module" src="/shared/motionc-supabase.js?v=20260820-2"></script>
 </body>
 
