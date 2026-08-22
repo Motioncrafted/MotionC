@@ -391,7 +391,7 @@
     .library-legend-button {
       position: absolute;
       z-index: 4;
-      top: 8%;
+      top: 4.5%;
       right: 17%;
       display: grid;
       width: clamp(18px, 1.6vw, 27px);
@@ -422,8 +422,12 @@
       z-index: 3;
       top: 17.5%;
       right: 13.5%;
-      width: 47%;
+      display: grid;
+      width: 42%;
+      aspect-ratio: 1;
       padding: 4% 4.5%;
+      box-sizing: border-box;
+      align-content: center;
       border: 1px solid rgba(128, 85, 42, .55);
       border-radius: clamp(7px, .7vw, 12px);
       background: rgba(255, 246, 220, .97);
