@@ -1896,6 +1896,23 @@ body {
     text-decoration: none;
 }
 
+/* Small product mark that explains the Engine Room destination at a glance. */
+#simulation-button.engine-room-button {
+    position: relative;
+    padding: 23px 16px 9px;
+}
+
+#simulation-button.engine-room-button::before {
+    content: "MCP";
+    position: absolute;
+    top: 6px;
+    left: calc(50% - 23px);
+    font-size: 7px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: .08em;
+}
+
 #simulation-button.engine-room-button:hover {
     border-color: #9c701b;
     background: #ffefbd;
