@@ -347,18 +347,20 @@
     /* Results text sits directly over the authentic blank book artwork. */
     .book-interface {
       position: absolute;
-      z-index: 5;
+      z-index: 8;
       left: 35.5%;
       top: 58.8%;
       width: 36.9%;
       height: 28.5%;
       color: #38271b;
+      pointer-events: none;
       transform-origin: center bottom;
     }
 
     .book-pages {
       position: absolute;
       inset: 0;
+      pointer-events: auto;
       transition: opacity 180ms ease;
     }
 
@@ -384,6 +386,96 @@
       padding-right: 7%;
       padding-left: 1%;
       text-align: left;
+    }
+
+    .library-legend-button {
+      position: absolute;
+      z-index: 4;
+      top: 1.5%;
+      right: 7%;
+      display: grid;
+      width: clamp(18px, 1.6vw, 27px);
+      aspect-ratio: 1;
+      place-items: center;
+      padding: 0;
+      border: 1px solid rgba(128, 85, 42, .72);
+      border-radius: 50%;
+      color: #51331c;
+      background: rgba(255, 239, 202, .9);
+      box-shadow: 0 2px 6px rgba(76, 45, 19, .2);
+      font: 700 clamp(10px, .82vw, 14px) Georgia, serif;
+      line-height: 1;
+      pointer-events: auto;
+    }
+
+    .library-legend-button:hover,
+    .library-legend-button:focus-visible,
+    .library-legend-button[aria-expanded="true"] {
+      outline: none;
+      color: #fff9e8;
+      background: #805323;
+      box-shadow: 0 0 0 2px rgba(240, 180, 41, .48), 0 3px 8px rgba(76, 45, 19, .28);
+    }
+
+    .library-legend {
+      position: absolute;
+      z-index: 3;
+      top: 11%;
+      right: 3.5%;
+      width: 47%;
+      padding: 4% 4.5%;
+      border: 1px solid rgba(128, 85, 42, .55);
+      border-radius: clamp(7px, .7vw, 12px);
+      background: rgba(255, 246, 220, .97);
+      box-shadow: 0 8px 20px rgba(60, 37, 18, .25);
+      color: #38271b;
+      pointer-events: auto;
+    }
+
+    .library-legend p {
+      display: grid;
+      grid-template-columns: clamp(20px, 2.2vw, 38px) 1fr;
+      gap: 7%;
+      margin: 0;
+      align-items: center;
+      font-size: clamp(7px, .69vw, 12px);
+      font-weight: 700;
+      line-height: 1.15;
+    }
+
+    .library-legend p + p { margin-top: 5%; }
+
+    .library-legend img {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .legend-search-icon {
+      position: relative;
+      display: block;
+      width: 72%;
+      aspect-ratio: 1;
+      margin-left: 8%;
+      border: clamp(2px, .18vw, 3px) solid #a56a24;
+      border-radius: 50%;
+      background: radial-gradient(circle at 38% 34%, rgba(255,255,255,.9), rgba(179, 221, 214, .45) 48%, rgba(90, 125, 115, .45));
+      box-shadow: inset 0 0 0 1px #e1ad57, 0 1px 3px rgba(78, 45, 16, .38);
+    }
+
+    .legend-search-icon::after {
+      content: "";
+      position: absolute;
+      width: 58%;
+      height: clamp(3px, .26vw, 5px);
+      right: -45%;
+      bottom: -25%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #c98b35, #80501d);
+      box-shadow: 0 1px 2px rgba(78, 45, 16, .4);
+      transform: rotate(45deg);
+      transform-origin: left center;
     }
 
     .book-title {
@@ -467,6 +559,7 @@
       display: flex;
       justify-content: center;
       gap: 5%;
+      pointer-events: auto;
     }
 
     .book-footer button {
@@ -1239,6 +1332,20 @@
       <div class="book-pages" id="bookPages" hidden>
         <div class="book-page left" id="leftBookPage"></div>
         <div class="book-page right" id="rightBookPage"></div>
+      </div>
+      <button
+        class="library-legend-button"
+        id="libraryLegendButton"
+        type="button"
+        aria-label="Explain Library symbols"
+        aria-controls="libraryLegend"
+        aria-expanded="false"
+        title="What do these symbols mean?"
+      >i</button>
+      <div class="library-legend" id="libraryLegend" role="dialog" aria-label="Library symbol guide" hidden>
+        <p><img src="/images/mo-visual-explainer-blue.png" alt=""><span>Full Mo Explainer</span></p>
+        <p><img src="/images/mo-visual-explainer-grey.png" alt=""><span>Article with Mo explainer</span></p>
+        <p><span class="legend-search-icon" aria-hidden="true"></span><span>click to search</span></p>
       </div>
       <div class="book-footer">
         <button id="bookPrevious" type="button" hidden>← Previous</button>
@@ -2774,6 +2881,8 @@
     const bookPrevious = document.getElementById("bookPrevious");
     const bookNext = document.getElementById("bookNext");
     const bookIndex = document.getElementById("bookIndex");
+    const libraryLegendButton = document.getElementById("libraryLegendButton");
+    const libraryLegend = document.getElementById("libraryLegend");
     const magnifierHotspot = document.getElementById("magnifierHotspot");
     const searchPanel = document.getElementById("searchPanel");
     const librarySearch = document.getElementById("librarySearch");
@@ -3070,6 +3179,24 @@
       }, 540);
     }
 
+    function setLibraryLegend(open) {
+      libraryLegend.hidden = !open;
+      libraryLegendButton.setAttribute("aria-expanded", String(open));
+    }
+
+    libraryLegendButton.addEventListener("click", event => {
+      event.stopPropagation();
+      setLibraryLegend(libraryLegend.hidden);
+    });
+
+    libraryLegend.addEventListener("click", event => event.stopPropagation());
+
+    document.addEventListener("click", event => {
+      if (!libraryLegend.hidden && !libraryLegendButton.contains(event.target)) {
+        setLibraryLegend(false);
+      }
+    });
+
     document.addEventListener("click", event => {
       const categoryButton = event.target.closest("[data-category]");
       if (categoryButton) {
@@ -3134,6 +3261,12 @@
         searchPanel.classList.remove("open");
         magnifierHotspot.setAttribute("aria-expanded", "false");
         magnifierHotspot.focus();
+        return;
+      }
+
+      if (!libraryLegend.hidden) {
+        setLibraryLegend(false);
+        libraryLegendButton.focus();
       }
     });
 
