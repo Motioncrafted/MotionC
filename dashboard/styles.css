@@ -1899,6 +1899,7 @@ body {
 /* Small product mark that explains the Engine Room destination at a glance. */
 #simulation-button.engine-room-button {
     position: relative;
+    inset: auto;
     padding: 23px 16px 9px;
 }
 
@@ -1906,7 +1907,7 @@ body {
     content: "MCP";
     position: absolute;
     top: 6px;
-    left: calc(50% - 23px);
+    left: calc(50% - 52px);
     font-size: 7px;
     font-weight: 900;
     line-height: 1;
