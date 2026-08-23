@@ -1253,6 +1253,8 @@ const summaryPreferencesStorageKey = "motionc-preferences-v1";
 const summaryKgPerLb = 0.45359237;
 const summaryKmPerMi = 1.609344;
 let summaryGoalWeight = null;
+let summaryMotivationalWeight = null;
+let summaryVibratoryWeight = null;
 let summaryWeightPoints = [];
 let summaryUnitSystem = "imperial";
 const summaryDisplayWeight = pounds => summaryUnitSystem === "metric" ? pounds * summaryKgPerLb : pounds;
@@ -1281,10 +1283,11 @@ function readSummaryStorage(key, fallback) {
     }
 }
 
-function saveSharedVibratoryLine(pounds) {
+function saveSharedGoal(field, pounds) {
     const daily = readSummaryStorage(summaryDailyStorageKey, { entries: {}, weeks: {}, profile: {} });
     daily.profile = daily.profile || {};
-    daily.profile.vibratoryLine = pounds;
+    daily.profile[field] = pounds;
+    if (field === "realGoal") daily.profile.vibratoryLine = pounds + 4;
     daily.profile.updatedAt = new Date().toISOString();
     localStorage.setItem(summaryDailyStorageKey, JSON.stringify(daily));
 }
@@ -1606,6 +1609,8 @@ function drawWeightChart(points) {
     summaryWeightPoints = points;
     const values = points.map(point => point.value);
     if (Number.isFinite(summaryGoalWeight)) values.push(summaryGoalWeight);
+    if (Number.isFinite(summaryMotivationalWeight)) values.push(summaryMotivationalWeight);
+    if (Number.isFinite(summaryVibratoryWeight)) values.push(summaryVibratoryWeight);
     const minimum = Math.min(...values) - .7;
     const maximum = Math.max(...values) + .7;
     const chartWidth = width - padding.left - padding.right;
@@ -1648,30 +1653,71 @@ function drawWeightChart(points) {
         context.stroke();
     });
 
-    if (Number.isFinite(summaryGoalWeight)) {
-        const goalY = padding.top + chartHeight * (1 - (summaryGoalWeight - minimum) / (maximum - minimum));
+    const lineY = value => padding.top + chartHeight * (1 - (value - minimum) / (maximum - minimum));
+    const drawMarkerLine = ({ value, color, dash, text, fill, textColor, side = "right" }) => {
+        if (!Number.isFinite(value)) return null;
+        const y = lineY(value);
         context.save();
-        context.setLineDash([7, 5]);
+        context.setLineDash(dash);
         context.beginPath();
-        context.moveTo(padding.left, goalY);
-        context.lineTo(width - padding.right, goalY);
-        context.strokeStyle = "#d19a2d";
+        context.moveTo(padding.left, y);
+        context.lineTo(width - padding.right, y);
+        context.strokeStyle = color;
         context.lineWidth = 2;
         context.stroke();
         context.restore();
-
-        const goalText = `Line ${summaryGoalWeight.toFixed(1)} ${summaryWeightUnit()}`;
         context.font = "bold 10px Arial";
-        const labelWidth = context.measureText(goalText).width + 14;
-        context.fillStyle = "#fff4d2";
-        roundedRect(context, width - padding.right - labelWidth, goalY - 20, labelWidth, 17, 7);
+        const labelWidth = context.measureText(text).width + 14;
+        const labelX = side === "left" ? padding.left : width - padding.right - labelWidth;
+        context.fillStyle = fill;
+        roundedRect(context, labelX, y - 20, labelWidth, 17, 7);
         context.fill();
-        context.fillStyle = "#8c6415";
+        context.fillStyle = textColor;
         context.textAlign = "center";
-        context.fillText(goalText, width - padding.right - labelWidth / 2, goalY - 8);
-        canvas._goalScale = { minimum, maximum, top: padding.top, height: chartHeight, goalY };
-        setText("goal-weight-label", `Vibratory Set Line: ${summaryGoalWeight.toFixed(1)} ${summaryWeightUnit()}`);
-    }
+        context.fillText(text, labelX + labelWidth / 2, y - 8);
+        return y;
+    };
+
+    const latestWeight = points.at(-1)?.value;
+    const remaining = Number.isFinite(latestWeight) && Number.isFinite(summaryGoalWeight)
+        ? latestWeight - summaryGoalWeight
+        : null;
+    const realGoalProgress = remaining === null
+        ? ""
+        : remaining > 0
+            ? ` · ${remaining.toFixed(1)} ${summaryWeightUnit()} to go`
+            : remaining < 0
+                ? ` · ${Math.abs(remaining).toFixed(1)} ${summaryWeightUnit()} under`
+                : " · Goal reached";
+    const vibratoryY = drawMarkerLine({
+        value: summaryVibratoryWeight,
+        color: "#d19a2d",
+        dash: [7, 5],
+        text: `VZ ${summaryVibratoryWeight?.toFixed(1)} ${summaryWeightUnit()}`,
+        fill: "#fff4d2",
+        textColor: "#8c6415"
+    });
+    const motivationalY = drawMarkerLine({
+        value: summaryMotivationalWeight,
+        color: "#3578b8",
+        dash: [],
+        text: `Motivational ${summaryMotivationalWeight?.toFixed(1)} ${summaryWeightUnit()}`,
+        fill: "#eaf3fc",
+        textColor: "#245c91",
+        side: "left"
+    });
+    const realY = drawMarkerLine({
+        value: summaryGoalWeight,
+        color: "#169b62",
+        dash: [3, 5],
+        text: `Goal ${summaryGoalWeight?.toFixed(1)} ${summaryWeightUnit()}${realGoalProgress}`,
+        fill: "#e4f7ed",
+        textColor: "#087348"
+    });
+    canvas._goalScale = { minimum, maximum, top: padding.top, height: chartHeight, realY, motivationalY, vibratoryY };
+    setText("real-goal-weight-label", Number.isFinite(summaryGoalWeight) ? `Real Goal: ${summaryGoalWeight.toFixed(1)} ${summaryWeightUnit()}${realGoalProgress}` : "Real Goal: —");
+    setText("motivational-goal-weight-label", Number.isFinite(summaryMotivationalWeight) ? `Motivational Goal: ${summaryMotivationalWeight.toFixed(1)} ${summaryWeightUnit()}` : "Motivational Goal: —");
+    setText("vibratory-weight-label", Number.isFinite(summaryVibratoryWeight) ? `VZ: ${summaryVibratoryWeight.toFixed(1)} ${summaryWeightUnit()}` : "VZ: —");
 
     context.fillStyle = "#7a8782";
     context.font = "10px Arial";
@@ -1948,10 +1994,17 @@ function renderSummaryData() {
     setText("display-lifetime-distance", summaryDisplayDistance(lifetimeMiles).toFixed(2));
     setText("display-lifetime-distance-unit", summaryDistanceUnit());
     const savedGoal = Number(readSummaryStorage(summaryGoalStorageKey, null));
-    const profileLine = Number(daily?.profile?.vibratoryLine);
-    const profileGoal = Number(daily?.profile?.motivationalGoal);
-    const canonicalGoal = savedGoal > 0 ? savedGoal : profileLine > 0 ? profileLine : profileGoal > 0 ? profileGoal : 195;
+    const profileRealGoal = Number(daily?.profile?.realGoal);
+    const legacyVibratoryLine = Number(daily?.profile?.vibratoryLine);
+    const profileMotivationalGoal = Number(daily?.profile?.motivationalGoal);
+    const canonicalGoal = profileRealGoal > 0 ? profileRealGoal : savedGoal > 0 ? savedGoal : legacyVibratoryLine > 0 ? legacyVibratoryLine : 195;
     summaryGoalWeight = summaryDisplayWeight(canonicalGoal);
+    summaryVibratoryWeight = summaryDisplayWeight(canonicalGoal + 4);
+    summaryMotivationalWeight = profileMotivationalGoal > 0 ? summaryDisplayWeight(profileMotivationalGoal) : null;
+    if (!(profileRealGoal > 0)) {
+        localStorage.setItem(summaryGoalStorageKey, String(canonicalGoal));
+        saveSharedGoal("realGoal", canonicalGoal);
+    }
 
     const canonicalMcp = canonicalMcpSnapshot(savedMcp, entries, daily?.profile);
     updateProfileReminder(canonicalMcp?.measurementData);
@@ -2066,18 +2119,25 @@ window.addEventListener("resize", () => {
 });
 
 const summaryWeightCanvas = document.getElementById("weight-chart");
-let draggingWeightGoal = false;
+let draggingWeightGoal = null;
 
 function updateGoalFromPointer(event) {
     const scale = summaryWeightCanvas?._goalScale;
-    if (!scale) return;
+    if (!scale || !draggingWeightGoal) return;
     const rect = summaryWeightCanvas.getBoundingClientRect();
     const y = Math.max(scale.top, Math.min(scale.top + scale.height, event.clientY - rect.top));
     const percentage = 1 - (y - scale.top) / scale.height;
-    summaryGoalWeight = Math.round((scale.minimum + percentage * (scale.maximum - scale.minimum)) * 10) / 10;
-    const canonicalLine = summaryStoredWeight(summaryGoalWeight);
-    localStorage.setItem(summaryGoalStorageKey, String(canonicalLine));
-    saveSharedVibratoryLine(canonicalLine);
+    const displayValue = Math.round((scale.minimum + percentage * (scale.maximum - scale.minimum)) * 10) / 10;
+    const canonicalValue = summaryStoredWeight(displayValue);
+    if (draggingWeightGoal === "real") {
+        summaryGoalWeight = displayValue;
+        summaryVibratoryWeight = summaryDisplayWeight(canonicalValue + 4);
+        localStorage.setItem(summaryGoalStorageKey, String(canonicalValue));
+        saveSharedGoal("realGoal", canonicalValue);
+    } else {
+        summaryMotivationalWeight = displayValue;
+        saveSharedGoal("motivationalGoal", canonicalValue);
+    }
     drawWeightChart(summaryWeightPoints);
 }
 
@@ -2085,8 +2145,22 @@ summaryWeightCanvas?.addEventListener("pointerdown", event => {
     const scale = summaryWeightCanvas._goalScale;
     if (!scale) return;
     const rect = summaryWeightCanvas.getBoundingClientRect();
-    if (Math.abs(event.clientY - rect.top - scale.goalY) > 18) return;
-    draggingWeightGoal = true;
+    const pointerY = event.clientY - rect.top;
+    const pointerX = event.clientX - rect.left;
+    if (Number.isFinite(scale.realY) && Number.isFinite(scale.motivationalY)
+        && Math.abs(scale.realY - scale.motivationalY) < 12
+        && Math.abs(pointerY - scale.realY) <= 18) {
+        draggingWeightGoal = pointerX < rect.width / 2 ? "motivational" : "real";
+        summaryWeightCanvas.setPointerCapture(event.pointerId);
+        updateGoalFromPointer(event);
+        return;
+    }
+    const candidates = [
+        { type: "real", distance: Math.abs(pointerY - scale.realY) },
+        { type: "motivational", distance: Math.abs(pointerY - scale.motivationalY) }
+    ].filter(candidate => Number.isFinite(candidate.distance)).sort((a, b) => a.distance - b.distance);
+    if (!candidates.length || candidates[0].distance > 18) return;
+    draggingWeightGoal = candidates[0].type;
     summaryWeightCanvas.setPointerCapture(event.pointerId);
     updateGoalFromPointer(event);
 });
@@ -2096,10 +2170,14 @@ summaryWeightCanvas?.addEventListener("pointermove", event => {
 });
 
 summaryWeightCanvas?.addEventListener("pointerup", event => {
-    draggingWeightGoal = false;
+    draggingWeightGoal = null;
     if (summaryWeightCanvas.hasPointerCapture(event.pointerId)) {
         summaryWeightCanvas.releasePointerCapture(event.pointerId);
     }
+});
+
+summaryWeightCanvas?.addEventListener("pointercancel", () => {
+    draggingWeightGoal = null;
 });
 
 function fullChartDate(value) {

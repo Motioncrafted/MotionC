@@ -1927,10 +1927,13 @@ body {
 }
 
 .goal-weight-label {
-    color: #a77516;
     font-size: 10px;
     font-weight: 800;
 }
+
+.real-goal-weight-label { color: #087348; }
+.motivational-goal-weight-label { color: #245c91; }
+.vibratory-weight-label { color: #a77516; }
 
 .goal-line-help {
     margin: 2px 0 0;

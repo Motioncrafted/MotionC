@@ -13,7 +13,7 @@
 
     <link
         rel="stylesheet"
-        href="/dashboard/styles.css?v=20260811-2"
+        href="/dashboard/styles.css?v=20260823-1"
     >
 
     <style>
@@ -198,7 +198,9 @@
                         <div><p class="eyebrow">LAST 14 DAYS</p><h3>Weight trend</h3></div>
                         <div class="weight-chart-meta">
                             <span id="weight-chart-summary" class="chart-summary">No entries yet</span>
-                            <span id="goal-weight-label" class="goal-weight-label">Vibratory Set Line: —</span>
+                            <span id="real-goal-weight-label" class="goal-weight-label real-goal-weight-label">Real Goal: —</span>
+                            <span id="motivational-goal-weight-label" class="goal-weight-label motivational-goal-weight-label">Motivational Goal: —</span>
+                            <span id="vibratory-weight-label" class="goal-weight-label vibratory-weight-label">VZ: —</span>
                         </div>
                     </div>
                     <div class="chart-wrap">
@@ -206,7 +208,7 @@
                         <div id="weight-chart-tooltip" class="chart-tooltip" role="status" hidden></div>
                         <p id="weight-chart-empty" class="chart-empty">Your saved Daily weights will appear here.</p>
                     </div>
-                    <p class="goal-line-help">Drag the gold Vibratory Set Line up or down to change it.</p>
+                    <p class="goal-line-help">Drag the green Real Goal or blue Motivational Goal. The gold VZ stays 4 lb above your Real Goal.</p>
                 </article>
 
                 <article class="panel chart-panel">
@@ -941,7 +943,7 @@
          Dashboard JavaScript
          ===================================== -->
 
-    <script src="/dashboard/script.js?v=20260821-1"></script>
+    <script src="/dashboard/script.js?v=20260823-1"></script>
     <script type="module" src="/shared/motionc-supabase.js?v=20260820-2"></script>
 </body>
 
