@@ -1023,6 +1023,25 @@
       box-shadow: 0 12px 30px rgba(37, 71, 93, .18);
     }
 
+    /* All-Mo visual articles need the page width to keep infographic copy legible. */
+    .reader-sheet:has(.reader-content > .article-explainer:only-child) {
+      width: 96%;
+      padding-inline: clamp(20px, 3vw, 52px);
+    }
+
+    .reader-content:has(> .article-explainer:only-child) {
+      max-width: 1400px;
+    }
+
+    .reader-content > .article-explainer:only-child {
+      margin-top: .35em;
+    }
+
+    .reader-content > .article-explainer:only-child img {
+      width: min(100%, 1400px);
+      border-radius: 12px;
+    }
+
     .article-explainer figcaption {
       margin-top: .65em;
       color: #687a72;
