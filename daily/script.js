@@ -87,7 +87,7 @@ function applyUnitSystem() {
   byId("goalWeightUnit").textContent = weightUnit();
   const hydrationInput = byId("hydrationInput");
   hydrationInput.max = unitSystem === "metric" ? "4750" : "160";
-  hydrationInput.step = unitSystem === "metric" ? "50" : "5";
+  hydrationInput.step = unitSystem === "metric" ? "10" : "1";
   hydrationInput.setAttribute("aria-label", unitSystem === "metric" ? "Millilitres of water consumed today" : "Fluid ounces of water consumed today");
   byId("hydrationUnit").textContent = `${hydrationUnit()} consumed today`;
   document.querySelectorAll('input[name="unitSystem"]').forEach(input => {
