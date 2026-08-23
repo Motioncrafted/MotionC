@@ -1081,6 +1081,28 @@
       color: #1e6099;
     }
 
+    .reader-content .mo-takeaway-character {
+      float: right;
+      width: clamp(92px, 17%, 150px);
+      height: auto;
+      margin: -.35em -.1em .45em 1em;
+      object-fit: contain;
+      filter: drop-shadow(0 8px 9px rgba(30, 96, 153, .16));
+    }
+
+    .reader-content .mo-takeaway::after {
+      display: block;
+      clear: both;
+      content: "";
+    }
+
+    @media (max-width: 640px) {
+      .reader-content .mo-takeaway-character {
+        width: 82px;
+        margin: -.15em 0 .35em .7em;
+      }
+    }
+
     .reader-content > :first-child {
       margin-top: 0;
     }
@@ -1669,6 +1691,7 @@
            </ol>
            <p><strong>Educational note:</strong> This article provides general education, not individualized medical advice. People with diabetes, glucose-lowering medication, a history of fainting, eating concerns, or other conditions affected by fasting or exercise should seek individualized guidance rather than forcing a fasted routine.</p>`,
           `<aside class="mo-takeaway" aria-label="Mo Explains fasted walking">
+             <img class="mo-takeaway-character" src="/images/mo-fasted-walking.png" alt="Mo walking calmly" loading="lazy">
              <h2>Mo Explains: Fasted Walking</h2>
              <p><strong>Keep the idea simple:</strong></p>
              <p>You do not need to eat just because you are about to take a comfortable walk. You also do not need to force a fast when your body is telling you it needs food. The goal is understanding the metabolic window well enough to make an intentional choice.</p>
