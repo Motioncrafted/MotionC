@@ -190,11 +190,15 @@ function loadState() {
     } catch {
       // Summary Profile is optional; Daily remains usable without it.
     }
-    const sharedVibratoryLine = Number(localStorage.getItem(WEIGHT_GOAL_STORAGE_KEY));
-    if (sharedVibratoryLine > 0) {
+    const sharedRealGoal = Number(localStorage.getItem(WEIGHT_GOAL_STORAGE_KEY));
+    if (sharedRealGoal > 0) {
       loaded.profile = loaded.profile || {};
-      loaded.profile.vibratoryLine = sharedVibratoryLine;
+      loaded.profile.realGoal = sharedRealGoal;
+    } else if (!(Number(loaded.profile.realGoal) > 0) && Number(loaded.profile.vibratoryLine) > 0) {
+      // The former editable VZ value becomes the initial Real Goal once.
+      loaded.profile.realGoal = Number(loaded.profile.vibratoryLine);
     }
+    if (Number(loaded.profile.realGoal) > 0) loaded.profile.vibratoryLine = Number(loaded.profile.realGoal) + 4;
     loaded.dailyGauges = loaded.dailyGauges || {};
     return loaded;
   } catch {
@@ -921,9 +925,9 @@ function renderMilestones() {
   const greenDays = entries.filter(item => ["green", "light-green"].includes(scoreForEntry(item).color)).length;
   const availableDots = entries.length;
   const positivePercentage = availableDots ? Math.round(greenDays / availableDots * 100) : 0;
-  const vibratoryLine = state.profile.vibratoryLine;
+  const realGoal = state.profile.realGoal;
   const hasStartWeight = Number.isFinite(startWeight) && startWeight > 0;
-  const hasVibratoryLine = Number.isFinite(Number(vibratoryLine)) && Number(vibratoryLine) > 0;
+  const hasRealGoal = Number.isFinite(Number(realGoal)) && Number(realGoal) > 0;
   const displayedStart = hasStartWeight ? displayWeight(startWeight) : 0;
   const decadeBoundary = Math.floor(displayedStart / 10) * 10;
   const decadeLabel = decadeBoundary - 10;
@@ -960,7 +964,7 @@ function renderMilestones() {
   const milestoneData = [
     { label: "Total Weight Lost", reached: hasStartWeight && latestWeight !== null, detail: hasStartWeight && latestWeight !== null ? `${formatWeight(startWeight)} start → ${formatWeight(latestWeight)} latest (${loss.toFixed(1)} ${weightUnit()} lost)` : "Starting and latest weights needed" },
     { label: "Lowest Recorded Weight", reached: lowest !== null, detail: lowest !== null ? formatWeight(lowest) : "No weight recorded" },
-    { label: "Vibratory Set Line", reached: hasVibratoryLine, detail: hasVibratoryLine ? formatWeight(vibratoryLine) : "Set your line in Weekly check-in or on Summary" },
+    { label: "Real Goal", reached: hasRealGoal, detail: hasRealGoal ? formatWeight(realGoal) : "Set your goal in Weekly check-in or on Summary" },
     { label: "Longest Daily Walk", reached: Boolean(longest), detail: longest ? `${longestDistance.toFixed(2)} ${distanceUnit()}` : "No walk recorded" },
     { label: `Total Cumulative ${unitSystem === "metric" ? "Kilometres" : "Miles"}`, reached: entries.length > 0, detail: `${totalDistance.toFixed(1)} ${distanceUnit()}` },
     { label: "Total Positive Dots", reached: availableDots > 0, detail: `${greenDays} / ${availableDots} (${positivePercentage}%)` }
@@ -1196,7 +1200,7 @@ function buildLifestyleForm() {
   setOptionalMeasurement("weeklyHeight", state.profile.heightInches, displayHeight);
   setOptionalMeasurement("weeklyWaist", state.profile.waist, displayWaist);
   setOptionalMeasurement("startingWeight", state.profile.startWeight, displayWeight);
-  setOptionalMeasurement("vibratoryLine", state.profile.vibratoryLine, displayWeight);
+  setOptionalMeasurement("realGoal", state.profile.realGoal, displayWeight);
   setOptionalMeasurement("motivationalGoal", state.profile.motivationalGoal, displayWeight);
   updateWeeklyProfileStatus(true);
   updateWeeklyScorePreview();
@@ -1238,8 +1242,11 @@ function saveWeekly() {
   state.profile.heightInches = byId("weeklyHeight").value ? storedHeight(Number(byId("weeklyHeight").value)) : state.profile.heightInches;
   state.profile.startWeight = byId("startingWeight").value ? storedWeight(Number(byId("startingWeight").value)) : state.profile.startWeight;
   state.profile.waist = byId("weeklyWaist").value ? storedWaist(Number(byId("weeklyWaist").value)) : state.profile.waist;
-  state.profile.vibratoryLine = byId("vibratoryLine").value ? storedWeight(Number(byId("vibratoryLine").value)) : state.profile.vibratoryLine;
-  localStorage.setItem(WEIGHT_GOAL_STORAGE_KEY, String(state.profile.vibratoryLine));
+  state.profile.realGoal = byId("realGoal").value ? storedWeight(Number(byId("realGoal").value)) : state.profile.realGoal;
+  if (Number(state.profile.realGoal) > 0) {
+    state.profile.vibratoryLine = Number(state.profile.realGoal) + 4;
+    localStorage.setItem(WEIGHT_GOAL_STORAGE_KEY, String(state.profile.realGoal));
+  }
   state.profile.motivationalGoal = byId("motivationalGoal").value ? storedWeight(Number(byId("motivationalGoal").value)) : state.profile.motivationalGoal;
   state.profile.updatedAt = updatedAt;
   localStorage.setItem(LIFESTYLE_SUMMARY_STORAGE_KEY, JSON.stringify({
