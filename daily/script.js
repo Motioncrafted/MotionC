@@ -5,6 +5,7 @@ const WEIGHT_GOAL_STORAGE_KEY = "motionc-weight-goal-v1";
 const KG_PER_LB = 0.45359237;
 const KM_PER_MI = 1.609344;
 const CM_PER_IN = 2.54;
+const ML_PER_FL_OZ = 29.5735;
 const LIFESTYLE_ITEMS = [
   ["sleep", "Sleep quality"],
   ["hydration", "Hydration"],
@@ -55,6 +56,9 @@ const storedHeight = value => unitSystem === "metric" ? value / CM_PER_IN : valu
 const weightUnit = () => unitSystem === "metric" ? "kg" : "lb";
 const distanceUnit = () => unitSystem === "metric" ? "km" : "mi";
 const waistUnit = () => unitSystem === "metric" ? "cm" : "in";
+const hydrationUnit = () => unitSystem === "metric" ? "mL" : "oz";
+const displayHydration = ounces => unitSystem === "metric" ? ounces * ML_PER_FL_OZ : ounces;
+const storedHydration = value => unitSystem === "metric" ? value / ML_PER_FL_OZ : value;
 const formatWeight = pounds => `${displayWeight(Number(pounds)).toFixed(1)} ${weightUnit()}`;
 const formatDistance = miles => `${displayDistance(Number(miles)).toFixed(2)} ${distanceUnit()}`;
 const fields = {
@@ -81,6 +85,11 @@ function applyUnitSystem() {
   byId("startWeightUnit").textContent = weightUnit();
   byId("lineWeightUnit").textContent = weightUnit();
   byId("goalWeightUnit").textContent = weightUnit();
+  const hydrationInput = byId("hydrationInput");
+  hydrationInput.max = unitSystem === "metric" ? "4750" : "160";
+  hydrationInput.step = unitSystem === "metric" ? "50" : "5";
+  hydrationInput.setAttribute("aria-label", unitSystem === "metric" ? "Millilitres of water consumed today" : "Fluid ounces of water consumed today");
+  byId("hydrationUnit").textContent = `${hydrationUnit()} consumed today`;
   document.querySelectorAll('input[name="unitSystem"]').forEach(input => {
     input.checked = input.value === unitSystem;
   });
@@ -200,6 +209,13 @@ function loadState() {
     }
     if (Number(loaded.profile.realGoal) > 0) loaded.profile.vibratoryLine = Number(loaded.profile.realGoal) + 4;
     loaded.dailyGauges = loaded.dailyGauges || {};
+    Object.values(loaded.dailyGauges).forEach(gauges => {
+      const hydration = gauges?.hydration;
+      if (hydration && Number.isFinite(Number(hydration.value)) && hydration.unit !== "oz") {
+        hydration.value = Number(hydration.value) * 10;
+        hydration.unit = "oz";
+      }
+    });
     return loaded;
   } catch {
     return emptyState();
@@ -341,15 +357,15 @@ function loadEntry(dateValue) {
 }
 
 const DAILY_GAUGE_CONFIG = {
-  hydration: { input: "hydrationInput", value: "hydrationValue", status: "hydrationStatus", miniChart: "hydrationMiniChart", label: "Hydration", unit: "cups", maximum: 16, color: "#075da8" },
+  hydration: { input: "hydrationInput", value: "hydrationValue", status: "hydrationStatus", miniChart: "hydrationMiniChart", label: "Hydration", unit: "oz", maximum: 160, color: "#075da8" },
   stress: { input: "stressInput", value: "stressValue", status: "stressStatus", miniChart: "stressMiniChart", label: "Stress", unit: "of 5", maximum: 5, color: "#dc4545" },
   sleep: { input: "sleepInput", value: "sleepValue", status: "sleepStatus", miniChart: "sleepMiniChart", label: "Sleep", unit: "hours", maximum: 12, color: "#315fa8" }
 };
 
 const INSIGHT_RULES = {
   hydrationLitresPerHour: 0.4,
-  litresPerCup: 0.295735,
-  hydrationMinimumCups: 1,
+  fluidOuncesPerLitre: 33.814,
+  hydrationMinimumOunces: 10,
   sleepLookbackDays: 7,
   sleepMinimumEntries: 7,
   sleepAverageThreshold: 6,
@@ -360,6 +376,7 @@ const INSIGHT_RULES = {
 };
 
 function displayGaugeValue(key, value) {
+  if (key === "hydration") return String(Math.round(displayHydration(Number(value))));
   if (key !== "sleep") return String(Number(value));
   return Number(value).toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
 }
@@ -376,7 +393,7 @@ function loadDailyGauges(dateValue) {
     const input = byId(config.input);
     const saved = gauges[key];
     const recorded = saved && Number.isFinite(Number(saved.value));
-    input.value = recorded ? saved.value : 0;
+    input.value = recorded ? (key === "hydration" ? Math.round(displayHydration(Number(saved.value))) : saved.value) : 0;
     byId(config.value).textContent = recorded ? displayGaugeValue(key, saved.value) : "—";
     byId(config.status).textContent = recorded
       ? `Updated ${new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" }).format(new Date(saved.updatedAt))}`
@@ -390,7 +407,7 @@ function loadDailyGauges(dateValue) {
 function previewDailyGauge(key) {
   const config = DAILY_GAUGE_CONFIG[key];
   const value = Number(byId(config.input).value);
-  byId(config.value).textContent = displayGaugeValue(key, value);
+  byId(config.value).textContent = key === "hydration" ? String(Math.round(value)) : displayGaugeValue(key, value);
   setGaugeAppearance(key, value);
 }
 
@@ -405,10 +422,11 @@ function stepDailyGauge(key, direction) {
 function saveDailyGauge(key) {
   const dateValue = fields.date.value || isoDate();
   const config = DAILY_GAUGE_CONFIG[key];
-  const value = Number(byId(config.input).value);
+  const displayedValue = Number(byId(config.input).value);
+  const value = key === "hydration" ? storedHydration(displayedValue) : displayedValue;
   state.dailyGauges = state.dailyGauges || {};
   state.dailyGauges[dateValue] = state.dailyGauges[dateValue] || {};
-  state.dailyGauges[dateValue][key] = { value, updatedAt: new Date().toISOString() };
+  state.dailyGauges[dateValue][key] = { value, ...(key === "hydration" ? { unit: "oz" } : {}), updatedAt: new Date().toISOString() };
   persist();
   loadDailyGauges(dateValue);
   renderDailyInsights(dateValue);
@@ -437,7 +455,8 @@ function renderMiniGaugeChart(key) {
   const bars = values.map((value, index) => {
     if (value === null) return `<rect class="mini-chart-missing" x="${(index * slotWidth + 7).toFixed(1)}" y="${chartBottom - 2}" width="${(slotWidth - 12).toFixed(1)}" height="2" rx="1"></rect>`;
     const barHeight = Math.max(3, (Math.min(config.maximum, value) / config.maximum) * (chartBottom - chartTop));
-    return `<rect x="${(index * slotWidth + 7).toFixed(1)}" y="${(chartBottom - barHeight).toFixed(1)}" width="${(slotWidth - 12).toFixed(1)}" height="${barHeight.toFixed(1)}" rx="3" fill="${config.color}"><title>${miniChartDateLabel(dates[index])}: ${displayGaugeValue(key, value)} ${config.unit}</title></rect>`;
+    const displayedUnit = key === "hydration" ? hydrationUnit() : config.unit;
+    return `<rect x="${(index * slotWidth + 7).toFixed(1)}" y="${(chartBottom - barHeight).toFixed(1)}" width="${(slotWidth - 12).toFixed(1)}" height="${barHeight.toFixed(1)}" rx="3" fill="${config.color}"><title>${miniChartDateLabel(dates[index])}: ${displayGaugeValue(key, value)} ${displayedUnit}</title></rect>`;
   }).join("");
   chart.innerHTML = `<strong>${config.label} · previous 7 completed days</strong>${hasData ? `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${config.label} over the previous seven completed days"><line x1="0" y1="${chartBottom}" x2="${width}" y2="${chartBottom}" class="mini-chart-axis"></line>${bars}<text x="2" y="70">${miniChartDateLabel(dates[0])}</text><text x="188" y="70" text-anchor="end">${miniChartDateLabel(dates.at(-1))}</text></svg>` : `<span>No completed data yet</span>`}`;
 }
@@ -530,10 +549,10 @@ function renderGaugeIndicators(dateValue) {
     setGaugeTrend("hydrationTrend", "—", "Need yesterday");
   } else {
     const change = Number(selectedDate.value) - Number(yesterday.value);
-    if (change >= 2) setGaugeTrend("hydrationTrend", "↓↓", "Strong improvement");
-    else if (change >= 1) setGaugeTrend("hydrationTrend", "↓", "Improvement");
-    else if (change <= -2) setGaugeTrend("hydrationTrend", "↑↑", "Strong decline");
-    else if (change <= -1) setGaugeTrend("hydrationTrend", "↑", "Slight decline");
+    if (change >= 20) setGaugeTrend("hydrationTrend", "↓↓", "Strong improvement");
+    else if (change >= 10) setGaugeTrend("hydrationTrend", "↓", "Improvement");
+    else if (change <= -20) setGaugeTrend("hydrationTrend", "↑↑", "Strong decline");
+    else if (change <= -10) setGaugeTrend("hydrationTrend", "↑", "Slight decline");
     else setGaugeTrend("hydrationTrend", "→", "No change");
   }
 }
@@ -542,8 +561,8 @@ function estimatedHydrationDeficit(dateValue) {
   const entry = state.entries[dateValue];
   const walkingMinutes = walksForEntry(entry).reduce((sum, walk) => sum + Number(walk.minutes || 0), 0);
   if (walkingMinutes <= 0) return 0;
-  const cups = ((walkingMinutes / 60) * INSIGHT_RULES.hydrationLitresPerHour) / INSIGHT_RULES.litresPerCup;
-  return Math.round(cups * 2) / 2;
+  const ounces = ((walkingMinutes / 60) * INSIGHT_RULES.hydrationLitresPerHour) * INSIGHT_RULES.fluidOuncesPerLitre;
+  return Math.round(ounces);
 }
 
 function buildDailyInsights(dateValue) {
@@ -552,10 +571,10 @@ function buildDailyInsights(dateValue) {
   const patterns = [];
   const hydrationDeficit = estimatedHydrationDeficit(dateValue);
 
-  if (hydrationDeficit >= INSIGHT_RULES.hydrationMinimumCups) {
+  if (hydrationDeficit >= INSIGHT_RULES.hydrationMinimumOunces) {
     immediate.push({
       priority: 100 + hydrationDeficit,
-      html: `<strong>Estimated hydration deficit from today's walking: ${displayGaugeValue("sleep", hydrationDeficit)} ${hydrationDeficit === 1 ? "10 oz cup" : "10 oz cups"}.</strong>`
+      html: `<strong>Estimated hydration deficit from today's walking: ${displayGaugeValue("hydration", hydrationDeficit)} ${hydrationUnit()}.</strong>`
     });
   }
 

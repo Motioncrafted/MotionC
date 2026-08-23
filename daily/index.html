@@ -204,8 +204,8 @@
             </div>
             <div class="gauge-grid">
               <article class="daily-gauge hydration-gauge">
-                <output id="hydrationValue" for="hydrationInput">—</output><span class="gauge-unit">cups · 10 oz each</span>
-                <div class="gauge-tube"><input id="hydrationInput" type="range" min="0" max="16" step="1" value="0" aria-label="Ten-ounce cups of water today"><div class="mini-gauge-chart" id="hydrationMiniChart" aria-hidden="true"></div></div>
+                <output id="hydrationValue" for="hydrationInput">—</output><span class="gauge-unit" id="hydrationUnit">oz consumed today</span>
+                <div class="gauge-tube"><input id="hydrationInput" type="range" min="0" max="160" step="5" value="0" aria-label="Fluid ounces of water consumed today"><div class="mini-gauge-chart" id="hydrationMiniChart" aria-hidden="true"></div></div>
                 <div class="gauge-stepper"><button type="button" data-gauge-step="hydration" data-direction="-1" aria-label="Decrease hydration">−</button><strong>Hydration</strong><button type="button" data-gauge-step="hydration" data-direction="1" aria-label="Increase hydration">+</button></div>
                 <button class="gauge-save" id="saveHydration" type="button">Update</button><small id="hydrationStatus">Not recorded today</small>
                 <div class="gauge-indicators no-light" id="hydrationIndicators" aria-live="polite"><span class="gauge-trend" id="hydrationTrend"><b>—</b><span>Need yesterday</span></span></div>
@@ -390,7 +390,7 @@
     <button class="save-button full" id="saveWeekly" type="button">Save weekly check-in</button>
   </dialog>
 
-  <script src="/daily/script.js?v=20260823-2"></script>
+  <script src="/daily/script.js?v=20260823-3"></script>
   <script type="module" src="/shared/motionc-supabase.js?v=20260820-2"></script>
 </body>
 </html>
