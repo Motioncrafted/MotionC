@@ -1252,6 +1252,7 @@ const summaryGoalStorageKey = "motionc-weight-goal-v1";
 const summaryPreferencesStorageKey = "motionc-preferences-v1";
 const summaryKgPerLb = 0.45359237;
 const summaryKmPerMi = 1.609344;
+const summaryMlPerFlOz = 29.5735;
 let summaryGoalWeight = null;
 let summaryMotivationalWeight = null;
 let summaryVibratoryWeight = null;
@@ -1882,23 +1883,38 @@ function canonicalMcpSnapshot(savedMcp, entries, sharedProfile = {}) {
 }
 
 const DAILY_TREND_CONFIG = {
-    hydration: { label: "Hydration", unit: "10 oz cups", maximum: 16, color: "#0872b9" },
+    hydration: { label: "Hydration", unit: "oz", maximum: 160, color: "#0872b9" },
     stress: { label: "Stress", unit: "of 5", maximum: 5, color: "#d94d48" },
     sleep: { label: "Sleep", unit: "hours", maximum: 12, color: "#3d68ae" }
 };
 
-function formatDailyTrendValue(value) {
+function formatDailyTrendValue(value, key = "") {
+    if (key === "hydration") return String(Math.round(Number(value)));
     return Number(value).toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
 }
 
+function dailyTrendUnit(key, config = DAILY_TREND_CONFIG[key]) {
+    return key === "hydration" && summaryUnitSystem === "metric" ? "mL" : config.unit;
+}
+
+function dailyTrendValue(key, saved) {
+    if (!saved || !Number.isFinite(Number(saved.value))) return null;
+    if (key !== "hydration") return Number(saved.value);
+    const ounces = saved.unit === "oz" ? Number(saved.value) : Number(saved.value) * 10;
+    return summaryUnitSystem === "metric" ? ounces * summaryMlPerFlOz : ounces;
+}
+
 function drawDailyGaugeTrend(key, dates, gauges) {
-    const config = DAILY_TREND_CONFIG[key];
+    const baseConfig = DAILY_TREND_CONFIG[key];
+    const config = key === "hydration" && summaryUnitSystem === "metric"
+        ? { ...baseConfig, unit: "mL", maximum: Math.round(baseConfig.maximum * summaryMlPerFlOz) }
+        : baseConfig;
     const canvas = document.getElementById(`${key}-trend-chart`);
     const empty = document.getElementById(`${key}-trend-empty`);
     if (!canvas || !empty) return;
     const points = dates.map(date => {
         const saved = gauges?.[date]?.[key];
-        return { date, value: saved && Number.isFinite(Number(saved.value)) ? Number(saved.value) : null };
+        return { date, value: dailyTrendValue(key, saved) };
     });
     const recorded = points.filter(point => point.value !== null);
     if (!recorded.length) {
@@ -1971,7 +1987,7 @@ function drawDailyGaugeTrend(key, dates, gauges) {
     context.fillText("0", 8, height - padding.bottom + 3);
 
     const average = recorded.reduce((sum, point) => sum + point.value, 0) / recorded.length;
-    setText(`${key}-trend-summary`, `${formatDailyTrendValue(average)} ${config.unit} avg · ${recorded.length} recorded`);
+    setText(`${key}-trend-summary`, `${formatDailyTrendValue(average, key)} ${config.unit} avg · ${recorded.length} recorded`);
 }
 
 function renderSummaryData() {
@@ -2260,7 +2276,7 @@ Object.entries(DAILY_TREND_CONFIG).forEach(([key, config]) => {
     attachChartTooltip(
         `${key}-trend-chart`,
         `${key}-trend-tooltip`,
-        point => `<strong>${fullChartDate(point.date)}</strong><span>${config.label}: ${formatDailyTrendValue(point.value)} ${config.unit}</span>`
+        point => `<strong>${fullChartDate(point.date)}</strong><span>${config.label}: ${formatDailyTrendValue(point.value, key)} ${dailyTrendUnit(key, config)}</span>`
     );
 });
 
