@@ -3483,6 +3483,22 @@
       readerContent.querySelectorAll("h2, h3").forEach(heading => {
         if (/\bcontinued\b/i.test(heading.textContent)) heading.remove();
       });
+      readerContent.querySelectorAll("figure.article-explainer img").forEach(image => {
+        if (image.closest(".article-visual-button")) return;
+        const media = image.closest("picture") || image;
+        const button = document.createElement("button");
+        button.className = "article-visual-button";
+        button.type = "button";
+        button.dataset.zoomImage = image.currentSrc || image.src;
+        button.dataset.zoomAlt = image.alt || "";
+        button.setAttribute("aria-label", "Enlarge this visual");
+        media.replaceWith(button);
+        button.append(media);
+        const hint = document.createElement("small");
+        hint.className = "article-visual-hint";
+        hint.textContent = "Tap to enlarge · Pinch to zoom";
+        button.closest("figure").append(hint);
+      });
       readerContent.scrollTop = 0;
       readerPageNumber.textContent = "Complete article • Scroll to read";
     }
