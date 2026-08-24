@@ -1042,6 +1042,61 @@
       border-radius: 12px;
     }
 
+    .article-visual-button {
+      display: block;
+      width: 100%;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: zoom-in;
+    }
+
+    .article-visual-button img {
+      display: block;
+      width: min(100%, 1400px);
+      height: auto;
+      margin: 0 auto;
+      border-radius: 12px;
+      box-shadow: 0 12px 30px rgba(37, 71, 93, .18);
+    }
+
+    .article-visual-hint {
+      display: block;
+      margin-top: .65em;
+      color: #1e6099;
+      font: 800 .86em "Kalam", cursive;
+      text-align: center;
+    }
+
+    .image-viewer {
+      width: 100vw;
+      max-width: none;
+      height: 100dvh;
+      max-height: none;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      background: #07162e;
+      overflow: hidden;
+    }
+
+    .image-viewer::backdrop { background: rgba(3, 9, 20, .94); }
+    .image-viewer-stage { width: 100%; height: 100%; overflow: auto; touch-action: pan-x pan-y pinch-zoom; }
+    .image-viewer-stage img { display: block; width: max(100%, 1536px); height: auto; min-height: 100%; object-fit: contain; transform-origin: 0 0; }
+    .image-viewer-close {
+      position: fixed;
+      top: max(12px, env(safe-area-inset-top));
+      right: max(12px, env(safe-area-inset-right));
+      z-index: 2;
+      padding: 10px 14px;
+      border: 1px solid rgba(255,255,255,.65);
+      border-radius: 999px;
+      color: white;
+      background: rgba(7, 22, 46, .86);
+      font: 800 14px/1 system-ui, sans-serif;
+      cursor: pointer;
+    }
+
     .article-explainer figcaption {
       margin-top: .65em;
       color: #687a72;
@@ -1515,6 +1570,13 @@
         </div>
       </article>
     </section>
+
+    <dialog class="image-viewer" id="imageViewer" aria-label="Full-screen article image">
+      <button class="image-viewer-close" id="imageViewerClose" type="button">Close</button>
+      <div class="image-viewer-stage" id="imageViewerStage">
+        <img id="imageViewerImage" alt="">
+      </div>
+    </dialog>
   </main>
 
   <script type="module">
@@ -3151,6 +3213,10 @@
     const readerContent = document.getElementById("readerContent");
     const readerPageNumber = document.getElementById("readerPageNumber");
     const readerIndex = document.getElementById("readerIndex");
+    const imageViewer = document.getElementById("imageViewer");
+    const imageViewerStage = document.getElementById("imageViewerStage");
+    const imageViewerImage = document.getElementById("imageViewerImage");
+    const imageViewerClose = document.getElementById("imageViewerClose");
 
     let currentMode = "index";
     let currentResults = [];
@@ -3317,9 +3383,11 @@
 
     function sectionArticleButton(article) {
       const category = categoryMap.get(article.category);
-      const visualBadge = ["beginners-guide-to-fasted-walking", "mindful-walking", "understanding-insulin-spikes", "hydration-a-beginners-guide", "chia-seeds-a-beginners-guide", "yogurt-a-beginners-guide", "psyllium-husk-a-friendly-beginner-guide", "kimchi-a-beginners-guide", "pumpkin-seeds-a-simple-powerful-source-of-magnesium", "magnesium-choosing-the-most-well-rounded-option", "chelated-minerals-why-they-matter", "hack-your-environment-small-changes-that-make-healthy-habits-stick"].includes(article.id)
+      const greyArticle = article.iconType === "grey" || ["beginners-guide-to-fasted-walking", "mindful-walking", "understanding-insulin-spikes", "hydration-a-beginners-guide", "chia-seeds-a-beginners-guide", "yogurt-a-beginners-guide", "psyllium-husk-a-friendly-beginner-guide", "kimchi-a-beginners-guide", "pumpkin-seeds-a-simple-powerful-source-of-magnesium", "magnesium-choosing-the-most-well-rounded-option", "chelated-minerals-why-they-matter", "hack-your-environment-small-changes-that-make-healthy-habits-stick"].includes(article.id);
+      const blueArticle = article.iconType === "blue" || ["mo-explains-insulin-spikes-two-modes", "mo-explains-why-bananas-spike-insulin", "felt-and-body", "win-eat-real-food", "win-eat-more-plants", "win-eat-slowly", "win-80-percent-rule", "win-eat-together", "mo-running-shoe-anatomy", "mo-running-shoe-family", "mo-roomy-toe-box", "mo-heel-to-toe-drop", "mo-stack-height", "mo-five-minute-shoe-check", "mo-midsole-aging", "mo-shoe-odometer", "mo-shoe-wear-inspection", "mo-shoe-rotation", "mo-shoe-price-and-durability"].includes(article.id);
+      const visualBadge = greyArticle
         ? `<span class="mo-learning-badge" role="img" aria-label="Includes a Mo visual explainer" title="Includes a Mo visual explainer"><img src="/images/mo-visual-explainer-grey.png" alt=""></span>`
-        : ["mo-explains-insulin-spikes-two-modes", "mo-explains-why-bananas-spike-insulin", "felt-and-body", "win-eat-real-food", "win-eat-more-plants", "win-eat-slowly", "win-80-percent-rule", "win-eat-together", "mo-running-shoe-anatomy", "mo-running-shoe-family", "mo-roomy-toe-box", "mo-heel-to-toe-drop", "mo-stack-height", "mo-five-minute-shoe-check", "mo-midsole-aging", "mo-shoe-odometer", "mo-shoe-wear-inspection", "mo-shoe-rotation", "mo-shoe-price-and-durability"].includes(article.id)
+        : blueArticle
           ? `<span class="mo-learning-badge" role="img" aria-label="All-Mo visual article" title="All-Mo visual article"><img src="/images/mo-visual-explainer-blue.png" alt=""></span>`
           : "";
       return `<li>
@@ -3384,6 +3452,27 @@
       });
     }
 
+    function sectionHtml(section) {
+      if (section.section_type !== "image") return section.body_html || "";
+      const source = section.mobile_image_path || section.image_path;
+      const caption = section.caption ? `<figcaption>${escapeHtml(section.caption)}</figcaption>` : "";
+      const image = `<picture>${section.mobile_image_path ? `<source media="(max-width: 700px)" srcset="${escapeHtml(section.mobile_image_path)}">` : ""}<img src="${escapeHtml(section.image_path)}" alt="${escapeHtml(section.alt_text || "")}" loading="lazy"></picture>`;
+      if (!section.zoomable) return `<figure class="article-explainer">${image}${caption}</figure>`;
+      return `<figure class="article-explainer"><button class="article-visual-button" type="button" data-zoom-image="${escapeHtml(source)}" data-zoom-alt="${escapeHtml(section.alt_text || "")}" aria-label="Enlarge this visual">${image}</button>${caption}<small class="article-visual-hint">Tap to enlarge · Pinch to zoom</small></figure>`;
+    }
+
+    async function loadArticleSections(article) {
+      if (!article.articleId || article.sectionsLoaded) return;
+      const { data, error } = await supabase
+        .from("library_article_sections")
+        .select("section_order, section_type, body_html, image_path, mobile_image_path, alt_text, caption, zoomable")
+        .eq("article_id", article.articleId)
+        .order("section_order", { ascending: true });
+      if (error) throw error;
+      article.pages = Array.isArray(data) ? data.map(sectionHtml) : [];
+      article.sectionsLoaded = true;
+    }
+
     function renderContinuousArticle() {
       if (!activeArticle) return;
       readerHeading.innerHTML = `${activeArticle.series ? '<span class="win-title-icon" aria-hidden="true"><img src="/images/mo-visual-explainer-blue.png" alt=""></span>' : ""}<span class="reader-title-text">${escapeHtml(activeArticle.title)}</span>`;
@@ -3398,7 +3487,7 @@
       readerPageNumber.textContent = "Complete article • Scroll to read";
     }
 
-    function openArticle(articleId) {
+    async function openArticle(articleId) {
       activeArticle = articles.find(article => article.id === articleId);
       if (!activeArticle) return;
 
@@ -3409,8 +3498,24 @@
         }
       }));
       if (activeSectionId) sectionScrollPositions.set(activeSectionId, sectionContent.scrollTop);
-      renderContinuousArticle();
       readerOverlay.hidden = false;
+      readerHeading.textContent = activeArticle.title;
+      readerCategory.textContent = categoryMap.get(activeArticle.category)?.title || "MotionC Library";
+      readerContent.innerHTML = '<p class="section-empty">Loading article…</p>';
+      try {
+        await loadArticleSections(activeArticle);
+        renderContinuousArticle();
+      } catch (error) {
+        console.error("MotionC Library could not load this article", error);
+        const fallback = fallbackArticles.find(article => article.id === activeArticle.id);
+        if (fallback?.pages?.length) {
+          activeArticle.pages = fallback.pages;
+          activeArticle.series ||= fallback.series || "";
+          renderContinuousArticle();
+        } else {
+          readerContent.innerHTML = '<p class="section-empty">This article could not be loaded. Please close it and try again.</p>';
+        }
+      }
       requestAnimationFrame(() => {
         readerOverlay.classList.add("open");
         readerIndex.focus();
@@ -3458,7 +3563,21 @@
       const articleButton = event.target.closest("[data-article]");
       if (articleButton) {
         openArticle(articleButton.dataset.article);
+        return;
       }
+
+      const zoomButton = event.target.closest("[data-zoom-image]");
+      if (zoomButton) {
+        imageViewerImage.src = zoomButton.dataset.zoomImage;
+        imageViewerImage.alt = zoomButton.dataset.zoomAlt || "";
+        imageViewerStage.scrollTo(0, 0);
+        imageViewer.showModal();
+      }
+    });
+
+    imageViewerClose.addEventListener("click", () => imageViewer.close());
+    imageViewer.addEventListener("click", event => {
+      if (event.target === imageViewer) imageViewer.close();
     });
 
     bookIndex.addEventListener("click", () => turnBook(renderIndex));
@@ -3620,7 +3739,9 @@
     async function loadPublishedArticles() {
       const { data, error } = await supabase
         .from("library_articles")
-        .select("slug, category, title, summary, tags, pages, display_order")
+        .select("id, slug, category, title, summary, tags, display_order, series, icon_type")
+        .eq("status", "published")
+        .lte("published_at", new Date().toISOString())
         .order("display_order", { ascending: true })
         .order("title", { ascending: true });
 
@@ -3628,12 +3749,16 @@
       if (!Array.isArray(data) || !data.length) return;
 
       const cloudArticles = data.map(article => ({
+        articleId: article.id,
         id: article.slug,
         category: article.category,
+        series: article.series || "",
+        iconType: article.icon_type || "none",
         title: article.title,
         summary: article.summary || "",
         tags: Array.isArray(article.tags) ? article.tags : [],
-        pages: Array.isArray(article.pages) ? article.pages : []
+        pages: [],
+        sectionsLoaded: false
       }));
       const cloudIds = new Set(cloudArticles.map(article => article.id));
       articles = [
