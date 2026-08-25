@@ -40,6 +40,9 @@ const invitationClose = document.getElementById("invitationClose");
 const wallViewDescription = document.getElementById("wallViewDescription");
 const visitorPostLimit = document.getElementById("visitorPostLimit");
 const visitorAccountActions = document.getElementById("visitorAccountActions");
+const editorOpen = document.getElementById("editorOpen");
+const editorClose = document.getElementById("editorClose");
+const interactiveControls = document.getElementById("interactiveControls");
 
 let selectedColor = COLORS[0];
 let selectedFont = FONTS[0];
@@ -50,6 +53,19 @@ let wallTags = [];
 let historyTags = [];
 let currentSession = null;
 let currentWall = "commons";
+
+function setEditorOpen(open) {
+  interactiveControls.classList.toggle("open", open);
+  editorOpen.setAttribute("aria-expanded", String(open));
+  if (open) {
+    window.setTimeout(() => message.focus({ preventScroll: true }), 280);
+  } else {
+    editorOpen.focus({ preventScroll: true });
+  }
+}
+
+editorOpen.addEventListener("click", () => setEditorOpen(true));
+editorClose.addEventListener("click", () => setEditorOpen(false));
 
 messageCount.textContent = message.value.length;
 
@@ -574,6 +590,10 @@ document.addEventListener("click", event => {
 
 document.addEventListener("keydown", event => {
   if (event.key !== "Escape") return;
+  if (interactiveControls.classList.contains("open")) {
+    setEditorOpen(false);
+    return;
+  }
   if (!preferencesMenu.hidden) {
     closePreferences();
     preferencesToggle.focus();
@@ -585,7 +605,10 @@ document.addEventListener("keydown", event => {
 });
 
 window.addEventListener("resize", () => {
-  if (window.innerWidth > 760 && !mobileMoreMenu.hidden) setMobileMoreMenu(false);
+  const usesBottomNavigation = window.matchMedia(
+    "(max-width: 760px), (max-width: 900px) and (orientation: portrait)"
+  ).matches;
+  if (!usesBottomNavigation && !mobileMoreMenu.hidden) setMobileMoreMenu(false);
 });
 
 function setActiveTab(name) {

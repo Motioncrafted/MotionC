@@ -595,6 +595,11 @@ textarea {
   z-index: 10;
 }
 
+.editor-open,
+.editor-close {
+  display: none;
+}
+
 .interactive-controls::before {
   position: absolute;
   z-index: 3;
@@ -906,7 +911,146 @@ textarea {
   border: 0;
 }
 
-@media (max-width: 760px) {
+/* Tablet composition: keep the wall visible and move creation into a usable drawer. */
+@media (max-width: 900px), (orientation: landscape) and (max-height: 700px) {
+  .editor-open {
+    position: fixed;
+    z-index: 64;
+    right: 14px;
+    bottom: 14px;
+    display: block;
+    min-width: 148px;
+    min-height: 48px;
+    padding: 11px 18px;
+    border: 1px solid #43bdf0;
+    border-radius: 999px;
+    color: #fff;
+    background: linear-gradient(#1685d2, #0663b3);
+    box-shadow: 0 10px 28px rgba(0,0,0,.46);
+    font-weight: 900;
+    cursor: pointer;
+  }
+
+  .editor-open[aria-expanded="true"] {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .interactive-controls {
+    position: fixed;
+    z-index: 65;
+    inset: auto 12px 12px;
+    display: grid;
+    width: auto;
+    height: auto;
+    max-height: min(72dvh, 430px);
+    padding: 54px 18px 18px;
+    grid-template-columns: minmax(220px, 1.4fr) minmax(190px, 1fr) minmax(150px, .7fr);
+    gap: 14px 18px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border: 1px solid rgba(91,202,247,.55);
+    border-radius: 20px;
+    color: #f6f2ea;
+    background: linear-gradient(155deg, rgba(18,25,28,.99), rgba(7,10,12,.99));
+    box-shadow: 0 22px 60px rgba(0,0,0,.72);
+    transform: translateY(calc(100% + 100px));
+    transition: transform 260ms ease, visibility 260ms step-end;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .interactive-controls.open {
+    transform: none;
+    transition: transform 260ms ease, visibility 0s;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .interactive-controls::before { display: none; }
+
+  .editor-close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    display: grid;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    place-items: center;
+    border: 1px solid #596269;
+    border-radius: 50%;
+    color: #fff;
+    background: #20272b;
+    font-size: 25px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .message-field,
+  .emoji-picker,
+  .font-picks,
+  .color-picks,
+  .size-picks,
+  .spray-button,
+  .visitor-post-limit {
+    position: static;
+    width: auto;
+    height: auto;
+    min-height: 0;
+    margin: 0;
+  }
+
+  .message-field {
+    grid-row: 1 / span 3;
+    min-height: 156px;
+    border-radius: 10px;
+    box-shadow: none;
+  }
+
+  .message-field textarea { min-height: 156px; }
+  .emoji-picker { grid-column: 2; grid-row: 1; align-self: start; }
+  .font-picks { grid-column: 2; grid-row: 2; flex-wrap: wrap; }
+  .color-picks { grid-column: 2; grid-row: 3; gap: 12px; flex-wrap: wrap; }
+  .size-picks { grid-column: 3; grid-row: 1; align-self: start; }
+  .spray-button,
+  .visitor-post-limit { grid-column: 3; grid-row: 2 / span 2; }
+
+  .spray-button {
+    min-height: 58px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,87,174,.28);
+  }
+
+  .emoji-menu { bottom: auto; top: calc(100% + 8px); }
+}
+
+@media (max-width: 900px) and (orientation: portrait) {
+  .editor-open {
+    bottom: calc(82px + env(safe-area-inset-bottom));
+  }
+
+  .interactive-controls {
+    inset: auto 10px calc(80px + env(safe-area-inset-bottom));
+    max-height: min(66dvh, 640px);
+    padding: 52px 16px 16px;
+    grid-template-columns: minmax(0, 1fr) minmax(180px, .72fr);
+    gap: 12px;
+  }
+
+  .message-field { grid-column: 1 / -1; grid-row: auto; min-height: 128px; }
+  .message-field textarea { min-height: 128px; }
+  .emoji-picker,
+  .font-picks,
+  .color-picks,
+  .size-picks,
+  .spray-button,
+  .visitor-post-limit { grid-column: auto; grid-row: auto; }
+  .font-picks { align-content: start; }
+  .spray-button { min-height: 54px; }
+}
+
+@media (max-width: 760px), (max-width: 900px) and (orientation: portrait) {
   .wall-stage::after {
     position: absolute;
     z-index: 31;
@@ -1048,6 +1192,13 @@ textarea {
     top: 66px;
     left: 10px;
     width: min(260px, calc(100vw - 20px));
+  }
+}
+
+@media (min-width: 761px) and (max-width: 900px) and (orientation: portrait) {
+  .wall-stage {
+    width: 100vw;
+    min-width: 0;
   }
 }
 
