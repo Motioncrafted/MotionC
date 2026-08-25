@@ -834,31 +834,62 @@ function entriesInRange(start, end) {
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
-function currentStreak(entries) {
-  if (!entries.length) return 0;
-  let streak = 0;
-  for (let index = entries.length - 1; index >= 0; index -= 1) {
-    if (Number(entries[index].distance || 0) <= 0) break;
-    streak += 1;
+function progressMetrics(entries = Object.values(state.entries)) {
+  const today = isoDate();
+  const ordered = entries
+    .filter(entry => entry?.date && entry.date <= today)
+    .sort((a, b) => a.date.localeCompare(b.date));
+  const walkingDays = ordered.filter(entry => Number(entry.distance || 0) > 0);
+  const timedWalkingDays = walkingDays.filter(entry => Number(entry.minutes || 0) > 0);
+  const walkingDates = new Set(walkingDays.map(entry => entry.date));
+  let cursor = dateFromIso(today);
+  if (!walkingDates.has(today)) cursor = addDays(cursor, -1);
+  let walkingStreak = 0;
+  while (walkingDates.has(isoDate(cursor))) {
+    walkingStreak += 1;
+    cursor = addDays(cursor, -1);
   }
-  return streak;
+
+  const positiveDots = ordered.filter(entry =>
+    ["green", "light-green"].includes(scoreForEntry(entry).color)
+  ).length;
+  const availableDots = ordered.length;
+  const positiveDotPercentage = availableDots
+    ? Math.round(positiveDots / availableDots * 100)
+    : 0;
+  const totalDistance = ordered.reduce((sum, entry) => sum + Number(entry.distance || 0), 0);
+  const longestWalk = ordered.reduce((best, entry) =>
+    Number(entry.distance || 0) > Number(best?.distance || 0) ? entry : best, null
+  );
+
+  return {
+    entries: ordered,
+    walkingDays,
+    timedWalkingDays,
+    walkingStreak,
+    positiveDots,
+    availableDots,
+    positiveDotPercentage,
+    totalDistance,
+    longestWalk
+  };
 }
 
 function weeklySummary(start) {
   const end = addDays(start, 6);
   const entries = entriesInRange(start, end);
+  const progress = progressMetrics();
   const weights = entries.filter(item => item.weight).map(item => item.weight);
   const totalDistance = entries.reduce((sum, item) => sum + Number(item.distance || 0), 0);
   const longest = entries.reduce((best, item) => Number(item.distance || 0) > Number(best?.distance || 0) ? item : best, null);
-  const percentages = entries.map(item => scoreForEntry(item).percent);
   return {
     entries,
     weight: weights.at(-1),
     change: weights.length > 1 ? weights.at(-1) - weights[0] : 0,
     totalDistance,
-    streak: currentStreak(entries),
+    streak: progress.walkingStreak,
     longest,
-    average: percentages.length ? Math.round(percentages.reduce((a, b) => a + b, 0) / percentages.length) : 0
+    positiveDotPercentage: progress.positiveDotPercentage
   };
 }
 
@@ -889,7 +920,7 @@ function renderWeekly() {
     ["Distance", formatDistance(summary.totalDistance)],
     ["Walking streak", `${summary.streak} day${summary.streak === 1 ? "" : "s"}`],
     ["Longest walk", summary.longest ? formatDistance(summary.longest.distance) : "—"],
-    ["Average dot", summary.average ? `${summary.average}%` : "—"]
+    ["Positive dots", summary.positiveDotPercentage ? `${summary.positiveDotPercentage}%` : "—"]
   ];
   byId("weeklyStats").innerHTML = stats.map(([label, value]) =>
     `<div class="weekly-stat"><span>${label}</span><strong>${value}</strong></div>`
@@ -915,7 +946,7 @@ function renderWeekly() {
     const block = document.createElement("div");
     block.className = "previous-week";
     block.innerHTML = `<strong>${formatShortDate(isoDate(weekStart))}–${formatShortDate(isoDate(weekEnd))}</strong>
-      <p>${formatDistance(old.totalDistance)} · ${old.average || 0}% average · ${old.entries.length} entries</p>
+      <p>${formatDistance(old.totalDistance)} · ${old.entries.length} entries</p>
       <div class="previous-week-notes">
         <span class="previous-week-notes-title">Notes</span>
         ${weekNotesHtml(old.entries, "No notes recorded.")}
@@ -924,26 +955,20 @@ function renderWeekly() {
   });
 }
 
-function longestWalk() {
-  return Object.values(state.entries).reduce((best, entry) =>
-    Number(entry.distance || 0) > Number(best?.distance || 0) ? entry : best, null
-  );
-}
-
 function renderMilestones() {
   const entries = Object.values(state.entries).sort((a, b) => a.date.localeCompare(b.date));
-  const walkingDays = entries.filter(entry => Number(entry.distance || 0) > 0);
-  const timedWalkingDays = walkingDays.filter(entry => Number(entry.minutes || 0) > 0);
+  const progress = progressMetrics(entries);
+  const { walkingDays, timedWalkingDays } = progress;
   const weights = entries.filter(item => item.weight).map(item => item.weight);
   const lowest = weights.length ? Math.min(...weights) : null;
   const weightedEntries = entries.filter(item => Number(item.weight) > 0);
   const latestWeight = weightedEntries.length ? Number(weightedEntries.at(-1).weight) : null;
   const startWeight = Number(state.profile.startWeight);
-  const totalMiles = entries.reduce((sum, item) => sum + Number(item.distance || 0), 0);
-  const longest = longestWalk();
-  const greenDays = entries.filter(item => ["green", "light-green"].includes(scoreForEntry(item).color)).length;
-  const availableDots = entries.length;
-  const positivePercentage = availableDots ? Math.round(greenDays / availableDots * 100) : 0;
+  const totalMiles = progress.totalDistance;
+  const longest = progress.longestWalk;
+  const greenDays = progress.positiveDots;
+  const availableDots = progress.availableDots;
+  const positivePercentage = progress.positiveDotPercentage;
   const realGoal = state.profile.realGoal;
   const hasStartWeight = Number.isFinite(startWeight) && startWeight > 0;
   const hasRealGoal = Number.isFinite(Number(realGoal)) && Number(realGoal) > 0;
