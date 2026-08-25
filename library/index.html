@@ -1242,13 +1242,33 @@
       white-space: nowrap;
     }
 
+    /* Centre catalogue and reader sheets in the usable area beside the desktop rail. */
+    @media (min-width: 701px) {
+      .section-overlay,
+      .reader-overlay {
+        left: var(--rail-width);
+      }
+
+      .section-sheet,
+      .reader-sheet {
+        max-width: calc(100% - 2 * clamp(12px, 2.2vw, 36px));
+      }
+    }
+
     @media (max-width: 800px), (max-height: 560px) {
       .book-page { padding: 2.5% 3%; }
       .book-choice { min-height: 16px; }
       .reader-sheet { padding-top: 24px; }
     }
 
-    @media (max-width: 700px) {
+    /* Keep tablet browser chrome from making landscape reader titles feel clipped. */
+    @media (orientation: landscape) and (max-height: 700px) {
+      .reader-sheet {
+        height: 82%;
+      }
+    }
+
+    @media (max-width: 700px), (max-width: 900px) and (orientation: portrait) {
       .page {
         /* Crop the retired sidebar that is baked into the Library artwork. */
         left: -16.8vw;
@@ -1270,6 +1290,36 @@
         box-shadow: 0 -8px 24px rgba(7, 24, 20, .28);
         /* Keep the top-left logo anchored to the viewport, not this bottom rail. */
         backdrop-filter: none;
+      }
+
+      /* These layers belong to the viewport, not the cropped desktop artwork. */
+      .section-overlay,
+      .reader-overlay {
+        position: fixed;
+        inset: 0 0 calc(70px + env(safe-area-inset-bottom)) 0;
+        width: auto;
+        height: auto;
+        padding: 10px;
+      }
+
+      .section-sheet,
+      .reader-sheet,
+      .reader-sheet:has(.reader-content > .article-explainer:only-child) {
+        box-sizing: border-box;
+        width: 100%;
+        max-width: 100%;
+        height: 100%;
+        padding-inline: clamp(16px, 4vw, 28px);
+      }
+
+      .reader-sheet {
+        padding-bottom: 62px;
+      }
+
+      .reader-controls {
+        left: clamp(16px, 4vw, 28px);
+        right: clamp(16px, 4vw, 28px);
+        bottom: 14px;
       }
 
       .motionc-brand {
@@ -3594,6 +3644,25 @@
     imageViewerClose.addEventListener("click", () => imageViewer.close());
     imageViewer.addEventListener("click", event => {
       if (event.target === imageViewer) imageViewer.close();
+    });
+
+    function restoreReaderScrollAfterZoom() {
+      /* Some mobile browsers leave a modal-dialog scroll lock behind. */
+      document.documentElement.style.removeProperty("overflow");
+      document.body.style.removeProperty("overflow");
+      document.documentElement.classList.remove("image-viewer-open");
+      document.body.classList.remove("image-viewer-open");
+      requestAnimationFrame(() => {
+        readerContent.style.removeProperty("overflow");
+        readerContent.focus({ preventScroll: true });
+      });
+    }
+
+    imageViewer.addEventListener("close", restoreReaderScrollAfterZoom);
+
+    window.addEventListener("orientationchange", () => {
+      if (imageViewer.open) imageViewer.close();
+      window.setTimeout(restoreReaderScrollAfterZoom, 180);
     });
 
     bookIndex.addEventListener("click", () => turnBook(renderIndex));
