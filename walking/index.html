@@ -22,6 +22,13 @@
       background: url("../images/walking-page.png") center / 100% 100% no-repeat;
     }
 
+    /* Leave a small visual-viewport reserve for tablet browser and system chrome. */
+    @media (orientation: landscape) and (max-height: 700px) {
+      .page {
+        width: min(100vw, calc((100dvh - clamp(24px, 7dvh, 48px)) * 1.5));
+      }
+    }
+
     .panel {
       position: absolute;
       overflow: hidden;
