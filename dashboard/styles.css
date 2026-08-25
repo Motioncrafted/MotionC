@@ -2007,3 +2007,44 @@ body {
     .profile-reminder { grid-template-columns: auto 1fr; }
     .profile-reminder-action { grid-column: 1 / -1; width: 100%; }
 }
+
+/* Keep every destination reachable when tablet browser chrome shortens landscape. */
+@media (orientation: landscape) and (max-height: 700px) {
+    .side-menu {
+        position: fixed;
+        inset: 0 auto 0 0;
+        display: flex;
+        width: 92px;
+        height: 100dvh;
+        padding: 10px 8px 14px;
+        align-items: center;
+        flex-direction: column;
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior-y: contain;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(169, 201, 104, .7) transparent;
+    }
+
+    .side-brand {
+        display: grid;
+        flex: 0 0 auto;
+        margin-bottom: 12px;
+    }
+
+    .side-menu nav {
+        display: grid;
+        flex: 0 0 auto;
+        grid-template-columns: 1fr;
+        gap: 5px;
+    }
+
+    .side-menu nav a {
+        min-height: 58px;
+        padding: 6px 3px;
+    }
+
+    .side-menu nav a img { width: 27px; height: 27px; }
+    .side-menu > p { display: block; flex: 0 0 auto; margin-top: 18px; }
+    .main-content { width: calc(100% - 92px); margin-left: 92px; }
+}
