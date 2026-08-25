@@ -6,10 +6,12 @@ const FONTS = [
 const LEGACY_BRUSH_FONT = "'Segoe Print', 'Comic Sans MS', cursive";
 const SIZE_SCALES = { small: 0.52, medium: 0.76, large: 1 };
 const PLACEMENT_SPOTS = [
-  { left: 5, top: 14 }, { left: 29, top: 14 }, { left: 53, top: 14 },
-  { left: 5, top: 28 }, { left: 29, top: 28 }, { left: 53, top: 28 },
-  { left: 5, top: 42 }, { left: 29, top: 42 }, { left: 53, top: 42 },
-  { left: 5, top: 55 }, { left: 29, top: 55 }, { left: 53, top: 55 }
+  { left: 4, top: 13 }, { left: 34, top: 11 }, { left: 55, top: 17 },
+  { left: 18, top: 22 }, { left: 45, top: 25 }, { left: 7, top: 30 },
+  { left: 29, top: 34 }, { left: 54, top: 31 }, { left: 14, top: 41 },
+  { left: 40, top: 39 }, { left: 3, top: 50 }, { left: 26, top: 48 },
+  { left: 52, top: 51 }, { left: 17, top: 58 }, { left: 43, top: 57 },
+  { left: 7, top: 62 }
 ];
 const WALL_CAPACITY = 10;
 const MIN_VISIBLE_POSTS = 8;
@@ -54,6 +56,7 @@ let wallTags = [];
 let historyTags = [];
 let currentSession = null;
 let currentWall = "commons";
+let wallLayoutFrame = 0;
 
 function setEditorOpen(open) {
   interactiveControls.classList.toggle("open", open);
@@ -244,10 +247,14 @@ function chooseTagPlacement(tag, element, occupiedBoxes, startIndex = 0) {
 function arrangeWallTags() {
   const occupiedBoxes = [];
   wallTags.forEach((tag, index) => {
-    const box = chooseTagPlacement(tag, tag.element, occupiedBoxes, index * 3);
+    const box = chooseTagPlacement(tag, tag.element, occupiedBoxes, index * 5);
     occupiedBoxes.push(box);
   });
-  saveLocalWall();
+}
+
+function scheduleWallLayout() {
+  window.cancelAnimationFrame(wallLayoutFrame);
+  wallLayoutFrame = window.requestAnimationFrame(arrangeWallTags);
 }
 
 function placeNewTag(tag) {
@@ -304,9 +311,7 @@ function renderWall(tags) {
     return normalized;
   });
   spraySequence = wallTags.length;
-  requestAnimationFrame(() => {
-    wallTags.forEach(tag => fitTagToWall(tag.element));
-  });
+  scheduleWallLayout();
 }
 
 function restoreLocalWall() {
@@ -618,6 +623,7 @@ window.addEventListener("resize", () => {
     "(max-width: 760px), (max-width: 900px) and (orientation: portrait)"
   ).matches;
   if (!usesBottomNavigation && !mobileMoreMenu.hidden) setMobileMoreMenu(false);
+  scheduleWallLayout();
 });
 
 function setActiveTab(name) {
