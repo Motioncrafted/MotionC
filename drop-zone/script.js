@@ -1,7 +1,7 @@
 const COLORS = ["#d52b69", "#ee7512", "#ffbf22"];
 const FONTS = [
   "'Segoe Print', 'Comic Sans MS', cursive",
-  "'Comic Sans MS', cursive"
+  "'Arial Black', Impact, sans-serif"
 ];
 const SIZE_SCALES = { small: 0.52, medium: 0.76, large: 1 };
 const PLACEMENT_SPOTS = [
@@ -175,12 +175,20 @@ function createWallTag(tag, reveal = true) {
 function fitTagToWall(element) {
   const layer = tagLayer.getBoundingClientRect();
   const tag = element.getBoundingClientRect();
-  const safe = {
-    left: layer.left + layer.width * 0.025,
-    right: layer.left + layer.width * 0.79,
-    top: layer.top + layer.height * 0.12,
-    bottom: layer.top + layer.height * 0.71
-  };
+  const portraitTablet = window.matchMedia("(max-width: 900px) and (orientation: portrait)").matches;
+  const safe = portraitTablet
+    ? {
+        left: Math.max(layer.left + layer.width * 0.045, 18),
+        right: Math.min(layer.left + layer.width * 0.72, window.innerWidth - 22),
+        top: Math.max(layer.top + layer.height * 0.18, 78),
+        bottom: layer.top + layer.height * 0.69
+      }
+    : {
+        left: layer.left + layer.width * 0.025,
+        right: layer.left + layer.width * 0.79,
+        top: layer.top + layer.height * 0.12,
+        bottom: layer.top + layer.height * 0.71
+      };
   let shiftX = 0;
   let shiftY = 0;
 

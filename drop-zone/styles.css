@@ -1020,12 +1020,20 @@ textarea {
   }
 
   .message-field textarea { min-height: 156px; }
-  .emoji-picker { grid-column: 2; grid-row: 1; align-self: start; }
+  .emoji-picker {
+    grid-column: 2 / -1;
+    grid-row: 1;
+    display: flex;
+    width: 100%;
+    align-items: center;
+    align-self: start;
+    gap: 10px;
+  }
   .font-picks { grid-column: 2; grid-row: 2; flex-wrap: wrap; }
   .color-picks { grid-column: 2; grid-row: 3; gap: 12px; flex-wrap: wrap; }
-  .size-picks { grid-column: 3; grid-row: 1; align-self: start; }
+  .size-picks { grid-column: 3; grid-row: 2; align-self: start; }
   .spray-button,
-  .visitor-post-limit { grid-column: 3; grid-row: 2 / span 2; }
+  .visitor-post-limit { grid-column: 3; grid-row: 3; }
 
   .spray-button {
     min-height: 58px;
@@ -1033,7 +1041,21 @@ textarea {
     box-shadow: 0 5px 15px rgba(0,87,174,.28);
   }
 
-  .emoji-menu { bottom: auto; top: calc(100% + 8px); }
+  .emoji-toggle {
+    flex: 0 0 48px;
+    width: 48px;
+    font-size: 25px;
+  }
+
+  .emoji-menu {
+    position: static;
+    flex: 1;
+    grid-template-columns: repeat(7, minmax(38px, 1fr));
+    margin: 0;
+    padding: 6px;
+  }
+
+  .emoji-menu button { width: 100%; min-width: 38px; font-size: 22px; }
 }
 
 @media (max-width: 900px) and (orientation: portrait) {
