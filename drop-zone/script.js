@@ -1,8 +1,9 @@
 const COLORS = ["#d52b69", "#ee7512", "#ffbf22"];
 const FONTS = [
-  "'Segoe Print', 'Comic Sans MS', cursive",
+  "'Arial Rounded MT Bold', 'Trebuchet MS', Arial, sans-serif",
   "'Arial Black', Impact, sans-serif"
 ];
+const LEGACY_BRUSH_FONT = "'Segoe Print', 'Comic Sans MS', cursive";
 const SIZE_SCALES = { small: 0.52, medium: 0.76, large: 1 };
 const PLACEMENT_SPOTS = [
   { left: 5, top: 14 }, { left: 29, top: 14 }, { left: 53, top: 14 },
@@ -687,7 +688,9 @@ async function loadWallPreferences() {
     .maybeSingle();
   if (!data) return;
   selectedColor = data.default_color || selectedColor;
-  selectedFont = data.default_font || selectedFont;
+  selectedFont = data.default_font === LEGACY_BRUSH_FONT
+    ? FONTS[0]
+    : data.default_font || selectedFont;
   selectedSize = data.default_size || selectedSize;
   document.querySelectorAll("[data-color]").forEach(item => item.classList.toggle("selected", item.dataset.color === selectedColor));
   document.querySelectorAll("[data-font]").forEach(item => item.classList.toggle("selected", item.dataset.font === selectedFont));
