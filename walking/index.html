@@ -597,6 +597,30 @@
       font: 800 clamp(9px, 1vw, 17px)/1.1 inherit; letter-spacing: .08em; text-transform: uppercase;
     }
     .route-access span { font-size: clamp(13px, 1.6vw, 27px); }
+
+    /* Toronto's lower route bends through the original Jasper panel locations.
+       Use the decorative sign area for journey controls and the unused top of
+       the parchment for route selection, keeping the trail and Falls visible. */
+    .page.route-toronto .entry {
+      left: 29.7%;
+      top: 87%;
+      width: 44.2%;
+      height: 11.5%;
+      padding-block: clamp(4px, .42vw, 8px);
+      gap: clamp(2px, .28vw, 5px);
+    }
+    .page.route-toronto .entry .message { font-size: clamp(6px, .58vw, 10px); }
+    .page.route-toronto .entry .journey-reset { margin-top: 0; }
+    .page.route-toronto .reserved-route-panel {
+      left: 82.2%;
+      top: 3.4%;
+      width: 15.4%;
+      height: 16.5%;
+    }
+    .page.route-toronto .route-access {
+      width: 88%;
+      height: 66%;
+    }
     .route-chooser { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; padding: 4%; background: rgba(9, 18, 22, .64); backdrop-filter: blur(3px); }
     .route-chooser[hidden] { display: none; }
     .route-chooser-card { position: relative; width: min(58%, 760px); padding: clamp(18px, 2.3vw, 38px); border: 2px solid #79c9ec; border-radius: clamp(14px, 1.5vw, 24px); color: #eefbff; background: linear-gradient(145deg, #152b37, #0a151c); box-shadow: 0 18px 60px rgba(0, 0, 0, .6); text-align: center; }
@@ -1001,6 +1025,7 @@
     }
 
     function applyRoute() {
+      page.classList.toggle("route-toronto", activeRoute.id === "toronto");
       page.style.setProperty("--route-background", `url("${activeRoute.background}")`);
       routeMarker.style.backgroundImage = `url("${activeRoute.marker}")`;
       journeyBaselineMiles = loadJourneyBaseline();
