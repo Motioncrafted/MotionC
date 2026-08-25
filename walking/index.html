@@ -1205,8 +1205,8 @@
       routeMarker.className = "route-marker";
       if (activeRoute.id === "toronto") {
         routeMarker.classList.add("toronto-marker");
-        if (reachedIndex >= 7 && reachedIndex <= 9) routeMarker.classList.add("pose-side");
-        else if (reachedIndex >= 10 && reachedIndex <= 11) routeMarker.classList.add("pose-back");
+        if (reachedIndex === 8) routeMarker.classList.add("pose-side");
+        else if (reachedIndex >= 9 && reachedIndex <= 11) routeMarker.classList.add("pose-back");
       }
 
       const remaining = Math.max(0, nextStation.miles - routeMiles);
