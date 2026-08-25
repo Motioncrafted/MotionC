@@ -57,7 +57,7 @@
     .route-dot {
       position: absolute;
       z-index: 3;
-      width: 1.55%;
+      width: 1.85%;
       aspect-ratio: 1;
       border: clamp(2px, .18vw, 4px) solid #fff;
       border-radius: 50%;
@@ -619,7 +619,12 @@
     }
     .page.route-toronto .route-access {
       width: 88%;
-      height: 66%;
+      height: 62%;
+    }
+    .route-test {
+      width: 88%; height: 60%; min-height: 0; padding: 0 3%;
+      border-color: #7fcbe8; background: rgba(17, 70, 96, .9);
+      font-size: clamp(7px, .68vw, 12px); white-space: nowrap;
     }
     .route-chooser { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; padding: 4%; background: rgba(9, 18, 22, .64); backdrop-filter: blur(3px); }
     .route-chooser[hidden] { display: none; }
@@ -630,10 +635,9 @@
     .route-option strong, .route-option small { display: block; }
     .route-option small { margin-top: 5%; opacity: .82; }
     .route-option.current { outline: 3px solid #f0b429; }
-    .route-marker.toronto-marker { width: 7%; height: 14%; background-size: 300% 100%; background-position: left center; transform: translate(-20%, -78%); }
+    .route-marker.toronto-marker { width: 4.7%; height: 9.3%; background-size: 300% 100%; background-position: left center; transform: translate(-50%, -92%); }
     .route-marker.toronto-marker.pose-side { background-position: center center; }
     .route-marker.toronto-marker.pose-back { background-position: right center; }
-    }
 
     .delete {
       float: right;
@@ -874,6 +878,7 @@
       <button class="route-access" id="routeAccess" type="button" aria-haspopup="dialog">
         <span id="routeAccessIcon">🔒</span><b>Routes</b>
       </button>
+      <button class="route-test" id="routeTest" type="button" hidden>Test walker</button>
     </div>
 
     <section class="route-chooser" id="routeChooser" role="dialog" aria-modal="true" aria-labelledby="routeChooserTitle" hidden>
@@ -1004,7 +1009,9 @@
     const routeAccess = document.getElementById("routeAccess");
     const routeAccessIcon = document.getElementById("routeAccessIcon");
     const routeChooser = document.getElementById("routeChooser");
+    const routeTest = document.getElementById("routeTest");
     let registeredUser = false;
+    let walkerTestIndex = -1;
     let walks = loadWalks();
     let journeyBaselineMiles = loadJourneyBaseline();
     let walksOpen = false;
@@ -1033,6 +1040,9 @@
       document.querySelectorAll("[data-route]").forEach(button => {
         button.classList.toggle("current", button.dataset.route === activeRoute.id);
       });
+      walkerTestIndex = -1;
+      routeTest.hidden = !(registeredUser && activeRoute.id === "toronto");
+      routeTest.textContent = "Test walker · next stop";
       render();
     }
 
@@ -1339,6 +1349,13 @@
       routeChooser.hidden = false;
       routeChooser.querySelector(".current")?.focus();
     });
+    routeTest.addEventListener("click", () => {
+      if (activeRoute.id !== "toronto") return;
+      walkerTestIndex = (walkerTestIndex + 1) % activeRoute.stations.length;
+      const station = activeRoute.stations[walkerTestIndex];
+      updateRouteMarker(station.miles);
+      routeTest.textContent = `${walkerTestIndex + 1}/13 · ${station.name}`;
+    });
     document.getElementById("routeChooserClose").addEventListener("click", () => {
       routeChooser.hidden = true;
       routeAccess.focus();
@@ -1351,6 +1368,7 @@
       registeredUser = Boolean(event.detail?.registered);
       routeAccessIcon.textContent = registeredUser ? "🗺️" : "🔒";
       routeAccess.setAttribute("aria-label", registeredUser ? "Choose a walking route" : "Sign in to unlock walking routes");
+      routeTest.hidden = !(registeredUser && activeRoute.id === "toronto");
       if (registeredUser && ROUTES[savedRouteId] && activeRoute.id !== savedRouteId) {
         activeRoute = ROUTES[savedRouteId];
         applyRoute();
