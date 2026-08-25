@@ -19,7 +19,7 @@
       position: relative;
       width: min(100vw, 150vh);
       aspect-ratio: 3 / 2;
-      background: url("../images/walking-page.png") center / 100% 100% no-repeat;
+      background: var(--route-background, url("../images/walking-page.png")) center / 100% 100% no-repeat;
     }
 
     /* Leave a small visual-viewport reserve for tablet browser and system chrome. */
@@ -51,6 +51,7 @@
       transform: translate(-50%, -92%);
       filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .65));
       transition: left 650ms ease, top 650ms ease;
+      background: url("../images/walking-marker-motionc.png") center / contain no-repeat;
     }
 
     .route-dot {
@@ -585,13 +586,29 @@
       height: 18.3%;
       display: grid;
       place-items: center;
-      pointer-events: none;
+      z-index: 8;
     }
 
-    .reserved-route-panel img {
-      width: 43%;
-      height: auto;
-      filter: drop-shadow(0 5px 9px rgba(25, 45, 49, .22));
+    .route-access {
+      width: 82%; height: 58%; display: grid; place-items: center; gap: 2%; padding: 4%;
+      border: clamp(1px, .12vw, 2px) solid #164e75; border-radius: clamp(7px, .8vw, 14px);
+      color: #fff; background: linear-gradient(145deg, #276b91, #153f58);
+      box-shadow: 0 5px 12px rgba(25, 45, 49, .3);
+      font: 800 clamp(9px, 1vw, 17px)/1.1 inherit; letter-spacing: .08em; text-transform: uppercase;
+    }
+    .route-access span { font-size: clamp(13px, 1.6vw, 27px); }
+    .route-chooser { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; padding: 4%; background: rgba(9, 18, 22, .64); backdrop-filter: blur(3px); }
+    .route-chooser[hidden] { display: none; }
+    .route-chooser-card { position: relative; width: min(58%, 760px); padding: clamp(18px, 2.3vw, 38px); border: 2px solid #79c9ec; border-radius: clamp(14px, 1.5vw, 24px); color: #eefbff; background: linear-gradient(145deg, #152b37, #0a151c); box-shadow: 0 18px 60px rgba(0, 0, 0, .6); text-align: center; }
+    .route-chooser-card h2 { margin: 0 0 4%; font-size: clamp(22px, 2.5vw, 42px); }
+    .route-options { display: grid; grid-template-columns: 1fr 1fr; gap: 4%; }
+    .route-option { height: auto; min-height: clamp(76px, 9vw, 140px); padding: 7%; }
+    .route-option strong, .route-option small { display: block; }
+    .route-option small { margin-top: 5%; opacity: .82; }
+    .route-option.current { outline: 3px solid #f0b429; }
+    .route-marker.toronto-marker { width: 7%; height: 14%; background-size: 300% 100%; background-position: left center; transform: translate(-20%, -78%); }
+    .route-marker.toronto-marker.pose-side { background-position: center center; }
+    .route-marker.toronto-marker.pose-back { background-position: right center; }
     }
 
     .delete {
@@ -759,13 +776,7 @@
       <label><input type="radio" name="walkingUnitSystem" value="metric"> Metric <small>kg · km · cm</small></label>
     </div>
 
-    <img
-      class="route-marker"
-      id="routeMarker"
-      src="../images/walking-marker-motionc.png"
-      alt=""
-      aria-hidden="true"
-    >
+    <div class="route-marker" id="routeMarker" aria-hidden="true"></div>
 
     <section class="panel lifetime" aria-label="Walking page total">
       <strong id="walkingTotal">0.00</strong>
@@ -835,9 +846,22 @@
       <div class="walk-list" id="historyList"></div>
     </section>
 
-    <div class="reserved-route-panel" aria-label="MotionC — reserved for future walking routes">
-      <img src="../images/nav/motionc-logo.png" alt="MotionC">
+    <div class="reserved-route-panel">
+      <button class="route-access" id="routeAccess" type="button" aria-haspopup="dialog">
+        <span id="routeAccessIcon">🔒</span><b>Routes</b>
+      </button>
     </div>
+
+    <section class="route-chooser" id="routeChooser" role="dialog" aria-modal="true" aria-labelledby="routeChooserTitle" hidden>
+      <div class="route-chooser-card">
+        <button class="walking-preferences-close" id="routeChooserClose" type="button" aria-label="Close route chooser">×</button>
+        <h2 id="routeChooserTitle">Choose your journey</h2>
+        <div class="route-options">
+          <button class="route-option" type="button" data-route="jasper"><strong>Calgary to Jasper</strong><small>244 mi · 13 stops</small></button>
+          <button class="route-option" type="button" data-route="toronto"><strong>Toronto to Niagara Falls</strong><small>105 mi · 13 stops</small></button>
+        </div>
+      </div>
+    </section>
 
     <section
       class="jasper-celebration"
@@ -866,10 +890,55 @@
     const DAILY_STORAGE_KEY = "motionc-daily-prototype-v1";
     const JOURNEY_BASELINE_KEY = "motionc-walking-journey-baseline-v1";
     const JASPER_CELEBRATION_KEY = "motionc-walking-jasper-celebrated-v1";
+    const SELECTED_ROUTE_KEY = "motionc-walking-selected-route-v1";
     const LEGACY_JOURNEY_BASELINE_KEY = "walking_page_journey_baseline_v1";
     const LEGACY_JASPER_CELEBRATION_KEY = "walking_page_jasper_celebrated_v1";
     const PREFERENCES_STORAGE_KEY = "motionc-preferences-v1";
     const KM_PER_MI = 1.609344;
+    const ROUTES = {
+      jasper: {
+        id: "jasper", name: "Calgary to Jasper", endName: "Jasper", totalMiles: 244,
+        background: "../images/walking-page.png", marker: "../images/walking-marker-motionc.png",
+        baselineKey: JOURNEY_BASELINE_KEY, celebrationKey: JASPER_CELEBRATION_KEY,
+        stations: [
+          { name: "Calgary City Limits", miles: 0, x: 14.0, y: 74.3 },
+          { name: "CP Tower", miles: 8, x: 17.55, y: 68.9 },
+          { name: "Canada Olympic Park", miles: 18, x: 19.65, y: 60.6 },
+          { name: "Cochrane", miles: 29, x: 21.8, y: 56.35 },
+          { name: "Morley", miles: 43, x: 23.25, y: 51.45 },
+          { name: "Dead Man's Flats", miles: 79, x: 25.25, y: 47.1 },
+          { name: "Banff Townsite", miles: 93, x: 23.25, y: 42.6 },
+          { name: "Castle Junction", miles: 109, x: 26.7, y: 37.8 },
+          { name: "Lake Louise", miles: 130, x: 24.3, y: 31.95 },
+          { name: "Bow Lake", miles: 155, x: 27.15, y: 26.75 },
+          { name: "Saskatchewan River Crossing", miles: 177, x: 30.0, y: 21.4 },
+          { name: "Sunwapta Falls", miles: 210, x: 32.75, y: 15.15 },
+          { name: "Jasper Townsite", miles: 244, x: 38.15, y: 10.65 }
+        ]
+      },
+      toronto: {
+        id: "toronto", name: "Toronto to Niagara Falls", endName: "Niagara Falls", totalMiles: 105,
+        background: "../images/walking-route-toronto-niagara.png", marker: "../images/walking-marker-toronto-sprites.png",
+        baselineKey: "motionc-walking-toronto-journey-baseline-v1", celebrationKey: "motionc-walking-toronto-celebrated-v1",
+        stations: [
+          { name: "Toronto", miles: 0, x: 32.7, y: 16.2 },
+          { name: "Etobicoke", miles: 10, x: 21.3, y: 20.5 },
+          { name: "Mississauga", miles: 20, x: 16.9, y: 26.7 },
+          { name: "Oakville", miles: 31, x: 17.7, y: 34.7 },
+          { name: "Burlington", miles: 42, x: 18.4, y: 45.0 },
+          { name: "Hamilton", miles: 50, x: 16.4, y: 58.3 },
+          { name: "Stoney Creek", miles: 58, x: 27.5, y: 71.3 },
+          { name: "Grimsby", miles: 68, x: 23.2, y: 79.3 },
+          { name: "Beamsville", miles: 76, x: 41.0, y: 79.8 },
+          { name: "Vineland", miles: 82, x: 56.3, y: 84.2 },
+          { name: "Jordan", miles: 87, x: 58.7, y: 63.9 },
+          { name: "St. Catharines", miles: 94, x: 63.5, y: 54.5 },
+          { name: "Niagara Falls", miles: 105, x: 78.0, y: 80.4 }
+        ]
+      }
+    };
+    const savedRouteId = localStorage.getItem(SELECTED_ROUTE_KEY);
+    let activeRoute = ROUTES.jasper;
     if (localStorage.getItem(JOURNEY_BASELINE_KEY) === null && localStorage.getItem(LEGACY_JOURNEY_BASELINE_KEY) !== null) {
       localStorage.setItem(JOURNEY_BASELINE_KEY, localStorage.getItem(LEGACY_JOURNEY_BASELINE_KEY));
       localStorage.removeItem(LEGACY_JOURNEY_BASELINE_KEY);
@@ -907,39 +976,48 @@
     const jasperCelebration = document.getElementById("jasperCelebration");
     const celebrationDismiss = document.getElementById("celebrationDismiss");
     const confetti = document.getElementById("confetti");
+    const page = document.querySelector(".page");
+    const routeAccess = document.getElementById("routeAccess");
+    const routeAccessIcon = document.getElementById("routeAccessIcon");
+    const routeChooser = document.getElementById("routeChooser");
+    let registeredUser = false;
     let walks = loadWalks();
     let journeyBaselineMiles = loadJourneyBaseline();
     let walksOpen = false;
 
-    /*
-      Station positions are percentages of the walking-page image.
-      Miles are cumulative from Calgary City Limits.
-    */
-    const routeStations = [
-      { name: "Calgary City Limits", miles: 0,   x: 14.0,  y: 74.3 },
-      { name: "CP Tower",            miles: 8,   x: 17.55, y: 68.9 },
-      { name: "Canada Olympic Park", miles: 18,  x: 19.65, y: 60.6 },
-      { name: "Cochrane",            miles: 29,  x: 21.8,  y: 56.35 },
-      { name: "Morley",              miles: 43,  x: 23.25, y: 51.45 },
-      { name: "Dead Man's Flats",    miles: 79,  x: 25.25, y: 47.1 },
-      { name: "Banff Townsite",      miles: 93,  x: 23.25, y: 42.6 },
-      { name: "Castle Junction",     miles: 109, x: 26.7,  y: 37.8 },
-      { name: "Lake Louise",         miles: 130, x: 24.3,  y: 31.95 },
-      { name: "Bow Lake",            miles: 155, x: 27.15, y: 26.75 },
-      { name: "Saskatchewan River Crossing", miles: 177, x: 30.0, y: 21.4 },
-      { name: "Sunwapta Falls",      miles: 210, x: 32.75, y: 15.15 },
-      { name: "Jasper Townsite",     miles: 244, x: 38.15, y: 10.65 }
-    ];
+    let routeDotElements = [];
 
-    const routeDotElements = routeStations.map(station => {
-      const dot = document.createElement("span");
-      dot.className = "route-dot future";
-      dot.style.left = station.x + "%";
-      dot.style.top = station.y + "%";
-      dot.title = station.name;
-      routeDots.appendChild(dot);
-      return dot;
-    });
+    function buildRouteDots() {
+      routeDots.replaceChildren();
+      routeDotElements = activeRoute.stations.map(station => {
+        const dot = document.createElement("span");
+        dot.className = "route-dot future";
+        dot.style.left = station.x + "%";
+        dot.style.top = station.y + "%";
+        dot.title = station.name;
+        routeDots.appendChild(dot);
+        return dot;
+      });
+    }
+
+    function applyRoute() {
+      page.style.setProperty("--route-background", `url("${activeRoute.background}")`);
+      routeMarker.style.backgroundImage = `url("${activeRoute.marker}")`;
+      journeyBaselineMiles = loadJourneyBaseline();
+      buildRouteDots();
+      document.querySelectorAll("[data-route]").forEach(button => {
+        button.classList.toggle("current", button.dataset.route === activeRoute.id);
+      });
+      render();
+    }
+
+    function selectRoute(routeId) {
+      if (!ROUTES[routeId] || (routeId === "toronto" && !registeredUser)) return;
+      activeRoute = ROUTES[routeId];
+      localStorage.setItem(SELECTED_ROUTE_KEY, routeId);
+      routeChooser.hidden = true;
+      applyRoute();
+    }
 
     function buildConfetti() {
       const colors = ["#ed7d18", "#176fd1", "#2f9e44", "#f0b429", "#cf3f4f"];
@@ -960,10 +1038,13 @@
       }
     }
 
-    function showJasperCelebration() {
+    function showRouteCelebration() {
       buildConfetti();
+      document.getElementById("jasperCelebrationTitle").textContent = `🎉 Welcome to ${activeRoute.endName}!`;
+      document.getElementById("jasperCelebrationMessage").innerHTML =
+        `<strong>Congratulations—you made it!</strong><br>You walked the full ${formatDistance(activeRoute.totalMiles)} ${activeRoute.name} route.`;
       jasperCelebration.hidden = false;
-      localStorage.setItem(JASPER_CELEBRATION_KEY, "true");
+      localStorage.setItem(activeRoute.celebrationKey, "true");
       celebrationDismiss.focus();
     }
 
@@ -972,14 +1053,14 @@
       document.getElementById("resetJourney").focus();
     }
 
-    function updateJasperCelebration(totalMiles) {
-      if (totalMiles < 244) {
-        localStorage.removeItem(JASPER_CELEBRATION_KEY);
+    function updateRouteCelebration(totalMiles) {
+      if (totalMiles < activeRoute.totalMiles) {
+        localStorage.removeItem(activeRoute.celebrationKey);
         return;
       }
 
-      if (localStorage.getItem(JASPER_CELEBRATION_KEY) !== "true") {
-        showJasperCelebration();
+      if (localStorage.getItem(activeRoute.celebrationKey) !== "true") {
+        showRouteCelebration();
       }
     }
 
@@ -1046,7 +1127,7 @@
     }
 
     function loadJourneyBaseline() {
-      const saved = Number(localStorage.getItem(JOURNEY_BASELINE_KEY));
+      const saved = Number(localStorage.getItem(activeRoute.baselineKey));
       return Number.isFinite(saved) && saved > 0 ? saved : 0;
     }
 
@@ -1065,7 +1146,8 @@
     }
 
     function updateRouteMarker(totalMiles) {
-      const routeMiles = Math.min(Math.max(totalMiles, 0), 244);
+      const routeStations = activeRoute.stations;
+      const routeMiles = Math.min(Math.max(totalMiles, 0), activeRoute.totalMiles);
       let reachedStation = routeStations[0];
       let nextStation = routeStations[1];
       let reachedIndex = 0;
@@ -1085,6 +1167,12 @@
 
       routeMarker.style.left = reachedStation.x + "%";
       routeMarker.style.top = reachedStation.y + "%";
+      routeMarker.className = "route-marker";
+      if (activeRoute.id === "toronto") {
+        routeMarker.classList.add("toronto-marker");
+        if (reachedIndex >= 7 && reachedIndex <= 9) routeMarker.classList.add("pose-side");
+        else if (reachedIndex >= 10 && reachedIndex <= 11) routeMarker.classList.add("pose-back");
+      }
 
       const remaining = Math.max(0, nextStation.miles - routeMiles);
         routeMarker.title = reachedStation.name +
@@ -1094,17 +1182,18 @@
     }
 
     function renderUpcoming(walkingTotal) {
+      const routeStations = activeRoute.stations;
       const upcoming = routeStations
         .filter(station => station.miles > walkingTotal)
         .slice(0, 3);
 
       if (!upcoming.length) {
         upcomingList.innerHTML =
-          '<p class="empty">Route complete!<br>You reached Jasper.</p>';
+          `<p class="empty">Route complete!<br>You reached ${activeRoute.endName}.</p>`;
         progressLabel.textContent = "Route Complete";
         progressPercent.textContent = "100%";
         progressFill.style.width = "100%";
-        progressDetail.textContent = `${formatDistance(244)} of ${formatDistance(244)}`;
+        progressDetail.textContent = `${formatDistance(activeRoute.totalMiles)} of ${formatDistance(activeRoute.totalMiles)}`;
         return;
       }
 
@@ -1169,7 +1258,7 @@
 
       renderUpcoming(walkingTotal);
       renderWalkHistory(selected);
-      updateJasperCelebration(walkingTotal);
+      updateRouteCelebration(walkingTotal);
     }
 
     document.querySelectorAll("[data-change]").forEach(button => {
@@ -1217,23 +1306,55 @@
 
     celebrationDismiss.addEventListener("click", closeJasperCelebration);
 
+    routeAccess.addEventListener("click", () => {
+      if (!registeredUser) {
+        window.location.href = "/auth/?next=%2Fwalking%2F";
+        return;
+      }
+      routeChooser.hidden = false;
+      routeChooser.querySelector(".current")?.focus();
+    });
+    document.getElementById("routeChooserClose").addEventListener("click", () => {
+      routeChooser.hidden = true;
+      routeAccess.focus();
+    });
+    document.querySelectorAll("[data-route]").forEach(button => {
+      button.addEventListener("click", () => selectRoute(button.dataset.route));
+    });
+
+    window.addEventListener("motionc:registration", event => {
+      registeredUser = Boolean(event.detail?.registered);
+      routeAccessIcon.textContent = registeredUser ? "🗺️" : "🔒";
+      routeAccess.setAttribute("aria-label", registeredUser ? "Choose a walking route" : "Sign in to unlock walking routes");
+      if (registeredUser && ROUTES[savedRouteId] && activeRoute.id !== savedRouteId) {
+        activeRoute = ROUTES[savedRouteId];
+        applyRoute();
+        return;
+      }
+      if (!registeredUser && activeRoute.id !== "jasper") {
+        activeRoute = ROUTES.jasper;
+        localStorage.setItem(SELECTED_ROUTE_KEY, "jasper");
+        applyRoute();
+      }
+    });
+
     document.getElementById("resetJourney").addEventListener("click", () => {
       const confirmed = confirm(
-        "Start a new Calgary-to-Jasper journey from your current walking total?\n\n" +
+        `Start a new ${activeRoute.name} journey from your current walking total?\n\n` +
         "Your Daily walking history will not be changed."
       );
       if (!confirmed) return;
 
       journeyBaselineMiles = totalRecordedMiles();
-      localStorage.setItem(JOURNEY_BASELINE_KEY, String(journeyBaselineMiles));
-      localStorage.removeItem(JASPER_CELEBRATION_KEY);
+      localStorage.setItem(activeRoute.baselineKey, String(journeyBaselineMiles));
+      localStorage.removeItem(activeRoute.celebrationKey);
       render();
     });
 
     document.addEventListener("keydown", event => {
-      if (event.key === "Escape" && !jasperCelebration.hidden) {
-        closeJasperCelebration();
-      }
+      if (event.key !== "Escape") return;
+      if (!jasperCelebration.hidden) closeJasperCelebration();
+      if (!routeChooser.hidden) routeChooser.hidden = true;
     });
 
     historyList.addEventListener("click", event => {
@@ -1255,7 +1376,14 @@
       render();
     });
 
-    render();
+    applyRoute();
+  </script>
+  <script type="module">
+    import { getSession } from "/shared/motionc-supabase.js?v=20260820-2";
+    const session = await getSession().catch(() => null);
+    window.dispatchEvent(new CustomEvent("motionc:registration", {
+      detail: { registered: Boolean(session?.user && !session.user.is_anonymous) }
+    }));
   </script>
   <script type="module" src="/shared/motionc-supabase.js?v=20260820-2"></script>
 </body>
