@@ -10,7 +10,7 @@
     movement: Object.freeze({ targetDays: 5, targetMinutes: 210, targetStreak: 5 }),
     recovery: Object.freeze({ sleepTargetHours: 7.5, stressLow: 1, stressHigh: 5 }),
     support: Object.freeze({ hydrationTargetOunces: 80 }),
-    body: Object.freeze({ stableWeightPercent: 0.006, meaningfulWeightPercent: 0.015, goalRangePounds: 4 }),
+    body: Object.freeze({ stableWeightPercent: 0.006, meaningfulWeightPercent: 0.015, goalRangePounds: 4, maximumContextScore: 0.5, belowRangeSouthCap: 0.35 }),
     confidence: Object.freeze({ directionMinimum: 0.35, medium: 0.5, high: 0.75, vectorMinimum: 0.12 })
   });
 
@@ -19,7 +19,7 @@
   const round = value => Math.round(value * 1000) / 1000;
   const dateValue = date => new Date(`${date}T12:00:00`);
   const daysAgo = date => Math.floor((Date.now() - dateValue(date).getTime()) / 86400000);
-  const recentDate = (date, days) => daysAgo(date) >= 0 && daysAgo(date) <= days;
+  const recentDate = (date, days) => daysAgo(date) >= 0 && daysAgo(date) < days;
   const finite = value => Number.isFinite(Number(value));
 
   function referenceFixture() {
@@ -33,8 +33,21 @@
     return { entries, dailyGauges, weeks: { [iso(0)]: { assessed: true, lifestyleScale: 3, updatedAt: new Date().toISOString(), values: { nutrition: 3, alcohol: 3, smoking: 3, sleep: 3, hydration: 3, activity: 3, stress: 3, movement: 3 } } }, profile: { realGoal: 180, waist: 35 } };
   }
 
+  function engineReviewFixture() {
+    const iso = offset => { const date = new Date(); date.setDate(date.getDate() - offset); return date.toISOString().slice(0, 10); };
+    const entries = {}, dailyGauges = {};
+    for (let offset = 0; offset < 15; offset += 1) {
+      const date = iso(offset);
+      entries[date] = { date, minutes: offset === 0 ? 134 : 120, distance: 4, weight: offset === 14 ? 196.6 : offset === 0 ? 189.6 : null };
+      dailyGauges[date] = { hydration: { value: 31.667 }, sleep: { value: 6.017 }, stress: { value: 2.733 } };
+    }
+    return { entries, dailyGauges, weeks: { [iso(0)]: { assessed: true, lifestyleScale: 3, updatedAt: new Date().toISOString(), values: { nutrition: 3, alcohol: 3, smoking: 3, sleep: 2, hydration: 1, activity: 3, stress: 2, movement: 3 } } }, profile: { realGoal: 195, waist: 35 } };
+  }
+
   function loadState() {
-    if (new URLSearchParams(location.search).get("fixture") === "reference") return referenceFixture();
+    const fixture = new URLSearchParams(location.search).get("fixture");
+    if (fixture === "reference") return referenceFixture();
+    if (fixture === "engine-review") return engineReviewFixture();
     try {
       const state = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
       return { entries: state.entries || {}, weeks: state.weeks || {}, profile: state.profile || {}, dailyGauges: state.dailyGauges || {} };
@@ -56,7 +69,14 @@
 
   function movementDriver(state) {
     const entries = Object.entries(state.entries).map(([date, entry]) => ({ date, minutes: Number(entry.minutes || 0), distance: Number(entry.distance || 0) })).filter(item => recentDate(item.date, CONFIG.lookbackDays));
-    const walking = entries.filter(item => item.minutes > 0 || item.distance > 0);
+    const walkingByDate = new Map();
+    entries.filter(item => item.minutes > 0 || item.distance > 0).forEach(item => {
+      const existing = walkingByDate.get(item.date) || { date: item.date, minutes: 0, distance: 0 };
+      existing.minutes += item.minutes;
+      existing.distance += item.distance;
+      walkingByDate.set(item.date, existing);
+    });
+    const walking = [...walkingByDate.values()];
     const days = walking.length;
     const minutes = walking.reduce((sum, item) => sum + item.minutes, 0);
     const streak = streakFor(entries);
@@ -92,20 +112,28 @@
     const scale = week?.[1]?.lifestyleScale===3 ? 3 : 1;
     const nonDuplicateKeys = ["nutrition","alcohol","smoking"];
     const lifestyleValues = nonDuplicateKeys.filter(key=>finite(values[key])).map(key=>scale===3 ? Number(values[key])/3 : Number(values[key]));
-    const parts=[];
-    if(hydrationAvg!==null) parts.push(clamp(hydrationAvg/CONFIG.support.hydrationTargetOunces*2-1));
-    if(lifestyleValues.length) parts.push(clamp(average(lifestyleValues)*2-1));
+    const hydrationComponent=hydrationAvg===null?null:clamp(hydrationAvg/CONFIG.support.hydrationTargetOunces*2-1);
+    const lifestyleComponents=Object.fromEntries(nonDuplicateKeys.map(key=>{const value=finite(values[key])?(scale===3?Number(values[key])/3:Number(values[key])):null;return [key,{value,normalized:value===null?null:clamp(value*2-1)}];}));
+    const lifestyleComponent=lifestyleValues.length?clamp(average(lifestyleValues)*2-1):null;
+    const parts=[hydrationComponent,lifestyleComponent].filter(value=>value!==null);
     const score=average(parts), available=score!==null;
     const ignored=["Lifestyle sleep excluded (Recovery)","Lifestyle stress excluded (Recovery)","Lifestyle activity/movement excluded (Movement)"];
-    return {key:"support",available,score,vector:{x:0,y:available?score*CONFIG.weights.support:0},completeness:clamp(((hydration.length?1:0)+(lifestyleValues.length/nonDuplicateKeys.length))/2,0,1),inputs:{hydrationAverageOunces:hydrationAvg===null?null:round(hydrationAvg),hydrationDays:hydration.length,lifestyleWeek:week?.[0]||null,nonDuplicateLifestyle:Object.fromEntries(nonDuplicateKeys.map(key=>[key,finite(values[key])?round(scale===3?Number(values[key])/3:Number(values[key])):null]))},ignored};
+    return {key:"support",available,score,vector:{x:0,y:available?score*CONFIG.weights.support:0},completeness:clamp(((hydration.length?1:0)+(lifestyleValues.length/nonDuplicateKeys.length))/2,0,1),inputs:{hydrationAverageOunces:hydrationAvg===null?null:round(hydrationAvg),hydrationDays:hydration.length,lifestyleWeek:week?.[0]||null,components:{hydration:{value:hydrationAvg===null?null:round(hydrationAvg),normalized:hydrationComponent===null?null:round(hydrationComponent)},nutrition:lifestyleComponents.nutrition,alcohol:lifestyleComponents.alcohol,smoking:lifestyleComponents.smoking,lifestyleCombined:lifestyleComponent===null?null:round(lifestyleComponent),supportCombined:score===null?null:round(score)}},ignored};
   }
 
   function bodyTrendDriver(state) {
     const weights=Object.entries(state.entries).filter(([date,entry])=>recentDate(date,CONFIG.bodyLookbackDays)&&finite(entry.weight)&&Number(entry.weight)>0).map(([date,entry])=>({date,value:Number(entry.weight)})).sort((a,b)=>a.date.localeCompare(b.date));
-    const goal=Number(state.profile.realGoal||0); let score=null,description="Need at least two recent weight measurements";
-    if(weights.length>=2){const first=weights[0].value,last=weights.at(-1).value,change=(last-first)/first; if(Math.abs(change)<=CONFIG.body.stableWeightPercent){score=goal>0&&Math.abs(last-goal)<=CONFIG.body.goalRangePounds?.1:0;description=goal>0&&Math.abs(last-goal)<=CONFIG.body.goalRangePounds?"Stable within the intended goal range":"Stable recent weight";}else if(goal>0){const toward=Math.abs(first-goal)-Math.abs(last-goal);score=clamp(toward/(first*CONFIG.body.meaningfulWeightPercent));description=toward>0?"Moving toward the recorded goal":"Moving away from the recorded goal";}else{score=clamp(-change/CONFIG.body.meaningfulWeightPercent);description=change<0?"Recent weight decreased":"Recent weight increased";}}
-    const available=score!==null; const x=available&&Math.abs(score)<=.1?-CONFIG.weights.bodyTrend*.55:0; const y=available?score*CONFIG.weights.bodyTrend:0;
-    return {key:"bodyTrend",available,score,vector:{x,y},completeness:clamp(weights.length/4,0,1),inputs:{weightMeasurements:weights.length,firstWeight:weights[0]?.value??null,lastWeight:weights.at(-1)?.value??null,goalWeight:goal||null,weightInterpretation:description,waistCurrent:finite(state.profile.waist)?Number(state.profile.waist):null,waistTrend:null},ignored:["Waist trend ignored: historical waist measurements are not available"]};
+    const realGoal=Number(state.profile.realGoal||0),motivationalGoal=Number(state.profile.motivationalGoal||0);
+    const rangeLow=realGoal>0?realGoal:null,rangeHigh=motivationalGoal>0?Math.max(realGoal,motivationalGoal):realGoal>0?realGoal+CONFIG.body.goalRangePounds:null;
+    let score=null,description="Need at least two recent weight measurements",stableInRange=false;
+    if(weights.length>=2){const first=weights[0].value,last=weights.at(-1).value,change=(last-first)/first,stable=Math.abs(change)<=CONFIG.body.stableWeightPercent;
+      if(rangeLow!==null){const inRange=last>=rangeLow&&last<=rangeHigh;stableInRange=inRange&&stable;
+        if(inRange){score=stable?0:clamp(-change/CONFIG.body.meaningfulWeightPercent,-CONFIG.body.maximumContextScore,CONFIG.body.maximumContextScore);description=stable?"Stable within the intended Vibratory Zone":"Moving within the intended Vibratory Zone";}
+        else if(last<rangeLow){if(stable){score=0;description="Stable below the recorded Vibratory Zone; treated as context, not failure";}else if(change>0){score=clamp(change/CONFIG.body.meaningfulWeightPercent,0,CONFIG.body.maximumContextScore);description="Moving upward toward the recorded Vibratory Zone";}else{score=-Math.min(CONFIG.body.belowRangeSouthCap,Math.abs(change)/CONFIG.body.meaningfulWeightPercent);description="Below the recorded Vibratory Zone and still decreasing; limited South context";}}
+        else {if(stable){score=0;description="Stable above the recorded Vibratory Zone";}else if(change<0){score=clamp(-change/CONFIG.body.meaningfulWeightPercent,0,CONFIG.body.maximumContextScore);description="Moving downward toward the recorded Vibratory Zone";}else{score=-Math.min(CONFIG.body.maximumContextScore,change/CONFIG.body.meaningfulWeightPercent);description="Above the recorded Vibratory Zone and moving farther away";}}
+      } else {score=stable?0:clamp(-change/CONFIG.body.meaningfulWeightPercent,-CONFIG.body.maximumContextScore,CONFIG.body.maximumContextScore);description=stable?"Stable recent weight; no goal range recorded":change<0?"Recent weight decreased; no goal range recorded":"Recent weight increased; no goal range recorded";}}
+    const available=score!==null; const x=available&&(stableInRange||Math.abs(score)<=.05)?-CONFIG.weights.bodyTrend*.55:0; const y=available?score*CONFIG.weights.bodyTrend:0;
+    return {key:"bodyTrend",available,score,vector:{x,y},completeness:clamp(weights.length/4,0,1),inputs:{weightMeasurements:weights.length,firstWeight:weights[0]?.value??null,lastWeight:weights.at(-1)?.value??null,realGoal:realGoal||null,motivationalGoal:motivationalGoal||null,vibratoryZone:rangeLow===null?null:{low:rangeLow,high:rangeHigh},weightInterpretation:description,waistCurrent:finite(state.profile.waist)?Number(state.profile.waist):null,waistTrend:null},ignored:["Waist trend ignored: historical waist measurements are not available"]};
   }
 
   function labelForAngle(angle) {
@@ -125,7 +153,7 @@
     el("supportSummary").textContent=s.available?"Hydration and non-duplicated Lifestyle habits contribute support.":"No recent support inputs yet.";list("supportValues",[`Hydration: ${fmt(s.inputs.hydrationAverageOunces)} oz average`,`Lifestyle week: ${fmt(s.inputs.lifestyleWeek)}`]);
     el("bodySummary").textContent=b.inputs.weightInterpretation;list("bodyValues",[`Weight measurements: ${b.inputs.weightMeasurements}`,`Waist trend: insufficient history`]);
     const displayAngle=result.defensible?result.angle:0;el("needle").style.transform=`translate(-50%,-100%) rotate(${displayAngle}deg)`;el("resultArrow").style.transform=`rotate(${displayAngle}deg)`;el("directionResult").textContent=result.direction?`Leaning ${result.direction}`:"Building your direction…";el("directionExplanation").textContent=result.direction?explanationFor(result.direction):"There is not yet enough recent, complete data for a defensible direction.";
-    const confidenceLabel=result.confidence>=CONFIG.confidence.high?"High":result.confidence>=CONFIG.confidence.medium?"Medium":"Low";el("confidenceLabel").textContent=confidenceLabel;const dots=Math.round(result.confidence*5);el("confidenceDots").innerHTML=Array.from({length:5},(_,i)=>`<i class="${i<dots?"on":""}"></i>`).join("");el("confidenceExplanation").textContent=`${Math.round(result.confidence*100)}% usable recent-data coverage. Confidence changes visibility of the result, not the needle colour.`;
+    const coveragePercent=Math.round(result.confidence*100);const confidenceLabel=result.confidence>=CONFIG.confidence.high?"High":result.confidence>=CONFIG.confidence.medium?"Medium":"Low";el("coveragePercent").textContent=`${coveragePercent}%`;el("confidenceLabel").textContent=confidenceLabel;const dots=Math.round(result.confidence*5);el("confidenceDots").setAttribute("aria-label",`${coveragePercent}% data coverage; ${confidenceLabel} Compass confidence`);el("confidenceDots").innerHTML=Array.from({length:5},(_,i)=>`<i class="${i<dots?"on":""}"></i>`).join("");el("confidenceExplanation").textContent="Coverage describes usable recent data, not certainty. Confidence affects whether a direction is shown; it never recolours the needle.";
     const cards=result.drivers.map(d=>({title:d.key==="bodyTrend"?"Body Trend":d.key[0].toUpperCase()+d.key.slice(1),text:`Input/value:\n${JSON.stringify(d.inputs,null,2)}\n\nVector contribution: (${round(d.vector.x)}, ${round(d.vector.y)})\nNormalized score: ${fmt(d.score)}\nCompleteness: ${Math.round(d.completeness*100)}%\nMissing/ignored:\n${d.ignored.length?d.ignored.join("\n"):"None"}`}));cards.push({title:"Resulting vector",text:`X: ${round(result.x)}\nY: ${round(result.y)}\nMagnitude: ${round(result.magnitude)}\nAngle: ${round(result.angle)}°\nDirection: ${result.direction||"Building your direction…"}\nConfidence: ${Math.round(result.confidence*100)}%`});el("diagnosticGrid").innerHTML=cards.map(card=>`<article class="diagnostic-item"><h3>${card.title}</h3><p>${card.text}</p></article>`).join("");el("configReadout").textContent=JSON.stringify(CONFIG,null,2);
   }
 
