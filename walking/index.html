@@ -619,12 +619,7 @@
     }
     .page.route-toronto .route-access {
       width: 88%;
-      height: 62%;
-    }
-    .route-test {
-      width: 88%; height: 60%; min-height: 0; padding: 0 3%;
-      border-color: #7fcbe8; background: rgba(17, 70, 96, .9);
-      font-size: clamp(7px, .68vw, 12px); white-space: nowrap;
+      height: 66%;
     }
     .route-chooser { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; padding: 4%; background: rgba(9, 18, 22, .64); backdrop-filter: blur(3px); }
     .route-chooser[hidden] { display: none; }
@@ -878,7 +873,6 @@
       <button class="route-access" id="routeAccess" type="button" aria-haspopup="dialog">
         <span id="routeAccessIcon">🔒</span><b>Routes</b>
       </button>
-      <button class="route-test" id="routeTest" type="button" hidden>Test walker</button>
     </div>
 
     <section class="route-chooser" id="routeChooser" role="dialog" aria-modal="true" aria-labelledby="routeChooserTitle" hidden>
@@ -1009,9 +1003,7 @@
     const routeAccess = document.getElementById("routeAccess");
     const routeAccessIcon = document.getElementById("routeAccessIcon");
     const routeChooser = document.getElementById("routeChooser");
-    const routeTest = document.getElementById("routeTest");
     let registeredUser = false;
-    let walkerTestIndex = -1;
     let walks = loadWalks();
     let journeyBaselineMiles = loadJourneyBaseline();
     let walksOpen = false;
@@ -1040,9 +1032,6 @@
       document.querySelectorAll("[data-route]").forEach(button => {
         button.classList.toggle("current", button.dataset.route === activeRoute.id);
       });
-      walkerTestIndex = -1;
-      routeTest.hidden = !(registeredUser && activeRoute.id === "toronto");
-      routeTest.textContent = "Test walker · next stop";
       render();
     }
 
@@ -1349,13 +1338,6 @@
       routeChooser.hidden = false;
       routeChooser.querySelector(".current")?.focus();
     });
-    routeTest.addEventListener("click", () => {
-      if (activeRoute.id !== "toronto") return;
-      walkerTestIndex = (walkerTestIndex + 1) % activeRoute.stations.length;
-      const station = activeRoute.stations[walkerTestIndex];
-      updateRouteMarker(station.miles);
-      routeTest.textContent = `${walkerTestIndex + 1}/13 · ${station.name}`;
-    });
     document.getElementById("routeChooserClose").addEventListener("click", () => {
       routeChooser.hidden = true;
       routeAccess.focus();
@@ -1368,7 +1350,6 @@
       registeredUser = Boolean(event.detail?.registered);
       routeAccessIcon.textContent = registeredUser ? "🗺️" : "🔒";
       routeAccess.setAttribute("aria-label", registeredUser ? "Choose a walking route" : "Sign in to unlock walking routes");
-      routeTest.hidden = !(registeredUser && activeRoute.id === "toronto");
       if (registeredUser && ROUTES[savedRouteId] && activeRoute.id !== savedRouteId) {
         activeRoute = ROUTES[savedRouteId];
         applyRoute();
