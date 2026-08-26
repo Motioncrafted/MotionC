@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Your Compass — MotionC Prototype</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="compass-page">
+    <header class="hero">
+      <a class="back-link" href="../landing-page/">← Back to MotionC</a>
+      <p class="prototype-badge">Experimental prototype</p>
+      <div class="brand">Motion<span>C</span></div>
+      <h1>Your Compass</h1>
+      <p>Your recent pattern. Your direction.</p>
+    </header>
+
+    <section class="intro-grid" aria-label="About Your Compass">
+      <article class="info-card"><h2>What is this?</h2><p>The Compass interprets the direction of your recent recorded behaviours and trends.</p><strong>It is not a score. It is a guide.</strong></article>
+      <article class="info-card"><h2>How to use it</h2><p>The needle shows the direction supported by the data below. Keep recording consistently and watch the pattern change.</p><strong>MCP shows your position. Compass shows your direction.</strong></article>
+    </section>
+
+    <section class="compass-layout">
+      <div class="driver-column">
+        <article class="driver movement"><div class="driver-icon">🚶</div><h2>Movement</h2><p id="movementSummary">Looking for recent walking…</p><ul id="movementValues"></ul></article>
+        <article class="driver support"><div class="driver-icon">💧</div><h2>Support</h2><p id="supportSummary">Looking for supportive habits…</p><ul id="supportValues"></ul></article>
+      </div>
+
+      <section class="compass-stage" aria-label="Compass result">
+        <div class="compass-face" id="compassFace">
+          <div class="axis axis-vertical"></div><div class="axis axis-horizontal"></div>
+          <div class="direction north"><b>North</b><span>Fat-Burn Support</span></div>
+          <div class="direction east"><b>East</b><span>Recovery</span></div>
+          <div class="direction south"><b>South</b><span>Glucose-Heavy</span></div>
+          <div class="direction west"><b>West</b><span>Balanced</span></div>
+          <div class="needle" id="needle" aria-hidden="true"><span></span></div>
+          <div class="mo-centre"><img src="../images/mo-visual-explainer-blue.png" alt="Mo examining your recent direction"></div>
+        </div>
+        <article class="result-card" aria-live="polite">
+          <div class="result-arrow" id="resultArrow">↑</div>
+          <div><span>Your direction</span><h2 id="directionResult">Building your direction…</h2><p id="directionExplanation">Keep recording recent information so the Compass has enough evidence to respond.</p></div>
+        </article>
+        <article class="confidence-card">
+          <div><span>Data confidence</span><strong id="confidenceLabel">Low</strong></div>
+          <div class="confidence-dots" id="confidenceDots" aria-label="Data confidence"></div>
+          <p id="confidenceExplanation">Checking data availability and recency…</p>
+        </article>
+      </section>
+
+      <div class="driver-column">
+        <article class="driver recovery"><div class="driver-icon">🌙</div><h2>Recovery</h2><p id="recoverySummary">Looking for sleep and stress…</p><ul id="recoveryValues"></ul></article>
+        <article class="driver body"><div class="driver-icon">⚖️</div><h2>Body Trend</h2><p id="bodySummary">Looking for slower-moving trends…</p><ul id="bodyValues"></ul></article>
+      </div>
+    </section>
+
+    <section class="calculation-note"><h2>How it’s calculated</h2><p>Each driver creates a configurable contribution to a two-dimensional vector. North is positive Y, South is negative Y, East is positive X and West is negative X. Missing information contributes nothing—it never counts as Balanced.</p><p>The result is an interpretation of recorded behaviour and trends. It does not measure real-time fuel use, insulin, metabolic flexibility or other unrecorded physiology.</p></section>
+
+    <details class="diagnostics" open>
+      <summary>Prototype diagnostics — explain the needle</summary>
+      <div class="diagnostic-grid" id="diagnosticGrid"></div>
+      <div class="config-readout"><h3>Current configurable weights and thresholds</h3><pre id="configReadout"></pre></div>
+    </details>
+  </main>
+  <script type="module" src="../shared/motionc-supabase.js?v=20260820-2"></script>
+  <script src="script.js?v=20260826-1"></script>
+</body>
+</html>
