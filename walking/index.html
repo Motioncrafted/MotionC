@@ -812,7 +812,7 @@
     <section class="panel entry" aria-labelledby="entryTitle">
       <h2 id="entryTitle">Walking Progress</h2>
       <p class="message">Current Journey tracks this route. Lifetime includes every walk saved on Daily, even after starting a new journey.</p>
-      <button class="journey-reset" id="resetJourney" type="button">Start New Journey</button>
+      <button class="journey-reset" id="resetJourney" type="button" aria-live="polite">Start New Journey</button>
       <form id="walkForm" hidden aria-hidden="true">
         <div class="fields">
           <label>Date
@@ -1362,7 +1362,7 @@
       }
     });
 
-    document.getElementById("resetJourney").addEventListener("click", () => {
+    document.getElementById("resetJourney").addEventListener("click", event => {
       const confirmed = confirm(
         `Start a new ${activeRoute.name} journey from your current walking total?\n\n` +
         "Your Daily walking history will not be changed."
@@ -1373,6 +1373,14 @@
       localStorage.setItem(activeRoute.baselineKey, String(journeyBaselineMiles));
       localStorage.removeItem(activeRoute.celebrationKey);
       render();
+
+      const button = event.currentTarget;
+      button.disabled = true;
+      button.textContent = "✓ New Journey Started";
+      window.setTimeout(() => {
+        button.textContent = "Start New Journey";
+        button.disabled = false;
+      }, 2200);
     });
 
     document.addEventListener("keydown", event => {
