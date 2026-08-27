@@ -977,6 +977,77 @@
       color: #4f311d;
     }
 
+    .reader-content .article-faq {
+      display: grid;
+      gap: .7em;
+      margin: 1.1em 0 1.5em;
+    }
+
+    .reader-content .article-faq details {
+      overflow: hidden;
+      border: 1px solid rgba(117, 69, 31, .28);
+      border-radius: 12px;
+      background: rgba(255, 249, 235, .78);
+      box-shadow: 0 2px 8px rgba(78, 45, 16, .08);
+    }
+
+    .reader-content .article-faq details[open] {
+      border-color: rgba(40, 122, 67, .5);
+      background: #fffdf7;
+    }
+
+    .reader-content .article-faq summary {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1em;
+      align-items: center;
+      padding: .85em 1em;
+      color: #4f311d;
+      font-weight: 800;
+      line-height: 1.35;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .reader-content .article-faq summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .reader-content .article-faq summary::after {
+      content: "›";
+      display: grid;
+      width: 1.7em;
+      height: 1.7em;
+      place-items: center;
+      border-radius: 50%;
+      color: #fff;
+      background: #287a43;
+      font-size: 1.15em;
+      line-height: 1;
+      transform: rotate(90deg);
+      transition: transform 160ms ease, background 160ms ease;
+    }
+
+    .reader-content .article-faq details[open] summary::after {
+      background: #805323;
+      transform: rotate(-90deg);
+    }
+
+    .reader-content .article-faq summary:hover,
+    .reader-content .article-faq summary:focus-visible {
+      outline: none;
+      background: rgba(240, 180, 41, .14);
+    }
+
+    .reader-content .article-faq-answer {
+      padding: 0 1em .9em;
+      border-top: 1px solid rgba(117, 69, 31, .14);
+    }
+
+    .reader-content .article-faq-answer p {
+      margin: .8em 0 0;
+    }
+
     .article-explainer {
       margin: 2em auto .5em;
       text-align: center;
@@ -997,6 +1068,22 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+    }
+
+    .qa-learning-badge {
+      display: inline-grid;
+      width: 1.35em;
+      height: 1.35em;
+      margin-right: .38em;
+      place-items: center;
+      border: 1px solid #9b671e;
+      border-radius: 50%;
+      color: #fff8db;
+      background: linear-gradient(145deg, #e5ad32, #a96f17);
+      box-shadow: 0 1px 4px rgba(78, 45, 16, .25);
+      font-size: .78em;
+      line-height: 1;
+      vertical-align: .08em;
     }
 
     .reader-title-text {
@@ -1242,48 +1329,13 @@
       white-space: nowrap;
     }
 
-    /* Centre catalogue and reader sheets in the usable area beside the desktop rail. */
-    @media (min-width: 701px) {
-      .section-overlay,
-      .reader-overlay {
-        left: var(--rail-width);
-      }
-
-      .section-sheet,
-      .reader-sheet {
-        max-width: calc(100% - 2 * clamp(12px, 2.2vw, 36px));
-      }
-    }
-
     @media (max-width: 800px), (max-height: 560px) {
       .book-page { padding: 2.5% 3%; }
       .book-choice { min-height: 16px; }
       .reader-sheet { padding-top: 24px; }
     }
 
-    /* Keep tablet browser chrome from making landscape reader titles feel clipped. */
-    @media (orientation: landscape) and (max-height: 700px) {
-      .reader-sheet {
-        height: 82%;
-      }
-
-      .motionc-sidebar {
-        overflow-x: hidden;
-        overflow-y: auto;
-        overscroll-behavior-y: contain;
-        scrollbar-width: thin;
-        scrollbar-color: rgba(183, 221, 199, .7) transparent;
-      }
-
-      .motionc-brand,
-      .motionc-nav { flex: 0 0 auto; }
-
-      .motionc-nav {
-        grid-template-rows: repeat(6, minmax(54px, auto));
-      }
-    }
-
-    @media (max-width: 700px), (max-width: 900px) and (orientation: portrait) {
+    @media (max-width: 700px) {
       .page {
         /* Crop the retired sidebar that is baked into the Library artwork. */
         left: -16.8vw;
@@ -1305,36 +1357,6 @@
         box-shadow: 0 -8px 24px rgba(7, 24, 20, .28);
         /* Keep the top-left logo anchored to the viewport, not this bottom rail. */
         backdrop-filter: none;
-      }
-
-      /* These layers belong to the viewport, not the cropped desktop artwork. */
-      .section-overlay,
-      .reader-overlay {
-        position: fixed;
-        inset: 0 0 calc(70px + env(safe-area-inset-bottom)) 0;
-        width: auto;
-        height: auto;
-        padding: 10px;
-      }
-
-      .section-sheet,
-      .reader-sheet,
-      .reader-sheet:has(.reader-content > .article-explainer:only-child) {
-        box-sizing: border-box;
-        width: 100%;
-        max-width: 100%;
-        height: 100%;
-        padding-inline: clamp(16px, 4vw, 28px);
-      }
-
-      .reader-sheet {
-        padding-bottom: 62px;
-      }
-
-      .reader-controls {
-        left: clamp(16px, 4vw, 28px);
-        right: clamp(16px, 4vw, 28px);
-        bottom: 14px;
       }
 
       .motionc-brand {
@@ -3182,6 +3204,32 @@
         ]
       },
       {
+        id: "motionc-site-questions-and-answers",
+        category: "guides",
+        title: "MotionC Site Questions & Answers",
+        tags: ["MotionC", "questions", "answers", "site guide", "MCP Score", "Lifestyle Gauge", "Daily", "Walking", "Felt and Body", "Compass", "privacy", "getting started"],
+        summary: "Open the questions you have about MotionC and read one clear answer at a time.",
+        pages: [
+          `<h2>Questions About MotionC</h2>
+           <p>MotionC brings several measurements, reflections, and walking tools together. Use the questions below to understand what each part does, what the numbers mean, and where the system's limits are. Select a question to open its answer.</p>
+           <div class="article-faq">
+             <details><summary>What is MotionC?</summary><div class="article-faq-answer"><p>MotionC is a personal wellness and behavior-awareness system. It helps you record measurements, notice patterns, follow walking progress, and reflect on the direction of your recent habits. It is designed to make information easier to understand—not to replace your judgment or your healthcare team.</p></div></details>
+             <details><summary>Where should I begin?</summary><div class="article-faq-answer"><p>Start with your Profile so MotionC has the measurements and preferences needed by the rest of the site. Then use Daily for regular check-ins and Walking for movement. The Dashboard and Compass become more useful as your own history grows.</p></div></details>
+             <details><summary>What is the MCP Score?</summary><div class="article-faq-answer"><p>MCP stands for Motion Core Prime. It combines weight, height, waist circumference, age, and sex through a transparent MotionC formula. It is best read as a repeatable personal position signal. It is not a diagnosis or a clinically validated disease-risk score.</p></div></details>
+             <details><summary>What does the Lifestyle Gauge show?</summary><div class="article-faq-answer"><p>The Lifestyle Gauge summarizes eight weekly habit reflections: sleep, hydration, nutrition, activity, stress management, alcohol, smoking, and daily movement. The total gives you a quick weekly picture, while the individual answers show which habits may deserve attention. It is a reflection tool, not a clinical questionnaire.</p></div></details>
+             <details><summary>What is the Daily page for?</summary><div class="article-faq-answer"><p>Daily is where you record the choices, movement, measurements, and short reflections that describe the day that actually happened. MotionC uses those entries to build summaries and trends. Missing information remains missing rather than being turned into a made-up result.</p></div></details>
+             <details><summary>How does the Walking area help me?</summary><div class="article-faq-answer"><p>Walking helps you record movement, follow journeys and routes, and see progress accumulate over time. The emphasis is consistency and return—not perfection. Some walking information can also provide context to other MotionC features when the required measurements are available.</p></div></details>
+             <details><summary>What is Felt &amp; Body?</summary><div class="article-faq-answer"><p>Felt is your own saved stress check-in. Body is an awareness signal based on measured walking heart rate compared with your earlier pace-comparable walks. MotionC shows the two together to make a possible relationship easier to notice. Body cannot determine why heart rate changed and does not diagnose stress.</p></div></details>
+             <details><summary>What does Compass mean?</summary><div class="article-faq-answer"><p>Compass interprets the direction supported by recent Movement, Recovery, Support, and Body Trend information. It is not another score. The driver details explain what pulled the needle, and the system withholds a direction when there is not enough usable information.</p></div></details>
+             <details><summary>Why are some results missing or still building?</summary><div class="article-faq-answer"><p>Some MotionC features need several complete entries before a personal comparison is meaningful. A blank point or building message protects you from false precision. Continue recording honestly; do not add information simply to make a result appear.</p></div></details>
+             <details><summary>Do I need a wearable or special equipment?</summary><div class="article-faq-answer"><p>No wearable is required for the core site. A scale and flexible tape measure support body measurements, and many reflections are entered directly. Features that use measured walking heart rate need compatible measured data; MotionC should leave those results absent when that data is unavailable.</p></div></details>
+             <details><summary>Is MotionC medical advice?</summary><div class="article-faq-answer"><p>No. MotionC provides general education, self-monitoring, and personal pattern awareness. It does not diagnose, prevent, or treat a medical condition. Contact an appropriate healthcare professional when you have symptoms, medication questions, or concerns about your health.</p></div></details>
+             <details><summary>How is my information handled?</summary><div class="article-faq-answer"><p>Signed-in MotionC information is associated with your account and synchronized through the site's connected data service. Some results are calculated from existing entries instead of being stored as separate health records. Use your own account, protect your sign-in, and avoid entering information you do not want included in your MotionC history.</p></div></details>
+           </div>
+           <p class="mcp-plain-language"><strong>MotionC in plain language:</strong> record what is real, notice what is changing, and use the result as a prompt for your next thoughtful step.</p>`
+        ]
+      },
+      {
         id: "mo-running-shoe-anatomy", category: "walking", title: "What's Inside Your Running Shoe?",
         tags: ["running shoes", "shoe anatomy", "upper", "toe box", "midsole", "outsole", "heel counter", "insole", "stack height", "heel-to-toe drop", "Professor Mo"],
         summary: "Look inside a running shoe and learn what each major part does beneath your foot.",
@@ -3450,7 +3498,10 @@
       const category = categoryMap.get(article.category);
       const greyArticle = article.iconType === "grey" || ["beginners-guide-to-fasted-walking", "mindful-walking", "understanding-insulin-spikes", "hydration-a-beginners-guide", "chia-seeds-a-beginners-guide", "yogurt-a-beginners-guide", "psyllium-husk-a-friendly-beginner-guide", "kimchi-a-beginners-guide", "pumpkin-seeds-a-simple-powerful-source-of-magnesium", "magnesium-choosing-the-most-well-rounded-option", "chelated-minerals-why-they-matter", "hack-your-environment-small-changes-that-make-healthy-habits-stick"].includes(article.id);
       const blueArticle = article.iconType === "blue" || ["mo-explains-insulin-spikes-two-modes", "mo-explains-why-bananas-spike-insulin", "felt-and-body", "win-eat-real-food", "win-eat-more-plants", "win-eat-slowly", "win-80-percent-rule", "win-eat-together", "mo-running-shoe-anatomy", "mo-running-shoe-family", "mo-roomy-toe-box", "mo-heel-to-toe-drop", "mo-stack-height", "mo-five-minute-shoe-check", "mo-midsole-aging", "mo-shoe-odometer", "mo-shoe-wear-inspection", "mo-shoe-rotation", "mo-shoe-price-and-durability"].includes(article.id);
-      const visualBadge = greyArticle
+      const qaArticle = article.id === "motionc-site-questions-and-answers";
+      const visualBadge = qaArticle
+        ? `<span class="qa-learning-badge" role="img" aria-label="Site Q and A" title="Site Q&amp;A">★</span>`
+        : greyArticle
         ? `<span class="mo-learning-badge" role="img" aria-label="Includes a Mo visual explainer" title="Includes a Mo visual explainer"><img src="/images/mo-visual-explainer-grey.png" alt=""></span>`
         : blueArticle
           ? `<span class="mo-learning-badge" role="img" aria-label="All-Mo visual article" title="All-Mo visual article"><img src="/images/mo-visual-explainer-blue.png" alt=""></span>`
@@ -3659,25 +3710,6 @@
     imageViewerClose.addEventListener("click", () => imageViewer.close());
     imageViewer.addEventListener("click", event => {
       if (event.target === imageViewer) imageViewer.close();
-    });
-
-    function restoreReaderScrollAfterZoom() {
-      /* Some mobile browsers leave a modal-dialog scroll lock behind. */
-      document.documentElement.style.removeProperty("overflow");
-      document.body.style.removeProperty("overflow");
-      document.documentElement.classList.remove("image-viewer-open");
-      document.body.classList.remove("image-viewer-open");
-      requestAnimationFrame(() => {
-        readerContent.style.removeProperty("overflow");
-        readerContent.focus({ preventScroll: true });
-      });
-    }
-
-    imageViewer.addEventListener("close", restoreReaderScrollAfterZoom);
-
-    window.addEventListener("orientationchange", () => {
-      if (imageViewer.open) imageViewer.close();
-      window.setTimeout(restoreReaderScrollAfterZoom, 180);
     });
 
     bookIndex.addEventListener("click", () => turnBook(renderIndex));
