@@ -195,7 +195,7 @@ main { min-width: 0; }
   background: var(--card);
   box-shadow: 0 9px 26px rgba(32,49,52,.08);
 }
-.entry-card { padding: 24px; }
+.entry-card { grid-column: 1; padding: 24px; }
 .section-heading {
   display: flex;
   align-items: flex-start;
@@ -446,6 +446,7 @@ main { min-width: 0; }
 .save-status { min-height: 1em; margin: 8px 0 0; color: #128953; text-align: right; }
 
 .today-score {
+  grid-column: 2;
   display: grid;
   grid-template-rows: 1fr auto;
   align-content: center;
@@ -467,10 +468,10 @@ main { min-width: 0; }
 .text-button { border: 0; margin-top: 12px; color: #087eb8; background: none; font-weight: 800; }
 
 .daily-gauges { width: 100%; }
-.daily-gauges-card { display: flex; grid-column: 2; grid-row: 2; flex-direction: column; padding: 20px 16px 14px; text-align: center; }
-.calendar-card { grid-column: 1; grid-row: 2; }
-.weekly-card { grid-column: 2; grid-row: 3; }
-.milestones-card { grid-column: 1; grid-row: 3; }
+.daily-gauges-card { display: flex; grid-column: 2; flex-direction: column; padding: 20px 16px 14px; text-align: center; }
+.calendar-card { grid-column: 1; }
+.weekly-card { grid-column: 2; }
+.milestones-card { grid-column: 1; }
 .daily-gauges-heading { display: flex; align-items: center; justify-content: center; gap: 7px; }
 .daily-gauges-heading .eyebrow { margin: 0; }
 .gauge-info-button { display: grid; width: 20px; aspect-ratio: 1; place-items: center; border: 1px solid #9eafad; border-radius: 50%; color: #496064; background: #fff; font: 850 12px/1 Georgia, serif; }
@@ -964,7 +965,7 @@ dialog::backdrop { background: rgba(9,18,20,.66); backdrop-filter: blur(3px); }
   .today-score-content { grid-template-columns: auto auto 1fr auto; justify-items: start; gap: 12px; }
   .today-score .eyebrow { display: none; }
   .score-orb { width: 52px; margin: 0; }
-  .daily-gauges-card, .calendar-card, .weekly-card, .milestones-card { grid-column: 1; grid-row: auto; }
+  .entry-card, .today-score, .daily-gauges-card, .calendar-card, .weekly-card, .milestones-card { grid-column: 1; grid-row: auto; }
   .daily-gauges-heading .eyebrow { display: block; }
   .calendar-card, .weekly-card, .walk-calculator { grid-column: 1; }
   .preferences-menu { left: 104px; }
