@@ -186,6 +186,7 @@ main { min-width: 0; }
 .content {
   display: grid;
   grid-template-columns: minmax(0, 1.65fr) minmax(265px, .65fr);
+  grid-auto-flow: row dense;
   gap: 18px;
   padding: 22px;
 }
