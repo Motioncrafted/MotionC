@@ -470,6 +470,46 @@ const DAILY_GAUGE_CONFIG = {
   sleep: { input: "sleepInput", value: "sleepValue", status: "sleepStatus", miniChart: "sleepMiniChart", label: "Sleep", unit: "hours", maximum: 12, color: "#315fa8" }
 };
 
+const weightNoteEmojiToggle = byId("weightNoteEmojiToggle");
+const weightNoteEmojiMenu = byId("weightNoteEmojiMenu");
+
+function setWeightNoteEmojiMenu(open) {
+  weightNoteEmojiMenu.hidden = !open;
+  weightNoteEmojiToggle.setAttribute("aria-expanded", String(open));
+}
+
+weightNoteEmojiToggle.addEventListener("click", () => {
+  setWeightNoteEmojiMenu(weightNoteEmojiMenu.hidden);
+});
+
+document.querySelectorAll("[data-weight-note-emoji]").forEach(button => {
+  button.addEventListener("click", () => {
+    const input = fields.weightNote;
+    const emoji = button.dataset.weightNoteEmoji;
+    const start = input.selectionStart ?? input.value.length;
+    const end = input.selectionEnd ?? start;
+    const nextValue = `${input.value.slice(0, start)}${emoji}${input.value.slice(end)}`;
+    if (nextValue.length > input.maxLength) return;
+    input.value = nextValue;
+    const cursor = start + emoji.length;
+    input.focus();
+    input.setSelectionRange(cursor, cursor);
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    setWeightNoteEmojiMenu(false);
+  });
+});
+
+document.addEventListener("click", event => {
+  if (!event.target.closest(".weight-note-emoji-picker")) setWeightNoteEmojiMenu(false);
+});
+
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape" && !weightNoteEmojiMenu.hidden) {
+    setWeightNoteEmojiMenu(false);
+    weightNoteEmojiToggle.focus();
+  }
+});
+
 const INSIGHT_RULES = {
   hydrationLitresPerHour: 0.4,
   fluidOuncesPerLitre: 33.814,
