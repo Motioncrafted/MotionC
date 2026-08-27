@@ -5,4 +5,5 @@
 
 /* Prototype terminology separates data completeness from interpretive confidence. */
 .confidence-card{grid-template-columns:auto 1fr auto}.confidence-card>div strong{display:block;font-size:1.2rem}.confidence-level{text-align:right}.confidence-dots{align-items:center}
+.diagnostics[hidden]{display:none}
 @media(max-width:680px){.confidence-level{text-align:left}}

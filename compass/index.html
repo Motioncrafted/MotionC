@@ -57,13 +57,13 @@
 
     <section class="calculation-note"><h2>How it’s calculated</h2><p>Each driver creates a configurable contribution to a two-dimensional vector. North is positive Y, South is negative Y, East is positive X and West is negative X. Missing information contributes nothing—it never counts as Balanced.</p><p>The result is an interpretation of recorded behaviour and trends. It does not measure real-time fuel use, insulin, metabolic flexibility or other unrecorded physiology.</p></section>
 
-    <details class="diagnostics" open>
+    <details class="diagnostics" id="prototypeDiagnostics" hidden>
       <summary>Prototype diagnostics — explain the needle</summary>
       <div class="diagnostic-grid" id="diagnosticGrid"></div>
       <div class="config-readout"><h3>Current configurable weights and thresholds</h3><pre id="configReadout"></pre></div>
     </details>
   </main>
   <script type="module" src="../shared/motionc-supabase.js?v=20260820-2"></script>
-  <script src="script.js?v=20260826-3"></script>
+  <script src="script.js?v=20260826-4"></script>
 </body>
 </html>

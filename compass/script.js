@@ -159,5 +159,10 @@
 
   function refresh(){render(calculate(loadState()));}
   window.MotionCCompassPrototype = Object.freeze({ calculate, config: CONFIG });
+  const diagnostics = el("prototypeDiagnostics");
+  if (new URLSearchParams(location.search).get("debug") === "1") {
+    diagnostics.hidden = false;
+    diagnostics.open = true;
+  }
   refresh(); window.addEventListener("storage",event=>{if(event.key===STORAGE_KEY)refresh();}); window.addEventListener("motionc:cloud-restored",refresh);
 })();
