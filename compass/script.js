@@ -173,11 +173,19 @@
   }
 
   function refresh(){const state=loadState();render(calculate(state),state);}
+  function configureReturnLink(){
+    const returnLink=el("compassReturnLink");
+    const entryPoint=new URLSearchParams(location.search).get("from");
+    if(!returnLink||entryPoint!=="summary")return;
+    returnLink.href="../dashboard/";
+    returnLink.textContent="← Back to Summary";
+    returnLink.setAttribute("aria-label","Back to Summary");
+  }
   window.MotionCCompassPrototype = Object.freeze({ calculate, config: CONFIG });
   const diagnostics = el("prototypeDiagnostics");
   if (new URLSearchParams(location.search).get("debug") === "1") {
     diagnostics.hidden = false;
     diagnostics.open = true;
   }
-  refresh(); window.addEventListener("storage",event=>{if(event.key===STORAGE_KEY||event.key===MCP_STORAGE_KEY)refresh();}); window.addEventListener("motionc:cloud-restored",refresh);
+  configureReturnLink(); refresh(); window.addEventListener("storage",event=>{if(event.key===STORAGE_KEY||event.key===MCP_STORAGE_KEY)refresh();}); window.addEventListener("motionc:cloud-restored",refresh);
 })();
