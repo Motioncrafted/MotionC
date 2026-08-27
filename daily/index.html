@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Daily | MotionC</title>
   <meta name="description" content="Your quick daily MotionC health check-in.">
-  <link rel="stylesheet" href="/daily/styles.css?v=20260825-1">
+  <link rel="stylesheet" href="/daily/styles.css?v=20260827-1">
 </head>
 <body>
   <div class="app-shell">
@@ -52,6 +52,22 @@
             <p>Add your age, sex, height, weight, and waist once to unlock all personalized MotionC metrics. Your Daily information will be preserved.</p>
           </div>
           <a class="profile-reminder-action" href="/dashboard/?complete-profile=1">Complete Profile</a>
+        </aside>
+
+        <aside class="weekly-checkin-nudge" id="weeklyCheckinNudge" hidden aria-labelledby="weeklyCheckinNudgeTitle" aria-live="polite">
+          <div class="weekly-checkin-nudge-copy">
+            <strong id="weeklyCheckinNudgeTitle">Ready for this week’s check-in?</strong>
+            <p>A quick update keeps your Lifestyle Gauge and MotionC insights current.</p>
+          </div>
+          <div class="weekly-checkin-nudge-actions">
+            <button class="weekly-checkin-update" id="weeklyCheckinUpdate" type="button">Update Weekly Check-in</button>
+            <button class="weekly-checkin-later" id="weeklyCheckinLater" type="button">Remind me later</button>
+          </div>
+        </aside>
+
+        <aside class="weekly-checkin-current" id="weeklyCheckinCurrent" hidden aria-live="polite">
+          <span aria-hidden="true">✓</span>
+          <strong>Weekly Check-in current</strong>
         </aside>
 
         <section class="entry-card card">
@@ -150,23 +166,7 @@
           </div>
 
           <div class="notes-grid">
-            <label>Weight note
-              <span class="weight-note-input">
-                <input id="weightNote" type="text" maxlength="80" placeholder="Optional context">
-                <span class="weight-note-emoji-picker">
-                  <span class="weight-note-emoji-menu" id="weightNoteEmojiMenu" aria-label="Choose an emoji" hidden>
-                    <button type="button" data-weight-note-emoji="😎" aria-label="Add sunglasses emoji">😎</button>
-                    <button type="button" data-weight-note-emoji="🔥" aria-label="Add flame emoji">🔥</button>
-                    <button type="button" data-weight-note-emoji="🏃" aria-label="Add runner emoji">🏃</button>
-                    <button type="button" data-weight-note-emoji="📈" aria-label="Add chart emoji">📈</button>
-                    <button type="button" data-weight-note-emoji="☀️" aria-label="Add sun emoji">☀️</button>
-                    <button type="button" data-weight-note-emoji="🎯" aria-label="Add target emoji">🎯</button>
-                  </span>
-                  <button class="weight-note-emoji-toggle" id="weightNoteEmojiToggle" type="button"
-                    aria-label="Show weight note emojis" aria-expanded="false" aria-controls="weightNoteEmojiMenu">🙂</button>
-                </span>
-              </span>
-            </label>
+            <label>Weight note <input id="weightNote" type="text" maxlength="80" placeholder="Optional context"></label>
             <label>Observation <input id="observation" type="text" maxlength="120" placeholder="Anything worth remembering?"></label>
           </div>
 
@@ -406,7 +406,7 @@
     <button class="save-button full" id="saveWeekly" type="button">Save weekly check-in</button>
   </dialog>
 
-  <script src="/daily/script.js?v=20260825-1"></script>
+  <script src="/daily/script.js?v=20260827-1"></script>
   <script type="module" src="/shared/motionc-supabase.js?v=20260820-2"></script>
 </body>
 </html>

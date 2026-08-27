@@ -2,6 +2,7 @@ const STORAGE_KEY = "motionc-daily-prototype-v1";
 const LIFESTYLE_SUMMARY_STORAGE_KEY = "motionc-lifestyle-summary-v1";
 const PREFERENCES_STORAGE_KEY = "motionc-preferences-v1";
 const WEIGHT_GOAL_STORAGE_KEY = "motionc-weight-goal-v1";
+const WEEKLY_NUDGE_STORAGE_KEY = "motionc-weekly-checkin-nudge-v1";
 const KG_PER_LB = 0.45359237;
 const KM_PER_MI = 1.609344;
 const CM_PER_IN = 2.54;
@@ -104,6 +105,8 @@ let activeScoreDate = null;
 let addingWalk = false;
 let editingWalkIndex = null;
 let calendarViewDate = new Date();
+let weeklyNudgeDisplayWeek = null;
+let weeklyNudgeSuppressedWeek = null;
 
 function isoDate(date = new Date()) {
   const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
@@ -284,6 +287,107 @@ function weeklyForDate(dateValue) {
   return latestAssessed || { values: {}, score: null, assessed: false };
 }
 
+function currentWeekIsComplete() {
+  const currentWeek = state.weeks?.[weekKey(new Date())];
+  return currentWeek?.assessed === true && Number.isFinite(Number(currentWeek.score));
+}
+
+function loadWeeklyNudgeState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(WEEKLY_NUDGE_STORAGE_KEY));
+    return saved && typeof saved === "object" ? saved : { weeks: {} };
+  } catch {
+    return { weeks: {} };
+  }
+}
+
+function saveWeeklyNudgeState(nudgeState) {
+  localStorage.setItem(WEEKLY_NUDGE_STORAGE_KEY, JSON.stringify(nudgeState));
+}
+
+function localDayAfter(value) {
+  const date = value ? new Date(value) : new Date();
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, 0, 0, 0, 0);
+}
+
+function renderWeeklyCheckinNudge() {
+  const nudge = byId("weeklyCheckinNudge");
+  const current = byId("weeklyCheckinCurrent");
+  if (!nudge || !current) return;
+
+  if (currentWeekIsComplete()) {
+    nudge.hidden = true;
+    current.hidden = false;
+    return;
+  }
+
+  current.hidden = true;
+  const now = new Date();
+  const currentWeekKey = weekKey(now);
+  if (weeklyNudgeSuppressedWeek === currentWeekKey) {
+    nudge.hidden = true;
+    return;
+  }
+  if (weeklyNudgeDisplayWeek === currentWeekKey) {
+    nudge.hidden = false;
+    return;
+  }
+  const nudgeState = loadWeeklyNudgeState();
+  nudgeState.weeks = nudgeState.weeks || {};
+  const weekState = nudgeState.weeks[currentWeekKey] || {};
+
+  if (!weekState.initialShownAt) {
+    weekState.initialShownAt = now.toISOString();
+    nudgeState.weeks[currentWeekKey] = weekState;
+    saveWeeklyNudgeState(nudgeState);
+    weeklyNudgeDisplayWeek = currentWeekKey;
+    nudge.hidden = false;
+    return;
+  }
+
+  const thursday = addDays(startOfWeek(now), 4);
+  thursday.setHours(0, 0, 0, 0);
+  const followupAfter = localDayAfter(weekState.remindLaterAt || weekState.initialShownAt);
+  const followupDate = followupAfter > thursday ? followupAfter : thursday;
+  const canShowFollowup = !weekState.followupShownAt && now >= followupDate && now.getDay() !== 0;
+
+  if (canShowFollowup) {
+    weekState.followupShownAt = now.toISOString();
+    nudgeState.weeks[currentWeekKey] = weekState;
+    saveWeeklyNudgeState(nudgeState);
+    weeklyNudgeDisplayWeek = currentWeekKey;
+    nudge.hidden = false;
+    return;
+  }
+
+  nudge.hidden = true;
+}
+
+function openWeeklyCheckin() {
+  weeklyNudgeSuppressedWeek = weekKey(new Date());
+  weeklyNudgeDisplayWeek = null;
+  byId("weeklyCheckinNudge").hidden = true;
+  buildLifestyleForm();
+  const dialog = byId("weeklyDialog");
+  if (dialog.open) return;
+  if (typeof dialog.showModal === "function") dialog.showModal();
+  else dialog.setAttribute("open", "");
+}
+
+function postponeWeeklyCheckin() {
+  const nudgeState = loadWeeklyNudgeState();
+  const currentWeekKey = weekKey(new Date());
+  nudgeState.weeks = nudgeState.weeks || {};
+  const weekState = nudgeState.weeks[currentWeekKey] || {};
+  weekState.initialShownAt = weekState.initialShownAt || new Date().toISOString();
+  weekState.remindLaterAt = new Date().toISOString();
+  nudgeState.weeks[currentWeekKey] = weekState;
+  saveWeeklyNudgeState(nudgeState);
+  weeklyNudgeSuppressedWeek = currentWeekKey;
+  weeklyNudgeDisplayWeek = null;
+  byId("weeklyCheckinNudge").hidden = true;
+}
+
 function scoreForEntry(entry) {
   const weekly = weeklyForDate(entry.date);
   return calculateEntry(entry, weekly.assessed === false ? null : weekly.score);
@@ -361,46 +465,6 @@ const DAILY_GAUGE_CONFIG = {
   stress: { input: "stressInput", value: "stressValue", status: "stressStatus", miniChart: "stressMiniChart", label: "Stress", unit: "of 5", maximum: 5, color: "#dc4545" },
   sleep: { input: "sleepInput", value: "sleepValue", status: "sleepStatus", miniChart: "sleepMiniChart", label: "Sleep", unit: "hours", maximum: 12, color: "#315fa8" }
 };
-
-const weightNoteEmojiToggle = byId("weightNoteEmojiToggle");
-const weightNoteEmojiMenu = byId("weightNoteEmojiMenu");
-
-function setWeightNoteEmojiMenu(open) {
-  weightNoteEmojiMenu.hidden = !open;
-  weightNoteEmojiToggle.setAttribute("aria-expanded", String(open));
-}
-
-weightNoteEmojiToggle.addEventListener("click", () => {
-  setWeightNoteEmojiMenu(weightNoteEmojiMenu.hidden);
-});
-
-document.querySelectorAll("[data-weight-note-emoji]").forEach(button => {
-  button.addEventListener("click", () => {
-    const input = fields.weightNote;
-    const emoji = button.dataset.weightNoteEmoji;
-    const start = input.selectionStart ?? input.value.length;
-    const end = input.selectionEnd ?? start;
-    const nextValue = `${input.value.slice(0, start)}${emoji}${input.value.slice(end)}`;
-    if (nextValue.length > input.maxLength) return;
-    input.value = nextValue;
-    const cursor = start + emoji.length;
-    input.focus();
-    input.setSelectionRange(cursor, cursor);
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-    setWeightNoteEmojiMenu(false);
-  });
-});
-
-document.addEventListener("click", event => {
-  if (!event.target.closest(".weight-note-emoji-picker")) setWeightNoteEmojiMenu(false);
-});
-
-document.addEventListener("keydown", event => {
-  if (event.key === "Escape" && !weightNoteEmojiMenu.hidden) {
-    setWeightNoteEmojiMenu(false);
-    weightNoteEmojiToggle.focus();
-  }
-});
 
 const INSIGHT_RULES = {
   hydrationLitresPerHour: 0.4,
@@ -874,62 +938,31 @@ function entriesInRange(start, end) {
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
-function progressMetrics(entries = Object.values(state.entries)) {
-  const today = isoDate();
-  const ordered = entries
-    .filter(entry => entry?.date && entry.date <= today)
-    .sort((a, b) => a.date.localeCompare(b.date));
-  const walkingDays = ordered.filter(entry => Number(entry.distance || 0) > 0);
-  const timedWalkingDays = walkingDays.filter(entry => Number(entry.minutes || 0) > 0);
-  const walkingDates = new Set(walkingDays.map(entry => entry.date));
-  let cursor = dateFromIso(today);
-  if (!walkingDates.has(today)) cursor = addDays(cursor, -1);
-  let walkingStreak = 0;
-  while (walkingDates.has(isoDate(cursor))) {
-    walkingStreak += 1;
-    cursor = addDays(cursor, -1);
+function currentStreak(entries) {
+  if (!entries.length) return 0;
+  let streak = 0;
+  for (let index = entries.length - 1; index >= 0; index -= 1) {
+    if (Number(entries[index].distance || 0) <= 0) break;
+    streak += 1;
   }
-
-  const positiveDots = ordered.filter(entry =>
-    ["green", "light-green"].includes(scoreForEntry(entry).color)
-  ).length;
-  const availableDots = ordered.length;
-  const positiveDotPercentage = availableDots
-    ? Math.round(positiveDots / availableDots * 100)
-    : 0;
-  const totalDistance = ordered.reduce((sum, entry) => sum + Number(entry.distance || 0), 0);
-  const longestWalk = ordered.reduce((best, entry) =>
-    Number(entry.distance || 0) > Number(best?.distance || 0) ? entry : best, null
-  );
-
-  return {
-    entries: ordered,
-    walkingDays,
-    timedWalkingDays,
-    walkingStreak,
-    positiveDots,
-    availableDots,
-    positiveDotPercentage,
-    totalDistance,
-    longestWalk
-  };
+  return streak;
 }
 
 function weeklySummary(start) {
   const end = addDays(start, 6);
   const entries = entriesInRange(start, end);
-  const progress = progressMetrics();
   const weights = entries.filter(item => item.weight).map(item => item.weight);
   const totalDistance = entries.reduce((sum, item) => sum + Number(item.distance || 0), 0);
   const longest = entries.reduce((best, item) => Number(item.distance || 0) > Number(best?.distance || 0) ? item : best, null);
+  const percentages = entries.map(item => scoreForEntry(item).percent);
   return {
     entries,
     weight: weights.at(-1),
     change: weights.length > 1 ? weights.at(-1) - weights[0] : 0,
     totalDistance,
-    streak: progress.walkingStreak,
+    streak: currentStreak(entries),
     longest,
-    positiveDotPercentage: progress.positiveDotPercentage
+    average: percentages.length ? Math.round(percentages.reduce((a, b) => a + b, 0) / percentages.length) : 0
   };
 }
 
@@ -960,7 +993,7 @@ function renderWeekly() {
     ["Distance", formatDistance(summary.totalDistance)],
     ["Walking streak", `${summary.streak} day${summary.streak === 1 ? "" : "s"}`],
     ["Longest walk", summary.longest ? formatDistance(summary.longest.distance) : "—"],
-    ["Positive dots", summary.positiveDotPercentage ? `${summary.positiveDotPercentage}%` : "—"]
+    ["Average dot", summary.average ? `${summary.average}%` : "—"]
   ];
   byId("weeklyStats").innerHTML = stats.map(([label, value]) =>
     `<div class="weekly-stat"><span>${label}</span><strong>${value}</strong></div>`
@@ -986,7 +1019,7 @@ function renderWeekly() {
     const block = document.createElement("div");
     block.className = "previous-week";
     block.innerHTML = `<strong>${formatShortDate(isoDate(weekStart))}–${formatShortDate(isoDate(weekEnd))}</strong>
-      <p>${formatDistance(old.totalDistance)} · ${old.entries.length} entries</p>
+      <p>${formatDistance(old.totalDistance)} · ${old.average || 0}% average · ${old.entries.length} entries</p>
       <div class="previous-week-notes">
         <span class="previous-week-notes-title">Notes</span>
         ${weekNotesHtml(old.entries, "No notes recorded.")}
@@ -995,20 +1028,26 @@ function renderWeekly() {
   });
 }
 
+function longestWalk() {
+  return Object.values(state.entries).reduce((best, entry) =>
+    Number(entry.distance || 0) > Number(best?.distance || 0) ? entry : best, null
+  );
+}
+
 function renderMilestones() {
   const entries = Object.values(state.entries).sort((a, b) => a.date.localeCompare(b.date));
-  const progress = progressMetrics(entries);
-  const { walkingDays, timedWalkingDays } = progress;
+  const walkingDays = entries.filter(entry => Number(entry.distance || 0) > 0);
+  const timedWalkingDays = walkingDays.filter(entry => Number(entry.minutes || 0) > 0);
   const weights = entries.filter(item => item.weight).map(item => item.weight);
   const lowest = weights.length ? Math.min(...weights) : null;
   const weightedEntries = entries.filter(item => Number(item.weight) > 0);
   const latestWeight = weightedEntries.length ? Number(weightedEntries.at(-1).weight) : null;
   const startWeight = Number(state.profile.startWeight);
-  const totalMiles = progress.totalDistance;
-  const longest = progress.longestWalk;
-  const greenDays = progress.positiveDots;
-  const availableDots = progress.availableDots;
-  const positivePercentage = progress.positiveDotPercentage;
+  const totalMiles = entries.reduce((sum, item) => sum + Number(item.distance || 0), 0);
+  const longest = longestWalk();
+  const greenDays = entries.filter(item => ["green", "light-green"].includes(scoreForEntry(item).color)).length;
+  const availableDots = entries.length;
+  const positivePercentage = availableDots ? Math.round(greenDays / availableDots * 100) : 0;
   const realGoal = state.profile.realGoal;
   const hasStartWeight = Number.isFinite(startWeight) && startWeight > 0;
   const hasRealGoal = Number.isFinite(Number(realGoal)) && Number(realGoal) > 0;
@@ -1354,6 +1393,7 @@ function renderAll(dateValue = isoDate()) {
   const weekNumber = Math.floor((now - yearStart) / 604800000);
   byId("weeklyReflection").innerHTML = WEEKLY_REFLECTIONS[weekNumber % WEEKLY_REFLECTIONS.length];
   updateProfileReminder();
+  renderWeeklyCheckinNudge();
   renderToday(dateValue);
   renderCalendar();
   renderWeekly();
@@ -1435,13 +1475,9 @@ byId("scoreDialog").addEventListener("click", event => {
 
   if (clickedBackdrop) dialog.close();
 });
-byId("weeklyButton").addEventListener("click", () => {
-  buildLifestyleForm();
-  const dialog = byId("weeklyDialog");
-  if (dialog.open) return;
-  if (typeof dialog.showModal === "function") dialog.showModal();
-  else dialog.setAttribute("open", "");
-});
+byId("weeklyButton").addEventListener("click", openWeeklyCheckin);
+byId("weeklyCheckinUpdate").addEventListener("click", openWeeklyCheckin);
+byId("weeklyCheckinLater").addEventListener("click", postponeWeeklyCheckin);
 byId("closeWeekly").addEventListener("click", () => {
   const dialog = byId("weeklyDialog");
   if (typeof dialog.close === "function") dialog.close();
