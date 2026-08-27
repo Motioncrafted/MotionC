@@ -9,6 +9,7 @@
 @media(max-width:680px){.confidence-level{text-align:left}}
 
 /* Instrument centre and one-step position history. */
+.compass-face:before{content:"";position:absolute;z-index:0;inset:12%;border-radius:50%;pointer-events:none;background:conic-gradient(from 0deg,rgba(57,145,82,.17) 0deg,rgba(57,145,82,.12) 32deg,rgba(57,145,82,.035) 46deg,transparent 54deg 360deg);filter:blur(1px)}
 .previous-position{position:absolute;z-index:4;width:18px;height:18px;transform:translate(-50%,-50%);border:3px solid #fff;border-radius:50%;background:#6e7f84;box-shadow:0 2px 8px rgba(16,54,74,.42);transition:left 1.1s cubic-bezier(.2,.8,.2,1),top 1.1s cubic-bezier(.2,.8,.2,1)}
 .previous-position:after{content:"Previous";position:absolute;top:20px;left:50%;transform:translateX(-50%);padding:3px 6px;border-radius:999px;color:#fff;background:rgba(16,54,74,.78);font-size:.58rem;font-weight:900;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
 .previous-position[hidden]{display:none}
