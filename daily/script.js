@@ -401,6 +401,10 @@ function formatFullDate(value) {
   return new Intl.DateTimeFormat(undefined, { weekday: "long", month: "long", day: "numeric" }).format(dateFromIso(value));
 }
 
+function formatMilestoneDate(value) {
+  return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric" }).format(dateFromIso(value));
+}
+
 function walksForEntry(entry) {
   if (!entry) return [];
   if (Array.isArray(entry.walks)) return entry.walks;
@@ -1038,9 +1042,11 @@ function renderMilestones() {
   const entries = Object.values(state.entries).sort((a, b) => a.date.localeCompare(b.date));
   const walkingDays = entries.filter(entry => Number(entry.distance || 0) > 0);
   const timedWalkingDays = walkingDays.filter(entry => Number(entry.minutes || 0) > 0);
-  const weights = entries.filter(item => item.weight).map(item => item.weight);
-  const lowest = weights.length ? Math.min(...weights) : null;
   const weightedEntries = entries.filter(item => Number(item.weight) > 0);
+  const lowestEntry = weightedEntries.reduce((lowestSoFar, entry) =>
+    !lowestSoFar || Number(entry.weight) <= Number(lowestSoFar.weight) ? entry : lowestSoFar
+  , null);
+  const lowest = lowestEntry ? Number(lowestEntry.weight) : null;
   const latestWeight = weightedEntries.length ? Number(weightedEntries.at(-1).weight) : null;
   const startWeight = Number(state.profile.startWeight);
   const totalMiles = entries.reduce((sum, item) => sum + Number(item.distance || 0), 0);
@@ -1086,7 +1092,7 @@ function renderMilestones() {
 
   const milestoneData = [
     { label: "Total Weight Lost", reached: hasStartWeight && latestWeight !== null, detail: hasStartWeight && latestWeight !== null ? `${formatWeight(startWeight)} start → ${formatWeight(latestWeight)} latest (${loss.toFixed(1)} ${weightUnit()} lost)` : "Starting and latest weights needed" },
-    { label: "Lowest Recorded Weight", reached: lowest !== null, detail: lowest !== null ? formatWeight(lowest) : "No weight recorded" },
+    { label: "Lowest Recorded Weight", reached: lowest !== null, detail: lowest !== null ? `${formatWeight(lowest)} · ${formatMilestoneDate(lowestEntry.date)}` : "No weight recorded" },
     { label: "Real Goal", reached: hasRealGoal, detail: hasRealGoal ? formatWeight(realGoal) : "Set your goal in Weekly check-in or on Summary" },
     { label: "Longest Daily Walk", reached: Boolean(longest), detail: longest ? `${longestDistance.toFixed(2)} ${distanceUnit()}` : "No walk recorded" },
     { label: `Total Cumulative ${unitSystem === "metric" ? "Kilometres" : "Miles"}`, reached: entries.length > 0, detail: `${totalDistance.toFixed(1)} ${distanceUnit()}` },
