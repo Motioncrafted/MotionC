@@ -2104,7 +2104,7 @@ function updateModernMcpDisplay(detail) {
         setText("momentum-message", mcp >= 30 ? "You’re building healthy momentum. Consistency is doing its quiet work." : "Every small improvement moves the score. Choose one habit to strengthen today.");
     }
     if (Number.isFinite(bmi)) {
-        setText("bmi-status", bmi < 18.5 ? "Below healthy range" : bmi < 25 ? "Healthy range" : bmi < 30 ? "Above healthy range" : "High range");
+        setText("bmi-status", bmi < 18.5 ? "Underweight range" : bmi < 25 ? "Healthy weight range" : bmi < 30 ? "Overweight range" : "Obesity range");
     }
 }
 
