@@ -2,6 +2,8 @@
   "use strict";
 
   const STORAGE_KEY = "motionc-daily-prototype-v1";
+  const MCP_STORAGE_KEY = "motionc-mcp-summary-v1";
+  const POSITION_STORAGE_KEY = "motionc-compass-position-v1";
   const CONFIG = Object.freeze({
     lookbackDays: 14,
     bodyLookbackDays: 35,
@@ -145,6 +147,14 @@
 
   function calculate(state){const drivers=[movementDriver(state),recoveryDriver(state),supportDriver(state),bodyTrendDriver(state)];const x=drivers.reduce((s,d)=>s+d.vector.x,0),y=drivers.reduce((s,d)=>s+d.vector.y,0);const confidence=drivers.reduce((s,d)=>s+d.completeness*.25,0);const magnitude=Math.hypot(x,y);const angle=(Math.atan2(x,y)*180/Math.PI+360)%360;const defensible=confidence>=CONFIG.confidence.directionMinimum&&magnitude>=CONFIG.confidence.vectorMinimum;return {drivers,x,y,confidence,magnitude,angle,direction:defensible?labelForAngle(angle):null,defensible};}
 
+  function mcpZoneFor(score){return score<25?{key:"core",label:"Core"}:score<35?{key:"healthy",label:"Healthy"}:score<43?{key:"elevated",label:"Elevated"}:{key:"watch",label:"Watch"};}
+  function renderMcpGauge(){const gauge=el("centreGauge"),scoreElement=el("mcpScore"),zoneElement=el("mcpZone");let score=null;try{const savedScore=JSON.parse(localStorage.getItem(MCP_STORAGE_KEY)||"null")?.results?.mcp;if(savedScore!==null&&savedScore!==""&&finite(savedScore))score=Number(savedScore);}catch{score=null;}gauge.classList.remove("zone-core","zone-healthy","zone-elevated","zone-watch");if(!Number.isFinite(score)){scoreElement.textContent="—";zoneElement.textContent="Not assessed";gauge.setAttribute("aria-label","MCP not assessed");return;}const zone=mcpZoneFor(score);scoreElement.textContent=score.toFixed(1);zoneElement.textContent=zone.label;gauge.classList.add(`zone-${zone.key}`);gauge.setAttribute("aria-label",`MCP ${score.toFixed(1)}, ${zone.label}`);}
+
+  function loadPositionHistory(){try{const saved=JSON.parse(localStorage.getItem(POSITION_STORAGE_KEY)||"{}");return saved&&typeof saved==="object"?saved:{};}catch{return {};}}
+  function savePositionHistory(history){localStorage.setItem(POSITION_STORAGE_KEY,JSON.stringify(history));}
+  function previousPositionFor(result){if(!result.defensible)return null;const history=loadPositionHistory();const current={x:round(result.x),y:round(result.y),angle:round(result.angle),direction:result.direction,updatedAt:new Date().toISOString()};if(!history.current){savePositionHistory({current});return null;}const moved=Math.hypot(current.x-Number(history.current.x||0),current.y-Number(history.current.y||0))>.002;if(!moved)return history.previous||null;savePositionHistory({current,previous:history.current});return history.current;}
+  function renderPreviousPosition(previous){const marker=el("previousPosition");if(!previous||!finite(previous.angle)){marker.hidden=true;marker.removeAttribute("aria-label");return;}const radians=Number(previous.angle)*Math.PI/180;marker.style.left=`${50+Math.sin(radians)*36}%`;marker.style.top=`${50-Math.cos(radians)*36}%`;marker.setAttribute("aria-label",`Previous pointer position: ${previous.direction||labelForAngle(Number(previous.angle))}`);marker.title=`Previous position · ${previous.direction||labelForAngle(Number(previous.angle))}`;marker.hidden=false;}
+
   const el=id=>document.getElementById(id); const fmt=value=>value===null||value===undefined?"Missing":String(value);
   function list(id,items){el(id).innerHTML=items.map(item=>`<li>${item}</li>`).join("");}
   function render(result){const byKey=Object.fromEntries(result.drivers.map(d=>[d.key,d]));const m=byKey.movement,r=byKey.recovery,s=byKey.support,b=byKey.bodyTrend;
@@ -152,7 +162,7 @@
     el("recoverySummary").textContent=r.available?"Recent sleep and stress create recovery pressure.":"No recent sleep or stress data yet.";list("recoveryValues",[`Sleep: ${fmt(r.inputs.sleepAverageHours)} hr average (${r.inputs.sleepDays} days)`,`Stress: ${fmt(r.inputs.stressAverage)} / 5 average (${r.inputs.stressDays} days)`]);
     el("supportSummary").textContent=s.available?"Hydration and non-duplicated Lifestyle habits contribute support.":"No recent support inputs yet.";list("supportValues",[`Hydration: ${fmt(s.inputs.hydrationAverageOunces)} oz average`,`Lifestyle week: ${fmt(s.inputs.lifestyleWeek)}`]);
     el("bodySummary").textContent=b.inputs.weightInterpretation;list("bodyValues",[`Weight measurements: ${b.inputs.weightMeasurements}`,`Waist trend: insufficient history`]);
-    const displayAngle=result.defensible?result.angle:0;el("needle").style.transform=`translate(-50%,-100%) rotate(${displayAngle}deg)`;el("resultArrow").style.transform=`rotate(${displayAngle}deg)`;el("directionResult").textContent=result.direction?`Leaning ${result.direction}`:"Building your direction…";el("directionExplanation").textContent=result.direction?explanationFor(result.direction):"There is not yet enough recent, complete data for a defensible direction.";
+    const displayAngle=result.defensible?result.angle:0;el("needle").style.transform=`translate(-50%,-100%) rotate(${displayAngle}deg)`;el("resultArrow").style.transform=`rotate(${displayAngle}deg)`;el("directionResult").textContent=result.direction?`Leaning ${result.direction}`:"Building your direction…";el("directionExplanation").textContent=result.direction?explanationFor(result.direction):"There is not yet enough recent, complete data for a defensible direction.";renderMcpGauge();renderPreviousPosition(previousPositionFor(result));
     const coveragePercent=Math.round(result.confidence*100);const confidenceLabel=result.confidence>=CONFIG.confidence.high?"High":result.confidence>=CONFIG.confidence.medium?"Medium":"Low";el("coveragePercent").textContent=`${coveragePercent}%`;el("confidenceLabel").textContent=confidenceLabel;const dots=Math.round(result.confidence*5);el("confidenceDots").setAttribute("aria-label",`${coveragePercent}% data coverage; ${confidenceLabel} Compass confidence`);el("confidenceDots").innerHTML=Array.from({length:5},(_,i)=>`<i class="${i<dots?"on":""}"></i>`).join("");el("confidenceExplanation").textContent="Coverage describes usable recent data, not certainty. Confidence affects whether a direction is shown; it never recolours the needle.";
     const cards=result.drivers.map(d=>({title:d.key==="bodyTrend"?"Body Trend":d.key[0].toUpperCase()+d.key.slice(1),text:`Input/value:\n${JSON.stringify(d.inputs,null,2)}\n\nVector contribution: (${round(d.vector.x)}, ${round(d.vector.y)})\nNormalized score: ${fmt(d.score)}\nCompleteness: ${Math.round(d.completeness*100)}%\nMissing/ignored:\n${d.ignored.length?d.ignored.join("\n"):"None"}`}));cards.push({title:"Resulting vector",text:`X: ${round(result.x)}\nY: ${round(result.y)}\nMagnitude: ${round(result.magnitude)}\nAngle: ${round(result.angle)}°\nDirection: ${result.direction||"Building your direction…"}\nData coverage: ${coveragePercent}%\nCompass confidence: ${confidenceLabel}`});el("diagnosticGrid").innerHTML=cards.map(card=>`<article class="diagnostic-item"><h3>${card.title}</h3><p>${card.text}</p></article>`).join("");el("configReadout").textContent=JSON.stringify(CONFIG,null,2);
   }
@@ -164,5 +174,5 @@
     diagnostics.hidden = false;
     diagnostics.open = true;
   }
-  refresh(); window.addEventListener("storage",event=>{if(event.key===STORAGE_KEY)refresh();}); window.addEventListener("motionc:cloud-restored",refresh);
+  refresh(); window.addEventListener("storage",event=>{if(event.key===STORAGE_KEY)refresh();if(event.key===MCP_STORAGE_KEY)renderMcpGauge();}); window.addEventListener("motionc:cloud-restored",refresh);
 })();

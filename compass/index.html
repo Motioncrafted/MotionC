@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Your Compass — MotionC Prototype</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=20260827-1">
 </head>
 <body>
   <main class="compass-page">
@@ -34,8 +34,11 @@
           <div class="direction east"><b>East</b><span>Recovery</span></div>
           <div class="direction south"><b>South</b><span>Glucose-Heavy</span></div>
           <div class="direction west"><b>West</b><span>Balanced</span></div>
+          <div class="previous-position" id="previousPosition" role="img" hidden></div>
           <div class="needle" id="needle" aria-hidden="true"><span></span></div>
-          <div class="mo-centre"><img src="../images/mo-visual-explainer-blue.png" alt="Mo examining your recent direction"></div>
+          <div class="centre-gauge" id="centreGauge" role="img" aria-label="MCP not assessed">
+            <div class="centre-gauge-readout"><strong id="mcpScore">—</strong><span>MCP</span><em id="mcpZone">Not assessed</em></div>
+          </div>
         </div>
         <article class="result-card" aria-live="polite">
           <div class="result-arrow" id="resultArrow">↑</div>
@@ -64,6 +67,6 @@
     </details>
   </main>
   <script type="module" src="../shared/motionc-supabase.js?v=20260820-2"></script>
-  <script src="script.js?v=20260826-4"></script>
+  <script src="script.js?v=20260827-1"></script>
 </body>
 </html>
