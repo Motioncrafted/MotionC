@@ -13,7 +13,7 @@
 
     <link
         rel="stylesheet"
-        href="/dashboard/styles.css?v=20260823-1"
+        href="/dashboard/styles.css?v=20260827-1"
     >
 
     <style>
@@ -157,7 +157,7 @@
             <section class="insight-grid">
                 <article class="panel score-panel">
                     <div class="panel-heading">
-                        <div><p class="eyebrow">CURRENT MOMENTUM</p><h3>MCP & lifestyle</h3></div>
+                        <div><p class="eyebrow">CURRENT MOMENTUM</p><h3>MCP, Compass &amp; lifestyle</h3></div>
                     </div>
                     <div class="score-pair">
                         <div class="mcp-zone-gauge" id="mcp-ring" role="img" aria-label="MCP not assessed">
@@ -173,10 +173,16 @@
                                 <em id="mcp-zone-status">Not assessed</em>
                             </div>
                         </div>
-                        <div class="score-ring lifestyle-ring" id="lifestyle-ring">
-                            <div>
-                                <strong><span id="display-lifestyle-score">—</span><small>/24</small></strong>
-                                <span>Lifestyle</span>
+                        <div class="lifestyle-metric">
+                            <a class="compass-metric-link" href="/compass/" aria-label="Open your MotionC Compass">
+                                <span class="compass-metric-icon" aria-hidden="true">✦</span>
+                                Compass
+                            </a>
+                            <div class="score-ring lifestyle-ring" id="lifestyle-ring">
+                                <div>
+                                    <strong><span id="display-lifestyle-score">—</span><small>/24</small></strong>
+                                    <span>Lifestyle</span>
+                                </div>
                             </div>
                         </div>
                     </div>

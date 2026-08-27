@@ -1395,6 +1395,44 @@ body {
     justify-content: center;
     align-items: center;
 }
+.lifestyle-metric {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-direction: column;
+}
+.compass-metric-link {
+    display: inline-flex;
+    min-height: 32px;
+    padding: 6px 13px;
+    border: 1px solid rgba(47, 120, 81, .28);
+    border-radius: 999px;
+    align-items: center;
+    gap: 6px;
+    color: #275f44;
+    background: rgba(255, 255, 255, .78);
+    box-shadow: 0 3px 10px rgba(27, 54, 45, .06);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .04em;
+    line-height: 1;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+.compass-metric-link:hover {
+    border-color: rgba(47, 120, 81, .48);
+    background: #fff;
+    transform: translateY(-1px);
+}
+.compass-metric-link:focus-visible {
+    outline: 3px solid rgba(47, 120, 81, .24);
+    outline-offset: 3px;
+}
+.compass-metric-icon {
+    color: #d69b28;
+    font-size: 14px;
+    line-height: 1;
+}
 .score-ring {
     --ring-value: 0deg;
     display: grid;
@@ -2006,45 +2044,4 @@ body {
 @media (max-width: 700px) {
     .profile-reminder { grid-template-columns: auto 1fr; }
     .profile-reminder-action { grid-column: 1 / -1; width: 100%; }
-}
-
-/* Keep every destination reachable when tablet browser chrome shortens landscape. */
-@media (orientation: landscape) and (max-height: 700px) {
-    .side-menu {
-        position: fixed;
-        inset: 0 auto 0 0;
-        display: flex;
-        width: 92px;
-        height: 100dvh;
-        padding: 10px 8px 14px;
-        align-items: center;
-        flex-direction: column;
-        overflow-x: hidden;
-        overflow-y: auto;
-        overscroll-behavior-y: contain;
-        scrollbar-width: thin;
-        scrollbar-color: rgba(169, 201, 104, .7) transparent;
-    }
-
-    .side-brand {
-        display: grid;
-        flex: 0 0 auto;
-        margin-bottom: 12px;
-    }
-
-    .side-menu nav {
-        display: grid;
-        flex: 0 0 auto;
-        grid-template-columns: 1fr;
-        gap: 5px;
-    }
-
-    .side-menu nav a {
-        min-height: 58px;
-        padding: 6px 3px;
-    }
-
-    .side-menu nav a img { width: 27px; height: 27px; }
-    .side-menu > p { display: block; flex: 0 0 auto; margin-top: 18px; }
-    .main-content { width: calc(100% - 92px); margin-left: 92px; }
 }
