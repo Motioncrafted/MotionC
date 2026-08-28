@@ -674,6 +674,16 @@ textarea {
   color: var(--blue);
 }
 
+.style-picks button {
+  width: auto;
+  min-width: clamp(52px, 4.2vw, 70px);
+  padding-inline: clamp(6px, .55vw, 10px);
+}
+
+.style-picks button[data-style="fresh-paint"] {
+  min-width: clamp(76px, 6.2vw, 98px);
+}
+
 .font-picks button.locked-choice,
 .color-picks button.locked-choice {
   position: relative;

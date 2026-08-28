@@ -1,3 +1,5 @@
+import { renderAutoWall, STYLE_FONTS, normalizeRenderStyle } from "./wall-renderer.js?v=20260828-auto-wall-1";
+
 const COLORS = ["#d52b69", "#ee7512", "#ffbf22"];
 const FONTS = [
   "'Arial Rounded MT Bold', 'Trebuchet MS', Arial, sans-serif",
@@ -13,8 +15,7 @@ const PLACEMENT_SPOTS = [
   { left: 52, top: 51 }, { left: 17, top: 58 }, { left: 43, top: 57 },
   { left: 7, top: 62 }
 ];
-const WALL_CAPACITY = 10;
-const MIN_VISIBLE_POSTS = 8;
+const WALL_CAPACITY = 15;
 const VISITOR_POST_LIMIT = 3;
 const LEGACY_WALL_STORAGE_KEY = "motionc-drop-zone-wall-v1";
 const WALL_STORAGE_KEY = "motionc-visitor-commons-wall-v1";
@@ -50,6 +51,7 @@ const interactiveControls = document.getElementById("interactiveControls");
 let selectedColor = COLORS[0];
 let selectedFont = FONTS[0];
 let selectedSize = "large";
+let selectedStyle = "brush";
 let spraying = false;
 let spraySequence = 0;
 let wallTags = [];
@@ -90,11 +92,11 @@ message.addEventListener("input", () => {
   sprayButton.disabled = spraying || !message.value.trim();
 });
 
-document.querySelectorAll("[data-font]").forEach(button => {
+document.querySelectorAll("[data-style]").forEach(button => {
   button.addEventListener("click", () => {
-    if (!button.dataset.font) return;
-    selectedFont = button.dataset.font;
-    document.querySelectorAll("[data-font]").forEach(item =>
+    selectedStyle = normalizeRenderStyle(button.dataset.style);
+    selectedFont = STYLE_FONTS[selectedStyle];
+    document.querySelectorAll("[data-style]").forEach(item =>
       item.classList.toggle("selected", item === button)
     );
     saveWallPreferences();
@@ -294,24 +296,17 @@ function syncVisitorPostLimit() {
 
 function validStoredTag(tag) {
   return tag && typeof tag.text === "string" && tag.text.trim() &&
-    COLORS.includes(tag.color) && FONTS.includes(tag.font) &&
-    Number.isFinite(Number(tag.left)) && Number.isFinite(Number(tag.top));
+    COLORS.includes(tag.color);
 }
 
 function renderWall(tags) {
   tagLayer.replaceChildren();
-  wallTags = tags.slice(-WALL_CAPACITY).map(tag => {
-    const normalized = {
-      ...tag,
-      rotation: Math.max(-18, Math.min(18, Number(tag.rotation) || 0)),
-      size: tag.size || sizeFor(tag.text),
-      width: tag.width || widthFor(tag.text)
-    };
-    normalized.element = createWallTag(normalized, false);
-    return normalized;
+  const normalized = tags.slice(-WALL_CAPACITY).map(tag => {
+    const renderStyle = normalizeRenderStyle(tag.renderStyle || tag.render_style);
+    return { ...tag, renderStyle, font: STYLE_FONTS[renderStyle], sizeChoice: "large" };
   });
+  wallTags = renderAutoWall(tagLayer, normalized);
   spraySequence = wallTags.length;
-  scheduleWallLayout();
 }
 
 function restoreLocalWall() {
@@ -336,8 +331,9 @@ function layoutForHistoryTag(tag, index) {
     left: Number.isFinite(Number(tag.left)) ? Number(tag.left) : spot.left,
     top: Number.isFinite(Number(tag.top)) ? Number(tag.top) : spot.top,
     rotation: Number.isFinite(Number(tag.rotation)) ? Number(tag.rotation) : -8 + index * 3.5,
-    size: tag.size || sizeFor(tag.text),
-    width: tag.width || widthFor(tag.text)
+    size: tag.size || "17px",
+    width: tag.width || "20%",
+    renderStyle: normalizeRenderStyle(tag.renderStyle || tag.render_style)
   };
 }
 
@@ -411,8 +407,10 @@ async function loadHistory() {
     const { data, error } = await query;
     if (error) throw error;
     historyTags = (data || []).map(row => ({
-      id: row.id, text: row.text, color: row.color, font: row.font,
-      sizeChoice: row.size_choice, size: sizeFor(row.text, row.size_choice),
+      id: row.id, text: row.text, color: row.color,
+      renderStyle: normalizeRenderStyle(row.render_style),
+      font: STYLE_FONTS[normalizeRenderStyle(row.render_style)],
+      sizeChoice: "large", size: "17px",
       width: `${Number(row.width_percent)}%`, left: Number(row.position_x),
       top: Number(row.position_y), rotation: Number(row.rotation), createdAt: row.created_at
       , isPinned: Boolean(row.is_pinned), pinnedAt: row.pinned_at
@@ -461,7 +459,8 @@ async function saveHistory(tag) {
     const table = currentWall === "commons" ? "commons_posts" : "private_wall_posts";
     const record = {
       id: tag.id, user_id: currentSession.user.id, text: tag.text,
-      color: tag.color, font: tag.font, size_choice: tag.sizeChoice,
+      color: tag.color, font: STYLE_FONTS[normalizeRenderStyle(tag.renderStyle)], size_choice: "large",
+      render_style: normalizeRenderStyle(tag.renderStyle),
       width_percent: Number.parseFloat(tag.width), position_x: tag.left,
       position_y: tag.top, rotation: tag.rotation
     };
@@ -491,32 +490,31 @@ function spray() {
     id: crypto.randomUUID(),
     text,
     color: selectedColor,
-    font: selectedFont,
+    renderStyle: selectedStyle,
+    font: STYLE_FONTS[selectedStyle],
     left: 5,
     top: 14,
     rotation: wallTags.length % 5 === 4
       ? (Math.random() > .5 ? 1 : -1) * (13 + Math.random() * 5)
       : -11 + Math.random() * 22,
-    size: sizeFor(text, selectedSize),
-    sizeChoice: selectedSize,
-    width: widthFor(text)
+    size: "17px",
+    sizeChoice: "large",
+    width: "20%"
   };
   tag.createdAt = new Date().toISOString();
-  placeNewTag(tag);
 
   buildMist(tag);
   buildSpray(tag.color);
   purpleCan.classList.add("spraying");
-  saveHistory(tag);
 
   window.setTimeout(() => {
     if (wallTags.length >= WALL_CAPACITY) {
-      const removableCount = Math.max(0, wallTags.length - MIN_VISIBLE_POSTS + 1);
-      const removeCount = Math.min(1, removableCount);
-      wallTags.splice(0, removeCount).forEach(oldTag => oldTag.element.remove());
+      wallTags.splice(0, 1);
     }
-    tag.element = createWallTag(tag);
     wallTags.push(tag);
+    renderWall(wallTags.map(storableTag));
+    const renderedTag = wallTags.find(item => item.id === tag.id) || tag;
+    saveHistory(renderedTag);
     if (!currentSession && currentWall === "commons") saveLocalWall();
     syncVisitorPostLimit();
   }, 850);
@@ -689,18 +687,16 @@ function setMemberChoices(enabled) {
 async function loadWallPreferences() {
   if (!currentSession) return;
   const { data } = await supabase.from("wall_preferences")
-    .select("default_color, default_font, default_size")
+    .select("default_color, default_font, default_size, default_render_style")
     .eq("user_id", currentSession.user.id)
     .maybeSingle();
   if (!data) return;
   selectedColor = data.default_color || selectedColor;
-  selectedFont = data.default_font === LEGACY_BRUSH_FONT
-    ? FONTS[0]
-    : data.default_font || selectedFont;
-  selectedSize = data.default_size || selectedSize;
+  selectedStyle = normalizeRenderStyle(data.default_render_style);
+  selectedFont = STYLE_FONTS[selectedStyle];
+  selectedSize = "large";
   document.querySelectorAll("[data-color]").forEach(item => item.classList.toggle("selected", item.dataset.color === selectedColor));
-  document.querySelectorAll("[data-font]").forEach(item => item.classList.toggle("selected", item.dataset.font === selectedFont));
-  document.querySelectorAll("[data-size]").forEach(item => item.classList.toggle("selected", item.dataset.size === selectedSize));
+  document.querySelectorAll("[data-style]").forEach(item => item.classList.toggle("selected", item.dataset.style === selectedStyle));
 }
 
 async function saveWallPreferences() {
@@ -708,8 +704,9 @@ async function saveWallPreferences() {
   const { error } = await supabase.from("wall_preferences").upsert({
     user_id: currentSession.user.id,
     default_color: selectedColor,
-    default_font: selectedFont,
-    default_size: selectedSize,
+    default_font: STYLE_FONTS[selectedStyle],
+    default_size: "large",
+    default_render_style: selectedStyle,
     updated_at: new Date().toISOString()
   });
   if (error) console.error("My Wall preferences could not be saved", error);

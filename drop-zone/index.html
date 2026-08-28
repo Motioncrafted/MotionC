@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Drop Zone | MotionC</title>
   <meta name="description" content="Leave your mark and celebrate progress in the MotionC Drop Zone.">
-  <link rel="stylesheet" href="/drop-zone/styles.css?v=20260810-2">
+  <link rel="stylesheet" href="/drop-zone/styles.css?v=20260828-auto-wall-1">
+  <link rel="stylesheet" href="/drop-zone/wall-renderer.css?v=20260828-auto-wall-1">
 </head>
 <body class="nav-visualization">
   <main class="prototype-shell">
@@ -111,27 +112,12 @@
           </div>
         </div>
 
-        <div class="font-picks" aria-label="Choose a font">
-          <button class="selected" data-font="'Arial Rounded MT Bold', 'Trebuchet MS', Arial, sans-serif" type="button">BRUSH</button>
-          <button data-font="'Arial Black', Impact, sans-serif" type="button">WILD</button>
-          <button
-            aria-label="Marker font — registration required"
-            class="locked-choice"
-            data-font=""
-            data-member-font="'Trebuchet MS', sans-serif"
-            disabled
-            title="Register to unlock Marker"
-            type="button"
-          >MARKER</button>
-          <button
-            aria-label="Chalk font — registration required"
-            class="locked-choice"
-            data-font=""
-            data-member-font="Georgia, serif"
-            disabled
-            title="Register to unlock Chalk"
-            type="button"
-          >CHALK</button>
+        <div class="font-picks style-picks" aria-label="Choose a wall style">
+          <button class="selected" data-style="brush" type="button">BRUSH</button>
+          <button data-style="fresh-paint" type="button">FRESH PAINT</button>
+          <button data-style="wild" type="button">WILD</button>
+          <button data-style="marker" type="button">MARKER</button>
+          <button data-style="chalk" type="button">CHALK</button>
         </div>
 
         <div class="color-picks" aria-label="Choose a colour">
@@ -141,13 +127,6 @@
           <button aria-label="Green paint — available on My Wall" class="locked-choice member-choice" data-color="" data-member-color="#69a923" disabled style="background:#69a923" title="Open My Wall to unlock green" type="button"></button>
           <button aria-label="Teal paint — available on My Wall" class="locked-choice member-choice" data-color="" data-member-color="#0ea5b3" disabled style="background:#0ea5b3" title="Open My Wall to unlock teal" type="button"></button>
           <button aria-label="Purple paint — available on My Wall" class="locked-choice member-choice" data-color="" data-member-color="#7550a5" disabled style="background:#7550a5" title="Open My Wall to unlock purple" type="button"></button>
-        </div>
-
-        <div class="size-picks" aria-label="Choose a font size">
-          <span>SIZE</span>
-          <button data-size="small" aria-label="Use small text" type="button">A</button>
-          <button data-size="medium" aria-label="Use medium text" type="button">A</button>
-          <button class="selected" data-size="large" aria-label="Use large text" type="button">A</button>
         </div>
 
         <button class="spray-button" id="sprayButton" type="button">SPRAY IT!</button>
@@ -162,6 +141,6 @@
       </div>
     </section>
   </main>
-  <script type="module" src="/drop-zone/script.js?v=20260820-2"></script>
+  <script type="module" src="/drop-zone/script.js?v=20260828-auto-wall-1"></script>
 </body>
 </html>
