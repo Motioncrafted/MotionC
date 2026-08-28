@@ -506,6 +506,7 @@ function spray() {
   buildMist(tag);
   buildSpray(tag.color);
   purpleCan.classList.add("spraying");
+  saveHistory(tag);
 
   window.setTimeout(() => {
     if (wallTags.length >= WALL_CAPACITY) {
@@ -513,8 +514,6 @@ function spray() {
     }
     wallTags.push(tag);
     renderWall(wallTags.map(storableTag));
-    const renderedTag = wallTags.find(item => item.id === tag.id) || tag;
-    saveHistory(renderedTag);
     if (!currentSession && currentWall === "commons") saveLocalWall();
     syncVisitorPostLimit();
   }, 850);

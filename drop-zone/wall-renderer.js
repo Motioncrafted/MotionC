@@ -371,8 +371,26 @@ export function renderAutoWall(layer, sourceEntries) {
   ];
   const orderedEntries = entries.slice().sort((a, b) => sizingProfile(b).visualLength - sizingProfile(a).visualLength);
   const orderedRegions = regions.slice().sort((a, b) => b.width * b.height - a.width * a.height);
-  orderedEntries.forEach((entry, index) =>
-    positionAutomatically(layer, entry, entry.renderer, occupied, exclusions, random, orderedRegions[index])
-  );
+  orderedEntries.forEach((entry, index) => {
+    const region = orderedRegions[index];
+    try {
+      positionAutomatically(layer, entry, entry.renderer, occupied, exclusions, random, region);
+    } catch {
+      const fallback = {
+        ...entry,
+        left: region.left + region.width * .08,
+        top: region.top + region.height * .08,
+        width: `${(region.width * .76).toFixed(2)}%`,
+        size: "17px"
+      };
+      entry.renderer(layer, fallback);
+      entry.element = layer.lastElementChild;
+      entry.left = fallback.left;
+      entry.top = fallback.top;
+      entry.width = fallback.width;
+      entry.size = fallback.size;
+      occupied.push(entry.element.getBoundingClientRect());
+    }
+  });
   return entries;
 }
