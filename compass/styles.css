@@ -6,7 +6,7 @@
 /* Prototype terminology separates data completeness from interpretive confidence. */
 .confidence-card{grid-template-columns:auto 1fr auto}.confidence-card>div strong{display:block;font-size:1.2rem}.confidence-level{text-align:right}.confidence-dots{align-items:center}
 .diagnostics[hidden]{display:none}
-@media(max-width:680px){.confidence-level{text-align:left}}
+@media(max-width:680px){.confidence-card{grid-template-columns:1fr}.confidence-level{text-align:left}}
 
 /* Instrument centre and one-step position history. */
 .compass-face:before{content:"";position:absolute;z-index:0;inset:12%;border-radius:50%;pointer-events:none;background:conic-gradient(from 0deg,rgba(57,145,82,.17) 0deg,rgba(57,145,82,.12) 32deg,rgba(57,145,82,.035) 46deg,transparent 54deg 360deg);filter:blur(1px)}
