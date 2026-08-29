@@ -443,13 +443,22 @@
     }
 
     .about-meta {
-      display: grid;
-      gap: 4px;
+      display: flex;
+      flex: 1 1 360px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 3px 7px;
       margin-left: auto;
       color: #d8bf91;
       font-size: clamp(12px, 1vw, 14px);
       line-height: 1.35;
       text-align: right;
+    }
+
+    .about-meta > * + *::before {
+      content: "\00b7";
+      margin-right: 7px;
+      color: #9c6b31;
     }
 
     .info-actions .about-meta a {
@@ -503,6 +512,7 @@
       .about-meta {
         width: 100%;
         margin-left: 0;
+        justify-content: flex-start;
         text-align: left;
       }
     }
@@ -655,10 +665,12 @@
 
         <div class="info-actions">
           <a href="/dashboard/">Open Dashboard</a>
-          <div class="about-meta" aria-label="MotionC version and contact information">
+          <footer class="about-meta" aria-label="MotionC version, copyright, and contact information">
+            <span>MotionC™ — Motion Creates Change</span>
             <span>Version 1.0.0</span>
-            <a href="mailto:info@motionc.me">info@motionc.me</a>
-          </div>
+            <span>© 2026 Motioncrafted. All rights reserved.</span>
+            <a href="mailto:contact@motionc.me">contact@motionc.me</a>
+          </footer>
         </div>
       </div>
     </section>
