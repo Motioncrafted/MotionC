@@ -20,11 +20,20 @@ const LIFESTYLE_ITEMS = [
 const WEEKLY_REFLECTIONS = [
   "I may not be there yet, but I’m closer than I was yesterday.",
   "Change Happens One Step at a Time.",
+  "Secret to Living Well: Eat half, walk double, laugh triple, love without measure.",
   "All Truly Great Thoughts are Conceived While Walking.",
   "Strive for <u>Progress</u>, not Perfection.",
   "MotionC wasn’t built in one giant leap. It was built the same way change happens: one deliberate step at a time.",
   "MotionC doesn’t punish the gap. It welcomes the return.",
-  "I Don’t Know Where I Am Going, But I Sure Ain’t Lost."
+  "I Don’t Know Where I Am Going, But I Sure Ain’t Lost.",
+  "Everywhere is walking distance if you have the time.",
+  "With every walk in nature, one receives more than he seeks.",
+  "An early morning walk is a blessing for the whole day.",
+  "Keep walking through the storm. Your rainbow is waiting on the other side.",
+  "There are no shortcuts to any place worth going.",
+  "All truly great thoughts are conceived by walking.",
+  "One step at a time is good walking.",
+  "Walking gets the feet moving, the blood moving, the mind moving."
 ];
 
 const byId = id => document.getElementById(id);
