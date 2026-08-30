@@ -12,7 +12,7 @@
   >
   <style>
     * { box-sizing: border-box; }
-    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #182326; }
+    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #182326; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
     body { display: grid; place-items: center; font-family: "Kalam", cursive; color: #26343a; }
 
     .page {
@@ -315,16 +315,18 @@
       height: 14.2%;
       display: grid;
       place-content: center;
+      padding: clamp(4px, .45vw, 9px);
       text-align: center;
     }
 
     .lifetime strong {
       display: block;
       font-size: clamp(17px, 2vw, 36px);
+      line-height: 1;
       color: #1763a6;
     }
 
-    .lifetime span { font-size: clamp(8px, 0.8vw, 14px); }
+    .lifetime span { font-size: clamp(8px, 0.8vw, 14px); line-height: 1.1; }
 
     .lifetime .lifetime-total {
       margin-top: clamp(2px, .3vw, 5px);
@@ -812,7 +814,7 @@
     <section class="panel entry" aria-labelledby="entryTitle">
       <h2 id="entryTitle">Walking Progress</h2>
       <p class="message">Current Journey tracks this route. Lifetime includes every walk saved on Daily, even after starting a new journey.</p>
-      <button class="journey-reset" id="resetJourney" type="button" aria-live="polite">Start New Journey</button>
+      <button class="journey-reset" id="resetJourney" type="button" aria-live="polite">Start Journey</button>
       <form id="walkForm" hidden aria-hidden="true">
         <div class="fields">
           <label>Date
@@ -1378,7 +1380,7 @@
       button.disabled = true;
       button.textContent = "✓ New Journey Started";
       window.setTimeout(() => {
-        button.textContent = "Start New Journey";
+        button.textContent = "Start Journey";
         button.disabled = false;
       }, 2200);
     });
