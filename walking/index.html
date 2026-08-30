@@ -19,7 +19,7 @@
       position: relative;
       width: min(100vw, 150vh);
       aspect-ratio: 3 / 2;
-      background: var(--route-background, url("../images/walking-page.png")) center / 100% 100% no-repeat;
+      background: var(--route-background, url("../images/walking-page-balanced.png")) center / 100% 100% no-repeat;
     }
 
     /* Leave a small visual-viewport reserve for tablet browser and system chrome. */
@@ -344,14 +344,17 @@
     }
 
     .entry {
-      left: 29.7%;
+      left: 51.4%;
       top: 78%;
-      width: 44.2%;
+      width: 22.5%;
       height: 18.3%;
       display: flex;
       flex-direction: column;
       justify-content: center;
       gap: clamp(5px, 0.55vw, 10px);
+      border: clamp(1px, .12vw, 2px) solid rgba(111, 103, 91, .5);
+      background: rgb(230, 221, 207);
+      box-shadow: 0 4px 8px rgba(25, 45, 49, .3);
     }
 
     .entry h2, .history h2 {
@@ -589,6 +592,10 @@
       display: grid;
       place-items: center;
       z-index: 8;
+      border: clamp(1px, .12vw, 2px) solid rgba(111, 103, 91, .5);
+      border-radius: 12px;
+      background: rgb(230, 221, 207);
+      box-shadow: 0 4px 8px rgba(25, 45, 49, .3);
     }
 
     .route-access {
@@ -604,9 +611,9 @@
        Use the decorative sign area for journey controls and the unused top of
        the parchment for route selection, keeping the trail and Falls visible. */
     .page.route-toronto .entry {
-      left: 29.7%;
+      left: 51.4%;
       top: 87%;
-      width: 44.2%;
+      width: 22.5%;
       height: 11.5%;
       padding-block: clamp(4px, .42vw, 8px);
       gap: clamp(2px, .28vw, 5px);
@@ -923,7 +930,7 @@
     const ROUTES = {
       jasper: {
         id: "jasper", name: "Calgary to Jasper", endName: "Jasper", totalMiles: 244,
-        background: "../images/walking-page.png", marker: "../images/walking-marker-motionc.png",
+        background: "../images/walking-page-balanced.png", marker: "../images/walking-marker-motionc.png",
         baselineKey: JOURNEY_BASELINE_KEY, celebrationKey: JASPER_CELEBRATION_KEY,
         stations: [
           { name: "Calgary City Limits", miles: 0, x: 14.0, y: 74.3 },
