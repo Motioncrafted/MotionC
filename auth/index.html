@@ -26,7 +26,10 @@
           <small id="usernameAvailability" class="username-availability" aria-live="polite"></small>
         </label>
         <label>Email<input id="email" name="email" type="email" inputmode="email" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
-        <label>Password<input id="password" name="password" type="password" autocomplete="current-password" minlength="8" required></label>
+        <label>Password
+          <input id="password" name="password" type="password" autocomplete="current-password" minlength="8" required>
+          <small id="passwordRequirements" class="hidden">Use at least 8 characters; 12 or more is strongly recommended. Spaces are allowed. Choose a unique passphrase or use a password manager.</small>
+        </label>
         <label id="createPasswordConfirmationField" class="hidden">Confirm password<input id="createPasswordConfirmation" type="password" autocomplete="new-password" minlength="8"></label>
         <button id="submitButton" class="primary" type="submit" aria-describedby="formMessage">Sign in</button>
       </form>
@@ -90,7 +93,10 @@
     <h2 id="passwordDialogTitle">Choose a new password</h2>
     <form id="passwordForm">
       <label id="currentPasswordField" class="hidden">Current password<input id="currentPassword" type="password" autocomplete="current-password" minlength="8"></label>
-      <label>New password<input id="newPassword" type="password" autocomplete="new-password" minlength="8" required></label>
+      <label>New password
+        <input id="newPassword" type="password" autocomplete="new-password" minlength="8" required>
+        <small>Use at least 8 characters; 12 or more is strongly recommended. Spaces are allowed. Choose a unique passphrase or use a password manager.</small>
+      </label>
       <label>Confirm new password<input id="confirmPassword" type="password" autocomplete="new-password" minlength="8" required></label>
       <button class="primary" type="submit">Update password</button>
     </form>

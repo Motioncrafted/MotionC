@@ -138,6 +138,7 @@ function setMode(next) {
   }
   setAccountBusy(false);
   $("password").autocomplete = creating ? "new-password" : "current-password";
+  $("passwordRequirements").classList.toggle("hidden", !creating);
   $("forgotPasswordButton").classList.toggle("hidden", creating);
   setAccountMessage();
 }
