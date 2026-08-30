@@ -89,6 +89,22 @@
                     <p class="eyebrow">TODAY’S OVERVIEW</p>
                     <h2>Your progress, all in one place</h2>
                 </div>
+                <div class="theatre-gauge" id="theatreGauge">
+                    <button class="theatre-gauge-trigger" id="theatreGaugeTrigger" type="button" aria-label="Run gauge" aria-describedby="theatreGaugeResult">
+                        <span class="theatre-gauge-face" aria-hidden="true">
+                            <span class="theatre-gauge-arc"></span>
+                            <span class="theatre-gauge-ticks"></span>
+                            <span class="theatre-gauge-needle" id="theatreGaugeNeedle"></span>
+                            <span class="theatre-gauge-hub"></span>
+                        </span>
+                    </button>
+                    <span class="theatre-gauge-result" id="theatreGaugeResult" aria-live="polite">Press to calculate</span>
+                    <button class="theatre-gauge-info" id="theatreGaugeInfo" type="button" aria-label="What does this gauge measure?" aria-expanded="false" aria-controls="theatreGaugePopover">ⓘ</button>
+                    <aside class="theatre-gauge-popover" id="theatreGaugePopover" role="note" hidden>
+                        <strong>What does this gauge measure?</strong>
+                        <em>Nothing whatsoever. We just really like gauges.</em>
+                    </aside>
+                </div>
                 <div class="heading-actions">
                     <a id="simulation-button" class="engine-room-button" href="/engine-room/">
                         <span aria-hidden="true">⚙</span> Engine Room

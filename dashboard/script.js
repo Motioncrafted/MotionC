@@ -20,6 +20,81 @@ const closeButton = document.querySelector(".drawer-close-btn");
 
 const engineRoomButton =
     document.getElementById("simulation-button");
+
+/* -----------------------------------------
+   Summary theatre gauge
+   Reads, calculates, writes, and stores nothing.
+   ----------------------------------------- */
+
+const theatreGauge = document.getElementById("theatreGauge");
+const theatreGaugeTrigger = document.getElementById("theatreGaugeTrigger");
+const theatreGaugeNeedle = document.getElementById("theatreGaugeNeedle");
+const theatreGaugeResult = document.getElementById("theatreGaugeResult");
+const theatreGaugeInfo = document.getElementById("theatreGaugeInfo");
+const theatreGaugePopover = document.getElementById("theatreGaugePopover");
+
+const theatreGaugeAnswers = [
+    "Probably.",
+    "Looking good-ish.",
+    "Walk first.",
+    "Ask again after 5,000 steps.",
+    "Your shoes already know.",
+    "Today looks suspiciously promising.",
+    "No idea. But that was a nice gauge."
+];
+
+function setTheatreGaugeInfo(open) {
+    if (!theatreGaugeInfo || !theatreGaugePopover) return;
+    theatreGaugeInfo.setAttribute("aria-expanded", String(open));
+    theatreGaugePopover.hidden = !open;
+}
+
+theatreGaugeInfo?.addEventListener("click", event => {
+    event.stopPropagation();
+    setTheatreGaugeInfo(theatreGaugePopover?.hidden ?? true);
+});
+
+theatreGaugeTrigger?.addEventListener("click", () => {
+    if (!theatreGaugeNeedle || !theatreGaugeResult || theatreGaugeTrigger.disabled) return;
+
+    setTheatreGaugeInfo(false);
+    theatreGaugeTrigger.disabled = true;
+    theatreGaugeResult.textContent = "Calculating…";
+    theatreGaugeResult.className = "theatre-gauge-result is-calculating";
+
+    const finalAngle = 20 + Math.random() * 36;
+    const motion = theatreGaugeNeedle.animate([
+        { transform: "rotate(-42deg)", offset: 0 },
+        { transform: "rotate(8deg)", offset: .28 },
+        { transform: "rotate(-3deg)", offset: .4 },
+        { transform: `rotate(${finalAngle + 14}deg)`, offset: .67 },
+        { transform: `rotate(${finalAngle + 7}deg)`, offset: .76 },
+        { transform: `rotate(${finalAngle + 12}deg)`, offset: .82 },
+        { transform: `rotate(${finalAngle - 3}deg)`, offset: .9 },
+        { transform: `rotate(${finalAngle}deg)`, offset: 1 }
+    ], {
+        duration: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 250 : 2700,
+        easing: "cubic-bezier(.35,.05,.2,1)",
+        fill: "forwards"
+    });
+
+    motion.finished.then(() => {
+        const answer = theatreGaugeAnswers[Math.floor(Math.random() * theatreGaugeAnswers.length)];
+        theatreGaugeResult.textContent = answer;
+        theatreGaugeResult.className = "theatre-gauge-result has-answer";
+        theatreGaugeTrigger.disabled = false;
+    }).catch(() => {
+        theatreGaugeTrigger.disabled = false;
+    });
+});
+
+document.addEventListener("click", event => {
+    if (theatreGauge && !theatreGauge.contains(event.target)) setTheatreGaugeInfo(false);
+});
+
+document.addEventListener("keydown", event => {
+    if (event.key === "Escape") setTheatreGaugeInfo(false);
+});
 /* =========================================
    Active page indicator
    ========================================= */
