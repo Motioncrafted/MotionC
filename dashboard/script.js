@@ -43,6 +43,33 @@ const theatreGaugeAnswers = [
     "No idea. But that was a nice gauge."
 ];
 
+let theatreGaugeAnswerBag = [];
+let theatreGaugeLastAnswer = "";
+
+function refillTheatreGaugeAnswerBag() {
+    theatreGaugeAnswerBag = [...theatreGaugeAnswers];
+
+    for (let index = theatreGaugeAnswerBag.length - 1; index > 0; index -= 1) {
+        const swapIndex = Math.floor(Math.random() * (index + 1));
+        [theatreGaugeAnswerBag[index], theatreGaugeAnswerBag[swapIndex]] =
+            [theatreGaugeAnswerBag[swapIndex], theatreGaugeAnswerBag[index]];
+    }
+
+    if (
+        theatreGaugeAnswerBag.length > 1 &&
+        theatreGaugeAnswerBag[theatreGaugeAnswerBag.length - 1] === theatreGaugeLastAnswer
+    ) {
+        [theatreGaugeAnswerBag[0], theatreGaugeAnswerBag[theatreGaugeAnswerBag.length - 1]] =
+            [theatreGaugeAnswerBag[theatreGaugeAnswerBag.length - 1], theatreGaugeAnswerBag[0]];
+    }
+}
+
+function nextTheatreGaugeAnswer() {
+    if (theatreGaugeAnswerBag.length === 0) refillTheatreGaugeAnswerBag();
+    theatreGaugeLastAnswer = theatreGaugeAnswerBag.pop();
+    return theatreGaugeLastAnswer;
+}
+
 function setTheatreGaugeInfo(open) {
     if (!theatreGaugeInfo || !theatreGaugePopover) return;
     theatreGaugeInfo.setAttribute("aria-expanded", String(open));
@@ -79,7 +106,7 @@ theatreGaugeTrigger?.addEventListener("click", () => {
     });
 
     motion.finished.then(() => {
-        const answer = theatreGaugeAnswers[Math.floor(Math.random() * theatreGaugeAnswers.length)];
+        const answer = nextTheatreGaugeAnswer();
         theatreGaugeResult.textContent = answer;
         theatreGaugeResult.className = "theatre-gauge-result has-answer";
         theatreGaugeTrigger.disabled = false;
