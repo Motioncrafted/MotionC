@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>MotionC Account</title>
-  <link rel="stylesheet" href="styles.css?v=20260815-1">
+  <link rel="stylesheet" href="styles.css?v=20260830-1">
   <link rel="stylesheet" href="password-controls.css?v=20260819-1">
 </head>
 <body>
@@ -19,19 +19,19 @@
         <button id="signInTab" class="active" type="button">Sign in</button>
         <button id="createTab" type="button">Create account</button>
       </div>
-      <form id="accountForm">
+      <form id="accountForm" method="post" novalidate>
         <label id="usernameField" class="hidden">Username
           <input id="username" type="text" autocomplete="username" minlength="3" maxlength="24" pattern="[A-Za-z0-9_]+" placeholder="Letters, numbers, and underscores">
           <small>This is your public MotionC identity. Your email stays private.</small>
           <small id="usernameAvailability" class="username-availability" aria-live="polite"></small>
         </label>
-        <label>Email<input id="email" type="email" autocomplete="email" required></label>
-        <label>Password<input id="password" type="password" autocomplete="current-password" minlength="8" required></label>
+        <label>Email<input id="email" name="email" type="email" inputmode="email" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+        <label>Password<input id="password" name="password" type="password" autocomplete="current-password" minlength="8" required></label>
         <label id="createPasswordConfirmationField" class="hidden">Confirm password<input id="createPasswordConfirmation" type="password" autocomplete="new-password" minlength="8"></label>
-        <button id="submitButton" class="primary" type="submit">Sign in</button>
+        <button id="submitButton" class="primary" type="submit" aria-describedby="formMessage">Sign in</button>
       </form>
       <button id="forgotPasswordButton" class="text-action" type="button">Forgot password?</button>
-      <p id="formMessage" class="message" aria-live="polite"></p>
+      <p id="formMessage" class="message" role="status" aria-live="polite" aria-atomic="true"></p>
       <nav class="visitor-links" aria-label="Explore MotionC without an account">
         <a class="visitor-link visitor-link-primary" href="/landing-page/">Explore MotionC</a>
         <a class="visitor-link" href="/drop-zone/">Visit The Commons</a>
@@ -109,6 +109,17 @@
     <p id="deleteMessage" class="message" aria-live="polite"></p>
   </dialog>
 
+  <script>
+    window.motioncAuthReady = false;
+    document.getElementById("accountForm").addEventListener("submit", (event) => {
+      if (window.motioncAuthReady) return;
+      event.preventDefault();
+      const message = document.getElementById("formMessage");
+      message.textContent = "Sign-in could not start. Refresh the page and try again.";
+      message.dataset.state = "error";
+      message.setAttribute("aria-live", "assertive");
+    });
+  </script>
   <script type="module">
     import { signOutAndClear } from "../shared/motionc-supabase.js?v=20260820-2";
 
@@ -126,6 +137,6 @@
       }
     });
   </script>
-  <script type="module" src="script.js?v=20260820-4"></script>
+  <script type="module" src="script.js?v=20260830-1"></script>
 </body>
 </html>

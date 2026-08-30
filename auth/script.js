@@ -6,11 +6,38 @@ import {
 const $ = (id) => document.getElementById(id);
 const USERNAME_PATTERN = /^[A-Za-z0-9_]{3,24}$/;
 const ACTIVE_USER_KEY = "motionc-auth-active-user";
+const AUTH_TIMEOUT_MS = 15000;
 let mode = "signin";
 let activeSession = null;
 let passwordMode = "recovery";
 let usernameCheckTimer = null;
 let usernameCheckSequence = 0;
+
+function setAccountMessage(message = "", state = "info") {
+  const output = $("formMessage");
+  output.textContent = message;
+  output.dataset.state = message ? state : "";
+  output.setAttribute("aria-live", state === "error" ? "assertive" : "polite");
+}
+
+function setAccountBusy(busy) {
+  const button = $("submitButton");
+  const creating = mode === "create";
+  button.disabled = busy;
+  button.setAttribute("aria-busy", String(busy));
+  $("accountForm").setAttribute("aria-busy", String(busy));
+  button.textContent = busy
+    ? (creating ? "Creating account…" : "Signing in…")
+    : (creating ? "Create account" : "Sign in");
+}
+
+function withTimeout(promise, message) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = window.setTimeout(() => reject(new Error(message)), AUTH_TIMEOUT_MS);
+  });
+  return Promise.race([promise, timeout]).finally(() => window.clearTimeout(timer));
+}
 const params = new URLSearchParams(location.search);
 const requestedNext = params.get("next");
 const safeNext = requestedNext?.startsWith("/") && !requestedNext.startsWith("//") ? requestedNext : null;
@@ -109,10 +136,10 @@ function setMode(next) {
     $("createPasswordConfirmation").value = "";
     setPasswordVisibility($("createPasswordConfirmation"), false);
   }
-  $("submitButton").textContent = creating ? "Create account" : "Sign in";
+  setAccountBusy(false);
   $("password").autocomplete = creating ? "new-password" : "current-password";
   $("forgotPasswordButton").classList.toggle("hidden", creating);
-  $("formMessage").textContent = "";
+  setAccountMessage();
 }
 
 async function checkUsernameAvailability() {
@@ -204,7 +231,14 @@ $("username").addEventListener("blur", () => {
 
 $("accountForm").addEventListener("submit", async (event) => {
   event.preventDefault();
-  $("formMessage").textContent = "Working…";
+  const form = event.currentTarget;
+  if (!form.checkValidity()) {
+    form.reportValidity();
+    setAccountMessage("Check the highlighted email and password fields, then try again.", "error");
+    return;
+  }
+  setAccountBusy(true);
+  setAccountMessage(mode === "create" ? "Creating your private MotionC account…" : "Checking your account securely…", "working");
   const email = $("email").value.trim();
   const password = $("password").value;
   try {
@@ -217,18 +251,35 @@ $("accountForm").addEventListener("submit", async (event) => {
         throw new Error("That username is already in use.");
       }
       if (password !== $("createPasswordConfirmation").value) throw new Error("The passwords do not match.");
-      result = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: confirmationReturn, data: { username } } });
+      result = await withTimeout(
+        supabase.auth.signUp({ email, password, options: { emailRedirectTo: confirmationReturn, data: { username } } }),
+        "Account creation is taking longer than expected. Check your connection and try again."
+      );
     } else {
-      result = await supabase.auth.signInWithPassword({ email, password });
+      result = await withTimeout(
+        supabase.auth.signInWithPassword({ email, password }),
+        "Sign-in is taking longer than expected. Check your connection and try again."
+      );
     }
     if (result.error) throw result.error;
     if (!result.data.session) {
-      $("formMessage").textContent = "Check your email and select Confirm. The link will return you safely to MotionC.";
+      setAccountMessage("Check your email and select Confirm. The link will return you safely to MotionC.", "success");
       return;
     }
-    await finishLogin(result.data.session);
+    setAccountMessage("Account verified. Restoring your private MotionC data…", "working");
+    await withTimeout(
+      finishLogin(result.data.session),
+      "You are signed in, but restoring your MotionC data is taking longer than expected. Refresh this page to continue."
+    );
   } catch (error) {
-    $("formMessage").textContent = error.message || "The account could not be opened.";
+    const message = error?.message === "Invalid login credentials"
+      ? "That email and password did not match. Try again or use Forgot password."
+      : (error.message || "The account could not be opened. Please try again.");
+    setAccountMessage(message, "error");
+    $("password").focus();
+    $("password").select();
+  } finally {
+    setAccountBusy(false);
   }
 });
 
@@ -335,6 +386,7 @@ supabase.auth.onAuthStateChange((event) => {
 installPasswordToggles();
 setMode(requestedMode === "create" ? "create" : "signin");
 show("signedOutPanel");
+window.motioncAuthReady = true;
 const recoveryRequested = requestedMode === "recovery" || location.hash.includes("type=recovery");
 const existing = await getSession();
 if (recoveryRequested) {
