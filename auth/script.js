@@ -238,7 +238,7 @@ $("accountForm").addEventListener("submit", async (event) => {
     return;
   }
   setAccountBusy(true);
-  setAccountMessage(mode === "create" ? "Creating your private MotionC account…" : "Checking your account securely…", "working");
+  setAccountMessage();
   const email = $("email").value.trim();
   const password = $("password").value;
   try {
@@ -266,7 +266,6 @@ $("accountForm").addEventListener("submit", async (event) => {
       setAccountMessage("Check your email and select Confirm. The link will return you safely to MotionC.", "success");
       return;
     }
-    setAccountMessage("Account verified. Restoring your private MotionC data…", "working");
     await withTimeout(
       finishLogin(result.data.session),
       "You are signed in, but restoring your MotionC data is taking longer than expected. Refresh this page to continue."
