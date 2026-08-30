@@ -62,15 +62,15 @@ theatreGaugeTrigger?.addEventListener("click", () => {
     theatreGaugeResult.textContent = "Calculating…";
     theatreGaugeResult.className = "theatre-gauge-result is-calculating";
 
-    const finalAngle = 20 + Math.random() * 36;
+    const finalAngle = -72 + Math.random() * 34;
     const motion = theatreGaugeNeedle.animate([
-        { transform: "rotate(-42deg)", offset: 0 },
-        { transform: "rotate(8deg)", offset: .28 },
-        { transform: "rotate(-3deg)", offset: .4 },
-        { transform: `rotate(${finalAngle + 14}deg)`, offset: .67 },
-        { transform: `rotate(${finalAngle + 7}deg)`, offset: .76 },
-        { transform: `rotate(${finalAngle + 12}deg)`, offset: .82 },
-        { transform: `rotate(${finalAngle - 3}deg)`, offset: .9 },
+        { transform: "rotate(-138deg)", offset: 0 },
+        { transform: "rotate(-95deg)", offset: .28 },
+        { transform: "rotate(-108deg)", offset: .4 },
+        { transform: `rotate(${finalAngle + 10}deg)`, offset: .67 },
+        { transform: `rotate(${finalAngle + 3}deg)`, offset: .76 },
+        { transform: `rotate(${finalAngle + 8}deg)`, offset: .82 },
+        { transform: `rotate(${finalAngle - 4}deg)`, offset: .9 },
         { transform: `rotate(${finalAngle}deg)`, offset: 1 }
     ], {
         duration: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 250 : 2700,
