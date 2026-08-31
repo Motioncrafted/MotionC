@@ -33,7 +33,19 @@ const WEEKLY_REFLECTIONS = [
   "There are no shortcuts to any place worth going.",
   "All truly great thoughts are conceived by walking.",
   "One step at a time is good walking.",
-  "Walking gets the feet moving, the blood moving, the mind moving."
+  "Walking gets the feet moving, the blood moving, the mind moving.",
+  "Imagine the weight you are losing is going to the person you hate.",
+  "Exercise? I thought you said extra fries.",
+  "Sweat is just fat crying.",
+  "It doesn’t get easier. You just get stronger.",
+  "No matter how slow you go, you’re still lapping everybody on the couch.",
+  "Some people walk in the rain; others just get wet.",
+  "I walk around like everything is fine, but deep down inside my shoe, my sock is sliding off.",
+  "Oh, I can walk the walk. Just please don’t ask me to jog the jog or run the run.",
+  "<span aria-label=\"Don’t Quit. Do It.\">Do<s aria-hidden=\"true\">n’t</s> <s aria-hidden=\"true\">Qu</s>it</span>",
+  "Be stronger than your excuses.",
+  "I’m not here to be average. I’m here to be awesome.",
+  "I’m adopting a healthier lifestyle. I now park and walk inside to buy donuts instead of using the drive-thru."
 ];
 
 const byId = id => document.getElementById(id);
