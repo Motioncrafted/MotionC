@@ -437,46 +437,8 @@
 
     .info-actions {
       display: flex;
-      align-items: flex-end;
       flex-wrap: wrap;
       gap: 10px;
-    }
-
-    .about-meta {
-      display: flex;
-      flex: 1 1 360px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-      gap: 3px 7px;
-      margin-left: auto;
-      color: #d8bf91;
-      font-size: clamp(12px, 1vw, 14px);
-      line-height: 1.35;
-      text-align: right;
-    }
-
-    .about-meta > * + *::before {
-      content: "\00b7";
-      margin-right: 7px;
-      color: #9c6b31;
-    }
-
-    .info-actions .about-meta a {
-      display: inline;
-      min-height: 0;
-      padding: 0;
-      border: 0;
-      color: #f6ead5;
-      background: transparent;
-      font: inherit;
-      text-decoration: none;
-    }
-
-    .info-actions .about-meta a:hover,
-    .info-actions .about-meta a:focus-visible {
-      color: #7bd35a;
-      text-decoration: underline;
-      outline: none;
     }
 
     .info-actions a,
@@ -509,12 +471,6 @@
 
     @media (max-width: 620px) {
       .pillars { grid-template-columns: 1fr; }
-      .about-meta {
-        width: 100%;
-        margin-left: 0;
-        justify-content: flex-start;
-        text-align: left;
-      }
     }
   </style>
 </head>
@@ -665,12 +621,6 @@
 
         <div class="info-actions">
           <a href="/dashboard/">Open Dashboard</a>
-          <footer class="about-meta" aria-label="MotionC version, copyright, and contact information">
-            <span>MotionC™ — Motion Creates Change</span>
-            <span>Version 1.0.0</span>
-            <span>© 2026 Motioncrafted. All rights reserved.</span>
-            <a href="mailto:info@motionc.me">info@motionc.me</a>
-          </footer>
         </div>
       </div>
     </section>
@@ -719,15 +669,50 @@
       "Back again? I’ll pretend this is about your health.",
       "Your persistence is impressive. Misguided, but impressive.",
       "I measure numbers, not excuses. Those require different equipment.",
-      "You bring the effort. I’ll bring the unsolicited commentary."
+      "You bring the effort. I’ll bring the unsolicited commentary.",
+      "Measurement complete. Judgment unavailable.",
+      "That’s today’s number—not today’s verdict.",
+      "I measure weight. Progress is considerably larger.",
+      "You stepped on. I did the math. Excellent teamwork.",
+      "Data received. Self-criticism rejected.",
+      "A fluctuation is not a plot twist.",
+      "There you are. I was beginning to feel like furniture.",
+      "Second reading confirmed. My reputation survives.",
+      "Some days move the line. Some days build the habit.",
+      "Progress occasionally wears camouflage."
     ];
-    let miraCommentIndex = 0;
+    let miraCommentBag = [];
+    let miraLastComment = "";
     const miraDisplayDuration = 3000;
     const miraFadeDuration = 700;
     let miraDismissTimer = null;
     let miraFadeTimer = null;
     let miraTimerStartedAt = 0;
     let miraTimeRemaining = miraDisplayDuration;
+
+    function refillMiraCommentBag() {
+      miraCommentBag = [...miraComments];
+
+      for (let index = miraCommentBag.length - 1; index > 0; index -= 1) {
+        const swapIndex = Math.floor(Math.random() * (index + 1));
+        [miraCommentBag[index], miraCommentBag[swapIndex]] =
+          [miraCommentBag[swapIndex], miraCommentBag[index]];
+      }
+
+      if (
+        miraCommentBag.length > 1 &&
+        miraCommentBag[miraCommentBag.length - 1] === miraLastComment
+      ) {
+        [miraCommentBag[0], miraCommentBag[miraCommentBag.length - 1]] =
+          [miraCommentBag[miraCommentBag.length - 1], miraCommentBag[0]];
+      }
+    }
+
+    function nextMiraComment() {
+      if (miraCommentBag.length === 0) refillMiraCommentBag();
+      miraLastComment = miraCommentBag.pop();
+      return miraLastComment;
+    }
 
     function setInfoOpen(open) {
       infoOverlay.hidden = !open;
@@ -799,8 +784,7 @@
     }
 
     function showNextMiraComment() {
-      miraComment.textContent = miraComments[miraCommentIndex];
-      miraCommentIndex = (miraCommentIndex + 1) % miraComments.length;
+      miraComment.textContent = nextMiraComment();
       setMiraOpen(true);
     }
 
