@@ -630,11 +630,34 @@
       width: 88%;
       height: 66%;
     }
+    .page.route-riviera .entry {
+      left: 45%;
+      top: 78%;
+      width: 25%;
+      height: 18.3%;
+    }
+    .page.route-riviera .history,
+    .page.route-riviera .walk-modal {
+      left: 82.2%;
+      top: 20%;
+      width: 15.4%;
+      height: 48%;
+    }
+    .page.route-riviera .reserved-route-panel {
+      left: 82.2%;
+      top: 3.4%;
+      width: 15.4%;
+      height: 14.5%;
+    }
+    .page.route-riviera .route-access {
+      width: 88%;
+      height: 68%;
+    }
     .route-chooser { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; padding: 4%; background: rgba(9, 18, 22, .64); backdrop-filter: blur(3px); }
     .route-chooser[hidden] { display: none; }
     .route-chooser-card { position: relative; width: min(58%, 760px); padding: clamp(18px, 2.3vw, 38px); border: 2px solid #79c9ec; border-radius: clamp(14px, 1.5vw, 24px); color: #eefbff; background: linear-gradient(145deg, #152b37, #0a151c); box-shadow: 0 18px 60px rgba(0, 0, 0, .6); text-align: center; }
     .route-chooser-card h2 { margin: 0 0 4%; font-size: clamp(22px, 2.5vw, 42px); }
-    .route-options { display: grid; grid-template-columns: 1fr 1fr; gap: 4%; }
+    .route-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3%; }
     .route-option { height: auto; min-height: clamp(76px, 9vw, 140px); padding: 7%; }
     .route-option strong, .route-option small { display: block; }
     .route-option small { margin-top: 5%; opacity: .82; }
@@ -642,6 +665,10 @@
     .route-marker.toronto-marker { width: 4.7%; height: 9.3%; background-size: 300% 100%; background-position: left center; transform: translate(-50%, -92%); }
     .route-marker.toronto-marker.pose-side { background-position: center center; }
     .route-marker.toronto-marker.pose-back { background-position: right center; }
+    .route-marker.riviera-marker { width: 4.7%; height: 10.3%; background-size: 400% 100%; background-position: left center; transform: translate(-50%, -92%); }
+    .route-marker.riviera-marker.pose-right { background-position: 33.333% center; }
+    .route-marker.riviera-marker.pose-away { background-position: 66.667% center; }
+    .route-marker.riviera-marker.pose-left { background-position: right center; }
 
     .delete {
       float: right;
@@ -760,6 +787,9 @@
 
     @media (max-width: 700px), (max-height: 480px) {
       .panel { padding: 5px; }
+      .route-chooser-card { width: min(72%, 760px); }
+      .route-options { grid-template-columns: 1fr; gap: 6px; }
+      .route-option { min-height: 42px; padding: 4%; }
       .entry { gap: 3px; }
       .entry h2, .history h2 { font-size: 9px; }
       label, .message, .walk-card { font-size: 6px; }
@@ -891,6 +921,7 @@
         <div class="route-options">
           <button class="route-option" type="button" data-route="jasper"><strong>Calgary to Jasper</strong><small>244 mi · 13 stops</small></button>
           <button class="route-option" type="button" data-route="toronto"><strong>Toronto to Niagara Falls</strong><small>105 mi · 13 stops</small></button>
+          <button class="route-option" type="button" data-route="riviera"><strong>Walking the Riviera Maya</strong><small>129 mi · 13 stops</small></button>
         </div>
       </div>
     </section>
@@ -967,6 +998,26 @@
           { name: "St. Catharines", miles: 94, x: 63.5, y: 54.5 },
           { name: "Niagara Falls", miles: 105, x: 78.0, y: 80.4 }
         ]
+      },
+      riviera: {
+        id: "riviera", name: "Walking the Riviera Maya", endName: "Cenote Choo-Há", totalMiles: 129,
+        background: "../images/walking-route-riviera-maya.png", marker: "../images/walking-marker-riviera-maya-sprites.png",
+        baselineKey: "motionc-walking-riviera-journey-baseline-v1", celebrationKey: "motionc-walking-riviera-celebrated-v1",
+        stations: [
+          { name: "Cancún Hotel Zone", miles: 0, x: 78.65, y: 9.69, pose: "left" },
+          { name: "San Miguelito", miles: 7, x: 72.40, y: 15.94, pose: "left" },
+          { name: "Puerto Morelos", miles: 29, x: 64.58, y: 25.00, pose: "left" },
+          { name: "Punta Maroma", miles: 43, x: 48.96, y: 19.53, pose: "left" },
+          { name: "Playa del Carmen", miles: 55, x: 34.38, y: 30.47, pose: "left" },
+          { name: "Xcaret", miles: 59, x: 19.79, y: 26.56, pose: "front" },
+          { name: "Río Secreto", miles: 61, x: 27.08, y: 44.53, pose: "right" },
+          { name: "Puerto Aventuras", miles: 69, x: 48.44, y: 39.06, pose: "right" },
+          { name: "Akumal", miles: 79, x: 64.58, y: 50.00, pose: "right" },
+          { name: "Xel-Há", miles: 86, x: 76.04, y: 46.88, pose: "front" },
+          { name: "Tulum Ruins", miles: 96, x: 69.79, y: 65.63, pose: "left" },
+          { name: "Cobá Ruins", miles: 125, x: 54.17, y: 62.50, pose: "left" },
+          { name: "Cenote Choo-Há", miles: 129, x: 18.75, y: 78.91, pose: "front" }
+        ]
       }
     };
     const savedRouteId = localStorage.getItem(SELECTED_ROUTE_KEY);
@@ -1034,6 +1085,7 @@
 
     function applyRoute() {
       page.classList.toggle("route-toronto", activeRoute.id === "toronto");
+      page.classList.toggle("route-riviera", activeRoute.id === "riviera");
       page.style.setProperty("--route-background", `url("${activeRoute.background}")`);
       routeMarker.style.backgroundImage = `url("${activeRoute.marker}")`;
       journeyBaselineMiles = loadJourneyBaseline();
@@ -1045,7 +1097,7 @@
     }
 
     function selectRoute(routeId) {
-      if (!ROUTES[routeId] || (routeId === "toronto" && !registeredUser)) return;
+      if (!ROUTES[routeId] || (routeId !== "jasper" && !registeredUser)) return;
       activeRoute = ROUTES[routeId];
       localStorage.setItem(SELECTED_ROUTE_KEY, routeId);
       routeChooser.hidden = true;
@@ -1205,6 +1257,8 @@
         routeMarker.classList.add("toronto-marker");
         if (reachedIndex === 8) routeMarker.classList.add("pose-side");
         else if (reachedIndex >= 9 && reachedIndex <= 11) routeMarker.classList.add("pose-back");
+      } else if (activeRoute.id === "riviera") {
+        routeMarker.classList.add("riviera-marker", `pose-${reachedStation.pose || "front"}`);
       }
 
       const remaining = Math.max(0, nextStation.miles - routeMiles);
