@@ -431,6 +431,15 @@
       font-size: clamp(9px, 0.78vw, 13px);
     }
     .journey-reset:hover { background: #394b50; }
+    .route-test {
+      width: 100%;
+      height: clamp(20px, 1.8vw, 30px);
+      margin-top: clamp(3px, 0.35vw, 6px);
+      background: #a86616;
+      font-size: clamp(8px, 0.68vw, 12px);
+    }
+    .route-test:hover { background: #87500f; }
+    .route-test[hidden] { display: none; }
 
     .message {
       min-height: 1em;
@@ -852,6 +861,7 @@
       <h2 id="entryTitle">Walking Progress</h2>
       <p class="message">Current Journey tracks this route. Lifetime includes every walk saved on Daily, even after starting a new journey.</p>
       <button class="journey-reset" id="resetJourney" type="button" aria-live="polite">Start Journey</button>
+      <button class="route-test" id="routeTest" type="button" hidden>Test Walker: Station 1</button>
       <form id="walkForm" hidden aria-hidden="true">
         <div class="fields">
           <label>Date
@@ -1004,7 +1014,7 @@
         background: "../images/walking-route-riviera-maya.png", marker: "../images/walking-marker-riviera-maya-sprites.png",
         baselineKey: "motionc-walking-riviera-journey-baseline-v1", celebrationKey: "motionc-walking-riviera-celebrated-v1",
         stations: [
-          { name: "Cancún Hotel Zone", miles: 0, x: 78.65, y: 9.69, pose: "left" },
+          { name: "Cancún Hotel Zone", miles: 0, x: 78.65, y: 9.69, pose: "front" },
           { name: "San Miguelito", miles: 7, x: 72.40, y: 15.94, pose: "left" },
           { name: "Puerto Morelos", miles: 29, x: 64.58, y: 25.00, pose: "left" },
           { name: "Punta Maroma", miles: 43, x: 48.96, y: 19.53, pose: "left" },
@@ -1054,6 +1064,7 @@
     const message = document.getElementById("message");
     const routeMarker = document.getElementById("routeMarker");
     const routeDots = document.getElementById("routeDots");
+    const routeTest = document.getElementById("routeTest");
     const viewToggle = document.getElementById("viewToggle");
     const walkModal = document.getElementById("walkModal");
     const jasperCelebration = document.getElementById("jasperCelebration");
@@ -1067,6 +1078,7 @@
     let walks = loadWalks();
     let journeyBaselineMiles = loadJourneyBaseline();
     let walksOpen = false;
+    let routeTestIndex = -1;
 
     let routeDotElements = [];
 
@@ -1089,6 +1101,9 @@
       page.style.setProperty("--route-background", `url("${activeRoute.background}")`);
       routeMarker.style.backgroundImage = `url("${activeRoute.marker}")`;
       journeyBaselineMiles = loadJourneyBaseline();
+      routeTestIndex = -1;
+      routeTest.hidden = activeRoute.id !== "riviera";
+      routeTest.textContent = "Test Walker: Station 1";
       buildRouteDots();
       document.querySelectorAll("[data-route]").forEach(button => {
         button.classList.toggle("current", button.dataset.route === activeRoute.id);
@@ -1444,6 +1459,14 @@
         button.textContent = "Start Journey";
         button.disabled = false;
       }, 2200);
+    });
+
+    routeTest.addEventListener("click", () => {
+      if (activeRoute.id !== "riviera") return;
+      routeTestIndex = (routeTestIndex + 1) % activeRoute.stations.length;
+      const station = activeRoute.stations[routeTestIndex];
+      updateRouteMarker(station.miles);
+      routeTest.textContent = `Station ${routeTestIndex + 1}/${activeRoute.stations.length}: ${station.name}`;
     });
 
     document.addEventListener("keydown", event => {
