@@ -1004,7 +1004,7 @@
         baselineKey: "motionc-walking-riviera-journey-baseline-v1", celebrationKey: "motionc-walking-riviera-celebrated-v1",
         stations: [
           { name: "Cancún Hotel Zone", miles: 0, x: 78.65, y: 9.69, pose: "front" },
-          { name: "San Miguelito", miles: 7, x: 72.40, y: 15.94, pose: "left" },
+          { name: "San Miguelito", miles: 7, x: 72.40, y: 15.94, pose: "front" },
           { name: "Puerto Morelos", miles: 29, x: 64.58, y: 25.00, pose: "left" },
           { name: "Punta Maroma", miles: 43, x: 48.96, y: 19.53, pose: "left" },
           { name: "Playa del Carmen", miles: 55, x: 34.38, y: 30.47, pose: "left" },
@@ -1257,7 +1257,7 @@
         if (reachedIndex === 8) routeMarker.classList.add("pose-side");
         else if (reachedIndex >= 9 && reachedIndex <= 11) routeMarker.classList.add("pose-back");
       } else if (activeRoute.id === "riviera") {
-        const markerPose = reachedStation.name === "Cancún Hotel Zone"
+        const markerPose = reachedIndex <= 1
           ? "front"
           : reachedStation.pose || "front";
         routeMarker.classList.add("riviera-marker", `pose-${markerPose}`);
