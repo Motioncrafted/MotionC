@@ -31,7 +31,7 @@ const WEEKLY_REFLECTIONS = [
   "An early morning walk is a blessing for the whole day.",
   "Keep walking through the storm. Your rainbow is waiting on the other side.",
   "There are no shortcuts to any place worth going.",
-  "All truly great thoughts are conceived by walking.",
+  "What feels impossible can begin with two words: I’m possible.",
   "One step at a time is good walking.",
   "Walking gets the feet moving, the blood moving, the mind moving.",
   "Imagine the weight you are losing is going to the person you hate.",
@@ -94,9 +94,9 @@ const fields = {
   weightNote: byId("weightNote"),
   observation: byId("observation"),
   noRestaurant: byId("noRestaurant"),
-  noAlcohol: byId("noAlcohol"),
+  noFastFood: byId("noFastFood"),
   noJunkFood: byId("noJunkFood"),
-  smokeFreeDay: byId("smokeFreeDay")
+  oneTreat: byId("oneTreat")
 };
 
 function applyUnitSystem() {
@@ -160,7 +160,7 @@ function roundHalf(value) {
 }
 
 function calculateEntry(entry, weeklyScore) {
-  const promiseKeys = ["noRestaurant", "noAlcohol", "noJunkFood", "smokeFreeDay"];
+  const promiseKeys = ["noRestaurant", "noFastFood", "noJunkFood", "oneTreat"];
   const food = promiseKeys.reduce((total, key) => total + (entry[key] ? 2 : 0), 0);
   const distancePoints = Math.min(6, Number(entry.distance || 0) / 5 * 6);
   const timePoints = Math.min(6, Number(entry.minutes || 0) / 60 * 6);
@@ -475,9 +475,9 @@ function loadEntry(dateValue) {
   fields.weightNote.value = entry?.weightNote ?? "";
   fields.observation.value = entry?.observation ?? "";
   fields.noRestaurant.checked = entry?.noRestaurant ?? true;
-  fields.noAlcohol.checked = entry?.noAlcohol ?? true;
+  fields.noFastFood.checked = entry?.noFastFood ?? true;
   fields.noJunkFood.checked = entry?.noJunkFood ?? true;
-  fields.smokeFreeDay.checked = entry?.smokeFreeDay ?? true;
+  fields.oneTreat.checked = entry?.oneTreat ?? true;
   updateWalkEntryMode();
   renderWalkBreakdown();
   renderToday(dateValue);
@@ -790,9 +790,9 @@ function readDayFields(existing = {}) {
     weightNote: fields.weightNote.value.trim(),
     observation: fields.observation.value.trim(),
     noRestaurant: fields.noRestaurant.checked,
-    noAlcohol: fields.noAlcohol.checked,
+    noFastFood: fields.noFastFood.checked,
     noJunkFood: fields.noJunkFood.checked,
-    smokeFreeDay: fields.smokeFreeDay.checked,
+    oneTreat: fields.oneTreat.checked,
     updatedAt: new Date().toISOString()
   };
 }
@@ -1336,11 +1336,11 @@ function openScore(dateValue) {
       <strong>${entry.weight ? formatWeight(entry.weight) : "Not recorded"}</strong>
       ${entry.weightNote ? `<small>${escapeHtml(entry.weightNote)}</small>` : ""}
     </div>
-    <section class="score-section"><header><h3>Lifestyle</h3><strong>${score.food}/8</strong></header><ul>
+    <section class="score-section"><header><h3>Food</h3><strong>${score.food}/8</strong></header><ul>
       ${promiseLine("No restaurant meal", entry.noRestaurant)}
-      ${promiseLine("No Alcohol", entry.noAlcohol)}
-      ${promiseLine("Skipped Junk Food", entry.noJunkFood)}
-      ${promiseLine("Smoke Free Day", entry.smokeFreeDay)}
+      ${promiseLine("No fast food", entry.noFastFood)}
+      ${promiseLine("No junk food", entry.noJunkFood)}
+      ${promiseLine("Stayed within one treat", entry.oneTreat)}
     </ul><p class="impact">Impact: ${dailyImpact}</p></section>
     <section class="score-section"><header><h3>Movement</h3><strong>${score.movement}/12</strong></header><ul>
       <li><span>Walking time</span><strong>${entry.minutes || 0} min</strong></li>
