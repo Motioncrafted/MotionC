@@ -2822,27 +2822,49 @@
       {
         id: "sleep-and-progress",
         category: "recovery",
-        title: "Sleep Is Part of Progress",
-        tags: ["sleep", "recovery", "energy", "routine"],
-        summary: "Why rest belongs inside a health plan rather than beside it.",
+        title: "Understanding Sleep: What’s Normal and How to Improve Quality",
+        tags: ["sleep", "sleep quality", "sleep cycles", "REM", "circadian rhythm", "hydration", "caffeine", "stress", "morning walks", "bedtime routine", "Mo Explains"],
+        summary: "What normal sleep looks like, what commonly disrupts it, and practical ways to improve sleep quality.",
         pages: [
-          `<p>Sleep influences energy, appetite, concentration, mood, and the willingness to move. It is not time taken away from progress; it is part of the system that makes progress possible.</p>
-           <p>A consistent wake time can provide a useful anchor when perfect sleep schedules are unrealistic.</p>`,
-          `<p>Build a short landing sequence before bed: reduce stimulation, prepare tomorrow’s essentials, and give the day a clear ending.</p>
-           <p>When sleep remains difficult or unrefreshing, professional guidance can be more valuable than another tracking score.</p>`
-        ]
-      },
-      {
-        id: "recovery-signals",
-        category: "recovery",
-        title: "Listen to Recovery Signals",
-        tags: ["recovery", "fatigue", "rest", "movement"],
-        summary: "Recognize when persistence should become patience.",
-        pages: [
-          `<p>Progress depends on stress and recovery working together. Fatigue, irritability, declining performance, and persistent soreness can be signs that the balance has shifted.</p>
-           <p>Rest is not always complete inactivity. An easier walk, gentle mobility, or an earlier bedtime may be the adjustment your system needs.</p>`,
-          `<p>Responding early is often more effective than waiting until exhaustion forces a complete stop.</p>
-           <p>The strongest routine is not the one that never bends. It is the one that knows how to adapt and continue.</p>`
+          `<h2>Introduction: The Importance of Sleep</h2>
+           <p>Sleep is essential for physical health, mental clarity, emotional balance, and overall well-being. Yet, many people struggle with sleep quality or quantity without fully understanding what “normal” sleep looks like or how daily habits impact it. This article explores the science of sleep, common disruptors, and practical tips to help you rest better.</p>`,
+          `<h2>What Is Normal Sleep?</h2>
+           <ul>
+             <li><strong>Duration:</strong> Most adults need 7-9 hours of sleep per night, though individual needs vary.</li>
+             <li><strong>Sleep Cycles:</strong> Sleep consists of multiple cycles, including <strong>REM</strong> (rapid eye movement) and non-REM stages, each playing a vital role in memory, healing, and restoration.</li>
+             <li><strong>Quality Indicators:</strong> Falling asleep within 15-20 minutes, minimal awakenings, and feeling refreshed upon waking are signs of good sleep quality.</li>
+           </ul>`,
+          `<h2>Common Factors That Affect Sleep Quality</h2>
+           <h3>1. Hydration and Nighttime Bathroom Trips</h3>
+           <p>Drinking water before bed can lead to waking up to urinate, disrupting sleep cycles. Balancing hydration earlier in the day and limiting fluids before bedtime can help minimize interruptions.</p>
+           <h3>2. Stress and Mental Health</h3>
+           <p>Stress increases cortisol levels, which can delay sleep onset and reduce deep sleep. Mindfulness practices like meditation and qigong can lower stress and promote relaxation.</p>`,
+          `<h3>3. Food and Drink</h3>
+           <ul>
+             <li><strong>Caffeine:</strong> Avoid caffeine at least 6 hours before bedtime as it blocks <strong>adenosine</strong>, a sleep-promoting chemical.</li>
+             <li><strong>Alcohol:</strong> While it may induce sleep initially, alcohol disrupts REM sleep and causes fragmented rest.</li>
+             <li><strong>Heavy Meals:</strong> Eating large or spicy meals close to bedtime can cause discomfort and indigestion, impairing sleep.</li>
+           </ul>
+           <h3>4. Environmental Factors</h3>
+           <p>Noise, light, and room temperature significantly impact sleep quality. Using blackout curtains, white noise machines, or calming music through headphones can create a better sleep environment.</p>`,
+          `<h2>The Science Behind Morning Walks and Sleep</h2>
+           <p>Morning physical activity helps regulate circadian rhythms, making it easier to fall asleep at night. Exercise reduces sleep onset latency and increases deep sleep stages. Mind-body practices like qigong and meditation balance the nervous system, promoting mental calmness and better rest.</p>`,
+          `<h2>Practical Tips for Better Sleep</h2>
+           <ul>
+             <li>Maintain a consistent sleep schedule, even on weekends.</li>
+             <li>Develop a calming bedtime routine (reading, gentle stretching, meditation).</li>
+             <li>Limit screen time and blue light exposure before bed.</li>
+             <li>Manage hydration timing to avoid nighttime disruptions.</li>
+             <li>Choose sleep-friendly foods and avoid stimulants late in the day.</li>
+             <li>Use calming music or white noise mindfully to enhance relaxation.</li>
+           </ul>`,
+          `<h2>Conclusion: Sleep as a Cornerstone of Health</h2>
+           <p>Good sleep is a powerful, often overlooked tool for improving quality of life. By understanding what affects your sleep and making small adjustments, you can unlock better rest and greater energy for your daily journey.</p>
+           <h2>Mo’s Bedtime Checklist</h2>
+           <figure class="article-explainer">
+             <img src="/images/mo-bedtime-checklist.png" alt="Mo’s four-step bedtime checklist: wind down, use light hydration, consider magnesium support, and keep a consistent bedtime" loading="lazy">
+             <figcaption>Mo’s Bedtime Checklist — Small steps tonight. Better sleep. Stronger tomorrow.</figcaption>
+           </figure>`
         ]
       },
       {
@@ -4006,7 +4028,7 @@
 
     function sectionArticleButton(article) {
       const category = categoryMap.get(article.category);
-      const greyArticle = article.iconType === "grey" || ["beginners-guide-to-fasted-walking", "mindful-walking", "understanding-insulin-spikes", "hydration-a-beginners-guide", "chia-seeds-a-beginners-guide", "yogurt-a-beginners-guide", "psyllium-husk-a-friendly-beginner-guide", "kimchi-a-beginners-guide", "pumpkin-seeds-a-simple-powerful-source-of-magnesium", "magnesium-choosing-the-most-well-rounded-option", "chelated-minerals-why-they-matter", "hack-your-environment-small-changes-that-make-healthy-habits-stick"].includes(article.id);
+      const greyArticle = article.iconType === "grey" || ["beginners-guide-to-fasted-walking", "mindful-walking", "understanding-insulin-spikes", "hydration-a-beginners-guide", "chia-seeds-a-beginners-guide", "yogurt-a-beginners-guide", "psyllium-husk-a-friendly-beginner-guide", "kimchi-a-beginners-guide", "pumpkin-seeds-a-simple-powerful-source-of-magnesium", "magnesium-choosing-the-most-well-rounded-option", "chelated-minerals-why-they-matter", "hack-your-environment-small-changes-that-make-healthy-habits-stick", "sleep-and-progress"].includes(article.id);
       const blueArticle = article.iconType === "blue" || ["mo-explains-insulin-spikes-two-modes", "mo-explains-why-bananas-spike-insulin", "felt-and-body", "win-eat-real-food", "win-eat-more-plants", "win-eat-slowly", "win-80-percent-rule", "win-eat-together", "mo-running-shoe-anatomy", "mo-running-shoe-family", "mo-roomy-toe-box", "mo-heel-to-toe-drop", "mo-stack-height", "mo-five-minute-shoe-check", "mo-midsole-aging", "mo-shoe-odometer", "mo-shoe-wear-inspection", "mo-shoe-rotation", "mo-shoe-price-and-durability"].includes(article.id);
       const qaArticle = article.id === "motionc-site-questions-and-answers";
       const visualBadge = qaArticle
