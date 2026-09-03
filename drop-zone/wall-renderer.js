@@ -311,7 +311,7 @@ function positionAutomatically(layer, entry, renderer, occupied, exclusions, ran
 }
 
 export const STYLE_FONTS = {
-  brush: "'Arial Rounded MT Bold', 'Trebuchet MS', Arial, sans-serif",
+  brush: "'Brush Script MT', 'Segoe Script', 'Segoe Print', cursive",
   "fresh-paint": "'Arial Rounded MT Bold', 'Trebuchet MS', Arial, sans-serif",
   wild: "'Arial Black', Impact, sans-serif",
   marker: "'Segoe Print', 'Comic Sans MS', cursive",

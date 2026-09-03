@@ -1,4 +1,4 @@
-import { renderAutoWall, STYLE_FONTS, normalizeRenderStyle } from "./wall-renderer.js?v=20260903-white-paint-1";
+import { renderAutoWall, STYLE_FONTS, normalizeRenderStyle } from "./wall-renderer.js?v=20260903-style-identities-1";
 
 const COLORS = ["#d52b69", "#ee7512", "#ffbf22", "#f4f1e8"];
 const FONTS = [
