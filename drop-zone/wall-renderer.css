@@ -11,6 +11,16 @@
   text-shadow: 0 1px 2px rgba(43, 28, 20, .72), 0 0 1px rgba(43, 28, 20, .78);
 }
 
+.wall-tag.has-contrast-edge {
+  text-shadow: 0 1px 1px rgba(47, 29, 17, .78), 0 0 2px rgba(47, 29, 17, .48);
+}
+.wall-tag.has-contrast-edge .paint-letter,
+.wall-tag.has-contrast-edge .wild-letter,
+.wall-tag.has-contrast-edge .marker-letter,
+.wall-tag.has-contrast-edge .chalk-letter {
+  text-shadow: 0 1px 1px rgba(47, 29, 17, .78), 0 0 2px rgba(47, 29, 17, .48);
+}
+
 .wall-tag.mixed-brush {
   font-style: italic;
   font-weight: 800;

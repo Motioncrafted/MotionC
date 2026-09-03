@@ -1,4 +1,4 @@
-import { renderAutoWall, STYLE_FONTS, normalizeRenderStyle } from "./wall-renderer.js?v=20260903-readable-brush-1";
+import { renderAutoWall, STYLE_FONTS, normalizeRenderStyle } from "./wall-renderer.js?v=20260903-mobile-contrast-1";
 
 const COLORS = ["#d52b69", "#2563eb", "#ffbf22", "#f4f1e8"];
 const FONTS = [
@@ -407,7 +407,7 @@ async function loadHistory() {
     const { data, error } = await query;
     if (error) throw error;
     historyTags = (data || []).map(row => ({
-      id: row.id, text: row.text, color: row.color,
+      id: row.id, text: row.text, color: String(row.color).toLowerCase() === "#69a923" ? "#168a55" : row.color,
       renderStyle: normalizeRenderStyle(row.render_style),
       font: STYLE_FONTS[normalizeRenderStyle(row.render_style)],
       sizeChoice: "large", size: "17px",

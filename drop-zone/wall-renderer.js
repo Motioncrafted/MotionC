@@ -20,8 +20,12 @@ function seededRandom(seedText) {
 
 function makeTag(proof, className = "") {
   const tag = document.createElement("span");
-  const lightPaintClass = String(proof.color).toLowerCase() === "#f4f1e8" ? "is-light-paint" : "";
-  tag.className = `wall-tag revealed ${className} ${lightPaintClass}`.trim();
+  const normalizedColor = String(proof.color).toLowerCase();
+  const lightPaintClass = normalizedColor === "#f4f1e8" ? "is-light-paint" : "";
+  const contrastEdgeClass = ["#168a55", "#69a923", "#7550a5", "#ffbf22"].includes(normalizedColor)
+    ? "has-contrast-edge"
+    : "";
+  tag.className = `wall-tag revealed ${className} ${lightPaintClass} ${contrastEdgeClass}`.trim();
   tag.dataset.proofId = proof.id;
   tag.style.setProperty("--tag-color", proof.color);
   tag.style.setProperty("--tag-left", `${proof.left}%`);
