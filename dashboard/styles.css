@@ -1009,6 +1009,31 @@ body {
     text-transform: uppercase;
 }
 
+.summary-account-name {
+    color: #fff;
+    background: transparent;
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: .04em;
+    line-height: 1;
+    text-decoration: none;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, .72);
+    text-transform: uppercase;
+}
+
+.summary-account-name:hover,
+.summary-account-name:focus-visible {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 6px;
+}
+
+.summary-account-name:focus-visible {
+    border-radius: 4px;
+    outline: 2px solid rgba(255, 255, 255, .85);
+    outline-offset: 5px;
+}
+
 .nav-links { display: flex; gap: 8px; }
 .nav-links a {
     padding: 9px 13px;
@@ -1206,6 +1231,7 @@ body {
     letter-spacing: .04em;
     text-transform: uppercase;
 }
+
 .stress-signals-chart {
     position: relative;
     z-index: 1;
@@ -1758,6 +1784,7 @@ body {
 @media (max-width: 640px) {
     .summary-hero { min-height: 275px; }
     .summary-nav { width: calc(100% - 28px); }
+    .summary-account-name { font-size: 17px; }
     .nav-links { display: none; }
     .hero-copy, .summary-shell { width: calc(100% - 24px); }
     .hero-copy { padding-top: 48px; }
