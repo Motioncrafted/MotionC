@@ -1856,14 +1856,37 @@ function drawWalkingChart(points) {
     const maxMinutes = Math.max(10, ...points.map(point => point.minutes));
     const slot = chartWidth / points.length;
     const barWidth = Math.min(26, slot * .58);
+    const walkColors = ["#5b8a54", "#78a371", "#96b78f", "#b4ccae"];
     drawGrid(context, width, height, padding);
 
     points.forEach((point, index) => {
         const center = padding.left + slot * (index + .5);
         const milesHeight = chartHeight * point.miles / maxMiles;
-        context.fillStyle = "#5b8a54";
-        roundedRect(context, center - barWidth / 2, height - padding.bottom - milesHeight, barWidth, milesHeight, 5);
-        context.fill();
+        const barLeft = center - barWidth / 2;
+        const barTop = height - padding.bottom - milesHeight;
+        const segments = Array.isArray(point.walks) && point.walks.length
+            ? point.walks.filter(distance => distance > 0)
+            : point.miles > 0 ? [point.miles] : [];
+        const segmentTotal = segments.reduce((total, distance) => total + distance, 0);
+
+        if (milesHeight > 0 && segmentTotal > 0) {
+            context.save();
+            roundedRect(context, barLeft, barTop, barWidth, milesHeight, 5);
+            context.clip();
+            let segmentBottom = height - padding.bottom;
+            segments.forEach((distance, walkIndex) => {
+                const segmentHeight = milesHeight * distance / segmentTotal;
+                const segmentTop = segmentBottom - segmentHeight;
+                context.fillStyle = walkColors[Math.min(walkIndex, walkColors.length - 1)];
+                context.fillRect(barLeft, segmentTop, barWidth, segmentHeight + .5);
+                if (walkIndex > 0) {
+                    context.fillStyle = "rgba(255, 255, 255, .72)";
+                    context.fillRect(barLeft, segmentBottom - .5, barWidth, 1);
+                }
+                segmentBottom = segmentTop;
+            });
+            context.restore();
+        }
 
         if (index === 0 || index === points.length - 1 || index % 2 === 0) {
             context.fillStyle = "#7a8782";
@@ -2159,10 +2182,16 @@ function renderSummaryData() {
 
     const walkPoints = dates14.map(date => {
         const dailyEntry = entries[date] || {};
+        const individualWalks = Array.isArray(dailyEntry.walks)
+            ? dailyEntry.walks
+                .map(walk => summaryDisplayDistance(Number(walk?.distance || 0)))
+                .filter(distance => distance > 0)
+            : [];
         return {
             date,
             miles: summaryDisplayDistance(Number(dailyEntry.distance || 0)),
-            minutes: Number(dailyEntry.minutes || 0)
+            minutes: Number(dailyEntry.minutes || 0),
+            walks: individualWalks
         };
     });
     drawWalkingChart(walkPoints);
@@ -2388,7 +2417,13 @@ Object.entries(DAILY_TREND_CONFIG).forEach(([key, config]) => {
 attachChartTooltip(
     "walking-chart",
     "walking-chart-tooltip",
-    point => `<strong>${fullChartDate(point.date)}</strong><span>${summaryUnitSystem === "metric" ? "Kilometres" : "Miles"}: ${point.miles.toFixed(2)}</span><span>Time: ${Math.round(point.minutes)} min</span>`
+    point => {
+        const unitLabel = summaryUnitSystem === "metric" ? "Kilometres" : "Miles";
+        const walkDetails = Array.isArray(point.walks) && point.walks.length > 1
+            ? point.walks.map((distance, index) => `<span>Walk ${index + 1}: ${distance.toFixed(2)} ${summaryDistanceUnit()}</span>`).join("")
+            : "";
+        return `<strong>${fullChartDate(point.date)}</strong><span>${unitLabel}: ${point.miles.toFixed(2)}</span><span>Time: ${Math.round(point.minutes)} min</span>${walkDetails}`;
+    }
 );
 
 const summaryPreferencesToggle = document.getElementById("summaryPreferencesToggle");
