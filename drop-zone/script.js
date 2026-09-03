@@ -1,4 +1,4 @@
-import { renderAutoWall, STYLE_FONTS, normalizeRenderStyle } from "./wall-renderer.js?v=20260903-cobalt-1";
+import { renderAutoWall, STYLE_FONTS, normalizeRenderStyle } from "./wall-renderer.js?v=20260903-readable-brush-1";
 
 const COLORS = ["#d52b69", "#2563eb", "#ffbf22", "#f4f1e8"];
 const FONTS = [

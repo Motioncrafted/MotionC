@@ -685,11 +685,11 @@ textarea {
 }
 
 .style-picks button[data-style="brush"] {
-  font-family: "Brush Script MT", "Segoe Script", cursive;
-  font-size: clamp(13px, 1vw, 17px);
+  font-family: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
+  font-size: clamp(10px, .8vw, 13px);
   font-style: italic;
-  font-weight: 700;
-  letter-spacing: .03em;
+  font-weight: 800;
+  letter-spacing: .01em;
 }
 
 .style-picks button[data-style="fresh-paint"] {
