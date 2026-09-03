@@ -1381,10 +1381,11 @@ function renderNotesSearch() {
         const weekStart = startOfWeek(dateFromIso(note.date));
         const weekEnd = addDays(weekStart, 6);
         const weekRange = `${formatShortDate(isoDate(weekStart))}–${formatShortDate(isoDate(weekEnd))}`;
-        return `<article class="notes-search-result">
+        return `<button class="notes-search-result" type="button" data-note-date="${note.date}" data-note-type="${note.type}">
           <header><strong>${formatFullDate(note.date)}</strong><span>${weekRange}</span></header>
           <p><b>${note.type}:</b> ${escapeHtml(note.text)}</p>
-        </article>`;
+          <footer>Open this Daily entry →</footer>
+        </button>`;
       }).join("")
     : `<p class="notes-search-empty">${allNotes.length ? "No notes match that search." : "No weekly notes have been recorded yet."}</p>`;
 }
@@ -1586,6 +1587,22 @@ byId("notesSearchOpen").addEventListener("click", () => {
 });
 byId("notesSearchClose").addEventListener("click", () => byId("notesSearchDialog").close());
 byId("notesSearchInput").addEventListener("input", renderNotesSearch);
+byId("notesSearchResults").addEventListener("click", event => {
+  const result = event.target.closest("[data-note-date]");
+  if (!result) return;
+  const dateValue = result.dataset.noteDate;
+  const target = result.dataset.noteType === "Observation" ? fields.observation : fields.weightNote;
+  calendarViewDate = dateFromIso(dateValue);
+  loadEntry(dateValue);
+  renderCalendar();
+  byId("notesSearchDialog").close();
+  target.focus({ preventScroll: true });
+  target.closest("label").classList.remove("search-note-target");
+  requestAnimationFrame(() => {
+    target.closest("label").classList.add("search-note-target");
+    target.scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+});
 byId("notesSearchDialog").addEventListener("click", event => {
   const dialog = event.currentTarget;
   const bounds = dialog.getBoundingClientRect();
