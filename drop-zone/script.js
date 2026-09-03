@@ -1,6 +1,6 @@
-import { renderAutoWall, STYLE_FONTS, normalizeRenderStyle } from "./wall-renderer.js?v=20260828-auto-wall-1";
+import { renderAutoWall, STYLE_FONTS, normalizeRenderStyle } from "./wall-renderer.js?v=20260903-white-paint-1";
 
-const COLORS = ["#d52b69", "#ee7512", "#ffbf22"];
+const COLORS = ["#d52b69", "#ee7512", "#ffbf22", "#f4f1e8"];
 const FONTS = [
   "'Arial Rounded MT Bold', 'Trebuchet MS', Arial, sans-serif",
   "'Arial Black', Impact, sans-serif"
