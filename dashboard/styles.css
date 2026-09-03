@@ -1012,8 +1012,8 @@ body {
 .summary-account-name {
     color: #fff;
     background: transparent;
-    font-size: 26px;
-    font-weight: 800;
+    font-size: 22px;
+    font-weight: 600;
     letter-spacing: .04em;
     line-height: 1;
     text-decoration: none;
@@ -1784,7 +1784,7 @@ body {
 @media (max-width: 640px) {
     .summary-hero { min-height: 275px; }
     .summary-nav { width: calc(100% - 28px); }
-    .summary-account-name { font-size: 17px; }
+    .summary-account-name { font-size: 16px; }
     .nav-links { display: none; }
     .hero-copy, .summary-shell { width: calc(100% - 24px); }
     .hero-copy { padding-top: 48px; }
