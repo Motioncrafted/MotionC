@@ -120,6 +120,30 @@ main { min-width: 0; }
 }
 .hero .eyebrow { color: #a8f0c9; }
 .hero-date { text-align: right; text-shadow: 0 2px 12px #000; }
+.hero-account-name {
+  display: block;
+  margin: 0 0 12px;
+  color: #fff;
+  background: transparent;
+  font-size: clamp(15px, 1.35vw, 21px);
+  font-weight: 800;
+  letter-spacing: .08em;
+  line-height: 1.15;
+  text-decoration: none;
+  text-transform: uppercase;
+  text-shadow: 0 2px 12px #000;
+}
+.hero-account-name:hover,
+.hero-account-name:focus-visible {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+}
+.hero-account-name:focus-visible {
+  border-radius: 4px;
+  outline: 2px solid rgba(255,255,255,.85);
+  outline-offset: 5px;
+}
 .hero-date span { display: block; font-size: 14px; letter-spacing: .14em; text-transform: uppercase; }
 .hero-date strong { font-size: clamp(21px, 2vw, 31px); }
 .preferences-toggle {
