@@ -1415,8 +1415,8 @@ function formatScratchPadDate(dateValue) {
 }
 
 function scratchPadExcerpt(text, maximum = 220) {
-  const compact = text.replace(/\s+/g, " ").trim();
-  return compact.length > maximum ? `${compact.slice(0, maximum).trimEnd()}…` : compact;
+  const excerpt = text.replace(/\r\n?/g, "\n").trim();
+  return excerpt.length > maximum ? `${excerpt.slice(0, maximum).trimEnd()}…` : excerpt;
 }
 
 function renderScratchPadIndicator(dateValue = fields.date.value) {
