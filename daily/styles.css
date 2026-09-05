@@ -442,10 +442,19 @@ main { min-width: 0; }
 
 .notes-grid { margin-top: 14px; }
 .observation-field { display: grid; gap: 6px; }
-.notes-field-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.notes-field-heading { display: flex; align-items: center; gap: 12px; }
 .notes-field-heading label { color: var(--muted); font-size: 12px; font-weight: 800; }
+.observation-row { display: grid; grid-template-columns: minmax(300px, 42%) auto; align-items: center; justify-content: start; gap: 12px; }
 .observation-input { position: relative; display: block; }
-.observation-input > input { width: 100%; padding-right: 50px; }
+.observation-input > input {
+  width: 100%;
+  border-color: #bfd0c8;
+  padding-right: 50px;
+  background: #f1f6f3;
+  box-shadow: inset 0 1px 2px rgba(24,65,48,.05);
+}
+.observation-input > input:hover { border-color: #9fb9ad; background: #edf4f0; }
+.observation-input > input:focus { border-color: #23be73; background: #fbfdfc; }
 .observation-emoji-picker {
   position: absolute;
   top: 50%;
@@ -503,6 +512,7 @@ main { min-width: 0; }
   background: #f3faf6;
   font-size: 11px;
   font-weight: 850;
+  white-space: nowrap;
 }
 .scratch-pad-open:hover,
 .scratch-pad-open:focus-visible { border-color: #76af91; background: #e8f5ed; outline: none; }
@@ -1187,6 +1197,7 @@ dialog::backdrop { background: rgba(9,18,20,.66); backdrop-filter: blur(3px); }
     margin-top: 4px;
   }
   .number-grid, .promises, .notes-grid, .weekly-measures { grid-template-columns: 1fr; }
+  .observation-row { grid-template-columns: minmax(0, 1fr) auto; }
   .date-controls { width: 100%; align-items: stretch; flex-direction: column; }
   .calendar-heading { align-items: flex-start; }
   .walk-row { grid-template-columns: 1fr 1fr; }
