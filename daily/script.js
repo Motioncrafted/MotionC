@@ -133,6 +133,7 @@ let editingWalkIndex = null;
 let calendarViewDate = new Date();
 let weeklyNudgeDisplayWeek = null;
 let weeklyNudgeSuppressedWeek = null;
+let scratchPadVisibleResults = 10;
 
 function isoDate(date = new Date()) {
   const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
@@ -1419,13 +1420,32 @@ function scratchPadExcerpt(text, maximum = 220) {
   return excerpt.length > maximum ? `${excerpt.slice(0, maximum).trimEnd()}…` : excerpt;
 }
 
+function highlightScratchPadMatch(text, query) {
+  if (!query) return escapeHtml(text);
+  const lowerText = text.toLocaleLowerCase();
+  const lowerQuery = query.toLocaleLowerCase();
+  let cursor = 0;
+  let html = "";
+  let match = lowerText.indexOf(lowerQuery, cursor);
+  while (match !== -1) {
+    html += escapeHtml(text.slice(cursor, match));
+    html += `<mark>${escapeHtml(text.slice(match, match + query.length))}</mark>`;
+    cursor = match + query.length;
+    match = lowerText.indexOf(lowerQuery, cursor);
+  }
+  return html + escapeHtml(text.slice(cursor));
+}
+
 function renderScratchPadIndicator(dateValue = fields.date.value) {
   byId("scratchPadIndicator").classList.toggle("has-note", Boolean(scratchPadFor(dateValue).trim()));
 }
 
 function renderScratchPadSearch() {
   const input = byId("scratchPadSearchInput");
-  const query = input.value.trim().toLocaleLowerCase();
+  const rawQuery = input.value.trim();
+  const query = rawQuery.toLocaleLowerCase();
+  const results = byId("scratchPadSearchResults");
+  const previousScroll = results.scrollTop;
   const allNotes = Object.keys(state.scratchPads || {})
     .map(date => ({ date, text: scratchPadFor(date).trim() }))
     .filter(note => note.text)
@@ -1433,16 +1453,20 @@ function renderScratchPadSearch() {
   const matches = query
     ? allNotes.filter(note => `${note.date} ${formatScratchPadDate(note.date)} ${note.text}`.toLocaleLowerCase().includes(query))
     : allNotes;
+  const visible = matches.slice(0, scratchPadVisibleResults);
   byId("scratchPadSearchSummary").textContent = query
-    ? `${matches.length} ${matches.length === 1 ? "note" : "notes"} found for “${input.value.trim()}”`
-    : `${allNotes.length} ${allNotes.length === 1 ? "note" : "notes"} in your Scratch Pad`;
-  byId("scratchPadSearchResults").innerHTML = matches.length
-    ? matches.map(note => `<button class="notes-search-result" type="button" data-scratch-pad-date="${note.date}">
+    ? `${matches.length} ${matches.length === 1 ? "note" : "notes"} found for “${rawQuery}” — showing ${visible.length}`
+    : `${allNotes.length} ${allNotes.length === 1 ? "note" : "notes"} in your Scratch Pad — showing ${visible.length}`;
+  results.innerHTML = matches.length
+    ? `${visible.map(note => `<button class="notes-search-result" type="button" data-scratch-pad-date="${note.date}">
         <header><strong>${formatScratchPadDate(note.date)}</strong></header>
-        <p>${escapeHtml(scratchPadExcerpt(note.text))}</p>
+        <p>${highlightScratchPadMatch(scratchPadExcerpt(note.text), rawQuery)}</p>
         <footer>Open this Scratch Pad note →</footer>
-      </button>`).join("")
+      </button>`).join("")}${visible.length < matches.length
+        ? `<button class="scratch-pad-show-more" type="button" data-scratch-pad-show-more>Show 10 more</button>`
+        : ""}`
     : `<p class="notes-search-empty">${allNotes.length ? "No Scratch Pad notes match that search." : "No Scratch Pad notes have been saved yet."}</p>`;
+  results.scrollTop = previousScroll;
 }
 
 function loadScratchPad(dateValue = fields.date.value) {
@@ -1453,6 +1477,7 @@ function loadScratchPad(dateValue = fields.date.value) {
 }
 
 function openScratchPad() {
+  scratchPadVisibleResults = 10;
   loadScratchPad(fields.date.value);
   byId("scratchPadDialog").showModal();
   requestAnimationFrame(() => byId("scratchPadText").focus());
@@ -1696,8 +1721,17 @@ byId("notesSearchDialog").addEventListener("click", event => {
 byId("scratchPadOpen").addEventListener("click", openScratchPad);
 byId("scratchPadClose").addEventListener("click", () => byId("scratchPadDialog").close());
 byId("scratchPadSave").addEventListener("click", saveScratchPad);
-byId("scratchPadSearchInput").addEventListener("input", renderScratchPadSearch);
+byId("scratchPadSearchInput").addEventListener("input", () => {
+  scratchPadVisibleResults = 10;
+  byId("scratchPadSearchResults").scrollTop = 0;
+  renderScratchPadSearch();
+});
 byId("scratchPadSearchResults").addEventListener("click", event => {
+  if (event.target.closest("[data-scratch-pad-show-more]")) {
+    scratchPadVisibleResults += 10;
+    renderScratchPadSearch();
+    return;
+  }
   const result = event.target.closest("[data-scratch-pad-date]");
   if (!result) return;
   const dateValue = result.dataset.scratchPadDate;

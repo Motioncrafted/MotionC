@@ -1011,6 +1011,7 @@ dialog::backdrop { background: rgba(9,18,20,.66); backdrop-filter: blur(3px); }
 .scratch-pad-dialog { width: min(680px, calc(100vw - 28px)); }
 .notes-search-dialog h2,
 .scratch-pad-dialog h2 { margin: 3px 36px 0 0; font-size: 28px; }
+.scratch-pad-dialog[open] { display: flex; max-height: 88vh; overflow: hidden; flex-direction: column; }
 .scratch-pad-date { margin: 6px 0 0; color: #17613f; font-size: 13px; font-weight: 850; }
 .scratch-pad-field { display: grid; gap: 7px; margin-top: 18px; color: #30454b; font-size: 12px; font-weight: 850; }
 .scratch-pad-field textarea {
@@ -1030,7 +1031,20 @@ dialog::backdrop { background: rgba(9,18,20,.66); backdrop-filter: blur(3px); }
 .scratch-pad-field textarea:focus { border-color: #23be73; box-shadow: 0 0 0 3px rgba(35,190,115,.14); }
 .scratch-pad-actions { display: flex; min-height: 50px; align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px; }
 .scratch-pad-status { color: #128953; font-size: 12px; font-weight: 750; }
-.scratch-pad-search { margin-top: 20px; border-top: 1px solid var(--line); padding-top: 2px; }
+.scratch-pad-search { display: flex; min-height: 0; margin-top: 20px; border-top: 1px solid var(--line); padding-top: 2px; flex: 1; flex-direction: column; }
+.scratch-pad-search .notes-search-results { min-height: 110px; max-height: none; flex: 1; overscroll-behavior: contain; }
+.scratch-pad-dialog .notes-search-result mark { border-radius: 3px; padding: 0 2px; color: inherit; background: #ffed9a; }
+.scratch-pad-show-more {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid #9bc8ae;
+  border-radius: 10px;
+  color: #17613f;
+  background: #edf8f1;
+  font-weight: 850;
+}
+.scratch-pad-show-more:hover,
+.scratch-pad-show-more:focus-visible { border-color: #218557; background: #e0f2e7; outline: 3px solid rgba(23,97,63,.12); }
 .notes-search-field { display: grid; gap: 7px; margin-top: 20px; color: #30454b; font-size: 12px; font-weight: 850; }
 .notes-search-field input {
   width: 100%;
