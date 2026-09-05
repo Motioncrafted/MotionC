@@ -83,6 +83,12 @@ const displayHydration = ounces => unitSystem === "metric" ? ounces * ML_PER_FL_
 const storedHydration = value => unitSystem === "metric" ? value / ML_PER_FL_OZ : value;
 const formatWeight = pounds => `${displayWeight(Number(pounds)).toFixed(1)} ${weightUnit()}`;
 const formatDistance = miles => `${displayDistance(Number(miles)).toFixed(2)} ${distanceUnit()}`;
+const decimalInputValue = input => {
+  const normalized = input.value.trim().replace(",", ".");
+  if (!normalized) return null;
+  const value = Number(normalized);
+  return Number.isFinite(value) ? value : null;
+};
 const fields = {
   date: byId("entryDate"),
   weight: byId("weight"),
@@ -780,7 +786,7 @@ function renderDailyInsights(dateValue) {
 }
 
 function readDayFields(existing = {}) {
-  const enteredWeight = fields.weight.value ? Number(fields.weight.value) : null;
+  const enteredWeight = decimalInputValue(fields.weight);
   const unchangedWeight = existing?.weight && enteredWeight === Number(displayWeight(Number(existing.weight)).toFixed(1));
   return {
     ...existing,
@@ -1353,43 +1359,6 @@ function openScore(dateValue) {
   byId("scoreDialog").showModal();
 }
 
-function searchableWeeklyNotes() {
-  return Object.values(state.entries)
-    .flatMap(entry => {
-      const notes = [];
-      if (entry.weightNote) notes.push({ date: entry.date, type: "Weight note", text: entry.weightNote });
-      if (entry.observation) notes.push({ date: entry.date, type: "Observation", text: entry.observation });
-      return notes;
-    })
-    .sort((a, b) => b.date.localeCompare(a.date));
-}
-
-function renderNotesSearch() {
-  const input = byId("notesSearchInput");
-  const query = input.value.trim().toLocaleLowerCase();
-  const allNotes = searchableWeeklyNotes();
-  const matches = query
-    ? allNotes.filter(note => `${note.date} ${formatFullDate(note.date)} ${note.type} ${note.text}`.toLocaleLowerCase().includes(query))
-    : allNotes;
-  const summary = byId("notesSearchSummary");
-  summary.textContent = query
-    ? `${matches.length} ${matches.length === 1 ? "note" : "notes"} found for “${input.value.trim()}”`
-    : `${allNotes.length} ${allNotes.length === 1 ? "note" : "notes"} across your weekly history`;
-
-  byId("notesSearchResults").innerHTML = matches.length
-    ? matches.map(note => {
-        const weekStart = startOfWeek(dateFromIso(note.date));
-        const weekEnd = addDays(weekStart, 6);
-        const weekRange = `${formatShortDate(isoDate(weekStart))}–${formatShortDate(isoDate(weekEnd))}`;
-        return `<button class="notes-search-result" type="button" data-note-date="${note.date}" data-note-type="${note.type}">
-          <header><strong>${formatFullDate(note.date)}</strong><span>${weekRange}</span></header>
-          <p><b>${note.type}:</b> ${escapeHtml(note.text)}</p>
-          <footer>Open this Daily entry →</footer>
-        </button>`;
-      }).join("")
-    : `<p class="notes-search-empty">${allNotes.length ? "No notes match that search." : "No weekly notes have been recorded yet."}</p>`;
-}
-
 function escapeHtml(value) {
   return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 }
@@ -1577,40 +1546,6 @@ byId("scoreDialog").addEventListener("click", event => {
     event.clientY < bounds.top ||
     event.clientY > bounds.bottom;
 
-  if (clickedBackdrop) dialog.close();
-});
-byId("notesSearchOpen").addEventListener("click", () => {
-  const dialog = byId("notesSearchDialog");
-  renderNotesSearch();
-  dialog.showModal();
-  requestAnimationFrame(() => byId("notesSearchInput").focus());
-});
-byId("notesSearchClose").addEventListener("click", () => byId("notesSearchDialog").close());
-byId("notesSearchInput").addEventListener("input", renderNotesSearch);
-byId("notesSearchResults").addEventListener("click", event => {
-  const result = event.target.closest("[data-note-date]");
-  if (!result) return;
-  const dateValue = result.dataset.noteDate;
-  const target = result.dataset.noteType === "Observation" ? fields.observation : fields.weightNote;
-  calendarViewDate = dateFromIso(dateValue);
-  loadEntry(dateValue);
-  renderCalendar();
-  byId("notesSearchDialog").close();
-  target.focus({ preventScroll: true });
-  target.closest("label").classList.remove("search-note-target");
-  requestAnimationFrame(() => {
-    target.closest("label").classList.add("search-note-target");
-    target.scrollIntoView({ behavior: "smooth", block: "center" });
-  });
-});
-byId("notesSearchDialog").addEventListener("click", event => {
-  const dialog = event.currentTarget;
-  const bounds = dialog.getBoundingClientRect();
-  const clickedBackdrop =
-    event.clientX < bounds.left ||
-    event.clientX > bounds.right ||
-    event.clientY < bounds.top ||
-    event.clientY > bounds.bottom;
   if (clickedBackdrop) dialog.close();
 });
 byId("weeklyButton").addEventListener("click", openWeeklyCheckin);

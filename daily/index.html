@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Daily | MotionC</title>
   <meta name="description" content="Your quick daily MotionC health check-in.">
-  <link rel="stylesheet" href="/daily/styles.css?v=20260903-notes-search-2">
+  <link rel="stylesheet" href="/daily/styles.css?v=20260827-4">
 </head>
 <body>
   <div class="app-shell">
@@ -32,11 +32,6 @@
           <p>Three quick numbers. Four standing promises. Then get on with your day.</p>
         </div>
         <div class="hero-date">
-          <a
-            class="member-sign-in hero-account-name"
-            href="/auth/?mode=signin"
-            aria-label="Sign in to your MotionC account"
-          >Sign In</a>
           <span id="heroWeekday"></span>
           <strong id="heroDate"></strong>
         </div>
@@ -98,7 +93,8 @@
             <label>
               <span>Weight</span>
               <span class="input-with-unit">
-                <input id="weight" inputmode="decimal" min="50" max="700" step="0.1" type="number" placeholder="—">
+                <input id="weight" type="text" inputmode="decimal" autocomplete="off" autocorrect="off"
+                  autocapitalize="off" spellcheck="false" pattern="[0-9]*([.,][0-9]*)?" placeholder="—">
                 <small id="weightUnit">lb</small>
               </span>
             </label>
@@ -293,10 +289,7 @@
           <div class="section-heading">
             <div>
               <p class="eyebrow">AUTO-UPDATING</p>
-              <div class="weekly-title-row">
-                <h2>This week</h2>
-                <button class="notes-search-open" id="notesSearchOpen" type="button" aria-haspopup="dialog" aria-controls="notesSearchDialog">Search notes</button>
-              </div>
+              <h2>This week</h2>
             </div>
             <strong class="week-range" id="weekRange"></strong>
           </div>
@@ -388,19 +381,6 @@
     <div id="scoreDetails"></div>
   </dialog>
 
-  <dialog class="notes-search-dialog" id="notesSearchDialog" aria-labelledby="notesSearchTitle">
-    <button class="dialog-close" id="notesSearchClose" type="button" aria-label="Close notes search">×</button>
-    <p class="eyebrow">WEEKLY HISTORY</p>
-    <h2 id="notesSearchTitle">Search your notes</h2>
-    <p class="dialog-intro">Find weight notes and observations across every recorded week.</p>
-    <label class="notes-search-field" for="notesSearchInput">
-      <span>Search terms</span>
-      <input id="notesSearchInput" type="search" placeholder="Try Costco, lowest weight, or raining" autocomplete="off">
-    </label>
-    <p class="notes-search-summary" id="notesSearchSummary" aria-live="polite"></p>
-    <div class="notes-search-results" id="notesSearchResults"></div>
-  </dialog>
-
   <dialog class="weekly-dialog" id="weeklyDialog">
     <button class="dialog-close" id="closeWeekly" type="button" aria-label="Close">×</button>
     <p class="eyebrow">YOUR LIFESTYLE THIS WEEK</p>
@@ -443,7 +423,7 @@
     <button class="save-button full" id="saveWeekly" type="button">Save weekly check-in</button>
   </dialog>
 
-  <script src="/daily/script.js?v=20260903-notes-search-2"></script>
+  <script src="/daily/script.js?v=20260904-1"></script>
   <script type="module" src="/shared/motionc-supabase.js?v=20260820-2"></script>
 </body>
 </html>
