@@ -97,7 +97,6 @@ const fields = {
   walkingHr: byId("walkingHr"),
   steps: byId("steps"),
   restingHr: byId("restingHr"),
-  weightNote: byId("weightNote"),
   observation: byId("observation"),
   noRestaurant: byId("noRestaurant"),
   noFastFood: byId("noFastFood"),
@@ -198,7 +197,8 @@ function emptyState() {
     entries: {},
     weeks: {},
     profile: {},
-    dailyGauges: {}
+    dailyGauges: {},
+    scratchPads: {}
   };
 }
 
@@ -209,6 +209,7 @@ function loadState() {
     loaded.entries = loaded.entries || {};
     loaded.weeks = loaded.weeks || {};
     loaded.profile = loaded.profile || {};
+    loaded.scratchPads = loaded.scratchPads || {};
 
     // Profile Info on Summary predates the shared Daily profile for some
     // accounts. Recover those measurements once, without overwriting an
@@ -478,8 +479,7 @@ function loadEntry(dateValue) {
   fields.weight.value = entry?.weight ? displayWeight(Number(entry.weight)).toFixed(1) : "";
   clearWalkFields();
   fields.restingHr.value = entry?.restingHr ?? "";
-  fields.weightNote.value = entry?.weightNote ?? "";
-  fields.observation.value = entry?.observation ?? "";
+  fields.observation.value = combinedObservation(entry);
   fields.noRestaurant.checked = entry?.noRestaurant ?? true;
   fields.noFastFood.checked = entry?.noFastFood ?? true;
   fields.noJunkFood.checked = entry?.noJunkFood ?? true;
@@ -489,6 +489,15 @@ function loadEntry(dateValue) {
   renderToday(dateValue);
   loadDailyGauges(dateValue);
   renderDailyInsights(dateValue);
+  renderScratchPadIndicator(dateValue);
+}
+
+function combinedObservation(entry) {
+  if (!entry) return "";
+  const notes = [entry.weightNote, entry.observation]
+    .map(value => String(value || "").trim())
+    .filter((value, index, values) => value && values.indexOf(value) === index);
+  return notes.join(" · ");
 }
 
 const DAILY_GAUGE_CONFIG = {
@@ -497,22 +506,22 @@ const DAILY_GAUGE_CONFIG = {
   sleep: { input: "sleepInput", value: "sleepValue", status: "sleepStatus", miniChart: "sleepMiniChart", label: "Sleep", unit: "hours", maximum: 12, color: "#315fa8" }
 };
 
-const weightNoteEmojiToggle = byId("weightNoteEmojiToggle");
-const weightNoteEmojiMenu = byId("weightNoteEmojiMenu");
+const observationEmojiToggle = byId("observationEmojiToggle");
+const observationEmojiMenu = byId("observationEmojiMenu");
 
-function setWeightNoteEmojiMenu(open) {
-  weightNoteEmojiMenu.hidden = !open;
-  weightNoteEmojiToggle.setAttribute("aria-expanded", String(open));
+function setObservationEmojiMenu(open) {
+  observationEmojiMenu.hidden = !open;
+  observationEmojiToggle.setAttribute("aria-expanded", String(open));
 }
 
-weightNoteEmojiToggle.addEventListener("click", () => {
-  setWeightNoteEmojiMenu(weightNoteEmojiMenu.hidden);
+observationEmojiToggle.addEventListener("click", () => {
+  setObservationEmojiMenu(observationEmojiMenu.hidden);
 });
 
-document.querySelectorAll("[data-weight-note-emoji]").forEach(button => {
+document.querySelectorAll("[data-observation-emoji]").forEach(button => {
   button.addEventListener("click", () => {
-    const input = fields.weightNote;
-    const emoji = button.dataset.weightNoteEmoji;
+    const input = fields.observation;
+    const emoji = button.dataset.observationEmoji;
     const start = input.selectionStart ?? input.value.length;
     const end = input.selectionEnd ?? start;
     const nextValue = `${input.value.slice(0, start)}${emoji}${input.value.slice(end)}`;
@@ -522,18 +531,18 @@ document.querySelectorAll("[data-weight-note-emoji]").forEach(button => {
     input.focus();
     input.setSelectionRange(cursor, cursor);
     input.dispatchEvent(new Event("input", { bubbles: true }));
-    setWeightNoteEmojiMenu(false);
+    setObservationEmojiMenu(false);
   });
 });
 
 document.addEventListener("click", event => {
-  if (!event.target.closest(".weight-note-emoji-picker")) setWeightNoteEmojiMenu(false);
+  if (!event.target.closest(".observation-emoji-picker")) setObservationEmojiMenu(false);
 });
 
 document.addEventListener("keydown", event => {
-  if (event.key === "Escape" && !weightNoteEmojiMenu.hidden) {
-    setWeightNoteEmojiMenu(false);
-    weightNoteEmojiToggle.focus();
+  if (event.key === "Escape" && !observationEmojiMenu.hidden) {
+    setObservationEmojiMenu(false);
+    observationEmojiToggle.focus();
   }
 });
 
@@ -793,7 +802,6 @@ function readDayFields(existing = {}) {
     date: fields.date.value,
     weight: enteredWeight === null ? null : unchangedWeight ? Number(existing.weight) : storedWeight(enteredWeight),
     restingHr: fields.restingHr.value ? Number(fields.restingHr.value) : null,
-    weightNote: fields.weightNote.value.trim(),
     observation: fields.observation.value.trim(),
     noRestaurant: fields.noRestaurant.checked,
     noFastFood: fields.noFastFood.checked,
@@ -817,6 +825,7 @@ function saveEntry() {
   if (!fields.date.value) return;
   const existing = state.entries[fields.date.value];
   const entry = readDayFields(existing || {});
+  entry.weightNote = "";
   entry.walks = walksForEntry(existing).map(walk => ({ ...walk }));
   const walk = readWalkFields();
   const editingWalk = editingWalkIndex !== null;
@@ -982,6 +991,13 @@ function renderCalendar() {
     number.className = "day-number";
     number.textContent = day;
     cell.append(number);
+    if (scratchPadFor(value).trim()) {
+      const scratchPadMark = document.createElement("span");
+      scratchPadMark.className = "scratch-pad-calendar-mark";
+      scratchPadMark.title = "Scratch Pad note saved";
+      scratchPadMark.setAttribute("aria-label", "Scratch Pad note saved");
+      cell.append(scratchPadMark);
+    }
     const dot = document.createElement("button");
     dot.className = "dot";
     if (entry) {
@@ -1038,18 +1054,11 @@ function weeklySummary(start) {
 }
 
 function weekNotesHtml(entries, emptyMessage) {
-  const notes = entries.filter(entry => entry.weightNote || entry.observation);
+  const notes = entries.filter(entry => combinedObservation(entry));
   if (!notes.length) return `<p class="no-week-notes">${emptyMessage}</p>`;
 
   return notes.map(entry => {
-    const comments = [];
-    if (entry.weightNote) {
-      comments.push(`<span><b>Weight note:</b> ${escapeHtml(entry.weightNote)}</span>`);
-    }
-    if (entry.observation) {
-      comments.push(`<span><b>Observation:</b> ${escapeHtml(entry.observation)}</span>`);
-    }
-    return `<p class="week-note"><strong>${formatShortDate(entry.date)}:</strong>${comments.join("")}</p>`;
+    return `<p class="week-note"><strong>${formatShortDate(entry.date)}:</strong><span><b>Observation:</b> ${escapeHtml(combinedObservation(entry))}</span></p>`;
   }).join("");
 }
 
@@ -1340,7 +1349,6 @@ function openScore(dateValue) {
     <div class="daily-measurement">
       <span>Weight recorded</span>
       <strong>${entry.weight ? formatWeight(entry.weight) : "Not recorded"}</strong>
-      ${entry.weightNote ? `<small>${escapeHtml(entry.weightNote)}</small>` : ""}
     </div>
     <section class="score-section"><header><h3>Food</h3><strong>${score.food}/8</strong></header><ul>
       ${promiseLine("No restaurant meal", entry.noRestaurant)}
@@ -1361,12 +1369,8 @@ function openScore(dateValue) {
 
 function searchableWeeklyNotes() {
   return Object.values(state.entries)
-    .flatMap(entry => {
-      const notes = [];
-      if (entry.weightNote) notes.push({ date: entry.date, type: "Weight note", text: entry.weightNote });
-      if (entry.observation) notes.push({ date: entry.date, type: "Observation", text: entry.observation });
-      return notes;
-    })
+    .map(entry => ({ date: entry.date, type: "Observation", text: combinedObservation(entry) }))
+    .filter(note => note.text)
     .sort((a, b) => b.date.localeCompare(a.date));
 }
 
@@ -1394,6 +1398,76 @@ function renderNotesSearch() {
         </button>`;
       }).join("")
     : `<p class="notes-search-empty">${allNotes.length ? "No notes match that search." : "No weekly notes have been recorded yet."}</p>`;
+}
+
+function scratchPadFor(dateValue) {
+  const saved = state.scratchPads?.[dateValue];
+  return typeof saved === "string" ? saved : String(saved?.text || "");
+}
+
+function formatScratchPadDate(dateValue) {
+  return new Intl.DateTimeFormat(undefined, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric"
+  }).format(dateFromIso(dateValue));
+}
+
+function scratchPadExcerpt(text, maximum = 220) {
+  const compact = text.replace(/\s+/g, " ").trim();
+  return compact.length > maximum ? `${compact.slice(0, maximum).trimEnd()}…` : compact;
+}
+
+function renderScratchPadIndicator(dateValue = fields.date.value) {
+  byId("scratchPadIndicator").classList.toggle("has-note", Boolean(scratchPadFor(dateValue).trim()));
+}
+
+function renderScratchPadSearch() {
+  const input = byId("scratchPadSearchInput");
+  const query = input.value.trim().toLocaleLowerCase();
+  const allNotes = Object.keys(state.scratchPads || {})
+    .map(date => ({ date, text: scratchPadFor(date).trim() }))
+    .filter(note => note.text)
+    .sort((a, b) => b.date.localeCompare(a.date));
+  const matches = query
+    ? allNotes.filter(note => `${note.date} ${formatScratchPadDate(note.date)} ${note.text}`.toLocaleLowerCase().includes(query))
+    : allNotes;
+  byId("scratchPadSearchSummary").textContent = query
+    ? `${matches.length} ${matches.length === 1 ? "note" : "notes"} found for “${input.value.trim()}”`
+    : `${allNotes.length} ${allNotes.length === 1 ? "note" : "notes"} in your Scratch Pad`;
+  byId("scratchPadSearchResults").innerHTML = matches.length
+    ? matches.map(note => `<button class="notes-search-result" type="button" data-scratch-pad-date="${note.date}">
+        <header><strong>${formatScratchPadDate(note.date)}</strong></header>
+        <p>${escapeHtml(scratchPadExcerpt(note.text))}</p>
+        <footer>Open this Scratch Pad note →</footer>
+      </button>`).join("")
+    : `<p class="notes-search-empty">${allNotes.length ? "No Scratch Pad notes match that search." : "No Scratch Pad notes have been saved yet."}</p>`;
+}
+
+function loadScratchPad(dateValue = fields.date.value) {
+  byId("scratchPadDate").textContent = formatScratchPadDate(dateValue);
+  byId("scratchPadText").value = scratchPadFor(dateValue);
+  byId("scratchPadStatus").textContent = "";
+  renderScratchPadSearch();
+}
+
+function openScratchPad() {
+  loadScratchPad(fields.date.value);
+  byId("scratchPadDialog").showModal();
+  requestAnimationFrame(() => byId("scratchPadText").focus());
+}
+
+function saveScratchPad() {
+  const dateValue = fields.date.value;
+  const text = byId("scratchPadText").value.trim();
+  if (text) state.scratchPads[dateValue] = { text, updatedAt: new Date().toISOString() };
+  else delete state.scratchPads[dateValue];
+  persist();
+  renderScratchPadIndicator(dateValue);
+  renderCalendar();
+  renderScratchPadSearch();
+  byId("scratchPadStatus").textContent = text ? "Saved for this day." : "This day’s note was removed.";
 }
 
 function escapeHtml(value) {
@@ -1597,7 +1671,7 @@ byId("notesSearchResults").addEventListener("click", event => {
   const result = event.target.closest("[data-note-date]");
   if (!result) return;
   const dateValue = result.dataset.noteDate;
-  const target = result.dataset.noteType === "Observation" ? fields.observation : fields.weightNote;
+  const target = fields.observation;
   calendarViewDate = dateFromIso(dateValue);
   loadEntry(dateValue);
   renderCalendar();
@@ -1617,6 +1691,26 @@ byId("notesSearchDialog").addEventListener("click", event => {
     event.clientX > bounds.right ||
     event.clientY < bounds.top ||
     event.clientY > bounds.bottom;
+  if (clickedBackdrop) dialog.close();
+});
+byId("scratchPadOpen").addEventListener("click", openScratchPad);
+byId("scratchPadClose").addEventListener("click", () => byId("scratchPadDialog").close());
+byId("scratchPadSave").addEventListener("click", saveScratchPad);
+byId("scratchPadSearchInput").addEventListener("input", renderScratchPadSearch);
+byId("scratchPadSearchResults").addEventListener("click", event => {
+  const result = event.target.closest("[data-scratch-pad-date]");
+  if (!result) return;
+  const dateValue = result.dataset.scratchPadDate;
+  calendarViewDate = dateFromIso(dateValue);
+  loadEntry(dateValue);
+  renderCalendar();
+  loadScratchPad(dateValue);
+  byId("scratchPadText").focus();
+});
+byId("scratchPadDialog").addEventListener("click", event => {
+  const dialog = event.currentTarget;
+  const bounds = dialog.getBoundingClientRect();
+  const clickedBackdrop = event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom;
   if (clickedBackdrop) dialog.close();
 });
 byId("weeklyButton").addEventListener("click", openWeeklyCheckin);

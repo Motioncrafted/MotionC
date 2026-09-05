@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Daily | MotionC</title>
   <meta name="description" content="Your quick daily MotionC health check-in.">
-  <link rel="stylesheet" href="/daily/styles.css?v=20260903-notes-search-2">
+  <link rel="stylesheet" href="/daily/styles.css?v=20260905-scratch-pad-1">
 </head>
 <body>
   <div class="app-shell">
@@ -172,24 +172,29 @@
           </div>
 
           <div class="notes-grid">
-            <label>Weight note
-              <span class="weight-note-input">
-                <input id="weightNote" type="text" maxlength="80" placeholder="Optional context">
-                <span class="weight-note-emoji-picker">
-                  <span class="weight-note-emoji-menu" id="weightNoteEmojiMenu" aria-label="Choose an emoji" hidden>
-                    <button type="button" data-weight-note-emoji="😎" aria-label="Add sunglasses emoji">😎</button>
-                    <button type="button" data-weight-note-emoji="🔥" aria-label="Add flame emoji">🔥</button>
-                    <button type="button" data-weight-note-emoji="🏃" aria-label="Add runner emoji">🏃</button>
-                    <button type="button" data-weight-note-emoji="📈" aria-label="Add chart emoji">📈</button>
-                    <button type="button" data-weight-note-emoji="☀️" aria-label="Add sun emoji">☀️</button>
-                    <button type="button" data-weight-note-emoji="🎯" aria-label="Add target emoji">🎯</button>
+            <div class="observation-field">
+              <div class="notes-field-heading">
+                <label for="observation">Observation</label>
+                <button class="scratch-pad-open" id="scratchPadOpen" type="button" aria-haspopup="dialog" aria-controls="scratchPadDialog">
+                  Scratch Pad <span class="scratch-pad-indicator" id="scratchPadIndicator" aria-hidden="true"></span>
+                </button>
+              </div>
+              <span class="observation-input">
+                <input id="observation" type="text" maxlength="240" placeholder="Anything worth remembering?">
+                <span class="observation-emoji-picker">
+                  <span class="observation-emoji-menu" id="observationEmojiMenu" aria-label="Choose an emoji" hidden>
+                    <button type="button" data-observation-emoji="😎" aria-label="Add sunglasses emoji">😎</button>
+                    <button type="button" data-observation-emoji="🔥" aria-label="Add flame emoji">🔥</button>
+                    <button type="button" data-observation-emoji="🏃" aria-label="Add runner emoji">🏃</button>
+                    <button type="button" data-observation-emoji="📈" aria-label="Add chart emoji">📈</button>
+                    <button type="button" data-observation-emoji="☀️" aria-label="Add sun emoji">☀️</button>
+                    <button type="button" data-observation-emoji="🎯" aria-label="Add target emoji">🎯</button>
                   </span>
-                  <button class="weight-note-emoji-toggle" id="weightNoteEmojiToggle" type="button"
-                    aria-label="Show weight note emojis" aria-expanded="false" aria-controls="weightNoteEmojiMenu">🙂</button>
+                  <button class="observation-emoji-toggle" id="observationEmojiToggle" type="button"
+                    aria-label="Show observation emojis" aria-expanded="false" aria-controls="observationEmojiMenu">🙂</button>
                 </span>
               </span>
-            </label>
-            <label>Observation <input id="observation" type="text" maxlength="120" placeholder="Anything worth remembering?"></label>
+            </div>
           </div>
 
           <div class="entry-actions">
@@ -393,13 +398,36 @@
     <button class="dialog-close" id="notesSearchClose" type="button" aria-label="Close notes search">×</button>
     <p class="eyebrow">WEEKLY HISTORY</p>
     <h2 id="notesSearchTitle">Search your notes</h2>
-    <p class="dialog-intro">Find weight notes and observations across every recorded week.</p>
+    <p class="dialog-intro">Find observations across every recorded week.</p>
     <label class="notes-search-field" for="notesSearchInput">
       <span>Search terms</span>
       <input id="notesSearchInput" type="search" placeholder="Try Costco, lowest weight, or raining" autocomplete="off">
     </label>
     <p class="notes-search-summary" id="notesSearchSummary" aria-live="polite"></p>
     <div class="notes-search-results" id="notesSearchResults"></div>
+  </dialog>
+
+  <dialog class="scratch-pad-dialog" id="scratchPadDialog" aria-labelledby="scratchPadTitle">
+    <button class="dialog-close" id="scratchPadClose" type="button" aria-label="Close Scratch Pad">×</button>
+    <p class="eyebrow">A PLACE TO THINK</p>
+    <h2 id="scratchPadTitle">Scratch Pad</h2>
+    <p class="scratch-pad-date" id="scratchPadDate"></p>
+    <label class="scratch-pad-field" for="scratchPadText">
+      <span>Your note for this day</span>
+      <textarea id="scratchPadText" maxlength="5000" placeholder="What did you notice, learn, or want to remember?"></textarea>
+    </label>
+    <div class="scratch-pad-actions">
+      <span class="scratch-pad-status" id="scratchPadStatus" aria-live="polite"></span>
+      <button class="save-button" id="scratchPadSave" type="button">Save note</button>
+    </div>
+    <div class="scratch-pad-search">
+      <label class="notes-search-field" for="scratchPadSearchInput">
+        <span>Search Scratch Pad</span>
+        <input id="scratchPadSearchInput" type="search" placeholder="Search your reflections" autocomplete="off">
+      </label>
+      <p class="notes-search-summary" id="scratchPadSearchSummary" aria-live="polite"></p>
+      <div class="notes-search-results" id="scratchPadSearchResults"></div>
+    </div>
   </dialog>
 
   <dialog class="weekly-dialog" id="weeklyDialog">
@@ -444,7 +472,7 @@
     <button class="save-button full" id="saveWeekly" type="button">Save weekly check-in</button>
   </dialog>
 
-  <script src="/daily/script.js?v=20260905-consolidated-1"></script>
+  <script src="/daily/script.js?v=20260905-scratch-pad-1"></script>
   <script type="module" src="/shared/motionc-supabase.js?v=20260820-2"></script>
 </body>
 </html>
