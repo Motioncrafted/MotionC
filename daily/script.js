@@ -99,9 +99,9 @@ const fields = {
   restingHr: byId("restingHr"),
   observation: byId("observation"),
   noRestaurant: byId("noRestaurant"),
-  noFastFood: byId("noFastFood"),
+  noAlcohol: byId("noAlcohol"),
   noJunkFood: byId("noJunkFood"),
-  oneTreat: byId("oneTreat")
+  smokeFreeDay: byId("smokeFreeDay")
 };
 
 function applyUnitSystem() {
@@ -166,7 +166,7 @@ function roundHalf(value) {
 }
 
 function calculateEntry(entry, weeklyScore) {
-  const promiseKeys = ["noRestaurant", "noFastFood", "noJunkFood", "oneTreat"];
+  const promiseKeys = ["noRestaurant", "noAlcohol", "noJunkFood", "smokeFreeDay"];
   const food = promiseKeys.reduce((total, key) => total + (entry[key] ? 2 : 0), 0);
   const distancePoints = Math.min(6, Number(entry.distance || 0) / 5 * 6);
   const timePoints = Math.min(6, Number(entry.minutes || 0) / 60 * 6);
@@ -482,9 +482,9 @@ function loadEntry(dateValue) {
   fields.restingHr.value = entry?.restingHr ?? "";
   fields.observation.value = combinedObservation(entry);
   fields.noRestaurant.checked = entry?.noRestaurant ?? true;
-  fields.noFastFood.checked = entry?.noFastFood ?? true;
+  fields.noAlcohol.checked = entry?.noAlcohol ?? true;
   fields.noJunkFood.checked = entry?.noJunkFood ?? true;
-  fields.oneTreat.checked = entry?.oneTreat ?? true;
+  fields.smokeFreeDay.checked = entry?.smokeFreeDay ?? true;
   updateWalkEntryMode();
   renderWalkBreakdown();
   renderToday(dateValue);
@@ -805,9 +805,9 @@ function readDayFields(existing = {}) {
     restingHr: fields.restingHr.value ? Number(fields.restingHr.value) : null,
     observation: fields.observation.value.trim(),
     noRestaurant: fields.noRestaurant.checked,
-    noFastFood: fields.noFastFood.checked,
+    noAlcohol: fields.noAlcohol.checked,
     noJunkFood: fields.noJunkFood.checked,
-    oneTreat: fields.oneTreat.checked,
+    smokeFreeDay: fields.smokeFreeDay.checked,
     updatedAt: new Date().toISOString()
   };
 }
@@ -1351,11 +1351,11 @@ function openScore(dateValue) {
       <span>Weight recorded</span>
       <strong>${entry.weight ? formatWeight(entry.weight) : "Not recorded"}</strong>
     </div>
-    <section class="score-section"><header><h3>Food</h3><strong>${score.food}/8</strong></header><ul>
+    <section class="score-section"><header><h3>Lifestyle</h3><strong>${score.food}/8</strong></header><ul>
       ${promiseLine("No restaurant meal", entry.noRestaurant)}
-      ${promiseLine("No fast food", entry.noFastFood)}
-      ${promiseLine("No junk food", entry.noJunkFood)}
-      ${promiseLine("Stayed within one treat", entry.oneTreat)}
+      ${promiseLine("No Alcohol", entry.noAlcohol)}
+      ${promiseLine("Skipped Junk Food", entry.noJunkFood)}
+      ${promiseLine("Smoke Free Day", entry.smokeFreeDay)}
     </ul><p class="impact">Impact: ${dailyImpact}</p></section>
     <section class="score-section"><header><h3>Movement</h3><strong>${score.movement}/12</strong></header><ul>
       <li><span>Walking time</span><strong>${entry.minutes || 0} min</strong></li>
