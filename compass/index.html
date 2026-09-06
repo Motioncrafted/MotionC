@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Your Compass — MotionC Prototype</title>
-  <link rel="stylesheet" href="styles.css?v=20260827-1">
+  <link rel="stylesheet" href="styles.css?v=20260906-history-1">
 </head>
 <body>
   <main class="compass-page">
@@ -40,6 +40,7 @@
             <div class="centre-gauge-readout"><strong id="mcpScore">—</strong><span>MCP</span><em id="mcpZone">Not assessed</em></div>
           </div>
         </div>
+        <div class="instrument-caption"><strong id="actualDirection"></strong><span id="previousNote"></span><small id="displayScaleNote"></small></div>
         <article class="result-card" aria-live="polite">
           <div class="result-arrow" id="resultArrow">↑</div>
           <div><span>Your direction</span><h2 id="directionResult">Building your direction…</h2><p id="directionExplanation">Keep recording recent information so the Compass has enough evidence to respond.</p></div>
@@ -58,6 +59,18 @@
       </div>
     </section>
 
+    <section class="history-card" aria-labelledby="historyTitle">
+      <header class="history-header">
+        <button id="historyBack" type="button" aria-label="Show seven days earlier" disabled>◀</button>
+        <div><h2 id="historyTitle">Compass Direction History</h2><p id="historyRange"></p></div>
+        <button id="historyForward" type="button" aria-label="Show seven days later" disabled>▶</button>
+      </header>
+      <p id="historyScale" class="history-scale"></p>
+      <div class="history-chart-wrap"><svg id="historyPlot" viewBox="0 0 1000 255" role="group" aria-label="14-day history of actual Compass direction. Focus or tap a point for its date and bearing."></svg></div>
+      <div class="history-footer"><p id="historyReadout" aria-live="polite"></p><button id="historyToday" type="button">Latest 14 days</button></div>
+      <p id="historyStatus" class="history-status"></p>
+    </section>
+
     <section class="calculation-note"><h2>How it’s calculated</h2><p>Each driver creates a configurable contribution to a two-dimensional vector. North is positive Y, South is negative Y, East is positive X and West is negative X. Missing information contributes nothing—it never counts as Balanced.</p><p>The result is an interpretation of recorded behaviour and trends. It does not measure real-time fuel use, insulin, metabolic flexibility or other unrecorded physiology.</p></section>
 
     <details class="diagnostics" id="prototypeDiagnostics" hidden>
@@ -67,6 +80,7 @@
     </details>
   </main>
   <script type="module" src="../shared/motionc-supabase.js?v=20260820-2"></script>
-  <script src="script.js?v=20260827-2"></script>
+  <script src="history-display.js?v=20260906-history-1"></script>
+  <script src="script.js?v=20260906-history-1"></script>
 </body>
 </html>
