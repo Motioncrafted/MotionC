@@ -20,10 +20,14 @@ function dataKeys() {
 
 function hasPersonalLocalState() {
   return dataKeys().some((key) => {
+    // Daily creates this reminder metadata before authentication finishes.
+    // Still clear it on sign-out, but it cannot require a page reload by itself:
+    // the next document would recreate it and restart the cleanup/reload loop.
+    if (key === "motionc-weekly-checkin-nudge-v1") return false;
     if (key !== "motionc-daily-prototype-v1") return true;
     try {
       const daily = JSON.parse(localStorage.getItem(key) || "{}");
-      return ["entries", "weeks", "profile", "dailyGauges"]
+      return ["entries", "weeks", "profile", "dailyGauges", "scratchPads"]
         .some((section) => Object.keys(daily?.[section] || {}).length > 0);
     } catch {
       return true;
