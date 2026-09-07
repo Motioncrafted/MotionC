@@ -64,3 +64,15 @@
 .explain-body a,.coverage-panel a{display:inline-block;color:#17687c;font-weight:800;text-decoration-thickness:1px;text-underline-offset:4px;padding:8px 0;min-height:44px}.explain-body a:focus-visible,.coverage-panel a:focus-visible{outline:3px solid #e87817;outline-offset:4px}
 .calculation-note{max-width:1080px;margin:24px auto 0}.calculation-note summary{font-weight:800;cursor:pointer}.calculation-note p{color:#547078;font-size:.9rem}
 @media(max-width:680px){.history-card{padding:16px 12px}.history-header h2{font-size:.95rem}.explain-section{padding:23px 20px}.explain-body p{font-size:.96rem;line-height:1.7}.interpretation{margin-top:30px}.coverage-panel{padding:22px 20px}.coverage-panel ul{grid-template-columns:1fr}.history-footer{gap:5px}}
+
+/* Answer, meaning, evidence: the same findings at two reading speeds. */
+.explain-topic{font-size:.73rem;letter-spacing:.075em;text-transform:uppercase;font-weight:800;color:#59757b;margin:16px 0 0}
+.explain-section h3{margin-top:8px;max-width:820px;line-height:1.25}
+.explain-body .explain-meaning{font-size:1.08rem;line-height:1.65;color:#244b59;max-width:840px;margin-bottom:22px}
+.explain-body strong{font-weight:800;color:#143f4b}
+.explain-evidence{border-left:2px solid #d9e6e1;padding:2px 0 2px 17px;margin:14px 0 0}
+.explain-evidence p{font-size:.9rem;line-height:1.65;color:#5a7078}
+.signal-finding{padding:21px 0;border-top:1px solid #e0ebe7}
+.signal-finding:last-child{padding-bottom:0}.signal-finding h4{margin:0 0 9px;font-size:1.15rem;line-height:1.35;color:#164b54}
+.signal-finding>p{margin-bottom:8px}.signal-finding .explain-evidence{margin-top:11px}
+@media(max-width:680px){.explain-body .explain-meaning{font-size:1rem}.explain-topic{font-size:.67rem}.signal-finding h4{font-size:1.08rem}.explain-evidence{padding-left:12px}.explain-evidence p{font-size:.86rem}}

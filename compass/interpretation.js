@@ -114,17 +114,78 @@
     else sections.path=section(allClear?'All Clear':'Interpreting','Keep the supportive pattern going',directionTrend==='improving'?'The recorded direction has strengthened across this window. If its supportive inputs persist, they should continue to support the direction.':'The direction is holding much the same pattern. Continued supportive inputs should help maintain it.','A new pattern in the daily signals may change that picture; future readings will show what actually happens.');
     const topics=attention.filter(c=>['sleep','stress','hydration','walking'].includes(c.key)).map(c=>names[c.key]);
     sections.learn=section(topics.length?'Interpreting':allClear?'All Clear':'Learning','Learn more',topics.length?`Explore ${topics.join(' and ')} in the MotionC Library for context on the areas highlighted here.`:'The MotionC Library explains how walking, recovery and daily habits fit together. Explore a topic as it becomes relevant to your own pattern.');
-    return {sections,coverage,topics,range:{start,end,completedEnd},directionTrend,rawChange,supportShift,allClear};
+    return {facts:{signals,attention,pairedCount:paired.length,adversePairCount:adversePairs.length,bodyDriver,supportive,lifestyleConcern},sections,coverage,topics,range:{start,end,completedEnd},directionTrend,rawChange,supportShift,allClear};
   }
+  // Communication only: consumes the existing decisions and keeps their evidence.
+  function communicate(view){
+    const f=view.facts,sections={};
+    const make=(key,title,meaning,emphasis=[])=>sections[key]={...view.sections[key],title,meaning,emphasis,evidence:view.sections[key].paragraphs};
+    const learning=view.directionTrend==='learning';
+    const directionTitle=learning?(f.supportive?'You’re heading in a good direction.':'I’m still learning your direction.'):
+      view.directionTrend==='improving'?'Your direction is improving.':view.directionTrend==='drifting'?'Your direction is slipping.':f.supportive?'You’re staying on track.':'Your direction is staying much the same.';
+    make('direction',directionTitle,learning?(f.supportive?'Your recent habits are working in your favour. A few more saved readings will show whether you’re improving further or staying on track.':'A few more saved readings will help Compass tell whether you’re improving, staying steady, or beginning to drift.'):
+      view.directionTrend==='improving'?'Your recorded habits are adding up to a better direction. That does not mean your weight or MCP position has changed.':view.directionTrend==='drifting'?(f.supportive?'You’re still heading in a good direction, but it has slipped a little. The findings below show what deserves a closer look.':'Your direction has moved away from the more favourable side of Compass. Look at the findings below for useful context.'):f.supportive?'Your habits are continuing to work in your favour. Staying on track is a useful result, even when the needle barely moves.':'There has been little overall change. The findings below explain what is helping and what may need attention.',['working in your favour','staying on track','slipped a little','little overall change']);
+    make('influences',f.signals.walking.consistent&&f.signals.walking.supports?'Your walking is helping.':view.coverage.some(c=>c.enough)?'Here’s what is helping—and what needs a look.':'Let’s find out what is helping you.',view.coverage.some(c=>c.enough)?'Different habits can help or need attention at the same time. Here’s the finding for each recorded area.':'Start with the records that fit your routine. Compass can explain those first while it gets to know the rest.');
+    const units={sleep:'hours',stress:'out of 5',hydration:'oz'};
+    const headline=key=>{
+      const s=f.signals[key];
+      if(key==='walking')return s.consistent&&s.supports?'Your walking is helping.':s.trend==='declining'?'You’re walking on fewer recorded days.':'Your walking record is taking shape.';
+      if(key==='hydration')return s.trend==='declining'?'Your hydration readings have been falling.':s.trend==='improving'?'Your hydration readings are improving.':s.pressure>.08?'Your hydration deserves a closer look.':'Your hydration is helping you stay on track.';
+      if(key==='sleep')return s.trend==='declining'?'You’ve been recording less sleep.':s.pressure>.08?'Your sleep deserves some attention.':s.trend==='improving'?'Your sleep readings are improving.':'Your sleep is working in your favour.';
+      return s.trend==='declining'?'Your stress readings have been rising.':s.pressure>.08?'Your stress deserves some attention.':s.trend==='improving'?'Your stress readings are easing.':'Your recorded stress is low.';
+    };
+    const blocks=[];
+    for(const text of view.sections.influences.paragraphs){
+      let key=Object.keys(names).find(k=>text.startsWith(names[k]+' '));
+      if(key){
+        const s=f.signals[key];let meaning='';
+        if(key==='walking')meaning=s.consistent&&s.supports?'Your repeated walks are giving your overall direction steady help.':'These records show when walking is part of your day. Keep recording so you can see whether it becomes more consistent.';
+        else if(key==='hydration')meaning=s.trend==='declining'?(s.earlyMean>=80&&s.lateMean>=80?'Your later recorded amounts are lower than earlier in this window. Both averages still meet Compass’s full-support reference.':'Your later recorded amounts are lower than earlier in this window. That can leave less help from hydration.'):s.pressure>.08?'Hydration is below the level Compass counts as fully helpful. Your records can help you see whether that is a habit or an unfinished entry.':'Your recorded hydration is helping the overall picture.';
+        else if(key==='sleep')meaning=s.pressure>.08?'You’re recording less sleep than Compass’s recovery reference. That leaves more recovery need alongside the benefit from other habits.':'Your recorded sleep is leaving little extra recovery need in Compass.';
+        else meaning=s.pressure>.08?'Your recorded stress is adding to the need for recovery. Keep an eye on whether it settles or continues.':'Your stress readings are leaving little extra recovery need in Compass.';
+        const evidence=key==='walking'?`You recorded walks on ${s.days} of ${s.count} completed days with movement entries.`:s.trendReady?`Earlier average: ${s.earlyMean.toFixed(1)} ${units[key]}. Later average: ${s.lateMean.toFixed(1)} ${units[key]}. Based on ${s.early.length} earlier and ${s.late.length} later completed-day readings.`:`Average: ${s.average.toFixed(1)} ${units[key]} across ${s.count} completed-day readings.`;
+        blocks.push({title:headline(key),meaning,evidence:[evidence,text],emphasis:key==='walking'?['steady help']:key==='hydration'?['lower than earlier','helping the overall picture']:key==='sleep'?['more recovery need']:['need for recovery']});
+      }else if(text.startsWith('Weight ')||text.startsWith('Recent weight')){
+        const body=f.bodyDriver;const negative=body?.score<-.05;
+        const below=String(body?.inputs?.weightInterpretation).includes('Below');
+        const evidence=[text];
+        if(body?.inputs){const b=body.inputs;if(number(b.lastWeight))evidence.push(`Latest recorded weight: ${Number(b.lastWeight).toFixed(1)} lb.${b.vibratoryZone?` Chosen range: ${Number(b.vibratoryZone.low).toFixed(1)}–${Number(b.vibratoryZone.high).toFixed(1)} lb.`:''}`);}
+        blocks.push({title:negative?'Your weight deserves some attention.':body?.score>.05?'Your weight is moving toward your chosen range.':'Your weight is staying fairly steady.',meaning:negative?(below?'You’re already below your chosen range and your weight is still decreasing. Further weight loss is not automatically a better result.':'Your weight is moving away from your chosen range. It is worth looking at the range and the recent changes together.'):'Weight adds context to the other habits. It does not decide whether your whole day went well.',evidence,emphasis:['below your chosen range','not automatically a better result','adds context']});
+      }else if(text.startsWith('The latest available weekly')){
+        blocks.push({title:f.lifestyleConcern?'Your weekly habits deserve another look.':'Your weekly habits are helping.',meaning:f.lifestyleConcern?'Your latest check-in includes an area to revisit in nutrition, alcohol or smoking.':'Your latest nutrition, alcohol and smoking responses are working in your favour.',evidence:[text],emphasis:['working in your favour','an area to revisit']});
+      }else blocks.push({title:'Help Compass fill in the picture.',meaning:text,evidence:[],emphasis:['Missing readings are left unknown']});
+    }
+    sections.influences.blocks=blocks;
+    const pairedConcern=f.pairedCount>=4&&f.adversePairCount>=3;
+    make('connections',pairedConcern?'Your sleep and stress are worth watching together.':view.sections.connections.state==='Learning'?'Let’s connect a few more dots.':view.sections.connections.state==='All Clear'?'Your signals are working well together.':'Here’s how your habits fit together.',pairedConcern?(f.signals.walking.consistent&&f.signals.walking.supports?'Shorter sleep and higher stress have been showing up together. They both add recovery needs, even when your walking is going well.':'Shorter sleep and higher stress have been showing up together. Together they add to the recovery needs shown by Compass.'):view.sections.connections.state==='Learning'?'Record Sleep and Stress on some of the same days. Add Hydration alongside your walks, and Compass can start showing how those habits line up.':'One habit can help while another needs attention. The records below show which patterns are happening together.',['Shorter sleep','higher stress','same days']);
+    const attention=f.attention;
+    const labels={hydration:'hydration',stress:'stress',sleep:'sleep',walking:'walking',lifestyle:'weekly habits',body:'weight'};
+    make('attention',attention.length?`Give your ${attention.map(c=>labels[c.key]).join(' and ')} a closer look.`:view.sections.attention.state==='All Clear'?'Nothing needs special attention right now.':'Nothing new is flagged in the readings so far.',attention.length?'These are the clearest areas to notice first. Keep the habits that are already helping, and focus on one change at a time.':view.sections.attention.state==='All Clear'?'Your recorded habits are working well together. Keep doing what is working for you.':'That is reassuring for the areas recorded. A few more readings will help Compass check the rest of the picture.',['clearest areas','working well together','areas recorded']);
+    if(attention.length)sections.attention.blocks=attention.map((c,i)=>({title:c.key==='body'?'Your weight deserves some attention.':c.key==='lifestyle'?'Revisit your weekly habits.':headline(c.key),meaning:view.sections.attention.paragraphs[i],evidence:[],emphasis:c.key==='hydration'?['below Compass’s support target','have been falling']:['recovery pressure']}));
+    make('path',view.sections.path.state==='Learning'?'I’m still learning where this is taking you.':f.supportive?'You’re still heading in a good direction.':view.directionTrend==='drifting'?'This is worth turning your attention to.':'Keep watching how your habits add up.',view.sections.path.state==='Learning'?'More saved directions will help separate a lasting change from a brief wobble. Your daily records can still point out useful things to notice now.':f.supportive?(attention.length?'Your helpful habits are still counting in your favour. If the concerns above continue, they may keep you from improving further.':'If you keep these habits going, they should help you stay on track. A nearly still needle can mean you are maintaining a good routine.'):'If these habits continue, Compass will keep reflecting them. The areas above are the useful places to watch for a change.',['counting in your favour','stay on track','useful places to watch']);
+    make('learn',view.topics.length?`Learn more about ${view.topics.join(' and ').toLowerCase()}.`:'Explore a habit when you’re ready.',view.topics.length?'The Library can help you understand the areas Compass has highlighted.':'There is no extra assignment here. The Library is there when you want to understand a habit in more detail.');
+    return {...view,sections};
+  }
+  function emphasized(node,text,phrases=[]){
+    const matches=phrases.map(p=>({p,i:text.indexOf(p)})).filter(m=>m.i>=0).sort((a,b)=>a.i-b.i).slice(0,2);let cursor=0;
+    for(const {p,i} of matches){if(i<cursor)continue;node.append(document.createTextNode(text.slice(cursor,i)));const strong=document.createElement('strong');strong.textContent=p;node.append(strong);cursor=i+p.length;}
+    node.append(document.createTextNode(text.slice(cursor)));
+  }
+
   function render(input){
-    const view=analyze(input);
+    const view=communicate(analyze(input));
     document.getElementById('interpretationRange').textContent=`${input.start} to ${input.end} · Daily patterns use completed days${input.end===input.today?', through yesterday':''}.`;
     for(const [key,s] of Object.entries(view.sections)){
       const box=document.getElementById('explain-'+key);box.dataset.state=s.state;
       box.querySelector('.explain-state').textContent=s.state;
       box.querySelector('h3').textContent=s.title;
       const body=box.querySelector('.explain-body');body.replaceChildren();
-      for(const text of s.paragraphs){const p=document.createElement('p');p.textContent=text;body.append(p);}
+      const topics={direction:'Your 14-day direction',influences:'What’s influencing your direction',connections:'Connecting the dots',attention:'What deserves attention',path:'Where this path is taking you',learn:'Learn more'};
+      let topic=box.querySelector('.explain-topic');if(!topic){topic=document.createElement('p');topic.className='explain-topic';box.insertBefore(topic,box.querySelector('h3'));}topic.textContent=topics[key];
+      const lead=document.createElement('p');lead.className='explain-meaning';emphasized(lead,s.meaning,s.emphasis);body.append(lead);
+      const appendEvidence=(parent,paragraphs)=>{if(!paragraphs.length)return;const evidence=document.createElement('div');evidence.className='explain-evidence';for(const text of paragraphs){const p=document.createElement('p');p.textContent=text;evidence.append(p);}parent.append(evidence);};
+      if(s.blocks){for(const item of s.blocks){const block=document.createElement('section');block.className='signal-finding';const h=document.createElement('h4');h.textContent=item.title;block.append(h);const meaning=document.createElement('p');emphasized(meaning,item.meaning,item.emphasis);block.append(meaning);appendEvidence(block,item.evidence);body.append(block);}if(key==='attention')appendEvidence(body,s.evidence.slice(view.facts.attention.length));}
+      else appendEvidence(body,s.evidence);
       if(key==='learn'){const a=document.createElement('a');a.href='/library/';a.textContent=view.topics.length?`Explore ${view.topics.join(' and ')} in the Library`:'Explore the MotionC Library';body.append(a);}
     }
     const coverage=document.getElementById('signalCoverage');coverage.replaceChildren();
@@ -133,8 +194,8 @@
   function describeCurrent(result){
     const title=document.getElementById('directionResult'),copy=document.getElementById('directionExplanation');
     if(!result.defensible){title.textContent='Building your pattern';copy.textContent='A few consistent Daily entries will help Compass bring the signals together.';return;}
-    const descriptions={North:['Supportive overall','Recent inputs combine into a generally supportive pattern.'], 'North-East':['Support with recovery needs','Supportive habits are present alongside recovery pressure.'],East:['Recovery deserves attention','Recovery signals have the strongest pull in the current pattern.'],'South-East':['Habits and recovery need attention','Less supportive inputs are present alongside recovery pressure.'],South:['Support needs strengthening','Recent recorded habits are contributing less support.'],'South-West':['Steady, with support to build','A relatively stable pattern includes some less supportive inputs.'],West:['A balanced pattern','Recent recorded trends appear relatively stable and balanced.'],'North-West':['Steady and supportive','A stable pattern includes supportive influences.']};
+    const descriptions={North:['You’re heading in a good direction.','Your recent habits are working in your favour. Read below for what is helping and what deserves attention.'], 'North-East':['Support with recovery needs','Supportive habits are present alongside recovery pressure.'],East:['Recovery deserves attention','Recovery signals have the strongest pull in the current pattern.'],'South-East':['Habits and recovery need attention','Less supportive inputs are present alongside recovery pressure.'],South:['Support needs strengthening','Recent recorded habits are contributing less support.'],'South-West':['Steady, with support to build','A relatively stable pattern includes some less supportive inputs.'],West:['A balanced pattern','Recent recorded trends appear relatively stable and balanced.'],'North-West':['You’re staying on track.','Your recorded habits are helping you maintain a good direction.']};
     const d=descriptions[result.direction]||['Your current pattern','Read the signals below for context.'];title.textContent=d[0];copy.textContent=d[1];
   }
-  window.MotionCCompassInterpretation=Object.freeze({analyze,render,describeCurrent});
+  window.MotionCCompassInterpretation=Object.freeze({analyze,communicate,render,describeCurrent});
 })();
