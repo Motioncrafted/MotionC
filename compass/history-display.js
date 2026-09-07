@@ -11,6 +11,7 @@
   const bearing = angle => `${angle.toFixed(3)}°`;
   const dateLabel = date => new Date(`${date}T12:00:00`).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
   const read = key => { try { return JSON.parse(localStorage.getItem(key)||'{}') || {}; } catch { return {}; } };
+  let interpretationState = {}, interpretationResult = null;
   let history = {records:{}}, windowEnd = localDate(), owner = null, selectedDate = null;
   let writeFailed = false, pendingCloud = false, priorDisplayed = null;
 
@@ -65,7 +66,8 @@
     finally { syncing=false; }
   }
 
-  function prepare(result) {
+  function prepare(result, state) {
+    interpretationState=state;interpretationResult=result;
     const active=localStorage.getItem('motionc-auth-active-user');
     if(owner!==active){owner=active;windowEnd=localDate();selectedDate=null;pendingCloud=false;priorDisplayed=null;}
     load();
@@ -123,7 +125,7 @@
       last=value;points.push({date,raw:r.angle,value,index:i});
     }
     const svg=el('historyPlot');svg.replaceChildren();
-    const width=Math.max(300,svg.parentElement.clientWidth),height=255,left=70,right=24,top=25,bottom=44;
+    const width=Math.max(300,svg.parentElement.clientWidth),height=145,left=70,right=24,top=25,bottom=44;
     svg.setAttribute('viewBox',`0 0 ${width} ${height}`);
     const x=i=>left+i/13*(width-left-right);
     const values=points.map(p=>p.value);
@@ -131,8 +133,8 @@
     const span=Math.max(high-low,.1),padding=span*.2;
     const min=low-padding,max=high+padding;
     const y=v=>top+(max-v)/(max-min)*(height-top-bottom);
-    for(let i=0;i<5;i++){
-      const value=min+(max-min)*i/4,yy=y(value);
+    for(let i=0;i<3;i++){
+      const value=min+(max-min)*i/2,yy=y(value);
       svg.append(svgNode('line',{x1:left,x2:width-right,y1:yy,y2:yy,class:'history-gridline'}));
       svg.append(svgNode('text',{x:left-12,y:yy+4,'text-anchor':'end',class:'history-axis'},`${value.toFixed(3)}°`));
     }
@@ -159,6 +161,7 @@
     const current=points.find(p=>p.date===selectedDate)||points.at(-1);
     el('historyReadout').textContent=current?`${dateLabel(current.date)}${current.date===today?' · Today':''} — ${bearing(current.raw)} actual direction`:'No saved Compass readings in this window.';
     el('historyStatus').textContent=fixture?'Preview fixture — simulated readings are not saved.':writeFailed?'This browser could not save the latest reading.':`${points.length} of 14 days recorded. Gaps mean no saved reading. Daily readings are saved when you open Compass; today updates as your data changes.`;
+    window.MotionCCompassInterpretation.render({state:interpretationState,result:interpretationResult,records:history.records,start,end:windowEnd,today});
     el('historyScale').textContent='Actual direction in degrees clockwise from North · vertical scale fits this window'+(values.some(v=>v<0||v>=360)?' · axis continues through North (360° = 0°).':'.');
   }
   el('historyBack').addEventListener('click',()=>{windowEnd=shift(windowEnd,-7);selectedDate=null;renderHistory();});

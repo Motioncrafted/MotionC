@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Your Compass — MotionC Prototype</title>
-  <link rel="stylesheet" href="styles.css?v=20260906-history-1">
+  <link rel="stylesheet" href="styles.css?v=20260907-meaning-1">
 </head>
 <body>
   <main class="compass-page">
@@ -40,10 +40,10 @@
             <div class="centre-gauge-readout"><strong id="mcpScore">—</strong><span>MCP</span><em id="mcpZone">Not assessed</em></div>
           </div>
         </div>
-        <div class="instrument-caption"><strong id="actualDirection"></strong><span id="previousNote"></span><small id="displayScaleNote"></small></div>
+        <details class="instrument-details"><summary>Instrument details</summary><div class="instrument-caption"><strong id="actualDirection"></strong><span id="previousNote"></span><small id="displayScaleNote"></small></div></details>
         <article class="result-card" aria-live="polite">
           <div class="result-arrow" id="resultArrow">↑</div>
-          <div><span>Your direction</span><h2 id="directionResult">Building your direction…</h2><p id="directionExplanation">Keep recording recent information so the Compass has enough evidence to respond.</p></div>
+          <div><span>Your current pattern</span><h2 id="directionResult">Building your direction…</h2><p id="directionExplanation">Keep recording recent information so the Compass has enough evidence to respond.</p></div>
         </article>
         <article class="confidence-card">
           <div><span>Data coverage</span><strong id="coveragePercent">0%</strong></div>
@@ -62,16 +62,26 @@
     <section class="history-card" aria-labelledby="historyTitle">
       <header class="history-header">
         <button id="historyBack" type="button" aria-label="Show seven days earlier" disabled>◀</button>
-        <div><h2 id="historyTitle">Compass Direction History</h2><p id="historyRange"></p></div>
+        <div><h2 id="historyTitle">Your direction, over time</h2><p id="historyRange"></p></div>
         <button id="historyForward" type="button" aria-label="Show seven days later" disabled>▶</button>
       </header>
-      <p id="historyScale" class="history-scale"></p>
+      <p class="history-purpose">A small record of change. The explanation below puts the pattern into words.</p><p id="historyScale" class="history-scale"></p>
       <div class="history-chart-wrap"><svg id="historyPlot" viewBox="0 0 1000 255" role="group" aria-label="14-day history of actual Compass direction. Focus or tap a point for its date and bearing."></svg></div>
       <div class="history-footer"><p id="historyReadout" aria-live="polite"></p><button id="historyToday" type="button">Latest 14 days</button></div>
       <p id="historyStatus" class="history-status"></p>
     </section>
 
-    <section class="calculation-note"><h2>How it’s calculated</h2><p>Each driver creates a configurable contribution to a two-dimensional vector. North is positive Y, South is negative Y, East is positive X and West is negative X. Missing information contributes nothing—it never counts as Balanced.</p><p>The result is an interpretation of recorded behaviour and trends. It does not measure real-time fuel use, insulin, metabolic flexibility or other unrecorded physiology.</p></section>
+<section class="interpretation" aria-labelledby="interpretationTitle">
+  <header class="interpretation-heading"><p class="eyebrow">Your patterns, explained</p><h2 id="interpretationTitle">Your 14-day direction</h2><p>What your signals are doing together — and what deserves a closer look.</p><p id="interpretationRange" class="interpretation-range"></p></header>
+  <article id="explain-direction" class="explain-section direction-overview" data-state="Learning"><span class="explain-state">Learning</span><h3>Your 14-day direction</h3><div class="explain-body"><p>Help Compass connect the dots. Your saved daily signals will bring this part of the picture into focus.</p></div></article>
+<article id="explain-influences" class="explain-section " data-state="Learning"><span class="explain-state">Learning</span><h3>What’s influencing your direction</h3><div class="explain-body"><p>Help Compass connect the dots. Your saved daily signals will bring this part of the picture into focus.</p></div></article>
+<article id="explain-connections" class="explain-section " data-state="Learning"><span class="explain-state">Learning</span><h3>Connecting the dots</h3><div class="explain-body"><p>Help Compass connect the dots. Your saved daily signals will bring this part of the picture into focus.</p></div></article>
+<article id="explain-attention" class="explain-section " data-state="Learning"><span class="explain-state">Learning</span><h3>What deserves attention</h3><div class="explain-body"><p>Help Compass connect the dots. Your saved daily signals will bring this part of the picture into focus.</p></div></article>
+<article id="explain-path" class="explain-section " data-state="Learning"><span class="explain-state">Learning</span><h3>Where this path is taking you</h3><div class="explain-body"><p>Help Compass connect the dots. Your saved daily signals will bring this part of the picture into focus.</p></div></article>
+<article id="explain-learn" class="explain-section " data-state="Learning"><span class="explain-state">Learning</span><h3>Learn more</h3><div class="explain-body"><p>Help Compass connect the dots. Your saved daily signals will bring this part of the picture into focus.</p></div></article>
+  <aside class="coverage-panel"><h3>Help Compass connect the dots</h3><p>Compass doesn’t need perfect data. A few consistent readings help it recognize a pattern.</p><ul id="signalCoverage"></ul><a href="/daily/">Add your Daily readings →</a></aside>
+</section>
+    <details class="calculation-note"><summary>How Compass is calculated</summary><p>Each driver creates a configurable contribution to a two-dimensional vector. North is positive Y, South is negative Y, East is positive X and West is negative X. Missing information contributes nothing—it never counts as Balanced.</p><p>The result is an interpretation of recorded behaviour and trends. It does not measure real-time fuel use, insulin, metabolic flexibility or other unrecorded physiology.</p></details>
 
     <details class="diagnostics" id="prototypeDiagnostics" hidden>
       <summary>Prototype diagnostics — explain the needle</summary>
@@ -80,7 +90,8 @@
     </details>
   </main>
   <script type="module" src="../shared/motionc-supabase.js?v=20260820-2"></script>
-  <script src="history-display.js?v=20260906-history-1"></script>
-  <script src="script.js?v=20260906-history-1"></script>
+  <script src="interpretation.js?v=20260907-meaning-1"></script>
+  <script src="history-display.js?v=20260907-meaning-1"></script>
+  <script src="script.js?v=20260907-meaning-1"></script>
 </body>
 </html>
