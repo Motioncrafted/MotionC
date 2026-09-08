@@ -84,4 +84,4 @@
 .back-to-top:focus-visible{outline:3px solid #e87817;outline-offset:4px}
 
 /* Small uppercase reading-section labels for easier scanning. */
-.explain-topic{color:#703f8c}
+.explain-topic{display:table;max-width:100%;padding:6px 12px;border-radius:8px;background:#e5f2df;color:#703f8c}
