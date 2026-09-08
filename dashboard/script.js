@@ -1801,7 +1801,8 @@ function drawWeightChart(points) {
         dash: [7, 5],
         text: `VZ ${summaryVibratoryWeight?.toFixed(1)} ${summaryWeightUnit()}`,
         fill: "#fff4d2",
-        textColor: "#8c6415"
+        textColor: "#8c6415",
+        side: "left"
     });
     const motivationalY = drawMarkerLine({
         value: summaryMotivationalWeight,
@@ -1810,7 +1811,7 @@ function drawWeightChart(points) {
         text: `Motivational ${summaryMotivationalWeight?.toFixed(1)} ${summaryWeightUnit()}`,
         fill: "#eaf3fc",
         textColor: "#245c91",
-        side: "left"
+        side: "right"
     });
     const realY = drawMarkerLine({
         value: summaryGoalWeight,
@@ -1818,7 +1819,8 @@ function drawWeightChart(points) {
         dash: [3, 5],
         text: `Goal ${summaryGoalWeight?.toFixed(1)} ${summaryWeightUnit()}${realGoalProgress}`,
         fill: "#e4f7ed",
-        textColor: "#087348"
+        textColor: "#087348",
+        side: "left"
     });
     canvas._goalScale = { minimum, maximum, top: padding.top, height: chartHeight, realY, motivationalY, vibratoryY };
     setText("real-goal-weight-label", Number.isFinite(summaryGoalWeight) ? `Real Goal: ${summaryGoalWeight.toFixed(1)} ${summaryWeightUnit()}${realGoalProgress}` : "Real Goal: —");
