@@ -83,11 +83,5 @@
 .back-to-top:hover{background:#124f5f;border-color:#124f5f}
 .back-to-top:focus-visible{outline:3px solid #e87817;outline-offset:4px}
 
-/* Consistent reading-section headings for easier scanning. */
-.interpretation-heading .eyebrow,
-.interpretation-heading h2,
-.explain-topic,
-.explain-section h3,
-.signal-finding h4,
-.coverage-panel h3,
-.calculation-note summary{color:#703f8c}
+/* Small uppercase reading-section labels for easier scanning. */
+.explain-topic{color:#703f8c}
