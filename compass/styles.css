@@ -76,3 +76,9 @@
 .signal-finding:last-child{padding-bottom:0}.signal-finding h4{margin:0 0 9px;font-size:1.15rem;line-height:1.35;color:#164b54}
 .signal-finding>p{margin-bottom:8px}.signal-finding .explain-evidence{margin-top:11px}
 @media(max-width:680px){.explain-body .explain-meaning{font-size:1rem}.explain-topic{font-size:.67rem}.signal-finding h4{font-size:1.08rem}.explain-evidence{padding-left:12px}.explain-evidence p{font-size:.86rem}}
+
+/* Return to the header after reading the full Compass page. */
+.page-bottom-nav{max-width:1080px;margin:28px auto 0;display:flex;justify-content:center}
+.back-to-top{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:12px 24px;border:1px solid #17687c;border-radius:999px;background:#17687c;color:#fff;font:inherit;font-weight:800;text-decoration:none}
+.back-to-top:hover{background:#124f5f;border-color:#124f5f}
+.back-to-top:focus-visible{outline:3px solid #e87817;outline-offset:4px}
