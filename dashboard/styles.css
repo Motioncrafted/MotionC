@@ -2235,3 +2235,26 @@ body {
     .profile-reminder { grid-template-columns: auto 1fr; }
     .profile-reminder-action { grid-column: 1 / -1; width: 100%; }
 }
+
+/* Lifestyle Compass: confined to the existing 190px (172px mobile) visualization. */
+.score-panel .score-pair { position: relative; height: 190px; max-width: 370px; margin-left: auto; margin-right: auto; justify-content: flex-start; }
+.score-panel .lifestyle-metric { position: absolute; right: 0; top: 0; width: calc(100% - 202px); height: 100%; gap: 4px; justify-content: center; }
+.score-panel .compass-metric-link { display: block; flex: 0 0 auto; width: 114px; height: 114px; min-height: 0; padding: 0; border: 0; border-radius: 24%; background: transparent; box-shadow: none; }
+.score-panel .compass-metric-link:hover { background: rgba(255,255,255,.5); transform: none; }
+.lifestyle-compass-emblem { display: block; width: 100%; height: 100%; overflow: visible; }
+.score-panel .lifestyle-ring { flex: 0 0 auto; width: 72px; }
+.score-panel .lifestyle-ring::before { width: 56px; }
+.score-panel .lifestyle-ring strong { font-size: 19px; line-height: 1.1; }
+.score-panel .lifestyle-ring strong small { font-size: 9px; }
+.score-panel .lifestyle-ring > div > span { font-size: 7px; letter-spacing: .03em; }
+@media (max-width: 640px) {
+ .score-panel .score-pair { height: 172px; }
+ .score-panel .lifestyle-metric { width: calc(100% - 172px); }
+ .score-panel .compass-metric-link { width: 100px; height: 100px; }
+ .score-panel .lifestyle-ring { width: 68px; }
+ .score-panel .lifestyle-ring::before { width: 54px; }
+ .compass-tape-marks { display: none; }
+}
+
+.score-panel .score-pair { min-width: 346px; }
+@media (max-width: 640px) { .score-panel .score-pair { min-width: 300px; } }

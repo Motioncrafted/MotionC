@@ -13,7 +13,7 @@
 
     <link
         rel="stylesheet"
-        href="/dashboard/styles.css?v=20260903-1"
+        href="/dashboard/styles.css?v=20260909-compass-1"
     >
 
     <style>
@@ -196,8 +196,28 @@
                         </div>
                         <div class="lifestyle-metric">
                             <a class="compass-metric-link" href="/compass/?from=summary" aria-label="Open your MotionC Compass">
-                                <span class="compass-metric-icon" aria-hidden="true">✦</span>
-                                Compass
+                                <svg class="lifestyle-compass-emblem" viewBox="0 0 160 160" aria-hidden="true" focusable="false">
+ <defs>
+  <path id="lc-top" d="M 19,77 A 61,61 0 0 1 141,77"/>
+  <path id="lc-bottom" d="M 17,99 A 64,64 0 0 0 143,99"/>
+  <linearGradient id="lc-body" x2="0" y2="1"><stop stop-color="#326445"/><stop offset="1" stop-color="#173d31"/></linearGradient>
+  <linearGradient id="lc-tape"><stop stop-color="#eadbb4"/><stop offset=".5" stop-color="#d69b28"/><stop offset="1" stop-color="#e0ad42"/></linearGradient>
+ </defs>
+ <g class="compass-lettering" fill="#275f44" font-family="Arial, sans-serif" font-size="13" font-weight="800" letter-spacing="2">
+  <text><textPath href="#lc-top" startOffset="50%" text-anchor="middle">LIFESTYLE</textPath></text>
+  <text><textPath href="#lc-bottom" startOffset="50%" text-anchor="middle">COMPASS</textPath></text>
+ </g>
+ <rect x="35" y="39" width="88" height="87" rx="17" fill="url(#lc-body)" stroke="#8fae99" stroke-width="2"/>
+ <rect x="43" y="56" width="72" height="61" rx="10" fill="#f1f5ed"/>
+ <path d="M79 56V117 M43 86H115" fill="none" stroke="#326445" stroke-width="2"/>
+ <path d="M59 43 Q79 29 99 43 L95 56H63Z" fill="#f5f6ee" stroke="#173d31" stroke-width="2.5"/>
+ <path d="M67 43L69 47 M78 39V44 M89 42L87 47 M80 51L83 43" stroke="#275f44" stroke-width="2"/>
+ <circle cx="96" cy="70" r="6.5" fill="#d69b28" stroke="#a67516" stroke-width="1.5"/>
+ <path d="M37 88 C18 111 43 132 82 118 C110 109 126 87 132 62" fill="none" stroke="#a67516" stroke-width="14"/>
+ <path d="M37 87 C18 110 43 130 82 116 C110 107 125 86 131 62" fill="none" stroke="url(#lc-tape)" stroke-width="11"/>
+ <path d="M119 65L134 47L141 70Z" fill="#d69b28" stroke="#a67516" stroke-width="1.5" stroke-linejoin="round"/>
+ <path class="compass-tape-marks" d="M36 110L35 116 M52 119L53 125 M72 115L74 121 M93 105L96 111 M110 91L115 95 M121 76L127 79" fill="none" stroke="#275f44" stroke-width="2.5"/>
+</svg>
                             </a>
                             <div class="score-ring lifestyle-ring" id="lifestyle-ring">
                                 <div>
