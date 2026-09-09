@@ -1493,6 +1493,7 @@
 .comix-reader h2{margin:0;text-align:center;font-size:24px}.comix-issue{text-align:center;margin:6px 0 16px}
 .comix-panel{height:min(52dvh,520px);min-height:120px;display:grid;place-items:center;background:#fff;border:2px solid #cfbf9f;font-size:clamp(30px,6vw,64px);font-weight:bold}
 .comix-counter{text-align:center;margin:12px 0}.comix-controls{display:flex;justify-content:space-between;gap:12px}.comix-reader button{min-height:44px;padding:10px 18px;border:1px solid #7d6a4b;border-radius:6px;background:#efe3ca;color:#30251e;font:bold 15px Arial,sans-serif}.comix-reader button:disabled{opacity:.4;cursor:default}.comix-reader button:focus-visible{outline:3px solid #1763a6;outline-offset:2px}.comix-close{display:block;margin:12px auto 0}
+.comix-panel img{display:block;width:100%;height:100%;min-height:0;object-fit:contain}
 </style>
 </head>
 
@@ -1676,8 +1677,8 @@
     <button class="comix-hotspot" id="comixHotspot" type="button" aria-label="Open temporary Mo Comix reader" aria-haspopup="dialog">COMIX</button>
   </main>
   <dialog class="comix-reader" id="comixReader" aria-labelledby="comixTitle">
-    <h2 id="comixTitle">MO COMIX</h2><p class="comix-issue">Issue #001</p>
-    <div class="comix-panel" id="comixPanel" aria-live="polite">PANEL 1</div>
+    <h2 id="comixTitle">MO COMIX</h2><p class="comix-issue">Issue #001 — The Short Walk</p>
+    <div class="comix-panel" id="comixPanel" aria-live="polite"><img id="comixArtwork" src="/images/mo-comix-001-panel-1.png" alt="Mo at his front door: Just a short walk today."></div>
     <p class="comix-counter" id="comixCounter">1 / 5</p>
     <div class="comix-controls"><button id="comixPrevious" type="button" disabled>‹ PREVIOUS</button><button id="comixNext" type="button">NEXT ›</button></div>
     <button class="comix-close" id="comixClose" type="button" autofocus>CLOSE</button>
@@ -1685,8 +1686,10 @@
   <script>
   (() => {
     const trigger=document.getElementById('comixHotspot'),reader=document.getElementById('comixReader'),panel=document.getElementById('comixPanel'),counter=document.getElementById('comixCounter'),previous=document.getElementById('comixPrevious'),next=document.getElementById('comixNext');
+    const descriptions=["Mo at his front door: Just a short walk today.","Mo walks through the neighborhood: Maybe just around the block.","Mo notices an inviting trail: Wonder where that goes…","Far into the countryside, Mo checks his watch: 6.2 MILES. Huh.","Mo looks back toward the distant neighborhood: I really need to define ‘short’ before I leave. MotionC® – Motion Creates Change"];
+    const artwork=document.getElementById('comixArtwork');
     let current=1;
-    function render(){panel.textContent='PANEL '+current;counter.textContent=current+' / 5';previous.disabled=current===1;next.disabled=current===5;}
+    function render(){artwork.src='/images/mo-comix-001-panel-'+current+'.png';artwork.alt=descriptions[current-1];counter.textContent=current+' / 5';previous.disabled=current===1;next.disabled=current===5;}
     trigger.addEventListener('click',()=>{current=1;render();reader.showModal();});
     previous.addEventListener('click',()=>{if(current>1){current--;render();if(previous.disabled)next.focus();}});
     next.addEventListener('click',()=>{if(current<5){current++;render();if(next.disabled)previous.focus();}});
