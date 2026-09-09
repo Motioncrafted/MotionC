@@ -1484,7 +1484,16 @@
         animation-iteration-count: 1 !important;
       }
     }
-  </style>
+  /* Temporary Comix interaction prototype. */
+.comix-hotspot{position:absolute;z-index:8;left:84.8%;top:67%;width:5.8%;height:5.5%;padding:0;border:2px solid #805c00;border-radius:0;background:#ffeb00;color:#241900;font:bold clamp(7px,1vw,14px) Arial,sans-serif}
+.page.results-view .comix-hotspot{display:none}
+.comix-hotspot:focus-visible{outline:3px solid white;outline-offset:2px}
+.comix-reader{position:fixed;inset:0;margin:auto;width:min(900px,94vw);max-width:94vw;max-height:92dvh;padding:clamp(16px,3vw,30px);border:1px solid #bda77a;border-radius:12px;background:#fff7e6;color:#30251e;box-shadow:0 20px 70px #0008;font-family:Arial,sans-serif;overflow:auto}
+.comix-reader::backdrop{background:rgba(0,0,0,.5)}
+.comix-reader h2{margin:0;text-align:center;font-size:24px}.comix-issue{text-align:center;margin:6px 0 16px}
+.comix-panel{height:min(52dvh,520px);min-height:120px;display:grid;place-items:center;background:#fff;border:2px solid #cfbf9f;font-size:clamp(30px,6vw,64px);font-weight:bold}
+.comix-counter{text-align:center;margin:12px 0}.comix-controls{display:flex;justify-content:space-between;gap:12px}.comix-reader button{min-height:44px;padding:10px 18px;border:1px solid #7d6a4b;border-radius:6px;background:#efe3ca;color:#30251e;font:bold 15px Arial,sans-serif}.comix-reader button:disabled{opacity:.4;cursor:default}.comix-reader button:focus-visible{outline:3px solid #1763a6;outline-offset:2px}.comix-close{display:block;margin:12px auto 0}
+</style>
 </head>
 
 <body class="nav-visualization">
@@ -1664,7 +1673,28 @@
         <img id="imageViewerImage" alt="">
       </div>
     </dialog>
+    <button class="comix-hotspot" id="comixHotspot" type="button" aria-label="Open temporary Mo Comix reader" aria-haspopup="dialog">COMIX</button>
   </main>
+  <dialog class="comix-reader" id="comixReader" aria-labelledby="comixTitle">
+    <h2 id="comixTitle">MO COMIX</h2><p class="comix-issue">Issue #001</p>
+    <div class="comix-panel" id="comixPanel" aria-live="polite">PANEL 1</div>
+    <p class="comix-counter" id="comixCounter">1 / 5</p>
+    <div class="comix-controls"><button id="comixPrevious" type="button" disabled>‹ PREVIOUS</button><button id="comixNext" type="button">NEXT ›</button></div>
+    <button class="comix-close" id="comixClose" type="button" autofocus>CLOSE</button>
+  </dialog>
+  <script>
+  (() => {
+    const trigger=document.getElementById('comixHotspot'),reader=document.getElementById('comixReader'),panel=document.getElementById('comixPanel'),counter=document.getElementById('comixCounter'),previous=document.getElementById('comixPrevious'),next=document.getElementById('comixNext');
+    let current=1;
+    function render(){panel.textContent='PANEL '+current;counter.textContent=current+' / 5';previous.disabled=current===1;next.disabled=current===5;}
+    trigger.addEventListener('click',()=>{current=1;render();reader.showModal();});
+    previous.addEventListener('click',()=>{if(current>1){current--;render();if(previous.disabled)next.focus();}});
+    next.addEventListener('click',()=>{if(current<5){current++;render();if(next.disabled)previous.focus();}});
+    document.getElementById('comixClose').addEventListener('click',()=>reader.close());
+    reader.addEventListener('click',event=>{if(event.target!==reader)return;const r=reader.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)reader.close();});
+    reader.addEventListener('close',()=>trigger.focus({preventScroll:true}));
+  })();
+  </script>
 
   <script type="module">
     import { supabase } from "../shared/motionc-supabase.js?v=20260820-2";
@@ -4515,3 +4545,4 @@
   </script>
 </body>
 </html>
+
