@@ -67,7 +67,7 @@
       width: min(100vw, 150vh);
       aspect-ratio: 3 / 2;
       overflow: hidden;
-      background: url("../images/library-index-ornament.png") center / 100% 100% no-repeat;
+      background: url("../images/library-comix-desk.png") right center / 85.6% 100% no-repeat;
       isolation: isolate;
     }
 
@@ -1484,16 +1484,19 @@
         animation-iteration-count: 1 !important;
       }
     }
-  /* Temporary Comix interaction prototype. */
-.comix-hotspot{position:absolute;z-index:8;left:84.8%;top:67%;width:5.8%;height:5.5%;padding:0;border:2px solid #805c00;border-radius:0;background:#ffeb00;color:#241900;font:bold clamp(7px,1vw,14px) Arial,sans-serif}
+  /* Mo Comix desk reader. */
+.comix-hotspot{position:absolute;z-index:8;left:73%;top:61%;width:14.5%;height:12%;padding:0;border:0;background:transparent;clip-path:polygon(0 28%,72% 0,100% 78%,44% 100%)}
 .page.results-view .comix-hotspot{display:none}
-.comix-hotspot:focus-visible{outline:3px solid white;outline-offset:2px}
+.comix-hotspot:hover,.comix-hotspot:focus-visible{background:rgba(255,220,90,.2);outline:3px solid #ffd66b;outline-offset:-3px}
 .comix-reader{position:fixed;inset:0;margin:auto;width:min(900px,94vw);max-width:94vw;max-height:92dvh;padding:clamp(16px,3vw,30px);border:1px solid #bda77a;border-radius:12px;background:#fff7e6;color:#30251e;box-shadow:0 20px 70px #0008;font-family:Arial,sans-serif;overflow:auto}
 .comix-reader::backdrop{background:rgba(0,0,0,.5)}
 .comix-reader h2{margin:0;text-align:center;font-size:24px}.comix-issue{text-align:center;margin:6px 0 16px}
 .comix-panel{height:min(52dvh,520px);min-height:120px;display:grid;place-items:center;background:#fff;border:2px solid #cfbf9f;font-size:clamp(30px,6vw,64px);font-weight:bold}
 .comix-counter{text-align:center;margin:12px 0}.comix-controls{display:flex;justify-content:space-between;gap:12px}.comix-reader button{min-height:44px;padding:10px 18px;border:1px solid #7d6a4b;border-radius:6px;background:#efe3ca;color:#30251e;font:bold 15px Arial,sans-serif}.comix-reader button:disabled{opacity:.4;cursor:default}.comix-reader button:focus-visible{outline:3px solid #1763a6;outline-offset:2px}.comix-close{display:block;margin:12px auto 0}
 .comix-panel img{display:block;width:100%;height:100%;min-height:0;object-fit:contain}
+.comix-issue select{max-width:100%;min-height:44px;padding:8px;border:1px solid #7d6a4b;border-radius:6px;background:#fff;color:#30251e;font:inherit}.comix-issue label{display:block;margin-bottom:5px}
+/* The approved artwork includes the index information symbol. */
+.library-legend-button:not(:hover):not(:focus-visible):not([aria-expanded="true"]){color:transparent;background:transparent;border-color:transparent;box-shadow:none}
 </style>
 </head>
 
@@ -1674,25 +1677,31 @@
         <img id="imageViewerImage" alt="">
       </div>
     </dialog>
-    <button class="comix-hotspot" id="comixHotspot" type="button" aria-label="Open temporary Mo Comix reader" aria-haspopup="dialog">COMIX</button>
+    <button class="comix-hotspot" id="comixHotspot" type="button" aria-label="Open Mo Comix" aria-haspopup="dialog" title="Read Mo Comix"></button>
   </main>
   <dialog class="comix-reader" id="comixReader" aria-labelledby="comixTitle">
-    <h2 id="comixTitle">MO COMIX</h2><p class="comix-issue">Issue #001 — The Short Walk</p>
+    <h2 id="comixTitle">MO COMIX</h2><div class="comix-issue"><label for="comixIssueSelect">Choose issue</label> <select id="comixIssueSelect" aria-label="Choose comic issue"></select></div>
     <div class="comix-panel" id="comixPanel" aria-live="polite"><img id="comixArtwork" src="/images/mo-comix-001-panel-1.png" alt="Mo at his front door: Just a short walk today."></div>
     <p class="comix-counter" id="comixCounter">1 / 5</p>
     <div class="comix-controls"><button id="comixPrevious" type="button" disabled>‹ PREVIOUS</button><button id="comixNext" type="button">NEXT ›</button></div>
-    <button class="comix-close" id="comixClose" type="button" autofocus>CLOSE</button>
+    <button class="comix-close" id="comixClose" type="button" autofocus>← Back to Library</button>
   </dialog>
   <script>
   (() => {
     const trigger=document.getElementById('comixHotspot'),reader=document.getElementById('comixReader'),panel=document.getElementById('comixPanel'),counter=document.getElementById('comixCounter'),previous=document.getElementById('comixPrevious'),next=document.getElementById('comixNext');
     const descriptions=["Mo at his front door: Just a short walk today.","Mo walks through the neighborhood: Maybe just around the block.","Mo notices an inviting trail: Wonder where that goes…","Far into the countryside, Mo checks his watch: 6.2 MILES. Huh.","Mo looks back toward the distant neighborhood: I really need to define ‘short’ before I leave. MotionC® – Motion Creates Change"];
     const artwork=document.getElementById('comixArtwork');
+    // Add a finished issue here when its artwork is ready.
+    const issues=[{id:'001',title:'The Short Walk',panels:descriptions.map((alt,i)=>({src:'/images/mo-comix-001-panel-'+(i+1)+'.png',alt}))}];
+    let issue=issues[0];
+    const selector=document.getElementById('comixIssueSelect');
+    issues.forEach(item=>{const option=document.createElement('option');option.value=item.id;option.textContent='#'+item.id+' — '+item.title;selector.append(option);});
+    selector.addEventListener('change',()=>{issue=issues.find(item=>item.id===selector.value)||issues[0];current=1;render();});
     let current=1;
-    function render(){artwork.src='/images/mo-comix-001-panel-'+current+'.png';artwork.alt=descriptions[current-1];counter.textContent=current+' / 5';previous.disabled=current===1;next.disabled=current===5;}
+    function render(){artwork.src=issue.panels[current-1].src;artwork.alt=issue.panels[current-1].alt;counter.textContent=current+' / '+issue.panels.length;previous.disabled=current===1;next.disabled=current===issue.panels.length;}
     trigger.addEventListener('click',()=>{current=1;render();reader.showModal();});
     previous.addEventListener('click',()=>{if(current>1){current--;render();if(previous.disabled)next.focus();}});
-    next.addEventListener('click',()=>{if(current<5){current++;render();if(next.disabled)previous.focus();}});
+    next.addEventListener('click',()=>{if(current<issue.panels.length){current++;render();if(next.disabled)previous.focus();}});
     document.getElementById('comixClose').addEventListener('click',()=>reader.close());
     reader.addEventListener('click',event=>{if(event.target!==reader)return;const r=reader.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)reader.close();});
     reader.addEventListener('close',()=>trigger.focus({preventScroll:true}));
