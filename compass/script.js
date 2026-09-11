@@ -22,7 +22,13 @@
   const average = values => values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
   const round = value => Math.round(value * 1000) / 1000;
   const dateValue = date => new Date(`${date}T12:00:00`);
-  const daysAgo = date => Math.floor((Date.now() - dateValue(date).getTime()) / 86400000);
+  // Compare local calendar dates, not elapsed hours from the entry's noon.
+  // UTC day numbers avoid daylight-saving days being 23 or 25 hours long.
+  const daysAgo = date => {
+    const today = new Date(), recorded = dateValue(date);
+    const dayNumber = value => Date.UTC(value.getFullYear(), value.getMonth(), value.getDate()) / 86400000;
+    return dayNumber(today) - dayNumber(recorded);
+  };
   const recentDate = (date, days) => daysAgo(date) >= 0 && daysAgo(date) < days;
   const finite = value => Number.isFinite(Number(value));
 
