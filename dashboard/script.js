@@ -1950,7 +1950,7 @@ function saveSharedProfileMeasurements(measurementData) {
         daily.profile.startWeight = weight;
     }
     if (weight > 0) daily.profile.currentWeight = weight;
-    if (waist > 0) daily.profile.waist = waist;
+    if (waist > 0) window.MotionCWaistProgress.record(daily.profile, waist, summaryIso(new Date()));
     if (height > 0) daily.profile.heightInches = height;
     if (age > 0) daily.profile.age = age;
     if (measurementData.sex) daily.profile.sex = measurementData.sex;
