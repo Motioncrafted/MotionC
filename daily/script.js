@@ -1534,6 +1534,8 @@ function buildLifestyleForm() {
   setOptionalMeasurement("startingWeight", state.profile.startWeight, displayWeight);
   setOptionalMeasurement("realGoal", state.profile.realGoal, displayWeight);
   setOptionalMeasurement("motivationalGoal", state.profile.motivationalGoal, displayWeight);
+  renderWaistProgress();
+  closeStartingWaistEditor(false);
   updateWeeklyProfileStatus(true);
   updateWeeklyScorePreview();
   document.querySelectorAll("[data-lifestyle]").forEach(select => select.addEventListener("change", updateWeeklyScorePreview));
@@ -1561,6 +1563,55 @@ function updateWeeklyProfileStatus(setInitialOpenState = false) {
   if (setInitialOpenState) details.open = !complete;
 }
 
+function renderWaistProgress() {
+  const profile = state.profile;
+  const starting = Number(profile.startingWaist) > 0 ? Number(profile.startingWaist) : Number(profile.waist);
+  const current = Number(profile.waist);
+  const format = value => Number.isFinite(value) && value > 0 ? displayWaist(value).toFixed(1) + " " + waistUnit() : "—";
+  byId("waistProgressStarted").textContent = format(starting);
+  byId("waistProgressCurrent").textContent = format(current);
+  const change = starting > 0 && current > 0 ? Number(displayWaist(current - starting).toFixed(1)) : null;
+  byId("waistProgressChange").textContent = change === null ? "—" :
+    (change < 0 ? "↓ " : change > 0 ? "↑ " : "") + Math.abs(change).toFixed(1) + " " + waistUnit();
+}
+
+function closeStartingWaistEditor(focus = true) {
+  byId("startingWaistEditor").hidden = true;
+  byId("waistProgressValues").hidden = false;
+  byId("editStartingWaist").setAttribute("aria-expanded", "false");
+  if (focus) byId("editStartingWaist").focus();
+}
+
+byId("editStartingWaist").addEventListener("click", () => {
+  const baseline = Number(state.profile.startingWaist) > 0 ? state.profile.startingWaist : state.profile.waist;
+  byId("startingWaistInput").value = Number(baseline) > 0 ? displayWaist(Number(baseline)).toFixed(1) : "";
+  byId("startingWaistUnit").textContent = waistUnit();
+  byId("startingWaistEditor").hidden = false;
+  byId("waistProgressValues").hidden = true;
+  byId("editStartingWaist").setAttribute("aria-expanded", "true");
+  byId("startingWaistInput").focus();
+});
+byId("cancelStartingWaist").addEventListener("click", () => closeStartingWaistEditor());
+byId("saveStartingWaist").addEventListener("click", () => {
+  const input = byId("startingWaistInput");
+  input.required = true;
+  if (!input.reportValidity()) return;
+  const baseline = Number(state.profile.startingWaist) > 0 ? Number(state.profile.startingWaist) : Number(state.profile.waist);
+  const value = baseline > 0 && Number(input.value) === Number(displayWaist(baseline).toFixed(1)) ? baseline : storedWaist(Number(input.value));
+  window.MotionCWaistProgress.editStarting(state.profile, value);
+  persist();
+  renderWaistProgress();
+  closeStartingWaistEditor();
+});
+byId("startingWaistInput").addEventListener("keydown", event => {
+  if (event.key === "Enter" || event.key === "Escape") {
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.key === "Enter") byId("saveStartingWaist").click();
+    else closeStartingWaistEditor();
+  }
+});
+
 function saveWeekly() {
   const values = {};
   document.querySelectorAll("[data-lifestyle]").forEach(select => values[select.dataset.lifestyle] = Number(select.value));
@@ -1573,7 +1624,12 @@ function saveWeekly() {
   state.profile.sex = byId("weeklySex").value || state.profile.sex;
   state.profile.heightInches = byId("weeklyHeight").value ? storedHeight(Number(byId("weeklyHeight").value)) : state.profile.heightInches;
   state.profile.startWeight = byId("startingWeight").value ? storedWeight(Number(byId("startingWeight").value)) : state.profile.startWeight;
-  state.profile.waist = byId("weeklyWaist").value ? storedWaist(Number(byId("weeklyWaist").value)) : state.profile.waist;
+  // Compare displayed precision so a unit conversion round-trip is not a new measurement.
+  const waistInput = byId("weeklyWaist");
+  const unchangedWaist = Number(state.profile.waist) > 0 &&
+    Number(waistInput.value) === Number(displayWaist(Number(state.profile.waist)).toFixed(1));
+  const nextWaist = waistInput.value && !unchangedWaist ? storedWaist(Number(waistInput.value)) : state.profile.waist;
+  window.MotionCWaistProgress.record(state.profile, nextWaist, isoDate(), updatedAt);
   state.profile.realGoal = byId("realGoal").value ? storedWeight(Number(byId("realGoal").value)) : state.profile.realGoal;
   if (Number(state.profile.realGoal) > 0) {
     state.profile.vibratoryLine = Number(state.profile.realGoal) + 4;

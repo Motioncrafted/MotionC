@@ -1276,3 +1276,14 @@ dialog::backdrop { background: rgba(9,18,20,.66); backdrop-filter: blur(3px); }
   .weekly-checkin-nudge { align-items: flex-start; flex-direction: column; gap: 12px; }
   .weekly-checkin-nudge-actions { width: 100%; flex-wrap: wrap; }
 }
+
+/* Use the empty sixth cell of the existing Personal Profile grid. */
+.weekly-measures > label:has(#weeklyWaist) { align-self: start; }
+.waist-progress { min-width: 0; align-self: start; color: #32434a; font-size: 13px; line-height: 1.45; }
+.waist-progress-heading { display: flex; align-items: baseline; gap: 12px; margin-bottom: 5px; font-weight: 800; }
+.waist-progress button { border: 0; padding: 2px 0; background: transparent; color: var(--green); font: inherit; font-weight: 700; cursor: pointer; }
+.waist-progress button:hover { text-decoration: underline; }
+.waist-progress button:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+.waist-progress strong { font-weight: 800; }
+.waist-progress-actions { display: flex; gap: 16px; margin-top: 5px; }
+#startingWaistEditor label { display: block; margin-bottom: 5px; font-weight: 800; }
