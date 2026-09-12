@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Daily | MotionC</title>
   <meta name="description" content="Your quick daily MotionC health check-in.">
-  <link rel="stylesheet" href="/daily/styles.css?v=20260911-waist-progress-1">
+  <link rel="stylesheet" href="/daily/styles.css?v=20260912-waist-info-1">
 </head>
 <body>
   <div class="app-shell">
@@ -452,7 +452,7 @@
         </label>
         <label>Height <span class="input-with-unit"><input id="weeklyHeight" type="number" step="0.1" min="20" max="300" inputmode="decimal"><small id="heightUnit">in</small></span></label>
         <label>Starting weight <span class="input-with-unit"><input id="startingWeight" type="number" step="0.1" min="20" max="700" inputmode="decimal"><small id="startWeightUnit">lb</small></span></label>
-        <label>Waist <span class="input-with-unit"><input id="weeklyWaist" type="number" step="0.1" min="15" max="300" inputmode="decimal"><small id="waistUnit">in</small></span></label>
+        <div class="weekly-waist-field"><span class="waist-label-row"><label for="weeklyWaist">Waist</label><button id="waistMeasurementInfo" type="button" aria-label="How to measure your waist" aria-expanded="false" aria-controls="waistMeasurementTip">i</button></span><span class="input-with-unit"><input id="weeklyWaist" type="number" step="0.1" min="15" max="300" inputmode="decimal"><small id="waistUnit">in</small></span><div id="waistMeasurementTip" popover="auto" role="tooltip"><strong>How to measure your waist</strong><p>Stand relaxed and breathe normally. Wrap the tape around your waist at the level of your belly button, keeping it level and snug without pulling it tight. Measure in the same place and under similar conditions each time.</p></div></div>
         <div class="waist-progress" aria-labelledby="waistProgressTitle">
           <div class="waist-progress-heading"><span id="waistProgressTitle">Waist Progress</span><button id="editStartingWaist" type="button" aria-expanded="false" aria-controls="startingWaistEditor">Edit</button></div>
           <div id="waistProgressValues" aria-live="polite">
@@ -490,5 +490,6 @@
   <script src="/shared/waist-progress.js?v=20260911-1"></script>
   <script src="/daily/script.js?v=20260911-waist-progress-1"></script>
   <script type="module" src="/shared/motionc-supabase.js?v=20260907-daily-reload-fix-1"></script>
+  <script src="/daily/waist-info.js?v=20260912-1"></script>
 </body>
 </html>

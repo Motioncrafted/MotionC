@@ -361,7 +361,8 @@ main { min-width: 0; }
 }
 .walk-actions button[data-walk-action="delete"] { color: #9a493d; }
 .number-grid > label,
-.weekly-measures > label {
+.weekly-measures > label,
+.weekly-measures > .weekly-waist-field {
   display: grid;
   gap: 8px;
   color: #32434a;
@@ -1287,3 +1288,13 @@ dialog::backdrop { background: rgba(9,18,20,.66); backdrop-filter: blur(3px); }
 .waist-progress strong { font-weight: 800; }
 .waist-progress-actions { display: flex; gap: 16px; margin-top: 5px; }
 #startingWaistEditor label { display: block; margin-bottom: 5px; font-weight: 800; }
+
+/* Waist label help and spacing within the existing profile grid. */
+@media (min-width: 641px) { .waist-progress { margin-left: 16px; } }
+.weekly-waist-field { align-self: start; min-width: 0; }
+.waist-label-row { display: flex; align-items: center; gap: 6px; }
+#waistMeasurementInfo { display: inline-grid; place-items: center; width: 15px; height: 15px; padding: 0; border: 1px solid #9eafad; border-radius: 50%; color: #496064; background: #fff; font: 700 11px/1 Georgia, serif; cursor: pointer; }
+#waistMeasurementInfo:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+#waistMeasurementTip { position: fixed; inset: auto; margin: 0; box-sizing: border-box; width: 300px; max-width: calc(100vw - 24px); max-height: calc(100dvh - 24px); overflow: auto; padding: 12px 14px; border: 1px solid #d8e5df; border-radius: 9px; background: #f8fbf9; color: #32434a; box-shadow: 0 5px 20px #183e3026; font: 400 13px/1.5 system-ui, sans-serif; }
+#waistMeasurementTip strong { color: #174b36; font-weight: 800; }
+#waistMeasurementTip p { margin: 6px 0 0; }
