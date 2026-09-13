@@ -2270,3 +2270,12 @@ body {
  .response-index-icon svg { height: 64px; }
  .response-index-icon > span { font-size: 8px; }
 }
+
+/* Keep all three lines comfortably inside the existing Lifestyle ring. */
+.score-panel .lifestyle-ring > div { gap: 1px; }
+.score-panel .lifestyle-ring strong { color: #275f44; line-height: 1; }
+.score-panel .lifestyle-ring > div > span { font-size: 7px; line-height: 1.1; letter-spacing: 0; }
+.score-panel .lifestyle-ring > div > .lifestyle-total { font-size: 9px; line-height: 1; }
+
+/* Keep the MCP Core label clear of the neighboring Lifestyle ring. */
+.score-panel .mcp-zone-label-core { right: 12px; }
