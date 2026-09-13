@@ -2258,3 +2258,15 @@ body {
 
 .score-panel .score-pair { min-width: 346px; }
 @media (max-width: 640px) { .score-panel .score-pair { min-width: 300px; } }
+
+/* Response Index fits at the midpoint beside the existing two-icon stack. */
+.score-panel .lifestyle-metric { right: 44px; }
+.response-index-icon { position: absolute; right: -44px; top: calc(50% + 10.5px); transform: translateY(-50%); width: 72px; text-align: center; color: #275f44; }
+.response-index-icon svg { display: block; width: 72px; height: 72px; }
+.response-index-icon > span { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 4px; white-space: nowrap; font-size: 9px; font-weight: 800; }
+@media (max-width: 640px) {
+ .response-index-icon { top: calc(50% + 8px); }
+ .response-index-icon, .response-index-icon svg { width: 64px; }
+ .response-index-icon svg { height: 64px; }
+ .response-index-icon > span { font-size: 8px; }
+}
