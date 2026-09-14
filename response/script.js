@@ -2,14 +2,10 @@
   'use strict';
   const dailyKey='motionc-daily-prototype-v1',lifeKey='motionc-lifestyle-summary-v1';
   const set=(selector,text)=>{const e=document.querySelector(selector);if(e)e.textContent=text;};
-  const read=key=>{try{const v=JSON.parse(localStorage.getItem(key)||'null');return v&&typeof v==='object'?v:null;}catch{return null;}};
   // Formatting is for supporting readouts only; never fed back into the engine.
   const fmt=v=>new Intl.NumberFormat(undefined,{maximumFractionDigits:2}).format(v);
   function refresh(){
-    const state=read(dailyKey)||{};
-    const compassState={entries:state.entries||{},weeks:state.weeks||{},profile:state.profile||{},dailyGauges:state.dailyGauges||{}};
-    const compass=window.MotionCCompassPrototype.calculate(compassState);
-    const r=window.MotionCResponse.calculate(state,read(lifeKey),compass);
+    const r=window.MotionCResponseLive.snapshot();
     const available=r.components.filter(c=>c.score!==null),missing=r.components.filter(c=>c.score===null);
     set('.dial-value strong',r.displayResponse??'—');
     document.querySelector('.dial-value strong').dataset.ready=String(r.response!==null);
