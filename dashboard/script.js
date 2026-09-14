@@ -2019,6 +2019,7 @@ const DAILY_TREND_CONFIG = {
 };
 
 function formatDailyTrendValue(value, key = "") {
+    if (key === "sleep") return Number(value).toFixed(2);
     if (key === "hydration") return String(Math.round(Number(value)));
     return Number(value).toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
 }
@@ -2050,7 +2051,7 @@ function drawDailyGaugeTrend(key, dates, gauges) {
     if (!recorded.length) {
         empty.hidden = false;
         canvas.hidden = true;
-        setText(`${key}-trend-summary`, "No completed entries");
+        setText(`${key}-trend-summary`, key === "sleep" ? "No recorded entries" : "No completed entries");
         return;
     }
 
@@ -2199,7 +2200,8 @@ function renderSummaryData() {
     drawWalkingChart(walkPoints);
 
     const completedDates14 = recentDateKeys(15).slice(0, -1);
-    Object.keys(DAILY_TREND_CONFIG).forEach(key => drawDailyGaugeTrend(key, completedDates14, daily?.dailyGauges || {}));
+    // Sleep matches Recovery: today plus the previous 13 calendar days.
+    Object.keys(DAILY_TREND_CONFIG).forEach(key => drawDailyGaugeTrend(key, key === "sleep" ? dates14 : completedDates14, daily?.dailyGauges || {}));
     renderStressSignals(entries, daily?.dailyGauges || {});
 
     const recentWalks = walkPoints.filter(point => dates7.includes(point.date));
