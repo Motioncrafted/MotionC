@@ -38,6 +38,7 @@
             background: rgba(240, 180, 41, 0.10);
         }
     </style>
+<link rel="stylesheet" href="/dashboard/response-overlay.css?v=20260914-1">
 </head>
 
 <body>
@@ -1004,6 +1005,24 @@
     <script src="/shared/waist-progress.js?v=20260911-1"></script>
     <script src="/dashboard/script.js?v=20260911-waist-progress-1"></script>
     <script type="module" src="/shared/motionc-supabase.js?v=20260820-2"></script>
+<dialog id="response-overlay" aria-labelledby="response-overlay-title">
+  <div class="ro-content">
+    <header class="ro-header"><h2 id="response-overlay-title">RESPONSE</h2><button type="button" class="ro-close" aria-label="Close Response overlay">×</button></header>
+    <div class="ro-index"><strong id="ro-value">—</strong><span id="ro-position">Building your Response</span></div>
+    <p class="ro-principle">Compass sets the side of 50. Carryover adjusts the distance.</p>
+    <div class="ro-scale" aria-hidden="true"><span>0</span><b>50 · pivot</b><span>100</span></div>
+    <div class="ro-readouts"><div><h3>Direction</h3><strong id="ro-direction">—</strong><span id="ro-d">Not enough data</span></div><div><h3>Carryover</h3><strong id="ro-carryover">—</strong><span> / 100</span></div></div>
+    <h3 class="ro-breakdown-title">What contributes now</h3>
+    <div id="ro-components"></div>
+    <p id="ro-coverage" class="ro-coverage"></p>
+    <p id="ro-interpretation" class="ro-interpretation" aria-live="polite"></p>
+    <footer class="ro-footer"><button type="button" class="ro-dismiss">Close</button><a href="/response/">View Full Response →</a></footer>
+  </div>
+</dialog>
+<script src="/compass/script.js?v=20260914-response-reuse-1"></script>
+<script src="/response/engine.js?v=20260914-v1"></script>
+<script src="/response/live.js?v=20260914-overlay-1"></script>
+<script src="/dashboard/response-overlay.js?v=20260914-1"></script>
 </body>
 
 </html>
