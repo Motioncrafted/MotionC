@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const dialog=document.getElementById('response-overlay'),trigger=document.querySelector('.response-index-icon');
+  const dialog=document.getElementById('response-overlay'),trigger=document.getElementById('explain-response');
   if(!dialog||!trigger||!window.MotionCResponseLive)return;
   const fmt=v=>new Intl.NumberFormat(undefined,{maximumFractionDigits:2}).format(v);
   const name=k=>k[0].toUpperCase()+k.slice(1);
@@ -40,10 +40,11 @@
     const missing=r.components.filter(c=>c.score===null);set('ro-coverage',missing.length?'Unavailable components are excluded; available weights are renormalized.':'');set('ro-interpretation',interpretation(r));
   }
   trigger.setAttribute('aria-haspopup','dialog');trigger.setAttribute('aria-controls','response-overlay');
-  trigger.addEventListener('click',e=>{if(e.ctrlKey||e.metaKey||e.shiftKey||e.altKey)return;e.preventDefault();render();if(!dialog.open)dialog.showModal();});
+  let returnPosition={x:0,y:0};
+  trigger.addEventListener('click',()=>{if(dialog.open)return;returnPosition={x:window.scrollX,y:window.scrollY};render();dialog.showModal();});
   dialog.querySelector('.ro-close').addEventListener('click',()=>dialog.close());dialog.querySelector('.ro-dismiss').addEventListener('click',()=>dialog.close());
   dialog.addEventListener('click',e=>{if(e.target!==dialog)return;const b=dialog.getBoundingClientRect();if(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom)dialog.close();});
-  dialog.addEventListener('close',()=>trigger.focus({preventScroll:true}));
+  dialog.addEventListener('close',()=>{trigger.focus({preventScroll:true});window.scrollTo({left:returnPosition.x,top:returnPosition.y,behavior:'instant'});});
   const refresh=()=>{if(dialog.open)render();};
   window.addEventListener('focus',refresh);window.addEventListener('pageshow',refresh);window.addEventListener('storage',refresh);window.addEventListener('motionc:cloud-restored',refresh);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refresh();});
   // Also catch same-page checklist changes and midnight while the overlay is open.
