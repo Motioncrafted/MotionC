@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>Response | MotionC</title><link rel="stylesheet" href="/response/styles.css?v=20260914-v1"></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>Response | MotionC</title><link rel="stylesheet" href="/response/styles.css?v=20260914-v1"><link rel="stylesheet" href="/dashboard/response-overlay.css?v=20260914-explain-2"></head>
 <body>
 <div class="page">
 <nav class="topbar" aria-label="Response navigation"><a class="brand" href="/dashboard/" aria-label="MotionC Summary">MotionC<span>MOVE · NOTICE · UNDERSTAND</span></a><a class="back" href="/dashboard/">← <span>Back to Summary</span></a></nav>
@@ -13,6 +13,7 @@
                                     <circle cx="40" cy="40" r="8" fill="#e5cf95" stroke="#a67516" stroke-width="2"/>
                                 </svg></div><div><p class="eyebrow">RESPONSE</p><h1>The response behind<br class="desktop-break"> your movement.</h1></div></div><p class="intro">Compass gives you direction. Response interprets how strongly your current and recent conditions support that movement.</p></header>
 <p class="preview-note"><span class="status-dot"></span>Response V1 <span class="note-divider">/</span> <span id="response-status" role="status">Reading your saved information…</span></p>
+<button type="button" id="explain-response" aria-haspopup="dialog" aria-controls="response-overlay">Explain My Response</button>
 <section class="primary-grid" aria-label="Response interpretation">
 <article class="panel index-panel"><div class="section-heading"><h2>RESPONSE INDEX</h2><details class="info"><summary aria-label="About Response Index">ⓘ</summary><div class="info-copy">The MotionC Response Index is the calculated measurement, displayed on a 0–100 scale. 50 is its true pivot. Compass direction sets the side; Carryover modifies the distance from 50 without crossing it. Only the final displayed Response is rounded.</div></details></div><p class="panel-subtitle">MotionC Response Index</p>
 <div class="dial" role="img" aria-label="MotionC Response Index not calculated. Scale from 0 to 100, with conceptual centre at 50.">
@@ -42,4 +43,19 @@
 <script src="/response/engine.js?v=20260914-v1"></script>
 <script src="/response/live.js?v=20260914-overlay-1"></script>
 <script src="/response/script.js?v=20260914-overlay-1"></script>
+<dialog id="response-overlay" aria-labelledby="response-overlay-title">
+  <div class="ro-content">
+    <header class="ro-header"><h2 id="response-overlay-title">RESPONSE</h2><button type="button" class="ro-close" aria-label="Close Response overlay">×</button></header>
+    <div class="ro-index"><strong id="ro-value">—</strong><span id="ro-position">Building your Response</span></div>
+    <p class="ro-principle">Compass sets the side of 50. Carryover adjusts the distance.</p>
+    <div class="ro-scale" aria-hidden="true"><span>0</span><b>50 · pivot</b><span>100</span></div>
+    <div class="ro-readouts"><div><h3>Direction</h3><strong id="ro-direction">—</strong><span id="ro-d">Not enough data</span></div><div><h3>Carryover</h3><strong id="ro-carryover">—</strong><span> / 100</span></div></div>
+    <h3 class="ro-breakdown-title">What contributes now</h3>
+    <div id="ro-components"></div>
+    <p id="ro-coverage" class="ro-coverage"></p>
+    <p id="ro-interpretation" class="ro-interpretation" aria-live="polite"></p>
+    <footer class="ro-footer"><button type="button" class="ro-dismiss">Close</button></footer>
+  </div>
+</dialog>
+<script src="/dashboard/response-overlay.js?v=20260914-explain-2"></script>
 </body></html>
