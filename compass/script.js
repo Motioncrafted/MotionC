@@ -188,6 +188,8 @@
     returnLink.setAttribute("aria-label","Back to Summary");
   }
   window.MotionCCompassPrototype = Object.freeze({ calculate, config: CONFIG });
+  // Response reuses this exact engine without booting Compass-only UI.
+  if (!el("prototypeDiagnostics")) return;
   const diagnostics = el("prototypeDiagnostics");
   if (new URLSearchParams(location.search).get("debug") === "1") {
     diagnostics.hidden = false;
