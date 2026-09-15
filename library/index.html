@@ -1701,8 +1701,8 @@
     </section>
     <section id="comixIssueView">
     <h2 id="comixTitle">MO COMIX</h2><div class="comix-issue"><label for="comixIssueSelect">Choose issue</label> <select id="comixIssueSelect" aria-label="Choose comic issue"></select></div>
-    <div class="comix-panel" id="comixPanel" aria-live="polite"><img id="comixArtwork" src="/images/mo-comix-001-panel-1.png" alt="Mo at his front door: Just a short walk today."></div>
-    <p class="comix-counter" id="comixCounter">1 / 5</p>
+    <div class="comix-panel" id="comixPanel" aria-live="polite"><img id="comixArtwork" src="/images/mo-comix-000-panel-1.png" alt="Issue #000: Mo plans at his desk before his first motion."></div>
+    <p class="comix-counter" id="comixCounter">1 / 6</p>
     <div class="comix-controls"><button id="comixPrevious" type="button" disabled>‹ PREVIOUS</button><button id="comixNext" type="button">NEXT ›</button></div>
     </section>
     <div class="comix-return"><button id="comixHome" class="comix-home" type="button">COMIX HOME</button><button class="comix-close" id="comixClose" type="button">← Back to Library</button></div>
@@ -1715,7 +1715,7 @@
     // Add a finished issue here when its artwork is ready.
     const issues=[{id:'001',title:'The Short Walk',panels:descriptions.map((alt,i)=>({src:'/images/mo-comix-001-panel-'+(i+1)+'.png',alt}))}];
     issues.unshift({"id":"000","title":"Anniversary Edition: The Handbook That Isn't One","panels":[{"src":"/images/mo-comix-000-panel-1.png","alt":"Issue #000 — Anniversary Edition: The Handbook That Isn't One. Mo, without a cape, plans at his desk: Okay... this time I'm going to figure out the whole thing. Unused shoes, an unopened bottle and START NEXT MONDAY note surround him."},{"src":"/images/mo-comix-000-panel-2.png","alt":"An enormous MotionC Handbook lands with a THUD. The Complete Guide to Changing Everything. Mo, still without a cape: Ohhh."},{"src":"/images/mo-comix-000-panel-3.png","alt":"Mo puts on glasses, sharpens his pencil and prepares a notebook: Alright. Tell me what to do. No cape."},{"src":"/images/mo-comix-000-panel-4.png","alt":"Mo silently opens the enormous handbook. Both pages are completely blank. No cape."},{"src":"/images/mo-comix-000-panel-5.png","alt":"Mo shakes the blank handbook: Seriously? A tiny card reads START WITH ONE MOTION. He looks toward the unused shoes: Hmm. No cape."},{"src":"/images/mo-comix-000-panel-6.png","alt":"Mo walks away wearing his shoes and, for the first time, his green cape. He carries the water bottle; the handbook remains behind and the START NEXT MONDAY note is discarded. You don't need the whole plan. You need the next motion. MotionC — Motion Creates Change. Anniversary Edition."}]});
-    let issue=issues.find(item=>item.id==='001')||issues[0];
+    let issue=issues.find(item=>item.id==='000')||issues[0];
     const selector=document.getElementById('comixIssueSelect');
     issues.forEach(item=>{const option=document.createElement('option');option.value=item.id;option.textContent='#'+item.id+' — '+item.title;selector.append(option);});
     selector.value=issue.id;
