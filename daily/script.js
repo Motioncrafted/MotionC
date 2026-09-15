@@ -1612,6 +1612,24 @@ byId("startingWaistInput").addEventListener("keydown", event => {
   }
 });
 
+function saveWeeklyGoalValues(ids = ["realGoal", "motivationalGoal"]) {
+  if (ids.includes("realGoal")) {
+    state.profile.realGoal = byId("realGoal").value ? storedWeight(Number(byId("realGoal").value)) : state.profile.realGoal;
+    if (Number(state.profile.realGoal) > 0) {
+      state.profile.vibratoryLine = Number(state.profile.realGoal) + 4;
+      localStorage.setItem(WEIGHT_GOAL_STORAGE_KEY, String(state.profile.realGoal));
+    }
+  }
+  if (ids.includes("motivationalGoal")) state.profile.motivationalGoal = byId("motivationalGoal").value ? storedWeight(Number(byId("motivationalGoal").value)) : state.profile.motivationalGoal;
+}
+
+function saveWeeklyGoalOnly(id) {
+  saveWeeklyGoalValues([id]);
+  state.profile.updatedAt = new Date().toISOString();
+  persist();
+  renderAll(fields.date.value);
+}
+
 function saveWeekly(closeAfterSave = true) {
   const values = {};
   document.querySelectorAll("[data-lifestyle]").forEach(select => values[select.dataset.lifestyle] = Number(select.value));
@@ -1630,12 +1648,7 @@ function saveWeekly(closeAfterSave = true) {
     Number(waistInput.value) === Number(displayWaist(Number(state.profile.waist)).toFixed(1));
   const nextWaist = waistInput.value && !unchangedWaist ? storedWaist(Number(waistInput.value)) : state.profile.waist;
   window.MotionCWaistProgress.record(state.profile, nextWaist, isoDate(), updatedAt);
-  state.profile.realGoal = byId("realGoal").value ? storedWeight(Number(byId("realGoal").value)) : state.profile.realGoal;
-  if (Number(state.profile.realGoal) > 0) {
-    state.profile.vibratoryLine = Number(state.profile.realGoal) + 4;
-    localStorage.setItem(WEIGHT_GOAL_STORAGE_KEY, String(state.profile.realGoal));
-  }
-  state.profile.motivationalGoal = byId("motivationalGoal").value ? storedWeight(Number(byId("motivationalGoal").value)) : state.profile.motivationalGoal;
+  saveWeeklyGoalValues();
   state.profile.updatedAt = updatedAt;
   localStorage.setItem(LIFESTYLE_SUMMARY_STORAGE_KEY, JSON.stringify({
     week: currentWeek,
