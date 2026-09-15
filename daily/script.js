@@ -1811,7 +1811,7 @@ byId("closeWeekly").addEventListener("click", () => {
   if (typeof dialog.close === "function") dialog.close();
   else dialog.removeAttribute("open");
 });
-byId("saveWeekly").addEventListener("click", saveWeekly);
+
 window.addEventListener("focus", () => {
   if (syncLifestyleSummary()) renderAll(fields.date.value);
 });
