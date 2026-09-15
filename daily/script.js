@@ -1612,7 +1612,7 @@ byId("startingWaistInput").addEventListener("keydown", event => {
   }
 });
 
-function saveWeekly() {
+function saveWeekly(closeAfterSave = true) {
   const values = {};
   document.querySelectorAll("[data-lifestyle]").forEach(select => values[select.dataset.lifestyle] = Number(select.value));
   const lifestyleScore = Object.values(values).reduce((sum, value) => sum + value, 0);
@@ -1646,7 +1646,7 @@ function saveWeekly() {
     updatedAt
   }));
   persist();
-  byId("weeklyDialog").close();
+  if (closeAfterSave) byId("weeklyDialog").close();
   renderAll(fields.date.value);
 }
 
