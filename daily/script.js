@@ -393,12 +393,12 @@ function renderWeeklyCheckinNudge() {
 }
 
 function openWeeklyCheckin() {
+  const dialog = byId("weeklyDialog");
+  if (dialog.open) return;
   weeklyNudgeSuppressedWeek = weekKey(new Date());
   weeklyNudgeDisplayWeek = null;
   byId("weeklyCheckinNudge").hidden = true;
   buildLifestyleForm();
-  const dialog = byId("weeklyDialog");
-  if (dialog.open) return;
   if (typeof dialog.showModal === "function") dialog.showModal();
   else dialog.setAttribute("open", "");
 }
@@ -1816,7 +1816,6 @@ byId("scratchPadDialog").addEventListener("click", event => {
   const clickedBackdrop = event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom;
   if (clickedBackdrop) dialog.close();
 });
-byId("weeklyButton").addEventListener("click", openWeeklyCheckin);
 byId("weeklyCheckinUpdate").addEventListener("click", openWeeklyCheckin);
 byId("weeklyCheckinLater").addEventListener("click", postponeWeeklyCheckin);
 byId("closeWeekly").addEventListener("click", () => {

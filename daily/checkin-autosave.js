@@ -7,6 +7,8 @@
   let saved=null,active=false,goalTimers=new Map();
   function begin(){if(!active){active=true;saved=snapshot();status.textContent='Changes save automatically when you finish editing a field.';}}
   new MutationObserver(()=>{if(dialog.open)begin();else active=false;}).observe(dialog,{attributes:true,attributeFilter:['open']});
+  // Menu deep links can open the dialog before this script loads.
+  if(dialog.open)begin();
   function saveGoal(field,confirmUnchanged=true){
     clearTimeout(goalTimers.get(field.id));goalTimers.delete(field.id);
     if(!dialog.open)return false;begin();
