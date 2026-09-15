@@ -1693,9 +1693,11 @@
     const artwork=document.getElementById('comixArtwork');
     // Add a finished issue here when its artwork is ready.
     const issues=[{id:'001',title:'The Short Walk',panels:descriptions.map((alt,i)=>({src:'/images/mo-comix-001-panel-'+(i+1)+'.png',alt}))}];
-    let issue=issues[0];
+    issues.unshift({"id":"000","title":"Anniversary Edition: The Handbook That Isn't One","panels":[{"src":"/images/mo-comix-000-panel-1.png","alt":"Issue #000 — Anniversary Edition: The Handbook That Isn't One. Mo, without a cape, plans at his desk: Okay... this time I'm going to figure out the whole thing. Unused shoes, an unopened bottle and START NEXT MONDAY note surround him."},{"src":"/images/mo-comix-000-panel-2.png","alt":"An enormous MotionC Handbook lands with a THUD. The Complete Guide to Changing Everything. Mo, still without a cape: Ohhh."},{"src":"/images/mo-comix-000-panel-3.png","alt":"Mo puts on glasses, sharpens his pencil and prepares a notebook: Alright. Tell me what to do. No cape."},{"src":"/images/mo-comix-000-panel-4.png","alt":"Mo silently opens the enormous handbook. Both pages are completely blank. No cape."},{"src":"/images/mo-comix-000-panel-5.png","alt":"Mo shakes the blank handbook: Seriously? A tiny card reads START WITH ONE MOTION. He looks toward the unused shoes: Hmm. No cape."},{"src":"/images/mo-comix-000-panel-6.png","alt":"Mo walks away wearing his shoes and, for the first time, his green cape. He carries the water bottle; the handbook remains behind and the START NEXT MONDAY note is discarded. You don't need the whole plan. You need the next motion. MotionC — Motion Creates Change. Anniversary Edition."}]});
+    let issue=issues.find(item=>item.id==='001')||issues[0];
     const selector=document.getElementById('comixIssueSelect');
     issues.forEach(item=>{const option=document.createElement('option');option.value=item.id;option.textContent='#'+item.id+' — '+item.title;selector.append(option);});
+    selector.value=issue.id;
     selector.addEventListener('change',()=>{issue=issues.find(item=>item.id===selector.value)||issues[0];current=1;render();});
     let current=1;
     function render(){artwork.src=issue.panels[current-1].src;artwork.alt=issue.panels[current-1].alt;counter.textContent=current+' / '+issue.panels.length;previous.disabled=current===1;next.disabled=current===issue.panels.length;}
