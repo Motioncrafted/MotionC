@@ -4,11 +4,11 @@
   const menus=['preferencesMenu','summaryPreferencesMenu','walkingPreferencesMenu','enginePreferencesMenu'];
   function openSection(section){
     if(!choices.some(c=>c[0]===section))return;
-    const button=document.getElementById('weeklyButton');if(!button)return;
+    if(typeof openWeeklyCheckin!=='function')return;
     const menu=document.getElementById('preferencesMenu');if(menu)menu.hidden=true;
     document.getElementById('preferencesToggle')?.setAttribute('aria-expanded','false');
-    // Invoke the exact existing opener through its untouched Daily button.
-    button.click();
+    // Open the shared check-in directly; no dependency on a page button.
+    openWeeklyCheckin();
     const dialog=document.getElementById('weeklyDialog');
     const target=section==='personal'?document.getElementById('weeklyProfile'):document.getElementById(section==='goals'?'weeklyGoalsTitle':'weeklyLifestyleTitle');
     if(section==='personal')target.open=true;
