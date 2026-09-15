@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>Response | MotionC</title><link rel="stylesheet" href="/response/styles.css?v=20260914-v1"><link rel="stylesheet" href="/dashboard/response-overlay.css?v=20260914-explain-2"></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>Response | MotionC</title><link rel="stylesheet" href="/response/styles.css?v=20260915-movement-1"><link rel="stylesheet" href="/dashboard/response-overlay.css?v=20260914-explain-2"></head>
 <body>
 <div class="page">
 <nav class="topbar" aria-label="Response navigation"><a class="brand" href="/dashboard/" aria-label="MotionC Summary">MotionC<span>MOVE · NOTICE · UNDERSTAND</span></a><a class="back" href="/dashboard/">← <span>Back to Summary</span></a></nav>
@@ -18,7 +18,7 @@
 <article class="panel index-panel"><div class="section-heading"><h2>RESPONSE INDEX</h2><details class="info"><summary aria-label="About Response Index">ⓘ</summary><div class="info-copy">The MotionC Response Index is the calculated measurement, displayed on a 0–100 scale. 50 is its true pivot. Compass direction sets the side; Carryover modifies the distance from 50 without crossing it. Only the final displayed Response is rounded.</div></details></div><p class="panel-subtitle">MotionC Response Index</p>
 <div class="dial" role="img" aria-label="MotionC Response Index not calculated. Scale from 0 to 100, with conceptual centre at 50.">
 <svg viewBox="0 0 340 245" aria-hidden="true"><path d="M65 207 A120 120 0 1 1 275 207" fill="none" stroke="#e1e9e2" stroke-width="18" stroke-linecap="round"/><path d="M170 27V40" stroke="#a67516" stroke-width="3" stroke-linecap="round"/><g fill="#53665d" font-family="Arial,sans-serif" font-size="13" font-weight="700"><text x="42" y="237" text-anchor="middle">0</text><text x="170" y="13" text-anchor="middle" fill="#815b10">50</text><text x="298" y="237" text-anchor="middle">100</text></g><circle id="response-marker" r="6" fill="#275f44" stroke="#fff" stroke-width="2" visibility="hidden"/></svg>
-<div class="dial-value"><strong>—</strong><span>Not calculated</span></div></div>
+<div class="dial-value"><strong>—</strong><span>Not calculated</span><small id="response-today-movement" aria-live="polite"></small></div></div>
 <div class="centre-note"><span>0–100</span><span>50 · True pivot</span></div><p class="index-footnote">Compass sets the side of 50. Carryover modifies the distance from that pivot.</p></article>
 <div class="signal-stack">
 <article class="panel signal direction"><div class="section-heading"><h2>DIRECTION</h2><details class="info"><summary aria-label="About Direction">ⓘ</summary><div class="info-copy">Compass owns movement and direction. Response will use the direction supplied by Compass; it does not calculate a competing direction.</div></details></div><div class="signal-body"><div><p class="signal-value">—</p><p class="signal-state">Awaiting Compass direction</p></div><span class="source-tag">From Compass</span></div><p class="description">The movement Response is interpreting.</p></article>
@@ -38,11 +38,11 @@
                                 </svg></div><h3>Room to explore what changes.</h3><p>Scenario controls and calculated results will appear here once the simulator specification is connected.</p></div></section>
 </main><footer><span>MotionC · Response</span><a href="/dashboard/">← Back to Summary</a></footer>
 </div>
-<script type="module" src="/shared/motionc-supabase.js?v=20260820-2"></script>
+<script type="module" src="/shared/motionc-supabase.js?v=20260915-response-day-1"></script>
 <script src="/compass/script.js?v=20260914-response-reuse-1"></script>
 <script src="/response/engine.js?v=20260914-v1"></script>
 <script src="/response/live.js?v=20260914-overlay-1"></script>
-<script src="/response/script.js?v=20260914-overlay-1"></script>
+<script src="/response/script.js?v=20260915-movement-1"></script>
 <dialog id="response-overlay" aria-labelledby="response-overlay-title">
   <div class="ro-content">
     <header class="ro-header"><h2 id="response-overlay-title">RESPONSE</h2><button type="button" class="ro-close" aria-label="Close Response overlay">×</button></header>

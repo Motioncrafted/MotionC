@@ -2,3 +2,6 @@
 
 /* V1 readouts fit the approved shell. */
 #carryover-details{margin-top:10px;border-top:1px solid #dce6dc;padding-top:8px}.info-copy{max-height:60vh;overflow-y:auto}.signal-value[data-ready="true"],.dial-value strong[data-ready="true"]{color:#275f44}.signal-body>div{min-width:0}.direction .signal-value{overflow-wrap:anywhere}
+
+/* Supporting text inside the existing positioned readout; no gauge/card geometry change. */
+#response-today-movement{display:block;margin-top:5px;font:11px/1.35 Inter,"Segoe UI",Arial,sans-serif;color:var(--muted);font-weight:400}

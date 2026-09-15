@@ -9,6 +9,9 @@
     const available=r.components.filter(c=>c.score!==null),missing=r.components.filter(c=>c.score===null);
     set('.dial-value strong',r.displayResponse??'—');
     document.querySelector('.dial-value strong').dataset.ready=String(r.response!==null);
+    const movement=window.MotionCResponseDay?.display(r.response)||{text:'',title:''};
+    set('#response-today-movement',movement.text);
+    document.getElementById('response-today-movement').title=movement.title;
     set('.dial-value span',r.response===null?'Building your Response':r.D===50?'At the true pivot':r.D>50?'Above the 50 pivot':'Below the 50 pivot');
     const dial=document.querySelector('.dial');dial.setAttribute('aria-label',r.response===null?'Response unavailable: more evidence needed.':`Response ${r.displayResponse} out of 100. True pivot 50.`);
     const marker=document.getElementById('response-marker');
@@ -37,6 +40,7 @@
     const main=r.D===null?'Compass does not yet have enough evidence for a direction.':r.carryover===null?'Carryover needs at least one usable component.':`Compass places Response ${r.D===50?'at':r.D>50?'above':'below'} 50. Carryover ${fmt(r.carryover)} modifies its distance from that pivot.`;
     set('.remarks .description',`${main} ${missing.length?`Excluded from Carryover: ${missing.map(c=>c.key).join(', ')}. Missing information is not scored as zero.`:'All five Carryover components contribute.'}`);
   }
+  window.addEventListener('motionc:response-day-ready',refresh);
   refresh();
   window.addEventListener('focus',refresh);
   window.addEventListener('pageshow',refresh);
