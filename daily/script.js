@@ -256,6 +256,7 @@ function loadState() {
 
 function persist() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  window.MotionCResponseDay?.capture();
 }
 
 function updateProfileReminder() {
