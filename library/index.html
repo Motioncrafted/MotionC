@@ -1497,6 +1497,20 @@
 .comix-issue select{max-width:100%;min-height:44px;padding:8px;border:1px solid #7d6a4b;border-radius:6px;background:#fff;color:#30251e;font:inherit}.comix-issue label{display:block;margin-bottom:5px}
 /* The approved artwork includes the index information symbol. */
 .library-legend-button:not(:hover):not(:focus-visible):not([aria-expanded="true"]){color:transparent;background:transparent;border-color:transparent;box-shadow:none}
+
+/* The Comix cover is a view of the existing dialog, not another reader. */
+.comix-cover[hidden],#comixIssueView[hidden],#comixHome[hidden]{display:none}
+.comix-reader.comix-cover-mode{width:min(600px,94vw);padding:0;background:#24180f;color:#fff3d8;border-color:#8b693e}
+.comix-cover header{padding:18px 18px 14px;text-align:center}
+.comix-cover h2{font:900 clamp(24px,5vw,32px)/1.1 Arial,sans-serif;letter-spacing:-1px;color:#ffe4a9}
+.comix-cover h2 span{font-size:.65em;letter-spacing:0}
+.comix-cover header p{margin:8px 0 0;font-size:14px;color:#e3cbaa}
+.comix-cover>img{display:block;width:100%;height:auto;max-height:calc(92dvh - 205px);object-fit:contain}
+.comix-reader #comixEnter{display:block;margin:16px auto 4px;padding:13px 24px;border:1px solid #ffdc8c;background:#f1c768;color:#30200c;border-radius:7px;font-size:15px;letter-spacing:.5px;box-shadow:0 3px 14px #0003}
+.comix-return{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+.comix-reader .comix-home{border:0;background:transparent;font-size:11px;padding:8px;letter-spacing:.4px;margin-top:12px}
+.comix-cover-mode .comix-close{background:transparent;color:#e3cbaa;border-color:transparent;margin:4px auto 10px;font-size:12px}
+@media(max-width:480px){.comix-cover header{padding:16px 12px 12px}.comix-cover header p{font-size:12px}.comix-reader #comixEnter{margin-top:12px}.comix-return{gap:6px}}
 </style>
 </head>
 
@@ -1680,11 +1694,18 @@
     <button class="comix-hotspot" id="comixHotspot" type="button" aria-label="Open Mo Comix" aria-haspopup="dialog" title="Read Mo Comix"></button>
   </main>
   <dialog class="comix-reader" id="comixReader" aria-labelledby="comixTitle">
+    <section id="comixCover" class="comix-cover" hidden aria-labelledby="comixCoverTitle">
+      <header><h2 id="comixCoverTitle"><span>MOTIONC®</span> MO COMIX</h2><p>Come see what Mo’s been up to.</p></header>
+      <img src="/images/mo-comix-cover.png" alt="Caped Mo holds open an old Library door and looks back invitingly. Beyond it, a winding path leads into a bright, whimsical world." width="1254" height="1254">
+      <button id="comixEnter" type="button">ENTER MO COMIX ›</button>
+    </section>
+    <section id="comixIssueView">
     <h2 id="comixTitle">MO COMIX</h2><div class="comix-issue"><label for="comixIssueSelect">Choose issue</label> <select id="comixIssueSelect" aria-label="Choose comic issue"></select></div>
     <div class="comix-panel" id="comixPanel" aria-live="polite"><img id="comixArtwork" src="/images/mo-comix-001-panel-1.png" alt="Mo at his front door: Just a short walk today."></div>
     <p class="comix-counter" id="comixCounter">1 / 5</p>
     <div class="comix-controls"><button id="comixPrevious" type="button" disabled>‹ PREVIOUS</button><button id="comixNext" type="button">NEXT ›</button></div>
-    <button class="comix-close" id="comixClose" type="button" autofocus>← Back to Library</button>
+    </section>
+    <div class="comix-return"><button id="comixHome" class="comix-home" type="button">COMIX HOME</button><button class="comix-close" id="comixClose" type="button">← Back to Library</button></div>
   </dialog>
   <script>
   (() => {
@@ -1701,7 +1722,12 @@
     selector.addEventListener('change',()=>{issue=issues.find(item=>item.id===selector.value)||issues[0];current=1;render();});
     let current=1;
     function render(){artwork.src=issue.panels[current-1].src;artwork.alt=issue.panels[current-1].alt;counter.textContent=current+' / '+issue.panels.length;previous.disabled=current===1;next.disabled=current===issue.panels.length;}
-    trigger.addEventListener('click',()=>{current=1;render();reader.showModal();});
+    const cover=document.getElementById('comixCover'),issueView=document.getElementById('comixIssueView'),home=document.getElementById('comixHome'),enter=document.getElementById('comixEnter');
+    function showCover(){cover.hidden=false;issueView.hidden=true;home.hidden=true;reader.classList.add('comix-cover-mode');reader.setAttribute('aria-labelledby','comixCoverTitle');reader.scrollTop=0;}
+    function showIssue(){cover.hidden=true;issueView.hidden=false;home.hidden=false;reader.classList.remove('comix-cover-mode');reader.setAttribute('aria-labelledby','comixTitle');render();reader.scrollTop=0;selector.focus({preventScroll:true});}
+    trigger.addEventListener('click',()=>{current=1;showCover();reader.showModal();enter.focus({preventScroll:true});});
+    enter.addEventListener('click',showIssue);
+    home.addEventListener('click',()=>{showCover();enter.focus({preventScroll:true});});
     previous.addEventListener('click',()=>{if(current>1){current--;render();if(previous.disabled)next.focus();}});
     next.addEventListener('click',()=>{if(current<issue.panels.length){current++;render();if(next.disabled)previous.focus();}});
     document.getElementById('comixClose').addEventListener('click',()=>reader.close());
