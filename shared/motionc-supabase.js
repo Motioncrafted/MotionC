@@ -36,6 +36,7 @@ function hasPersonalLocalState() {
 }
 
 export function captureLocalState() {
+  window.MotionCResponseDay?.capture();
   const storage = {};
   dataKeys().sort().forEach((key) => { storage[key] = localStorage.getItem(key); });
   return { schemaVersion: 1, storage };
@@ -235,6 +236,15 @@ async function bootPageSync() {
   accountBadge(accountLabel, "/auth/?manage=1");
   installPreferenceSignOut();
   let previous = JSON.stringify(captureLocalState());
+  // Reuse the existing engines to retain the final Response after input saves
+  // on any page. This adds metadata only; existing source records are untouched.
+  void (async () => { try {
+    await import('/response/day.js?v=20260915-1');
+    if(!window.MotionCCompassPrototype)await import('/compass/script.js?v=20260914-response-reuse-1');
+    if(!window.MotionCResponse)await import('/response/engine.js?v=20260914-v1');
+    if(!window.MotionCResponseLive)await import('/response/live.js?v=20260914-overlay-1');
+    window.MotionCResponseDay.start(userId);
+  } catch(error) { console.warn('Response daily readout unavailable',error); } })();
   let busy = false;
   const syncIfChanged = async () => {
     const next = JSON.stringify(captureLocalState());
