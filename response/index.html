@@ -38,11 +38,13 @@
                                 </svg></div><h3>Room to explore what changes.</h3><p>Scenario controls and calculated results will appear here once the simulator specification is connected.</p></div></section>
 </main><footer><span>MotionC · Response</span><a href="/dashboard/">← Back to Summary</a></footer>
 </div>
-<script type="module" src="/shared/motionc-supabase.js?v=20260915-response-day-1"></script>
+<script type="module" src="/shared/motionc-supabase.js?v=20260916-history-1"></script>
 <script src="/compass/script.js?v=20260914-response-reuse-1"></script>
 <script src="/response/engine.js?v=20260914-v1"></script>
 <script src="/response/live.js?v=20260914-overlay-1"></script>
-<script src="/response/script.js?v=20260915-movement-1"></script>
+<script src="/response/snapshots.js?v=20260916-history-1"></script>
+<script src="/response/movement.js?v=20260916-history-1"></script>
+<script src="/response/script.js?v=20260916-history-1"></script>
 <dialog id="response-overlay" aria-labelledby="response-overlay-title">
   <div class="ro-content">
     <header class="ro-header"><h2 id="response-overlay-title">RESPONSE</h2><button type="button" class="ro-close" aria-label="Close Response overlay">×</button></header>
@@ -50,6 +52,7 @@
     <p class="ro-principle">Compass says: “This is where you're heading.”<br>Carryover says: “Here's how strongly your current and recent conditions support that movement.”<br><strong>Response brings the two together.</strong></p>
     <p class="ro-principle"><small>Compass sets the side of 50. Carryover adjusts the distance.</small></p>
     <div class="ro-scale" aria-hidden="true"><span>0</span><b>50 · pivot</b><span>100</span></div>
+    <section aria-labelledby="ro-movement-heading"><h3 id="ro-movement-heading" class="ro-breakdown-title">Why Response moved today</h3><p id="ro-movement" class="ro-interpretation" aria-live="polite"></p></section>
     <div class="ro-readouts"><div><h3>Direction</h3><strong id="ro-direction">—</strong><span id="ro-d">Not enough data</span></div><div><h3>Carryover</h3><strong id="ro-carryover">—</strong><span> / 100</span></div></div>
     <h3 class="ro-breakdown-title">What contributes now</h3>
     <div id="ro-components"></div>
@@ -58,5 +61,5 @@
     <footer class="ro-footer"><button type="button" class="ro-dismiss">Close</button></footer>
   </div>
 </dialog>
-<script src="/dashboard/response-overlay.js?v=20260914-explain-2"></script>
+<script src="/dashboard/response-overlay.js?v=20260916-history-1"></script>
 </body></html>

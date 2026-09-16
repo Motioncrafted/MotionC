@@ -9,7 +9,7 @@
     const available=r.components.filter(c=>c.score!==null),missing=r.components.filter(c=>c.score===null);
     set('.dial-value strong',r.displayResponse??'—');
     document.querySelector('.dial-value strong').dataset.ready=String(r.response!==null);
-    const movement=window.MotionCResponseDay?.display(r.response)||{text:'',title:''};
+    const movement=window.MotionCResponseDay?.display(r.response,r)||{text:'',title:''};
     set('#response-today-movement',movement.text);
     document.getElementById('response-today-movement').title=movement.title;
     set('.dial-value span',r.response===null?'Building your Response':r.D===50?'At the true pivot':r.D>50?'Above the 50 pivot':'Below the 50 pivot');
