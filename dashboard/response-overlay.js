@@ -33,6 +33,8 @@
   }
   const set=(id,text)=>{document.getElementById(id).textContent=text;};
   function render(){const r=window.MotionCResponseLive.snapshot();
+    const movement=document.getElementById('ro-movement');
+    if(movement)movement.textContent=window.MotionCResponseMovement.explain(window.MotionCResponseDay?.comparison(r));
     set('ro-value',r.displayResponse??'—');set('ro-position',r.response===null?'Building your Response':r.D===50?'At the 50 pivot':r.D>50?'Above the 50 pivot':'Below the 50 pivot');
     set('ro-direction',r.direction||'—');set('ro-d',r.D===null?'Not enough data':`${fmt(r.D)} / 100`);set('ro-carryover',r.carryover===null?'—':fmt(r.carryover));
     const rows=document.getElementById('ro-components');rows.replaceChildren();
