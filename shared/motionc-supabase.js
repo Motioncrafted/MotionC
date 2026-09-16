@@ -239,7 +239,8 @@ async function bootPageSync() {
   // Reuse the existing engines to retain the final Response after input saves
   // on any page. This adds metadata only; existing source records are untouched.
   void (async () => { try {
-    await import('/response/day.js?v=20260915-1');
+    await import('/response/snapshots.js?v=20260916-history-1');
+    await import('/response/day.js?v=20260916-history-1');
     if(!window.MotionCCompassPrototype)await import('/compass/script.js?v=20260914-response-reuse-1');
     if(!window.MotionCResponse)await import('/response/engine.js?v=20260914-v1');
     if(!window.MotionCResponseLive)await import('/response/live.js?v=20260914-overlay-1');
