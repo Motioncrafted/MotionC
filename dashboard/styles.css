@@ -2279,3 +2279,37 @@ body {
 
 /* Keep the MCP Core label clear of the neighboring Lifestyle ring. */
 .score-panel .mcp-zone-label-core { right: 12px; }
+
+
+/* Summary orientation: outside Today's Overview, aligned beneath "all". */
+.summary-lenses {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px 0;
+    margin: 10px 0 18px;
+    padding: 0 0 0 24%;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+.summary-lenses > span { white-space: nowrap; }
+.summary-lenses > span + span::before {
+    content: "\2022";
+    display: inline-block;
+    margin: 0 20px;
+    color: #29423d;
+}
+.summary-lens-reflection { color: #315b4b; }
+.summary-lens-direction { color: #738b76; }
+.summary-lens-position { color: #a18138; }
+.summary-lens-awareness { color: #a06658; }
+.summary-lens-movement { color: #366a7b; }
+@media (max-width: 1100px) {
+    .summary-lenses { justify-content: center; padding-left: 0; font-size: 20px; }
+    .summary-lenses > span + span::before { margin: 0 12px; }
+}
+@media (max-width: 600px) {
+    .summary-lenses { gap: 8px 14px; margin: 16px 8px 18px; font-size: 18px; }
+    .summary-lenses > span + span::before { content: none; }
+}
