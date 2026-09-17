@@ -2313,3 +2313,38 @@ body {
     .summary-lenses { gap: 8px 14px; margin: 16px 8px 18px; font-size: 18px; }
     .summary-lenses > span + span::before { content: none; }
 }
+
+
+/* Engine Room button only: preserve the existing footprint and destination. */
+#simulation-button.engine-room-button {
+    min-width: 145.828125px;
+    height: 52px;
+    justify-content: center;
+    padding: 0 16px;
+    border-color: #315d50;
+    color: #d4bb7c;
+    background: linear-gradient(180deg, #123e32, #092b23);
+    text-shadow: 0 1px 0 #071c16, 0 -1px 0 rgba(249, 224, 159, .22), 0 2px 2px rgba(0, 0, 0, .4);
+    box-shadow: inset 0 1px 1px rgba(181, 211, 192, .23), inset 0 -2px 2px rgba(0, 0, 0, .3), 0 3px 5px rgba(8, 31, 24, .2);
+}
+#simulation-button.engine-room-button::before { content: none; }
+#simulation-button.engine-room-button::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+    left: 23%;
+    right: 23%;
+    bottom: -2px;
+    height: 2px;
+    border-radius: 50%;
+    background: linear-gradient(90deg, transparent, rgba(215, 157, 62, .7), transparent);
+    box-shadow: 0 3px 6px 1px rgba(197, 135, 40, .22);
+}
+#simulation-button.engine-room-button:hover {
+    border-color: #476f5e;
+    background: linear-gradient(180deg, #194939, #0d3228);
+}
+#simulation-button.engine-room-button:focus-visible {
+    outline: 2px solid #bba268;
+    outline-offset: 3px;
+}
