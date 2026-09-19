@@ -1,0 +1,49 @@
+/* Local prototype. All new styling is confined to the Comix selector. */
+#comixBrowser[hidden]{display:none}
+.comix-reader.comix-browser-mode{width:min(1120px,96vw);max-width:96vw;padding:0;background:#efe3cd;color:#332a22;overflow-x:hidden;overflow-y:auto;border:1px solid #998060;border-radius:14px}
+.comix-browser{background:radial-gradient(ellipse at 50% 28%,#fff8e8 0,#f0e5d0 64%,#e1cfb1 100%)}
+.rolodex-heading{text-align:center;padding:17px 16px 0}
+.rolodex-heading p{margin:0 0 4px;font:700 10px Arial,sans-serif;letter-spacing:.3em;color:#766348}
+.comix-reader .rolodex-heading h2{font:900 23px/1 Arial,sans-serif;letter-spacing:.04em;color:#273c32}
+.rolodex-stage{--cover-w:clamp(190px,23vw,270px);--step:calc(var(--cover-w) * .51);position:relative;height:calc(var(--cover-w) * 1.333333 + 112px);isolation:isolate;perspective:1400px;touch-action:pan-y;user-select:none;-webkit-user-select:none;outline:none}
+.rolodex-stage:focus-visible{outline:2px solid #687860;outline-offset:-7px;border-radius:8px}
+.rolodex-machine{position:absolute;width:98%;height:170px;left:1%;bottom:8px;z-index:1;pointer-events:none}
+.rolodex-cards{position:absolute;inset:0;perspective:1400px;pointer-events:none;z-index:2}
+.rolodex-card img[hidden]{display:none}
+.comix-reader .rolodex-card{--x:0;--scale:1;--lift:0px;--yaw:0deg;--lean:0deg;position:absolute;left:50%;bottom:103px;width:var(--cover-w);height:auto;aspect-ratio:3/4;min-height:0;display:block;padding:0;border:0;border-radius:3px;background:#12432e;box-shadow:2px 3px 1px #362b2080,5px 9px 15px #221a1a40;transform-origin:50% 100%;transform:translateX(calc(-50% + var(--x) * var(--step))) translateY(var(--lift)) rotateY(var(--yaw)) rotateZ(var(--lean)) scale(var(--scale));transition:transform 320ms cubic-bezier(.22,.7,.2,1),filter 320ms,opacity 80ms;pointer-events:auto;cursor:pointer;backface-visibility:hidden;will-change:transform}
+.rolodex-card img{display:block;width:100%;height:100%;object-fit:contain;aspect-ratio:3/4;border-radius:3px;pointer-events:none;-webkit-user-drag:none}
+.rolodex-card::before,.rolodex-card::after{content:"";position:absolute;bottom:-14px;width:17px;height:24px;border:3px solid #a88d57;border-radius:4px 4px 7px 7px;background:linear-gradient(90deg,#4d4028,#b19a65 40%,#483b29);box-shadow:1px 2px 2px #21160c60;z-index:-1;pointer-events:none}
+.rolodex-card::before{left:24%}.rolodex-card::after{right:24%}
+.comix-reader .rolodex-card:focus-visible{outline:3px solid #d4b66f;outline-offset:4px}
+.rolodex-card[data-slot="0"]{filter:none}
+.rolodex-card[data-slot="-1"],.rolodex-card[data-slot="1"]{filter:brightness(.94)}
+.rolodex-card[data-slot="-2"],.rolodex-card[data-slot="2"]{filter:brightness(.86)}
+.rolodex-card[data-slot="-3"],.rolodex-card[data-slot="3"]{filter:brightness(.78)}
+.comix-reader .rolodex-card.is-wrapping{opacity:0;pointer-events:none;transition:none;z-index:0!important}
+.rolodex-card-fallback{position:absolute;inset:18% 8%;display:grid;place-content:center;color:#fff2cf;font:bold 19px/1.3 Georgia,serif;text-align:center}
+.comix-reader .rolodex-turn{position:absolute;z-index:30;bottom:40px;width:48px;height:48px;min-height:48px;padding:0;border:1px solid #b49b69;border-radius:50%;background:linear-gradient(145deg,#75654a,#35332a 58%,#4d4331);color:#f1dfb8;box-shadow:inset 0 0 0 4px #372f2366,0 3px 5px #20180c40;font:32px/1 Georgia,serif;touch-action:manipulation}
+.rolodex-turn-left{left:7%}.rolodex-turn-right{right:7%}
+.comix-reader .rolodex-turn:hover{background:linear-gradient(145deg,#8a7551,#4a4434)}
+.rolodex-info{min-height:152px;padding:15px 20px 20px;border-top:1px solid #9b80603b;text-align:center;background:linear-gradient(#fff9ed88,#f8eedb88)}
+.rolodex-number{margin:0 0 5px;font:700 11px/1.3 Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#80643d}
+.rolodex-info h3{max-width:38ch;margin:0 auto 6px;font:700 clamp(20px,2.5vw,27px)/1.2 Georgia,serif;color:#303a2c;text-wrap:balance}
+.rolodex-count{margin:0 0 12px;font:12px/1.3 Arial,sans-serif;color:#78664f}
+.comix-reader #comixReadIssue{min-width:160px;min-height:44px;padding:10px 22px;background:#294b38;border:1px solid #1e3c2b;color:#fff4d7;box-shadow:0 2px 3px #49321b1a;letter-spacing:.02em}
+.comix-reader #comixReadIssue:hover{background:#365d43}
+.comix-reader #comixReadIssue span{padding-left:12px}
+.comix-browser-mode .comix-return{padding:0 12px 13px;background:#f8eedb}
+.comix-browser-mode .comix-return button{margin-top:0;margin-bottom:0}
+.comix-browser-mode .comix-close{margin:0}
+.comix-reader .comix-browse-return{background:transparent;border:0;font-size:13px;text-decoration:underline;text-underline-offset:3px;color:#645237}
+@media(max-width:700px){
+ .comix-reader.comix-browser-mode{width:96vw;max-width:96vw}
+ .rolodex-heading{padding-top:15px}.comix-reader .rolodex-heading h2{font-size:21px}
+ .rolodex-stage{--cover-w:clamp(154px,49vw,235px);--step:calc((96vw - var(--cover-w)) / 6.8);height:calc(var(--cover-w) * 1.333333 + 105px)}
+ .rolodex-machine{width:120%;left:-10%;height:126px;bottom:17px}
+ .comix-reader .rolodex-card{bottom:91px}
+ .comix-reader .rolodex-turn{bottom:27px;width:44px;height:44px;min-height:44px}
+ .rolodex-turn-left{left:5%}.rolodex-turn-right{right:5%}
+ .rolodex-info{min-height:148px;padding:14px 14px 18px}.rolodex-info h3{font-size:22px}
+}
+@media(max-height:600px){.comix-reader.comix-browser-mode{max-height:94dvh}.rolodex-stage{--cover-w:170px;height:330px}.rolodex-heading{padding-top:12px}.rolodex-info{min-height:140px}}
+@media(prefers-reduced-motion:reduce){.comix-reader .rolodex-card{transition:none;will-change:auto}}
