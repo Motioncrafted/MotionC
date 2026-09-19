@@ -1512,6 +1512,7 @@
 .comix-cover-mode .comix-close{background:transparent;color:#e3cbaa;border-color:transparent;margin:4px auto 10px;font-size:12px}
 @media(max-width:480px){.comix-cover header{padding:16px 12px 12px}.comix-cover header p{font-size:12px}.comix-reader #comixEnter{margin-top:12px}.comix-return{gap:6px}}
 </style>
+  <link rel="stylesheet" href="/library/comix-rolodex.css">
 </head>
 
 <body class="nav-visualization">
@@ -1699,47 +1700,48 @@
       <img src="/images/mo-comix-cover.png" alt="Caped Mo holds open an old Library door and looks back invitingly. Beyond it, a winding path leads into a bright, whimsical world." width="1254" height="1254">
       <button id="comixEnter" type="button">ENTER MO COMIX ›</button>
     </section>
+    <section id="comixBrowser" class="comix-browser" hidden aria-labelledby="comixBrowserHeading">
+      <header class="rolodex-heading"><p>MOTIONC</p><h2 id="comixBrowserHeading">MO COMIX</h2></header>
+      <div id="comixDrum" class="rolodex-stage" role="region" aria-label="Comic covers. Use left and right arrow keys to rotate." aria-roledescription="carousel" tabindex="0">
+        <svg class="rolodex-machine" viewBox="0 0 1100 200" aria-hidden="true" focusable="false">
+          <defs>
+            <linearGradient id="rdWood" x2="0" y2="1"><stop stop-color="#533b29"/><stop offset=".45" stop-color="#35251c"/><stop offset="1" stop-color="#201811"/></linearGradient>
+            <linearGradient id="rdBronze" x2="0" y2="1"><stop stop-color="#201e19"/><stop offset=".22" stop-color="#756044"/><stop offset=".48" stop-color="#433b2d"/><stop offset=".68" stop-color="#28261f"/><stop offset="1" stop-color="#514632"/></linearGradient>
+            <linearGradient id="rdBrass" x2="0" y2="1"><stop stop-color="#cfb57c"/><stop offset=".4" stop-color="#9d7f49"/><stop offset="1" stop-color="#564129"/></linearGradient>
+          </defs>
+          <ellipse cx="560" cy="176" rx="490" ry="20" fill="#291b13" opacity=".14"/>
+          <path d="M100 123 939 108 1029 147 178 169Z" fill="#705338" stroke="#38291e" stroke-width="2"/>
+          <path d="M178 169 1029 147 1029 174 178 195Z" fill="url(#rdWood)" stroke="#251c16" stroke-width="2"/>
+          <path d="M100 123 178 169 178 195 100 150Z" fill="#38271c" stroke="#251c16" stroke-width="2"/>
+          <path d="M189 179 1016 158M189 184 1016 164M116 136 165 164" stroke="#b69365" opacity=".17"/>
+          <path d="M209 58 243 49 266 131 216 135Z M863 45 895 38 930 117 878 122Z" fill="url(#rdBronze)" stroke="#28231c" stroke-width="3"/>
+          <path d="M165 42 Q165 22 200 22 L922 10 Q962 9 962 31 L962 75 Q962 95 925 97 L200 108 Q165 106 165 86Z" fill="url(#rdBronze)" stroke="#2b261e" stroke-width="2"/>
+          <path d="M203 35 920 23M203 43 920 31M203 87 920 75" stroke="#b5a17d" opacity=".18"/>
+          <ellipse cx="175" cy="66" rx="24" ry="44" fill="#312d23" stroke="#947c52" stroke-width="4"/>
+          <ellipse cx="946" cy="53" rx="28" ry="44" fill="url(#rdBrass)" stroke="#413627" stroke-width="3"/>
+          <ellipse cx="946" cy="53" rx="18" ry="29" fill="#343126" stroke="#b99c65" stroke-width="2"/>
+          <path d="M135 65 178 64M946 53 989 52" stroke="#9f875a" stroke-width="12"/>
+          <circle cx="227" cy="126" r="4" fill="#b69a64"/><circle cx="902" cy="112" r="4" fill="#b69a64"/>
+        </svg>
+        <div id="comixCards" class="rolodex-cards"></div>
+        <button id="comixRotateLeft" class="rolodex-turn rolodex-turn-left" type="button" aria-label="Previous comic issue"><span aria-hidden="true">‹</span></button>
+        <button id="comixRotateRight" class="rolodex-turn rolodex-turn-right" type="button" aria-label="Next comic issue"><span aria-hidden="true">›</span></button>
+      </div>
+      <div class="rolodex-info">
+        <div id="comixSelection" aria-live="polite" aria-atomic="true"><p id="comixSelectedNumber" class="rolodex-number"></p><h3 id="comixSelectedTitle"></h3><p id="comixSelectedCount" class="rolodex-count"></p></div>
+        <button id="comixReadIssue" type="button">Read Issue <span aria-hidden="true">›</span></button>
+      </div>
+    </section>
+
     <section id="comixIssueView">
-    <h2 id="comixTitle">MO COMIX</h2><div class="comix-issue"><label for="comixIssueSelect">Choose issue</label> <select id="comixIssueSelect" aria-label="Choose comic issue"></select></div>
-    <div class="comix-panel" id="comixPanel" aria-live="polite"><img id="comixArtwork" src="/images/mo-comix-000-panel-1.png" alt="Issue #000: Mo plans at his desk before his first motion."></div>
+    <h2 id="comixTitle">MO COMIX</h2><div class="comix-issue"><button id="comixBrowseReturn" class="comix-browse-return" type="button">‹ Browse issues</button></div>
+    <div class="comix-panel" id="comixPanel" aria-live="polite"><img id="comixArtwork" alt="Issue #000: Mo plans at his desk before his first motion."></div>
     <p class="comix-counter" id="comixCounter">1 / 6</p>
     <div class="comix-controls"><button id="comixPrevious" type="button" disabled>‹ PREVIOUS</button><button id="comixNext" type="button">NEXT ›</button></div>
     </section>
     <div class="comix-return"><button id="comixHome" class="comix-home" type="button">COMIX HOME</button><button class="comix-close" id="comixClose" type="button">← Back to Library</button></div>
   </dialog>
-  <script>
-  (() => {
-    const trigger=document.getElementById('comixHotspot'),reader=document.getElementById('comixReader'),panel=document.getElementById('comixPanel'),counter=document.getElementById('comixCounter'),previous=document.getElementById('comixPrevious'),next=document.getElementById('comixNext');
-    const descriptions=["Mo at his front door: Just a short walk today.","Mo walks through the neighborhood: Maybe just around the block.","Mo notices an inviting trail: Wonder where that goes…","Far into the countryside, Mo checks his watch: 6.2 MILES. Huh.","Mo looks back toward the distant neighborhood: I really need to define ‘short’ before I leave. MotionC® – Motion Creates Change"];
-    const artwork=document.getElementById('comixArtwork');
-    // Add a finished issue here when its artwork is ready.
-    const issues=[{id:'001',title:'The Short Walk',panels:descriptions.map((alt,i)=>({src:'/images/mo-comix-001-panel-'+(i+1)+'.png',alt}))}];
-    issues.unshift({"id":"000","title":"Anniversary Edition: The Handbook That Isn't One","panels":[{"src":"/images/mo-comix-000-panel-1.png","alt":"Issue #000 — Anniversary Edition: The Handbook That Isn't One. Mo, without a cape, plans at his desk: Okay... this time I'm going to figure out the whole thing. Unused shoes, an unopened bottle and START NEXT MONDAY note surround him."},{"src":"/images/mo-comix-000-panel-2.png","alt":"An enormous MotionC Handbook lands with a THUD. The Complete Guide to Changing Everything. Mo, still without a cape: Ohhh."},{"src":"/images/mo-comix-000-panel-3.png","alt":"Mo puts on glasses, sharpens his pencil and prepares a notebook: Alright. Tell me what to do. No cape."},{"src":"/images/mo-comix-000-panel-4.png","alt":"Mo silently opens the enormous handbook. Both pages are completely blank. No cape."},{"src":"/images/mo-comix-000-panel-5.png","alt":"Mo shakes the blank handbook: Seriously? A tiny card reads START WITH ONE MOTION. He looks toward the unused shoes: Hmm. No cape."},{"src":"/images/mo-comix-000-panel-6.png","alt":"Mo walks away wearing his shoes and, for the first time, his green cape. He carries the water bottle; the handbook remains behind and the START NEXT MONDAY note is discarded. You don't need the whole plan. You need the next motion. MotionC — Motion Creates Change. Anniversary Edition."}]});
-    issues.push({"id":"002","title":"The Scale Reality Check","panels":[{"src":"/images/mo-comix-002-panel-1.png","alt":"Mo stands on his bathroom scale, suspicious of its 201.2 reading: Hmm."},{"src":"/images/mo-comix-002-panel-2.png","alt":"Mo repositions the scale against another wall and steps on again: Maybe the floor's uneven."},{"src":"/images/mo-comix-002-panel-3.png","alt":"Mo drags the scale to yet another tile after trying several locations: There has to be a good spot somewhere."},{"src":"/images/mo-comix-002-panel-4.png","alt":"Mo reluctantly accepts the reading. Your weight can move from water, food, sodium, timing and normal day-to-day variation. One reading is information. The pattern matters more."},{"src":"/images/mo-comix-002-panel-5.png","alt":"The scale is tucked upright behind the door. Mo walks away in his cape and blue runners. Same Mo. Different day. Forward anyway. MotionC® — Motion Creates Change."}]});
-    issues.push({"id":"003","title":"Waiting for Motivation","panels":[{"src":"/images/mo-comix-003-panel-1.png","alt":"Mo sits at his kitchen table in walking shoes and cape, determined: Today, I’m going for a walk. A small background plant has a tiny heart Moette card."},{"src":"/images/mo-comix-003-panel-2.png","alt":"Mo waits at the table, chin in his hand, with a coffee cup: Just waiting to feel motivated. The little plant remains in the background."},{"src":"/images/mo-comix-003-panel-3.png","alt":"Much later, Mo slumps down in his chair as the clock advances: Any minute now…"},{"src":"/images/mo-comix-003-panel-4.png","alt":"Still unenthusiastic, Mo gets up and heads for the door: Fine. I’ll go without it."},{"src":"/images/mo-comix-003-panel-5.png","alt":"Mo walks outside happily, cape moving, as a little puff labelled MOTIVATION catches up: Oh. There you are. You don’t always need motivation to start. Sometimes starting is what creates it. MotionC® — Motion Creates Change."}]});
-    issues.push({"id":"004","title":"The One-Inch Victory","panels":[{"src":"/images/mo-comix-004-panel-1.png","alt":"Mo measures his waist in front of a mirror, underwhelmed: One inch? A record shows Before: 40 in, Today: 39 in, Change: −1 in."},{"src":"/images/mo-comix-004-panel-2.png","alt":"Mo holds a small one-inch section of tape between his fingers, disappointed: That’s it?"},{"src":"/images/mo-comix-004-panel-3.png","alt":"Mo looks down in surprise at his comfortably buttoned jeans: Huh."},{"src":"/images/mo-comix-004-panel-4.png","alt":"Mo checks his comfortable jeans in the mirror, pleased, with the tape nearby: That inch got a lot bigger."},{"src":"/images/mo-comix-004-panel-5.png","alt":"Mo happily gives his comfortable waistband a small tug while holding the tape: Okay. I’m keeping that inch. An inch sounds small on a ruler. It can feel very different on your body. MotionC® — Motion Creates Change."}]});
-    issues.push({"id":"005","title":"The Perfect Day Trap","panels":[{"src":"/images/mo-comix-005-panel-1.png","alt":"Mo proudly writes THE PERFECT DAY checklist: Perfect breakfast, Long morning walk, Lots of water, No treats, No stress, Perfect supper, Early bedtime. Tomorrow. I do EVERYTHING right."},{"src":"/images/mo-comix-005-panel-2.png","alt":"The next morning is rainy; Mo started later than planned and has an ordinary breakfast: Well... this isn’t going perfectly."},{"src":"/images/mo-comix-005-panel-3.png","alt":"Mo sits defeated on the couch with his checklist, while walking shoes, a water bottle and rain jacket remain available: Maybe I’ll start again tomorrow."},{"src":"/images/mo-comix-005-panel-4.png","alt":"Mo puts the checklist aside and gets up, reaching for his water bottle: Or... I could just have a pretty good day."},{"src":"/images/mo-comix-005-panel-5.png","alt":"Mo winds down contentedly. Mud on his shoes, a drying rain jacket, water glass and used supper plate show worthwhile choices. Pretty good worked pretty good. You don’t need a perfect day to make progress. A good day you actually live beats a perfect one you keep restarting. MotionC® — Motion Creates Change."}]});
-    issues.push({"id":"006","title":"Dinner Out","panels":[{"src":"/images/mo-comix-006-panel-1.png","alt":"Date night: Mo and his girlfriend Moette read menus at a casual restaurant. Mo exclaims FRIES! Moette smiles, amused."},{"src":"/images/mo-comix-006-panel-2.png","alt":"Mo orders from the server: Fries... then adds ...and maybe a salad too. Moette smiles quietly."},{"src":"/images/mo-comix-006-panel-3.png","alt":"Mo enjoys a fry, then suspiciously examines lettuce on his fork: Okay, green stuff. Impress me. Both fries and salad are on the table."},{"src":"/images/mo-comix-006-panel-4.png","alt":"Mo is pleasantly surprised by his salad and takes another bite: Hey... this is actually good. Fries remain beside the salad."},{"src":"/images/mo-comix-006-panel-5.png","alt":"Moette offers Want another fry? Mo, happily eating salad, replies In a minute. Healthy choices don’t always have to replace the foods you enjoy. Sometimes they just need a place beside them. MotionC® — Motion Creates Change."}]});
-    let issue=issues.find(item=>item.id==='000')||issues[0];
-    const selector=document.getElementById('comixIssueSelect');
-    issues.forEach(item=>{const option=document.createElement('option');option.value=item.id;option.textContent='#'+item.id+' — '+item.title;selector.append(option);});
-    selector.value=issue.id;
-    selector.addEventListener('change',()=>{issue=issues.find(item=>item.id===selector.value)||issues[0];current=1;render();});
-    let current=1;
-    function render(){artwork.src=issue.panels[current-1].src;artwork.alt=issue.panels[current-1].alt;counter.textContent=current+' / '+issue.panels.length;previous.disabled=current===1;next.disabled=current===issue.panels.length;}
-    const cover=document.getElementById('comixCover'),issueView=document.getElementById('comixIssueView'),home=document.getElementById('comixHome'),enter=document.getElementById('comixEnter');
-    function showCover(){cover.hidden=false;issueView.hidden=true;home.hidden=true;reader.classList.add('comix-cover-mode');reader.setAttribute('aria-labelledby','comixCoverTitle');reader.scrollTop=0;}
-    function showIssue(){cover.hidden=true;issueView.hidden=false;home.hidden=false;reader.classList.remove('comix-cover-mode');reader.setAttribute('aria-labelledby','comixTitle');render();reader.scrollTop=0;selector.focus({preventScroll:true});}
-    trigger.addEventListener('click',()=>{current=1;showCover();reader.showModal();enter.focus({preventScroll:true});});
-    enter.addEventListener('click',showIssue);
-    home.addEventListener('click',()=>{showCover();enter.focus({preventScroll:true});});
-    previous.addEventListener('click',()=>{if(current>1){current--;render();if(previous.disabled)next.focus();}});
-    next.addEventListener('click',()=>{if(current<issue.panels.length){current++;render();if(next.disabled)previous.focus();}});
-    document.getElementById('comixClose').addEventListener('click',()=>reader.close());
-    reader.addEventListener('click',event=>{if(event.target!==reader)return;const r=reader.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)reader.close();});
-    reader.addEventListener('close',()=>trigger.focus({preventScroll:true}));
-  })();
-  </script>
+  <script src="/library/comix-rolodex.js"></script>
 
   <script type="module">
     import { supabase } from "../shared/motionc-supabase.js?v=20260915-response-day-1";
