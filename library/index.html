@@ -1512,7 +1512,7 @@
 .comix-cover-mode .comix-close{background:transparent;color:#e3cbaa;border-color:transparent;margin:4px auto 10px;font-size:12px}
 @media(max-width:480px){.comix-cover header{padding:16px 12px 12px}.comix-cover header p{font-size:12px}.comix-reader #comixEnter{margin-top:12px}.comix-return{gap:6px}}
 </style>
-  <link rel="stylesheet" href="/library/comix-rolodex.css">
+  <link rel="stylesheet" href="/library/comix-rolodex.css?v=20260919-nav2">
 </head>
 
 <body class="nav-visualization">
@@ -1734,14 +1734,14 @@
     </section>
 
     <section id="comixIssueView">
-    <h2 id="comixTitle">MO COMIX</h2><div class="comix-issue"><button id="comixBrowseReturn" class="comix-browse-return" type="button">‹ Browse issues</button></div>
+    <h2 id="comixTitle" tabindex="-1">MO COMIX</h2>
     <div class="comix-panel" id="comixPanel" aria-live="polite"><img id="comixArtwork" alt="Issue #000: Mo plans at his desk before his first motion."></div>
     <p class="comix-counter" id="comixCounter">1 / 6</p>
     <div class="comix-controls"><button id="comixPrevious" type="button" disabled>‹ PREVIOUS</button><button id="comixNext" type="button">NEXT ›</button></div>
     </section>
-    <div class="comix-return"><button id="comixHome" class="comix-home" type="button">COMIX HOME</button><button class="comix-close" id="comixClose" type="button">← Back to Library</button></div>
+    <div class="comix-return"><button id="comixHome" class="comix-home" type="button">COMIX HOME</button><button id="comixBrowseReturn" class="comix-browse-return" type="button" hidden>BROWSE ISSUES</button><button class="comix-close" id="comixClose" type="button">← Back to Library</button></div>
   </dialog>
-  <script src="/library/comix-rolodex.js"></script>
+  <script src="/library/comix-rolodex.js?v=20260919-nav2"></script>
 
   <script type="module">
     import { supabase } from "../shared/motionc-supabase.js?v=20260915-response-day-1";

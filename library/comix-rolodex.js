@@ -28,7 +28,7 @@
         button.setAttribute('aria-label','Select issue #'+item.id+': '+item.title);
         const image=document.createElement('img');image.src=item.cover;image.alt='';image.width=600;image.height=800;image.draggable=false;image.decoding='async';
         image.addEventListener('error',()=>{image.hidden=true;const fallback=document.createElement('span');fallback.className='rolodex-card-fallback';fallback.textContent='MO COMIX · #'+item.id+' — '+item.title;button.append(fallback);},{once:true});
-        button.append(image);button.addEventListener('click',()=>{if(performance.now()<suppressClickUntil)return;requestSelection(i);});
+        button.append(image);button.addEventListener('click',()=>{if(performance.now()<suppressClickUntil)return;if(i===selected){if(!turning)showIssue();return;}requestSelection(i);});
         cardsHost.append(button);cards.push(button);
       });
     }
@@ -39,6 +39,7 @@
         card.style.setProperty('--lift',(-a*18)+'px');card.style.setProperty('--yaw',(-sign*[0,11,19,26][a])+'deg');card.style.setProperty('--lean',(sign*a*1.2)+'deg');
         card.style.zIndex=String(20-a*3);card.tabIndex=d===0?0:-1;
         if(d===0)card.setAttribute('aria-current','true');else card.removeAttribute('aria-current');
+        card.setAttribute('aria-label',(d===0?'Read issue #':'Select issue #')+issues[i].id+': '+issues[i].title);
       });
       const item=issues[selected];number.textContent='Issue #'+item.id;title.textContent=item.title;count.textContent=item.panels.length+' panels';
       readIssue.setAttribute('aria-label','Read issue #'+item.id+': '+item.title);stage.dataset.selectedIssue=item.id;
@@ -67,9 +68,9 @@
     function rotate(direction){requestSelection(mod((targetIndex===null?selected:targetIndex)+direction));}
     function stopTurns(){clearTimeout(turnTimer);clearTimeout(wrapTimer);turning=false;targetIndex=null;cards.forEach(c=>c.classList.remove('is-wrapping'));stage.removeAttribute('aria-busy');}
     function render(){artwork.src=issue.panels[current-1].src;artwork.alt=issue.panels[current-1].alt;counter.textContent=current+' / '+issue.panels.length;previous.disabled=current===1;next.disabled=current===issue.panels.length;}
-    function showCover(){stopTurns();view='cover';cover.hidden=false;browserView.hidden=true;issueView.hidden=true;home.hidden=true;reader.classList.remove('comix-browser-mode');reader.classList.add('comix-cover-mode');reader.setAttribute('aria-labelledby','comixCoverTitle');reader.scrollTop=0;}
-    function showBrowser(){stopTurns();view='browser';initializeCovers();cover.hidden=true;issueView.hidden=true;browserView.hidden=false;home.hidden=false;reader.classList.remove('comix-cover-mode');reader.classList.add('comix-browser-mode');reader.setAttribute('aria-labelledby','comixBrowserHeading');updateCards();reader.scrollTop=0;stage.focus({preventScroll:true});}
-    function showIssue(){stopTurns();view='issue';if(issue!==issues[selected]){issue=issues[selected];current=1;}cover.hidden=true;browserView.hidden=true;issueView.hidden=false;home.hidden=false;reader.classList.remove('comix-cover-mode','comix-browser-mode');reader.setAttribute('aria-labelledby','comixTitle');render();reader.scrollTop=0;browseReturn.focus({preventScroll:true});}
+    function showCover(){stopTurns();view='cover';browseReturn.hidden=true;cover.hidden=false;browserView.hidden=true;issueView.hidden=true;home.hidden=true;reader.classList.remove('comix-browser-mode');reader.classList.add('comix-cover-mode');reader.setAttribute('aria-labelledby','comixCoverTitle');reader.scrollTop=0;}
+    function showBrowser(){stopTurns();view='browser';browseReturn.hidden=true;initializeCovers();cover.hidden=true;issueView.hidden=true;browserView.hidden=false;home.hidden=false;reader.classList.remove('comix-cover-mode');reader.classList.add('comix-browser-mode');reader.setAttribute('aria-labelledby','comixBrowserHeading');updateCards();reader.scrollTop=0;stage.focus({preventScroll:true});}
+    function showIssue(){stopTurns();view='issue';browseReturn.hidden=false;if(issue!==issues[selected]){issue=issues[selected];current=1;}cover.hidden=true;browserView.hidden=true;issueView.hidden=false;home.hidden=false;reader.classList.remove('comix-cover-mode','comix-browser-mode');reader.setAttribute('aria-labelledby','comixTitle');render();reader.scrollTop=0;document.getElementById('comixTitle').focus({preventScroll:true});}
     trigger.addEventListener('click',()=>{current=1;showCover();reader.showModal();enter.focus({preventScroll:true});});
     enter.addEventListener('click',showBrowser);readIssue.addEventListener('click',showIssue);browseReturn.addEventListener('click',showBrowser);
     home.addEventListener('click',()=>{showCover();enter.focus({preventScroll:true});});

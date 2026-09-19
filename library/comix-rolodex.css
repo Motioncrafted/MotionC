@@ -34,7 +34,11 @@
 .comix-browser-mode .comix-return{padding:0 12px 13px;background:#f8eedb}
 .comix-browser-mode .comix-return button{margin-top:0;margin-bottom:0}
 .comix-browser-mode .comix-close{margin:0}
-.comix-reader .comix-browse-return{background:transparent;border:0;font-size:13px;text-decoration:underline;text-underline-offset:3px;color:#645237}
+.comix-reader .comix-browse-return{margin:12px 0 0;padding:10px 12px;background:#eee2c9;border:1px solid #ad956a;font-size:11px;letter-spacing:.4px;color:#483b29}
+.comix-reader .comix-browse-return:hover{background:#e4d4b2}
+#comixBrowseReturn[hidden]{display:none}
+#comixIssueView #comixTitle{margin-bottom:16px}
+.comix-reader:not(.comix-browser-mode):not(.comix-cover-mode) .comix-close{margin:12px 0 0}
 @media(max-width:700px){
  .comix-reader.comix-browser-mode{width:96vw;max-width:96vw}
  .rolodex-heading{padding-top:15px}.comix-reader .rolodex-heading h2{font-size:21px}
