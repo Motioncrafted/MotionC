@@ -11,7 +11,7 @@
                                     <path d="M62 22 A27 27 0 0 1 40 67" fill="none" stroke="#d69b28" stroke-width="10" stroke-linecap="round"/>
                                     <path d="M43 55 L26 67 L43 77 Z" fill="#d69b28" stroke="#d69b28" stroke-width="2" stroke-linejoin="round"/>
                                     <circle cx="40" cy="40" r="8" fill="#e5cf95" stroke="#a67516" stroke-width="2"/>
-                                </svg></div><div><p class="eyebrow">RESPONSE</p><h1>The response behind<br class="desktop-break"> your movement.</h1></div></div><p class="intro">Compass says: “This is where you're heading.”<br>Carryover says: “Here's how strongly your current and recent conditions support that movement.”<br><strong>Response brings the two together.</strong></p></header>
+                                </svg></div><div><p class="eyebrow">RESPONSE</p><p>Response temporarily uses its previous calculation while Compass V2 is introduced. Its direction may differ from the new Compass.</p><h1>The response behind<br class="desktop-break"> your movement.</h1></div></div><p class="intro">Compass says: “This is where you're heading.”<br>Carryover says: “Here's how strongly your current and recent conditions support that movement.”<br><strong>Response brings the two together.</strong></p></header>
 <p class="preview-note"><span class="status-dot"></span>Response V1 <span class="note-divider">/</span> <span id="response-status" role="status">Reading your saved information…</span></p>
 <button type="button" id="explain-response" aria-haspopup="dialog" aria-controls="response-overlay">Explain My Response</button>
 <section class="primary-grid" aria-label="Response interpretation">
@@ -38,10 +38,10 @@
                                 </svg></div><h3>Room to explore what changes.</h3><p>Scenario controls and calculated results will appear here once the simulator specification is connected.</p></div></section>
 </main><footer><span>MotionC · Response</span><a href="/dashboard/">← Back to Summary</a></footer>
 </div>
-<script type="module" src="/shared/motionc-supabase.js?v=20260916-history-1"></script>
-<script src="/compass/script.js?v=20260914-response-reuse-1"></script>
-<script src="/response/engine.js?v=20260914-v1"></script>
-<script src="/response/live.js?v=20260914-overlay-1"></script>
+<script type="module" src="/shared/motionc-supabase.js?v=20260919-compass-v2-1"></script>
+<script src="/response/compass-v1-compat.js?v=20260919-v2-1"></script>
+<script src="/response/engine-compat-v1.js?v=20260919-v2-1"></script>
+<script src="/response/live-compat-v1.js?v=20260919-v2-1"></script>
 <script src="/response/snapshots.js?v=20260916-history-1"></script>
 <script src="/response/movement.js?v=20260916-history-1"></script>
 <script src="/response/script.js?v=20260916-history-1"></script>
@@ -53,7 +53,7 @@
     <p class="ro-principle"><small>Compass sets the side of 50. Carryover adjusts the distance.</small></p>
     <div class="ro-scale" aria-hidden="true"><span>0</span><b>50 · pivot</b><span>100</span></div>
     <section aria-labelledby="ro-movement-heading"><h3 id="ro-movement-heading" class="ro-breakdown-title">Why Response moved today</h3><p id="ro-movement" class="ro-interpretation" aria-live="polite"></p></section>
-    <div class="ro-readouts"><div><h3>Direction</h3><strong id="ro-direction">—</strong><span id="ro-d">Not enough data</span></div><div><h3>Carryover</h3><strong id="ro-carryover">—</strong><span> / 100</span></div></div>
+    <div class="ro-readouts"><div><h3>Legacy Direction</h3><strong id="ro-direction">—</strong><span id="ro-d">Not enough data</span></div><div><h3>Carryover</h3><strong id="ro-carryover">—</strong><span> / 100</span></div></div>
     <h3 class="ro-breakdown-title">What contributes now</h3>
     <div id="ro-components"></div>
     <p id="ro-coverage" class="ro-coverage"></p>
