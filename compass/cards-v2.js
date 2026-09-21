@@ -20,7 +20,7 @@
     const disclosures=el('div',null,'card-disclosures');
     const why=disclosure(c,'why','Why this matters',open);why.append(el('p',c.why));if(c.context)why.append(el('p',c.context));
     const changed=disclosure(c,'changed',"What's changed",open);changed.append(el('p',c.change.text));for(const line of c.change.lines)changed.append(el('p',line,'comparison-evidence'));
-    const how=disclosure(c,'how','How Compass uses this',open);how.append(el('p',c.how));const technical=disclosure(c,'technical','Technical details',open);technical.classList.add('technical-details');technical.append(el('p',c.technical),el('pre',JSON.stringify(c.raw,null,2)));how.append(technical);
+    const how=disclosure(c,'how','How Compass uses this',open);how.append(el('p',c.how));
     disclosures.append(why,changed,how);box.append(disclosures);
     if(focused)$(focused)?.focus({preventScroll:true});
   }

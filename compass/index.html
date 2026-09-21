@@ -37,14 +37,6 @@
       <p id="saveStatus" class="design-note" role="status"></p>
       <p id="mcpPosition" class="mcp-position" aria-label="Current position: MCP not assessed"><span>Current position:</span><span class="mcp-readout">MCP <strong id="mcpScore">—</strong> · <span id="mcpZone">Not assessed</span></span></p>
       <p id="coverage" class="coverage-note"></p>
-      <details class="direction-technical">
-        <summary>Technical details</summary>
-        <p>The scale shows the existing Compass V2 angle from 0° to 180°. Marker positions use the full calculated angles; the main readouts are rounded to one decimal place. Previous means the previous valid saved reading under the corrected Vibratory Zone rules, not necessarily yesterday.</p>
-        <p>The engine combines a signed north/south component (y) and an eastward Recovery component (x), then calculates atan2(x, y). These are internal mathematical labels, not geographic bearings or health ratings. The angle alone does not identify which input changed.</p>
-        <p>At 90°, the net y component is zero while Recovery's x component remains. This can reflect offsetting contributions or no net y contribution; it does not prove that every signal is in conflict or indicate an ideal state. Recovery pressure describes the existing sleep/stress calculation, not a separate diagnosis.</p>
-        <p>Coverage describes the amount of recorded evidence, not certainty. The existing coverage and vector-strength requirements determine whether a direction is available. MCP separately describes current position using its canonical measurements and classification.</p>
-        <pre id="directionTechnicalValues"></pre>
-      </details>
     </section>
   </div>
   <section class="shaping-section" aria-labelledby="shapingHeading">
@@ -69,9 +61,9 @@
 <script src="mcp-v2.js?v=20260920-track1"></script>
 <script src="history-v2.js?v=20260920-language-vz1"></script>
 <script src="language-v2.js?v=20260920-language-vz1-polish1"></script>
-<script src="cards-v2.js?v=20260920-language-vz1"></script>
-<script src="direction-view-v2.js?v=20260920-track1"></script>
-<script src="controller-v2.js?v=20260920-track1"></script>
+<script src="cards-v2.js?v=20260921-clean-view1"></script>
+<script src="direction-view-v2.js?v=20260921-clean-view1"></script>
+<script src="controller-v2.js?v=20260921-clean-view1"></script>
 <script type="module" src="/shared/motionc-supabase.js?v=20260919-compass-v2-1"></script>
 </body>
 </html>

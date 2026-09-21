@@ -29,7 +29,6 @@
     $('directionComparison').textContent=view.comparison;
     $('previousDescription').textContent=view.previousDescription;
     $('previousReadout').hidden=view.previous===null;
-    $('directionTechnicalValues').textContent=JSON.stringify({angle:result.angle,x:result.x,y:result.y,magnitude:result.magnitude,coverage:result.coverage,accepted:result.accepted,reasons:result.reasons},null,2);
   }
   const api=Object.freeze({describe,comparison,render});root.CompassV2DirectionView=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window==='undefined'?globalThis:window);
