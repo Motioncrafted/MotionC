@@ -20,8 +20,7 @@
     const disclosures=el('div',null,'card-disclosures');
     const why=disclosure(c,'why','Why this matters',open);why.append(el('p',c.why));if(c.context)why.append(el('p',c.context));
     const changed=disclosure(c,'changed',"What's changed",open);changed.append(el('p',c.change.text));for(const line of c.change.lines)changed.append(el('p',line,'comparison-evidence'));
-    const how=disclosure(c,'how','How Compass uses this',open);how.append(el('p',c.how));
-    disclosures.append(why,changed,how);box.append(disclosures);
+    disclosures.append(why,changed);box.append(disclosures);
     if(focused)$(focused)?.focus({preventScroll:true});
   }
   function render(state,result,previous=null,owner=null){
