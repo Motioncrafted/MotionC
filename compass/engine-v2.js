@@ -98,8 +98,9 @@ function weightDrivers(state,asOf){
 
   function bodyTrendDriver(state) {
     const weights=Object.entries(state.entries).filter(([date,entry])=>recentDate(date,CONFIG.bodyLookbackDays)&&finite(entry.weight)&&Number(entry.weight)>0).map(([date,entry])=>({date,value:Number(entry.weight)})).sort((a,b)=>a.date.localeCompare(b.date));
-    const realGoal=Number(state.profile.realGoal||0),motivationalGoal=Number(state.profile.motivationalGoal||0);
-    const rangeLow=realGoal>0?realGoal:null,rangeHigh=motivationalGoal>0?Math.max(realGoal,motivationalGoal):realGoal>0?realGoal+CONFIG.body.goalRangePounds:null;
+    const rawGoal=Number(state.profile.realGoal||0);
+    const realGoal=Number.isFinite(rawGoal)&&rawGoal>0?rawGoal:null;
+    const rangeLow=realGoal,rangeHigh=realGoal!==null?realGoal+CONFIG.body.goalRangePounds:null;
     let score=null,description="Need at least two recent weight measurements",stableInRange=false;
     if(weights.length>=2){const first=weights[0].value,last=weights.at(-1).value,change=(last-first)/first,stable=Math.abs(change)<=CONFIG.body.stableWeightPercent;
       if(rangeLow!==null){const inRange=last>=rangeLow&&last<=rangeHigh;stableInRange=inRange&&stable;
@@ -108,7 +109,7 @@ function weightDrivers(state,asOf){
         else {if(stable){score=0;description="Stable above the recorded Vibratory Zone";}else if(change<0){score=clamp(-change/CONFIG.body.meaningfulWeightPercent,0,CONFIG.body.maximumContextScore);description="Moving downward toward the recorded Vibratory Zone";}else{score=-Math.min(CONFIG.body.maximumContextScore,change/CONFIG.body.meaningfulWeightPercent);description="Above the recorded Vibratory Zone and moving farther away";}}
       } else {score=stable?0:clamp(-change/CONFIG.body.meaningfulWeightPercent,-CONFIG.body.maximumContextScore,CONFIG.body.maximumContextScore);description=stable?"Stable recent weight; no goal range recorded":change<0?"Recent weight decreased; no goal range recorded":"Recent weight increased; no goal range recorded";}}
     const available=score!==null; const x=0; /* V2: stable weight carries context and coverage, never westward force. */ const y=available?score*CONFIG.weights.bodyTrend:0;
-    return {key:"bodyTrend",available,score,vector:{x,y},completeness:clamp(weights.length/4,0,1),inputs:{weightMeasurements:weights.length,firstWeight:weights[0]?.value??null,lastWeight:weights.at(-1)?.value??null,realGoal:realGoal||null,motivationalGoal:motivationalGoal||null,vibratoryZone:rangeLow===null?null:{low:rangeLow,high:rangeHigh},weightInterpretation:description,waistCurrent:finite(state.profile.waist)?Number(state.profile.waist):null,waistTrend:null},ignored:[]};
+    return {key:"bodyTrend",available,score,vector:{x,y},completeness:clamp(weights.length/4,0,1),inputs:{weightMeasurements:weights.length,firstWeight:weights[0]?.value??null,lastWeight:weights.at(-1)?.value??null,realGoal,vibratoryZone:rangeLow===null?null:{low:rangeLow,high:rangeHigh},weightInterpretation:description,waistCurrent:finite(state.profile.waist)?Number(state.profile.waist):null,waistTrend:null},ignored:[]};
   }
 
 

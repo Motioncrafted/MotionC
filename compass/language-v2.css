@@ -1,0 +1,24 @@
+/* Language/card pass only. The circular instrument and its styling are unchanged. */
+.speak-easy{margin:0 0 26px;padding:24px 30px;border:1px solid #bbd5cd;border-left:5px solid #07969b;border-radius:20px;background:linear-gradient(110deg,#edf8f2,#fffdf7);box-shadow:0 5px 18px rgba(18,54,68,.06)}
+.speak-easy .eyebrow{margin:0 0 9px;font-size:.74rem;letter-spacing:.12em}
+.speak-easy h2{margin:0 0 12px;max-width:1050px;font-size:clamp(1.35rem,2.2vw,1.85rem);line-height:1.3;font-weight:650}
+.speak-easy p:last-child{margin:0;max-width:1120px;line-height:1.7;color:#355564;font-size:1rem}
+.speak-easy strong,.driver .card-observation strong{font-weight:750;color:#164b54}
+.driver-column{align-content:start;align-items:start}
+.design-view .driver{display:flex;flex-direction:column;min-height:445px;overflow-wrap:break-word}
+.design-view .driver .card-heading{display:flex;align-items:center;gap:10px;min-height:48px;margin-bottom:15px}
+.design-view .driver .card-heading .driver-icon{flex:0 0 42px}
+.design-view .driver .card-heading h2{margin:0;font-size:1rem;line-height:1.35}
+.design-view .driver .card-observation{font-size:1rem;font-weight:400;line-height:1.55;margin:0 0 16px}
+.design-view .driver .evidence{font-size:.8rem;line-height:1.6;margin:0 0 18px;padding-top:12px;font-variant-numeric:tabular-nums}
+.driver .evidence span{display:block}
+.card-disclosures{margin-top:auto}
+.design-view .driver .card-disclosure{border-top:1px solid #dce7e1;font-size:.84rem}
+.driver .card-disclosure>summary{min-height:44px;padding:11px 0;font-weight:650;line-height:1.4}
+.design-view .driver .card-disclosure>p{font-size:.87rem;font-weight:400;line-height:1.6;margin:4px 0 14px}
+.design-view .driver .card-disclosure .comparison-evidence{font-size:.79rem;margin:5px 0;line-height:1.5;font-variant-numeric:tabular-nums}
+.driver .technical-details{margin:8px 0 12px;padding-left:12px;border-left:2px solid #dce7e1}
+.driver .technical-details>summary{font-size:.78rem}
+.driver .technical-details pre{font-size:.72rem;max-height:none}
+@media(max-width:1050px){.design-view .driver{min-height:420px}}
+@media(max-width:680px){.speak-easy{padding:20px;margin-bottom:20px}.speak-easy p:last-child{font-size:.95rem}.design-view .driver{min-height:0}.design-view .driver .card-heading h2{font-size:1.08rem}}

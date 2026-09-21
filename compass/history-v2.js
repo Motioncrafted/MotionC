@@ -1,5 +1,6 @@
 (function(root){'use strict';
- const KEY='motionc-compass-daily-history-v2',MODEL='nes-v2',REVISION='nes-v2-waist05-112d-1';
+ // New namespace intentionally never reads, rewrites or compares earlier V2 history.
+ const KEY='motionc-compass-daily-history-v2-vz1',MODEL='nes-v2',REVISION='nes-v2-waist05-112d-vz1';
  const clone=x=>JSON.parse(JSON.stringify(x));
  function canonical(x){if(Array.isArray(x))return '['+x.map(canonical).join(',')+']';if(x&&typeof x==='object')return '{'+Object.keys(x).sort().map(k=>JSON.stringify(k)+':'+canonical(x[k])).join(',')+'}';return JSON.stringify(x);}
  const angle=x=>typeof x==='number'&&Number.isFinite(x)&&x>=0&&x<=180;

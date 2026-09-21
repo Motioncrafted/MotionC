@@ -1,6 +1,6 @@
 (()=>{'use strict';
  const C=window.CompassV2,H=window.CompassV2History,$=id=>document.getElementById(id);
- if(!C||!H||!window.CompassV2Cards||!window.CompassV2Meaning){$('direction').textContent='Compass unavailable';$('angle').textContent='The Compass calculation could not be loaded. Please reload.';return;}
+ if(!C||!H||!window.CompassV2Language||!window.CompassV2Cards||!window.CompassV2Meaning){$('direction').textContent='Compass unavailable';$('angle').textContent='The Compass calculation could not be loaded. Please reload.';return;}
  let owner=null,frame=null,shown=null,target=null,lastPresentation=null,historyEnd=null,lastState=null;
  const text=(id,value)=>$(id).textContent=value,day=()=>C.dayKey(new Date()),read=k=>{try{return JSON.parse(localStorage.getItem(k)||'null');}catch{return null;}};
  const shift=(d,n)=>{const date=new Date(d+'T12:00:00');date.setDate(date.getDate()+n);return C.dayKey(date);};
@@ -31,21 +31,6 @@
   for(const r of rows){const e=document.createElement('details');e.className='history-reading';e.dataset.date=r.asOf;const s=document.createElement('summary');s.textContent=dateLabel(r.asOf);const b=document.createElement('strong');b.textContent=r.angle.toFixed(1)+'° · '+r.direction;s.append(b);e.append(s);const p=document.createElement('p');p.textContent='Saved '+new Date(r.savedAt).toLocaleString()+'. '+Math.round(r.coverage*100)+'% recorded coverage.';e.append(p);for(const d of r.drivers){const p=document.createElement('p');p.textContent=(d.key==='bodyTrend'?'Body Trend':d.key[0].toUpperCase()+d.key.slice(1))+': '+contribution(d);e.append(p);}box.append(e);}
  }
  function contribution(d){return d.key==='recovery'?short(d.vector.x)+' eastward':d.vector.y===0?'no net north/south contribution':short(Math.abs(d.vector.y))+(d.vector.y>0?' northward':' southward');}
- function driverChanges(p,r){if(!p.previous||!r.accepted)return;
-  for(const [i,id] of ['movementCard','recoveryCard','supportCard','bodyCard'].entries()){
-   const before=p.previous.drivers[i],after=r.drivers[i];if(!before||before.key!==after.key)continue;
-   const changed=before.vector.x!==after.vector.x||before.vector.y!==after.vector.y;
-   const comparable=inputs=>{const v={...inputs};delete v.waistCurrent;delete v.waistTrend;return v;};
-   const evidenceChanged=H.canonical(comparable(before.inputs))!==H.canonical(comparable(after.inputs));
-   if(!changed&&!evidenceChanged)continue;
-   const paragraph=document.createElement('p');paragraph.className='driver-change';
-   paragraph.textContent='Since the previous saved reading: '+(changed?contribution(before)+' → '+contribution(after)+'.':'Recorded evidence changed; the calculated contribution is unchanged.');
-   const fields={movement:[['walkingDays','Walking days'],['walkingMinutes','Walking minutes'],['streakDays','Streak days']],recovery:[['sleepAverageHours','Sleep average (hours)'],['sleepDays','Sleep readings'],['stressAverage','Stress average'],['stressDays','Stress readings']],support:[['hydrationDays','Hydration readings'],['lifestyleWeek','Saved Lifestyle date']],bodyTrend:[['weightMeasurements','Weight readings']]};
-   for(const [key,label] of fields[after.key]||[]){const a=before.inputs[key],b=after.inputs[key];if(a!==b)paragraph.textContent+=` ${label}: ${a??'not recorded'} → ${b??'not recorded'}.`;}
-   if(before.inputs.vibratoryZone&&after.inputs.vibratoryZone&&H.canonical(before.inputs.vibratoryZone)!==H.canonical(after.inputs.vibratoryZone))paragraph.textContent+=' The recorded goal range changed.';
-   $(id).querySelector('details').append(paragraph);
-  }
- }
  function renderPrevious(p,r){const marker=$('previousPosition'),previous=r.accepted?p.previous:null;marker.hidden=!previous;$('previousDetails').hidden=!previous;
   text('previousComparison',r.accepted?p.text:'');$('previousComparison').hidden=!r.accepted||!p.text;
   if(previous){const rad=previous.angle*Math.PI/180;marker.style.left=(50+46.5*Math.sin(rad))+'%';marker.style.top=(50-46.5*Math.cos(rad))+'%';text('previousDescription',`Previous saved V2 reading: ${new Date(previous.savedAt).toLocaleString()} · ${previous.angle.toFixed(3)}° · ${previous.direction}. The hollow grey dot marks this position.`);}
@@ -57,11 +42,11 @@
   const nextOwner=active&&active===ready?active:null;
   if(nextOwner!==owner){owner=nextOwner;historyEnd=null;lastPresentation=null;shown=null;target=null;cancelAnimationFrame(frame);}
   const s=owner?read('motionc-daily-prototype-v1')||{}:{};lastState=s;
-  const r=C.calculate(s,{asOf:day()});window.CompassV2Cards.render(s,r);if(owner)window.renderMcpGauge(s);else{text('mcpScore','—');text('mcpZone','Not assessed');$('centreGauge').setAttribute('aria-label','MCP not assessed');}
+  const r=C.calculate(s,{asOf:day()});if(owner)window.renderMcpGauge(s);else{text('mcpScore','—');text('mcpZone','Not assessed');$('centreGauge').setAttribute('aria-label','MCP not assessed');}
   const meaning=CompassV2Meaning.describe(r);text('direction',meaning.direction||'No supported direction');text('directionMeaning',meaning.meaning||'');$('directionMeaning').hidden=!meaning.meaning;
   text('angle',meaning.degrees||(r.coverage<.35?'There is not enough recorded evidence to establish a direction.':'The recorded contributions do not yet form a strong enough net direction.'));$('angle').title=r.accepted?`${r.angle}° · true 1× angle`:'';
   text('coverage',Math.round(r.coverage*100)+'% recorded coverage. Coverage describes available evidence, not certainty.');animate(r.accepted?r.angle:null);
-  const p=H.observe({storage:localStorage,owner,ready:Boolean(owner),result:r,state:s});lastPresentation=p;renderPrevious(p,r);driverChanges(p,r);renderHistory(p);
+  const p=H.observe({storage:localStorage,owner,ready:Boolean(owner),result:r,state:s});lastPresentation=p;renderPrevious(p,r);window.CompassV2Cards.render(s,r,p.previous,owner);renderHistory(p);
  }
  for(const [id,fn] of [['historyBack',()=>{historyEnd=shift(historyEnd||day(),-7);}],['historyForward',()=>{historyEnd=shift(historyEnd||day(),7);if(historyEnd>day())historyEnd=day();}],['historyToday',()=>{historyEnd=null;}]])$(id).addEventListener('click',()=>{fn();if(lastPresentation)renderHistory(lastPresentation);});
  if(new URLSearchParams(location.search).get('from')==='summary'){$('compassReturnLink').href='../dashboard/';text('compassReturnLink','← Back to Summary');}
