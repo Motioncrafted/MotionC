@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex,nofollow,noarchive">
   <title>MotionC Owner Analytics</title>
-  <link rel="stylesheet" href="/owner/analytics/styles.css?v=20260818-1">
+  <link rel="stylesheet" href="/owner/analytics/styles.css?v=20260922-phase1">
 </head>
 <body>
   <header class="owner-header">
@@ -32,6 +32,13 @@
       </div>
       <p class="privacy-note">Visits and engagement only. No names, email addresses, health measurements, posts, or precise locations are collected here.</p>
 
+      <section class="test-mode panel" aria-label="Browser analytics exclusion">
+        <button id="analyticsExclude" type="button" aria-pressed="false" disabled>Exclude this browser from analytics</button>
+        <p id="analyticsExcludeStatus" role="status">Checking browser exclusion…</p>
+        <p>Enable for signed-out testing on this browser. It stays on after sign-out, applies only to this browser/profile and site address, and may be removed by clearing site data. Your signed-in owner account is always excluded.</p>
+      </section>
+      <p class="status">Browser recognition uses a random identifier for up to 90 days, never linked to an account. It estimates browsers, not people; different devices or cleared storage can appear new. Historical pre-launch telemetry remains until the separately approved reset.</p>
+
       <div class="summary-grid">
         <article><span>Visits</span><strong id="visits">—</strong><small>Distinct browsing sessions</small></article>
         <article><span>Visitors</span><strong id="visitors">—</strong><small>Signed-out sessions</small></article>
@@ -54,6 +61,6 @@
       <p id="status" class="status"></p>
     </section>
   </main>
-  <script type="module" src="/owner/analytics/script.js?v=20260818-1"></script>
+  <script type="module" src="/owner/analytics/script.js?v=20260922-phase1"></script>
 </body>
 </html>

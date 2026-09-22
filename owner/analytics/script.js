@@ -1,4 +1,4 @@
-import { supabase } from "/shared/motionc-supabase.js";
+import { supabase } from "/shared/motionc-supabase.js?v=20260922-phase1";
 
 const gate = document.querySelector("#gate");
 const dashboard = document.querySelector("#dashboard");
@@ -106,8 +106,26 @@ async function boot() {
   const { error: refreshError } = await supabase.auth.refreshSession();
   if (refreshError) throw refreshError;
   gate.hidden = true; dashboard.hidden = false;
+  installTestMode();
   await render();
   period.addEventListener("change", () => render().catch((e) => { status.textContent = `Analytics could not refresh: ${e.message}`; }));
 }
 
 boot().catch((error) => deny("Analytics unavailable", error.message, "Return to site"));
+
+async function installTestMode() {
+  const button = document.querySelector('#analyticsExclude');
+  const state = document.querySelector('#analyticsExcludeStatus');
+  try {
+    const controls = await import('/shared/motionc-analytics.js?v=20260922-phase1');
+    const display = (value = controls.getAnalyticsExclusion()) => {
+      button.disabled = !value.available;
+      button.setAttribute('aria-pressed', value.excluded === true ? 'true' : 'false');
+      state.textContent = value.available ? 'Browser exclusion: ' + (value.excluded ? 'ON' : 'OFF') : 'Browser exclusion unavailable: storage could not be read or saved. No change confirmed.';
+    };
+    display();
+    button.addEventListener('click', () => display(controls.setAnalyticsExclusion(button.getAttribute('aria-pressed') !== 'true')));
+    window.addEventListener('motionc:analytics-exclusion', () => display());
+    window.addEventListener('storage', event => { if (event.key === controls.EXCLUDE_KEY || event.key === null) display(); });
+  } catch { button.disabled = true; state.textContent = 'Browser exclusion unavailable. No change confirmed.'; }
+}
