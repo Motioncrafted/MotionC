@@ -1,5 +1,11 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-import { startMotionCAnalytics } from "/shared/motionc-analytics.js?v=20260818-1";
+// Analytics loads independently: import, storage, network and initialization failures cannot block account sync.
+function launchAnalytics(session) {
+  void import("/shared/motionc-analytics.js?v=20260922-phase1").then(module => {
+    window.MotionCAnalytics = { recordLibrarySearch: module.recordLibrarySearch };
+    return module.startMotionCAnalytics(supabase, session);
+  }).catch(() => console.warn("MotionC analytics: initialization-unavailable"));
+}
 
 const SUPABASE_URL = "https://fzduvafeshrrouaejots.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_Kg00R81ExPx9Z1-Wcd-Ffg_mQaXHRrI";
@@ -59,7 +65,7 @@ export function applyLocalState(state) {
   window.dispatchEvent(new Event("motionc:account-changing"));
   clearLocalState();
   Object.entries(state?.storage || {}).forEach(([key, value]) => {
-    if (key.startsWith(DATA_PREFIX) && !key.startsWith(AUTH_PREFIX) && typeof value === "string") {
+    if (key.startsWith(DATA_PREFIX) && !key.startsWith(AUTH_PREFIX) && !key.startsWith("motionc-analytics-") && typeof value === "string") {
       localStorage.setItem(key, value);
     }
   });
@@ -201,7 +207,7 @@ async function bootPageSync() {
   if (location.pathname.includes("/auth")) return;
   let session;
   try { session = await getSession(); } catch { accountBadge("Account offline"); return; }
-  startMotionCAnalytics(supabase, { isRegistered: Boolean(session?.user && !session.user.is_anonymous) });
+  launchAnalytics(session);
   if (!session) {
     // Signed-out pages never retain health records. This also removes orphaned
     // prototype data created before account ownership was tracked.
