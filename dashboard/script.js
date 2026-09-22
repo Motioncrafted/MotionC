@@ -949,7 +949,6 @@ function saveLifestyleSummary(score) {
             updatedAt: new Date().toISOString()
         })
     );
-    window.MotionCResponseDay?.capture();
 }
 
 function restoreLifestyleSummary() {
@@ -1397,7 +1396,6 @@ function saveSharedGoal(field, pounds) {
     if (field === "realGoal") daily.profile.vibratoryLine = pounds + 4;
     daily.profile.updatedAt = new Date().toISOString();
     localStorage.setItem(summaryDailyStorageKey, JSON.stringify(daily));
-    window.MotionCResponseDay?.capture();
 }
 
 function summaryDate(value) {
@@ -1958,7 +1956,6 @@ function saveSharedProfileMeasurements(measurementData) {
     if (measurementData.sex) daily.profile.sex = measurementData.sex;
     daily.profile.updatedAt = new Date().toISOString();
     localStorage.setItem(summaryDailyStorageKey, JSON.stringify(daily));
-    window.MotionCResponseDay?.capture();
 }
 
 function latestDailyWeight(entries) {
