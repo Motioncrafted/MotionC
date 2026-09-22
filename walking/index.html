@@ -1485,13 +1485,13 @@
     applyRoute();
   </script>
   <script type="module">
-    import { getSession } from "/shared/motionc-supabase.js?v=20260915-response-day-1";
+    import { getSession } from "/shared/motionc-supabase.js?v=20260922-response-parked-1";
     const session = await getSession().catch(() => null);
     window.dispatchEvent(new CustomEvent("motionc:registration", {
       detail: { registered: Boolean(session?.user && !session.user.is_anonymous) }
     }));
   </script>
-  <script type="module" src="/shared/motionc-supabase.js?v=20260915-response-day-1"></script>
+  <script type="module" src="/shared/motionc-supabase.js?v=20260922-response-parked-1"></script>
 <script src="/shared/checkin-access.js?v=20260915-2"></script>
 </body>
 </html>
