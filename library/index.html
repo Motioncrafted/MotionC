@@ -1745,7 +1745,7 @@
   <script src="/library/comix-rolodex.js?v=20260919-nav2"></script>
 
   <script type="module">
-    import { supabase } from "../shared/motionc-supabase.js?v=20260922-response-parked-1";
+    import { supabase } from "../shared/motionc-supabase.js?v=20260922-phase1";
     const categories = [
       {
         id: "walking",
@@ -4225,18 +4225,7 @@
         return words.every(word => searchable.includes(word));
       });
 
-      const containsContactInformation =
-        /[\w.%+-]+@[\w.-]+\.[a-z]{2,}/i.test(normalizedQuery) ||
-        /\d[\d ()+.-]{5,}\d/.test(normalizedQuery);
-      if (normalizedQuery.length >= 2 && !containsContactInformation) {
-        supabase.from("site_search_events").insert({
-          area: "library",
-          query: normalizedQuery,
-          results_count: results.length
-        }).then(({ error }) => {
-          if (error) console.warn("MotionC search analytics unavailable", error.message);
-        });
-      }
+      window.MotionCAnalytics?.recordLibrarySearch(query, results.length);
 
       openSection("search", {
         title: `Search: “${normalizedQuery}”`,
@@ -4421,6 +4410,7 @@
     }
 
     function closeReaderToSection() {
+      window.dispatchEvent(new CustomEvent("motionc:analytics-pageview", { detail: { path: "/library/" } }));
       readerOverlay.classList.remove("open");
       window.setTimeout(() => {
         readerOverlay.hidden = true;
