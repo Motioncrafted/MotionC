@@ -753,4 +753,4 @@ currentSession = await getSession().catch(() => null);
 visitorAccountActions.hidden = Boolean(currentSession);
 if (currentSession && new URLSearchParams(location.search).get("wall") === "my") await openMyWall();
 else await openCommons();
-import { supabase, getSession } from "../shared/motionc-supabase.js?v=20260820-2";
+import { supabase, getSession } from "../shared/motionc-supabase.js?v=20260922-response-parked-1";
