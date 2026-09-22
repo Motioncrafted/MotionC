@@ -36,7 +36,6 @@ function hasPersonalLocalState() {
 }
 
 export function captureLocalState() {
-  window.MotionCResponseDay?.capture();
   const storage = {};
   dataKeys().sort().forEach((key) => { storage[key] = localStorage.getItem(key); });
   return { schemaVersion: 1, storage };
@@ -242,16 +241,6 @@ async function bootPageSync() {
   let previous = JSON.stringify(captureLocalState());
   window.MotionCAccountReady = { owner: userId };
   window.dispatchEvent(new CustomEvent("motionc:account-ready", { detail: { owner: userId } }));
-  // Reuse the existing engines to retain the final Response after input saves
-  // on any page. This adds metadata only; existing source records are untouched.
-  void (async () => { try {
-    await import('/response/snapshots.js?v=20260916-history-1');
-    await import('/response/day.js?v=20260916-history-1');
-    if(!window.ResponseCompassV1)await import('/response/compass-v1-compat.js?v=20260919-v2-1');
-    if(window.MotionCResponse?.directionModel!=='compass-v1-legacy')await import('/response/engine-compat-v1.js?v=20260919-v2-1');
-    if(window.MotionCResponseLive?.directionModel!=='compass-v1-legacy')await import('/response/live-compat-v1.js?v=20260919-v2-1');
-    window.MotionCResponseDay.start(userId);
-  } catch(error) { console.warn('Response daily readout unavailable',error); } })();
   let busy = false;
   const syncIfChanged = async () => {
     const next = JSON.stringify(captureLocalState());
