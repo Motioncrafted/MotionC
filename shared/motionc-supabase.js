@@ -15,6 +15,93 @@ const AUTH_PREFIX = "motionc-auth-";
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
+// Sync lifetime follows authentication, not the lifetime of an open page.
+let authenticatedUserId;
+let syncGeneration = 0;
+let syncWorker = null;
+let bootToken = null;
+let reconcileTimer = null;
+let localTransition = false;
+const pendingSync = new Set();
+
+function cancelledSync() {
+  const error = new Error("Account changed before synchronization completed.");
+  error.name = "AbortError";
+  error.code = "MOTIONC_SYNC_CANCELLED";
+  return error;
+}
+
+function stopSynchronization() {
+  syncGeneration++;
+  if (reconcileTimer !== null) clearTimeout(reconcileTimer);
+  reconcileTimer = null;
+  if (syncWorker) {
+    clearInterval(syncWorker.timer);
+    document.removeEventListener("visibilitychange", syncWorker.onHidden);
+    window.removeEventListener("pagehide", syncWorker.onPageHide);
+    syncWorker = null;
+  }
+  pendingSync.forEach(operation => operation.controller.abort());
+  bootToken = null;
+  window.MotionCAccountReady = null;
+}
+
+window.addEventListener("motionc:account-changing", stopSynchronization);
+
+function beginSyncOperation(userId) {
+  const operation = { userId, generation: syncGeneration, controller: new AbortController() };
+  pendingSync.add(operation);
+  return operation;
+}
+
+function assertSyncCurrent(operation, requireLocalOwner = true) {
+  if (operation.controller.signal.aborted || operation.generation !== syncGeneration ||
+      authenticatedUserId !== operation.userId ||
+      (requireLocalOwner && localStorage.getItem(ACTIVE_USER_KEY) !== operation.userId)) {
+    throw cancelledSync();
+  }
+}
+
+async function verifySyncSession(operation, requireLocalOwner = true) {
+  assertSyncCurrent(operation, requireLocalOwner);
+  const session = await getSession();
+  assertSyncCurrent(operation, requireLocalOwner);
+  if (session?.user?.id !== operation.userId) throw cancelledSync();
+}
+
+function schedulePageSync() {
+  if (localTransition || location.pathname.includes("/auth")) return;
+  if (syncWorker || bootToken?.generation === syncGeneration) return;
+  if (reconcileTimer !== null) clearTimeout(reconcileTimer);
+  reconcileTimer = setTimeout(() => {
+    reconcileTimer = null;
+    void bootPageSync().catch(error => {
+      if (error.code === "MOTIONC_SYNC_CANCELLED" || error.name === "AbortError") return;
+      console.error("MotionC account bridge failed", error);
+      accountBadge("Account needs attention");
+    });
+  }, 0);
+}
+
+function observeAuthentication(_event, session) {
+  const nextUserId = session?.user?.id || null;
+  if (authenticatedUserId !== undefined && authenticatedUserId !== nextUserId) {
+    // Synchronous cancellation only: never await Supabase while its auth lock is held.
+    window.dispatchEvent(new Event("motionc:account-changing"));
+  }
+  authenticatedUserId = nextUserId;
+  schedulePageSync();
+}
+
+window.addEventListener("storage", event => {
+  if (event.key !== ACTIVE_USER_KEY && event.key !== null) return;
+  if (localStorage.getItem(ACTIVE_USER_KEY) !== authenticatedUserId) {
+    window.dispatchEvent(new Event("motionc:account-changing"));
+  }
+  schedulePageSync();
+});
+
+
 function dataKeys() {
   return Object.keys(localStorage).filter((key) =>
     key.startsWith(DATA_PREFIX) &&
@@ -77,44 +164,73 @@ export async function getSession() {
   return data.session;
 }
 
-export async function readCloudState(userId) {
-  const { data, error } = await supabase
-    .from("motionc_user_state")
-    .select("state, revision, updated_at")
-    .eq("user_id", userId)
-    .single();
+export async function readCloudState(userId, { signal } = {}) {
+  let query = supabase.from("motionc_user_state")
+    .select("state, revision, updated_at").eq("user_id", userId);
+  if (signal) query = query.abortSignal(signal);
+  const { data, error } = await query.single();
   if (error) throw error;
   return data;
 }
 
 export async function saveCloudState(userId, state = captureLocalState()) {
-  const current = await readCloudState(userId);
-  const { error } = await supabase.from("motionc_user_state").upsert({
-    user_id: userId,
-    state,
-    revision: Number(current?.revision || 0) + 1,
-    updated_at: new Date().toISOString()
-  });
-  if (error) throw error;
-  return state;
+  const operation = beginSyncOperation(userId);
+  try {
+    await verifySyncSession(operation);
+    const current = await readCloudState(userId, { signal: operation.controller.signal });
+    // Authentication may change while the revision read is in flight.
+    await verifySyncSession(operation);
+    const { error } = await supabase.from("motionc_user_state").upsert({
+      user_id: userId,
+      state,
+      revision: Number(current?.revision || 0) + 1,
+      updated_at: new Date().toISOString()
+    }).abortSignal(operation.controller.signal);
+    assertSyncCurrent(operation);
+    if (error) throw error;
+    return state;
+  } finally {
+    pendingSync.delete(operation);
+  }
 }
 
 export async function activateUser(userId, state) {
-  applyLocalState(state);
-  localStorage.setItem(ACTIVE_USER_KEY, userId);
+  const operation = beginSyncOperation(userId);
+  try {
+    await verifySyncSession(operation, false);
+    // No await between the ownership check and applying this account's state.
+    applyLocalState(state);
+    localStorage.setItem(ACTIVE_USER_KEY, userId);
+  } finally { pendingSync.delete(operation); }
   await saveCloudState(userId, state);
+  schedulePageSync();
 }
 
 export async function signOutAndClear() {
-  window.MotionCAccountReady = null;
+  localTransition = true;
   window.dispatchEvent(new Event("motionc:account-changing"));
-  const session = await getSession();
-  if (session?.user?.id && localStorage.getItem(ACTIVE_USER_KEY) === session.user.id) {
-    await saveCloudState(session.user.id);
+  try {
+    const session = await getSession();
+    const userId = session?.user?.id || null;
+    if (userId && localStorage.getItem(ACTIVE_USER_KEY) === userId) {
+      // Preserve the existing final save, with all background workers stopped.
+      await saveCloudState(userId);
+    }
+    const current = await getSession();
+    if ((current?.user?.id || null) !== userId || authenticatedUserId !== userId) throw cancelledSync();
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+    const after = await getSession();
+    // A different tab may already have signed in again: never clear that account.
+    if (!after && authenticatedUserId === null &&
+        (!localStorage.getItem(ACTIVE_USER_KEY) || localStorage.getItem(ACTIVE_USER_KEY) === userId)) {
+      clearLocalState();
+      localStorage.removeItem(ACTIVE_USER_KEY);
+    }
+  } finally {
+    localTransition = false;
+    schedulePageSync();
   }
-  await supabase.auth.signOut();
-  clearLocalState();
-  localStorage.removeItem(ACTIVE_USER_KEY);
 }
 
 function accountBadge(label, href = "/auth/") {
@@ -160,11 +276,13 @@ function accountBadge(label, href = "/auth/") {
     return;
   }
 
-  const link = document.createElement("a");
+  const existingBadge = document.querySelector(".motionc-account-badge");
+  const link = existingBadge || document.createElement("a");
   link.className = "motionc-account-badge";
   link.href = accountHref;
   link.textContent = label;
   link.setAttribute("aria-label", `${label}. Open account switcher.`);
+  if (existingBadge) return;
   document.body.appendChild(link);
   const style = document.createElement("style");
   style.textContent = `.motionc-account-badge{position:fixed;right:18px;bottom:18px;z-index:9999;padding:10px 14px;border:1px solid #c9d8d1;border-radius:999px;background:#fff;color:#164b3a;box-shadow:0 8px 24px rgba(20,55,45,.16);font:700 13px/1 system-ui;text-decoration:none}.motionc-account-badge:hover{background:#eff7f2}`;
@@ -204,61 +322,81 @@ function installPreferenceSignOut() {
 }
 
 async function bootPageSync() {
-  if (location.pathname.includes("/auth")) return;
-  let session;
-  try { session = await getSession(); } catch { accountBadge("Account offline"); return; }
-  launchAnalytics(session);
-  if (!session) {
-    // Signed-out pages never retain health records. This also removes orphaned
-    // prototype data created before account ownership was tracked.
-    const hadPersonalState = hasPersonalLocalState();
-    clearLocalState();
-    localStorage.removeItem(ACTIVE_USER_KEY);
-    if (hadPersonalState) {
+  if (location.pathname.includes("/auth") || localTransition || syncWorker) return;
+  const token = { generation: syncGeneration };
+  bootToken = token;
+  let operation;
+  try {
+    const session = await getSession();
+    if (token.generation !== syncGeneration || bootToken !== token || localTransition) return;
+    if ((session?.user?.id || null) !== authenticatedUserId) {
+      observeAuthentication("SESSION_CHECK", session);
+      // Allow reconciliation after this invocation releases its boot token.
+      setTimeout(schedulePageSync, 0);
+      return;
+    }
+    launchAnalytics(session);
+    if (!session) {
+      const hadPersonalState = hasPersonalLocalState();
+      clearLocalState();
+      localStorage.removeItem(ACTIVE_USER_KEY);
+      document.querySelector(".motionc-preferences-signout")?.remove();
+      if (hadPersonalState) { location.reload(); return; }
+      accountBadge("Local mode · Sign in");
+      return;
+    }
+
+    const userId = session.user.id;
+    operation = beginSyncOperation(userId);
+    if (localStorage.getItem(ACTIVE_USER_KEY) !== userId) {
+      const cloud = await readCloudState(userId, { signal: operation.controller.signal });
+      await verifySyncSession(operation, false);
+      applyLocalState(Object.keys(cloud.state?.storage || {}).length ? cloud.state : makeFreshState());
+      localStorage.setItem(ACTIVE_USER_KEY, userId);
       location.reload();
       return;
     }
-    accountBadge("Local mode · Sign in");
-    return;
-  }
 
-  const userId = session.user.id;
-  if (localStorage.getItem(ACTIVE_USER_KEY) !== userId) {
-    const cloud = await readCloudState(userId);
-    applyLocalState(Object.keys(cloud.state?.storage || {}).length ? cloud.state : makeFreshState());
-    localStorage.setItem(ACTIVE_USER_KEY, userId);
-    location.reload();
-    return;
+    let accountLabel = session.user.user_metadata?.username || "MotionC account";
+    try {
+      const { data: profile } = await supabase.from("motionc_profiles")
+        .select("display_name").eq("user_id", userId).abortSignal(operation.controller.signal).maybeSingle();
+      if (profile?.display_name) accountLabel = profile.display_name;
+    } catch { /* Keep the private email out of the site identity. */ }
+    await verifySyncSession(operation);
+    accountBadge(accountLabel, "/auth/?manage=1");
+    installPreferenceSignOut();
+    const worker = { userId, generation: syncGeneration, previous: JSON.stringify(captureLocalState()), busy: false };
+    const isCurrent = () => syncWorker === worker && worker.generation === syncGeneration &&
+      authenticatedUserId === userId && localStorage.getItem(ACTIVE_USER_KEY) === userId;
+    const syncIfChanged = async () => {
+      if (!isCurrent() || worker.busy) return;
+      const next = JSON.stringify(captureLocalState());
+      if (next === worker.previous) return;
+      worker.busy = true;
+      try {
+        await saveCloudState(userId, JSON.parse(next));
+        if (isCurrent()) worker.previous = next;
+      } catch (error) {
+        if (isCurrent() && error.code !== "MOTIONC_SYNC_CANCELLED" && error.name !== "AbortError") {
+          console.error("MotionC cloud sync failed", error);
+        }
+      } finally { worker.busy = false; }
+    };
+    worker.onHidden = () => { if (document.visibilityState === "hidden") void syncIfChanged(); };
+    worker.onPageHide = () => { void syncIfChanged(); };
+    syncWorker = worker;
+    worker.timer = setInterval(syncIfChanged, 1500);
+    document.addEventListener("visibilitychange", worker.onHidden);
+    window.addEventListener("pagehide", worker.onPageHide);
+    window.MotionCAccountReady = { owner: userId };
+    window.dispatchEvent(new CustomEvent("motionc:account-ready", { detail: { owner: userId } }));
+  } catch (error) {
+    if (token.generation === syncGeneration) throw error;
+  } finally {
+    if (operation) pendingSync.delete(operation);
+    if (bootToken === token) bootToken = null;
   }
-
-  let accountLabel = session.user.user_metadata?.username || "MotionC account";
-  try {
-    const { data: profile } = await supabase
-      .from("motionc_profiles")
-      .select("display_name")
-      .eq("user_id", userId)
-      .maybeSingle();
-    if (profile?.display_name) accountLabel = profile.display_name;
-  } catch {
-    // Keep the private email out of the site identity if profiles are offline.
-  }
-  accountBadge(accountLabel, "/auth/?manage=1");
-  installPreferenceSignOut();
-  let previous = JSON.stringify(captureLocalState());
-  window.MotionCAccountReady = { owner: userId };
-  window.dispatchEvent(new CustomEvent("motionc:account-ready", { detail: { owner: userId } }));
-  let busy = false;
-  const syncIfChanged = async () => {
-    const next = JSON.stringify(captureLocalState());
-    if (busy || next === previous) return;
-    busy = true;
-    try { await saveCloudState(userId, JSON.parse(next)); previous = next; }
-    catch (error) { console.error("MotionC cloud sync failed", error); }
-    finally { busy = false; }
-  };
-  setInterval(syncIfChanged, 1500);
-  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") syncIfChanged(); });
-  window.addEventListener("pagehide", syncIfChanged);
 }
 
 window.MotionCSupabase = {
@@ -266,7 +404,6 @@ window.MotionCSupabase = {
   getSession, readCloudState, saveCloudState, activateUser, signOutAndClear
 };
 
-bootPageSync().catch((error) => {
-  console.error("MotionC account bridge failed", error);
-  if (!location.pathname.includes("/auth")) accountBadge("Account needs attention");
-});
+// Supabase delivers INITIAL_SESSION and cross-tab SIGNED_OUT/SIGNED_IN events.
+// The callback only updates/cancels local state; asynchronous work is deferred.
+supabase.auth.onAuthStateChange(observeAuthentication);
