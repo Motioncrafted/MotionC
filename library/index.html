@@ -1681,6 +1681,7 @@
             ← Section Titles
           </button>
 
+          <button id="readerMoShortcut" type="button" aria-controls="readerContent" hidden>Mo Explainers</button>
           <span class="reader-page-number" id="readerPageNumber"></span>
         </div>
       </article>
@@ -4067,6 +4068,15 @@
     const readerContent = document.getElementById("readerContent");
     const readerPageNumber = document.getElementById("readerPageNumber");
     const readerIndex = document.getElementById("readerIndex");
+    const readerMoShortcut = document.getElementById("readerMoShortcut");
+    let readerMoTarget = null;
+
+    readerMoShortcut.addEventListener("click", () => {
+      if (!readerMoTarget) return;
+      readerMoTarget.setAttribute("tabindex", "-1");
+      readerMoTarget.focus({ preventScroll: true });
+      readerContent.scrollTop += readerMoTarget.getBoundingClientRect().top - readerContent.getBoundingClientRect().top;
+    });
     const imageViewer = document.getElementById("imageViewer");
     const imageViewerStage = document.getElementById("imageViewerStage");
     const imageViewerImage = document.getElementById("imageViewerImage");
@@ -4356,6 +4366,18 @@
         hint.textContent = "Tap to enlarge · Pinch to zoom";
         button.closest("figure").append(hint);
       });
+      const explainer = readerContent.querySelector(".article-explainer, .mo-takeaway");
+      // A standalone visual is already the article; only offer a jump past written content.
+      const hasWrittenIntroduction = explainer && Array.from(readerContent.querySelectorAll("p, ul, ol, table"))
+        .some(element => element.compareDocumentPosition(explainer) & Node.DOCUMENT_POSITION_FOLLOWING);
+      readerMoTarget = hasWrittenIntroduction ? explainer : null;
+      if (readerMoTarget) {
+        let heading = explainer.previousElementSibling;
+        while (heading?.matches("style")) heading = heading.previousElementSibling;
+        if (heading?.matches("h2, h3") && /\bmo\b/i.test(heading.textContent)) readerMoTarget = heading;
+      }
+      readerMoShortcut.hidden = !readerMoTarget;
+      readerPageNumber.hidden = !!readerMoTarget;
       readerContent.scrollTop = 0;
       readerPageNumber.textContent = "Complete article • Scroll to read";
     }
@@ -4371,6 +4393,9 @@
         }
       }));
       if (activeSectionId) sectionScrollPositions.set(activeSectionId, sectionContent.scrollTop);
+      readerMoTarget = null;
+      readerMoShortcut.hidden = true;
+      readerPageNumber.hidden = false;
       readerOverlay.hidden = false;
       readerHeading.textContent = activeArticle.title;
       readerCategory.textContent = categoryMap.get(activeArticle.category)?.title || "MotionC Library";
