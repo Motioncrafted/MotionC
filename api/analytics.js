@@ -76,6 +76,15 @@ export default async function handler(req, res) {
     const response = await fetch(`${DATABASE}/rest/v1/${table}`, {
       method: 'POST', headers: { ...headers, Prefer: 'return=minimal' }, body: JSON.stringify(row), signal: AbortSignal.timeout(2500)
     });
-    return res.status(response.ok ? 200 : 503).json({ accepted: response.ok });
+    let accepted = response.ok;
+    if (!accepted && response.status === 409 && row.event_type === 'session_start') {
+      const error = await response.json();
+      // The partial unique index is the authority, including concurrent inserts
+      // and retries after a committed write whose acknowledgement was lost.
+      // Other uniqueness/RLS failures must never be acknowledged as successful.
+      accepted = error.code === '23505' &&
+        error.message === 'duplicate key value violates unique constraint "site_analytics_v2_session_start_unique"';
+    }
+    return res.status(accepted ? 200 : 503).json({ accepted });
   } catch { return res.status(503).json({ accepted: false }); }
 }
