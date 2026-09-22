@@ -1,65 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>Response | MotionC</title><link rel="stylesheet" href="/response/styles.css?v=20260915-movement-1"><link rel="stylesheet" href="/dashboard/response-overlay.css?v=20260914-explain-2"></head>
-<body>
-<div class="page">
-<nav class="topbar" aria-label="Response navigation"><a class="brand" href="/dashboard/" aria-label="MotionC Summary">MotionC<span>MOVE · NOTICE · UNDERSTAND</span></a><a class="back" href="/dashboard/">← <span>Back to Summary</span></a></nav>
-<main>
-<header class="page-heading"><div class="identity"><div class="response-mark"><svg viewBox="0 0 80 80" aria-hidden="true" focusable="false">
-                                    <path d="M18 58 A27 27 0 0 1 40 13" fill="none" stroke="#275f44" stroke-width="10" stroke-linecap="round"/>
-                                    <path d="M37 3 L54 13 L37 25 Z" fill="#275f44" stroke="#275f44" stroke-width="2" stroke-linejoin="round"/>
-                                    <path d="M62 22 A27 27 0 0 1 40 67" fill="none" stroke="#d69b28" stroke-width="10" stroke-linecap="round"/>
-                                    <path d="M43 55 L26 67 L43 77 Z" fill="#d69b28" stroke="#d69b28" stroke-width="2" stroke-linejoin="round"/>
-                                    <circle cx="40" cy="40" r="8" fill="#e5cf95" stroke="#a67516" stroke-width="2"/>
-                                </svg></div><div><p class="eyebrow">RESPONSE</p><p>Response temporarily uses its previous calculation while Compass V2 is introduced. Its direction may differ from the new Compass.</p><h1>The response behind<br class="desktop-break"> your movement.</h1></div></div><p class="intro">Compass says: “This is where you're heading.”<br>Carryover says: “Here's how strongly your current and recent conditions support that movement.”<br><strong>Response brings the two together.</strong></p></header>
-<p class="preview-note"><span class="status-dot"></span>Response V1 <span class="note-divider">/</span> <span id="response-status" role="status">Reading your saved information…</span></p>
-<button type="button" id="explain-response" aria-haspopup="dialog" aria-controls="response-overlay">Explain My Response</button>
-<section class="primary-grid" aria-label="Response interpretation">
-<article class="panel index-panel"><div class="section-heading"><h2>RESPONSE INDEX</h2><details class="info"><summary aria-label="About Response Index">ⓘ</summary><div class="info-copy">The MotionC Response Index is the calculated measurement, displayed on a 0–100 scale. 50 is its true pivot. Compass direction sets the side; Carryover modifies the distance from 50 without crossing it. Only the final displayed Response is rounded.</div></details></div><p class="panel-subtitle">MotionC Response Index</p>
-<div class="dial" role="img" aria-label="MotionC Response Index not calculated. Scale from 0 to 100, with conceptual centre at 50.">
-<svg viewBox="0 0 340 245" aria-hidden="true"><path d="M65 207 A120 120 0 1 1 275 207" fill="none" stroke="#e1e9e2" stroke-width="18" stroke-linecap="round"/><path d="M170 27V40" stroke="#a67516" stroke-width="3" stroke-linecap="round"/><g fill="#53665d" font-family="Arial,sans-serif" font-size="13" font-weight="700"><text x="42" y="237" text-anchor="middle">0</text><text x="170" y="13" text-anchor="middle" fill="#815b10">50</text><text x="298" y="237" text-anchor="middle">100</text></g><circle id="response-marker" r="6" fill="#275f44" stroke="#fff" stroke-width="2" visibility="hidden"/></svg>
-<div class="dial-value"><strong>—</strong><span>Not calculated</span><small id="response-today-movement" aria-live="polite"></small></div></div>
-<div class="centre-note"><span>0–100</span><span>50 · True pivot</span></div><p class="index-footnote">Compass sets the side of 50. Carryover modifies the distance from that pivot.</p></article>
-<div class="signal-stack">
-<article class="panel signal direction"><div class="section-heading"><h2>DIRECTION</h2><details class="info"><summary aria-label="About Direction">ⓘ</summary><div class="info-copy">Compass owns movement and direction. Response will use the direction supplied by Compass; it does not calculate a competing direction.</div></details></div><div class="signal-body"><div><p class="signal-value">—</p><p class="signal-state">Awaiting Compass direction</p></div><span class="source-tag">From Compass</span></div><p class="description">The movement Response is interpreting.</p></article>
-<article class="panel signal"><div class="section-heading"><h2>CARRYOVER</h2><details class="info"><summary aria-label="About Carryover">ⓘ</summary><div class="info-copy">Carryover describes how strongly your current and recent conditions support the direction supplied by Compass. Walking 30%, Sleep 25%, Hydration 20%, Stress 15%, Lifestyle 10%. Missing components are excluded and available weights are renormalized. <div id="carryover-details"></div></div></details></div><div class="signal-body"><p class="signal-value">—</p><span class="signal-state">Not calculated</span></div><p class="description">How strongly current and recent conditions support that direction.</p></article>
-<article class="panel signal"><div class="section-heading"><h2>RESISTANCE</h2><details class="info"><summary aria-label="About Resistance">ⓘ</summary><div class="info-copy">Resistance indicates whether MotionC detects a meaningful, persistent opposing relationship between signals. Resistance rules are not defined in the V1 handoff; no finding is inferred.</div></details></div><div class="signal-body"><p class="signal-value">—</p><span class="signal-state">Not calculated</span></div><p class="description">A meaningful, persistent opposing relationship between signals.</p></article>
-</div></section>
-<section class="supporting" aria-labelledby="context-heading"><div class="supporting-heading"><h2 id="context-heading">Reading the evidence</h2><p>Context for interpreting the Index.</p></div><div class="context-grid">
-<article class="panel visibility"><div class="section-heading"><h3>VISIBILITY</h3><details class="info"><summary aria-label="About Visibility">ⓘ</summary><div class="info-copy">Visibility describes how clearly observable results, primarily weight, currently reflect what MotionC is seeing. It supports interpretation and is separate from the Index. Visibility rules are not defined in the V1 handoff.</div></details></div><div class="signal-body"><p class="signal-value">—</p><span class="signal-state">Not calculated</span></div><p class="description">How clearly observable results—primarily weight—reflect what MotionC is seeing.</p><p class="context-caption">Supports interpretation · Separate from the Index</p></article>
-<article class="panel evidence"><div class="section-heading"><h3>RECENT EVIDENCE</h3><details class="info"><summary aria-label="About Recent evidence">ⓘ</summary><div class="info-copy">Counts completed days with all three readings: Sleep, Hydration and Stress. Each seven-day average requires seven recorded days. Walking uses today; Lifestyle uses the current saved checklist, falling back to the latest assessed week.</div></details></div><p class="days"><strong>—</strong><span>of 7 complete context days</span></p><p class="description">The recent evidence supporting this interpretation.</p></article></div></section>
-<section class="panel remarks" aria-labelledby="remarks-heading"><div class="section-heading"><h2 id="remarks-heading">MOTIONC REMARKS</h2><span class="quiet-label">Explanation</span></div><p class="remarks-lead">Your response, in context.</p><p class="description">A concise explanation will connect your direction, supporting conditions and recent evidence. No personal interpretation has been generated in this preview.</p></section>
-<section class="panel simulator" aria-labelledby="simulator-heading"><div class="simulator-heading"><div><p class="eyebrow">EXPLORE</p><h2 id="simulator-heading">Response Simulator</h2></div><span class="source-tag">Preview · Not active</span></div><p class="description">A dedicated space to explore Response scenarios.</p><div class="simulator-workspace"><div class="small-loop"><svg viewBox="0 0 80 80" aria-hidden="true" focusable="false">
-                                    <path d="M18 58 A27 27 0 0 1 40 13" fill="none" stroke="#275f44" stroke-width="10" stroke-linecap="round"/>
-                                    <path d="M37 3 L54 13 L37 25 Z" fill="#275f44" stroke="#275f44" stroke-width="2" stroke-linejoin="round"/>
-                                    <path d="M62 22 A27 27 0 0 1 40 67" fill="none" stroke="#d69b28" stroke-width="10" stroke-linecap="round"/>
-                                    <path d="M43 55 L26 67 L43 77 Z" fill="#d69b28" stroke="#d69b28" stroke-width="2" stroke-linejoin="round"/>
-                                    <circle cx="40" cy="40" r="8" fill="#e5cf95" stroke="#a67516" stroke-width="2"/>
-                                </svg></div><h3>Room to explore what changes.</h3><p>Scenario controls and calculated results will appear here once the simulator specification is connected.</p></div></section>
-</main><footer><span>MotionC · Response</span><a href="/dashboard/">← Back to Summary</a></footer>
-</div>
-<script type="module" src="/shared/motionc-supabase.js?v=20260919-compass-v2-1"></script>
-<script src="/response/compass-v1-compat.js?v=20260919-v2-1"></script>
-<script src="/response/engine-compat-v1.js?v=20260919-v2-1"></script>
-<script src="/response/live-compat-v1.js?v=20260919-v2-1"></script>
-<script src="/response/snapshots.js?v=20260916-history-1"></script>
-<script src="/response/movement.js?v=20260916-history-1"></script>
-<script src="/response/script.js?v=20260916-history-1"></script>
-<dialog id="response-overlay" aria-labelledby="response-overlay-title">
-  <div class="ro-content">
-    <header class="ro-header"><h2 id="response-overlay-title">RESPONSE</h2><button type="button" class="ro-close" aria-label="Close Response overlay">×</button></header>
-    <div class="ro-index"><strong id="ro-value">—</strong><span id="ro-position">Building your Response</span></div>
-    <p class="ro-principle">Compass says: “This is where you're heading.”<br>Carryover says: “Here's how strongly your current and recent conditions support that movement.”<br><strong>Response brings the two together.</strong></p>
-    <p class="ro-principle"><small>Compass sets the side of 50. Carryover adjusts the distance.</small></p>
-    <div class="ro-scale" aria-hidden="true"><span>0</span><b>50 · pivot</b><span>100</span></div>
-    <section aria-labelledby="ro-movement-heading"><h3 id="ro-movement-heading" class="ro-breakdown-title">Why Response moved today</h3><p id="ro-movement" class="ro-interpretation" aria-live="polite"></p></section>
-    <div class="ro-readouts"><div><h3>Legacy Direction</h3><strong id="ro-direction">—</strong><span id="ro-d">Not enough data</span></div><div><h3>Carryover</h3><strong id="ro-carryover">—</strong><span> / 100</span></div></div>
-    <h3 class="ro-breakdown-title">What contributes now</h3>
-    <div id="ro-components"></div>
-    <p id="ro-coverage" class="ro-coverage"></p>
-    <p id="ro-interpretation" class="ro-interpretation" aria-live="polite"></p>
-    <footer class="ro-footer"><button type="button" class="ro-dismiss">Close</button></footer>
-  </div>
-</dialog>
-<script src="/dashboard/response-overlay.js?v=20260916-history-1"></script>
-</body></html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta http-equiv="refresh" content="0; url=/compass/">
+  <title>MotionC Compass</title>
+  <script>location.replace("/compass/");</script>
+</head>
+<body><p><a href="/compass/">Open MotionC Compass</a></p></body>
+</html>
