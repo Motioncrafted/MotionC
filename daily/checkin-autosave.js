@@ -5,6 +5,9 @@
   const fields=()=>Array.from(dialog.querySelectorAll(selector));
   const snapshot=()=>JSON.stringify(fields().map(e=>[e.id||e.dataset.lifestyle,e.value]));
   let saved=null,active=false,goalTimers=new Map();
+  let successfulSaves=0;
+  // Observe only the save caused by this UI action, not timers or shared persistence.
+  function userSave(operation,event){const before=successfulSaves;const result=operation();if(event?.isTrusted&&result!==false&&successfulSaves>before){try{window.MotionCAnalytics?.recordAction('weekly_checkin_saved');}catch{/* Analytics must never affect a save or closing the dialog. */}}return result;}
   function begin(){if(!active){active=true;saved=snapshot();status.textContent='Changes save automatically when you finish editing a field.';}}
   new MutationObserver(()=>{if(dialog.open)begin();else active=false;}).observe(dialog,{attributes:true,attributeFilter:['open']});
   // Menu deep links can open the dialog before this script loads.
@@ -16,7 +19,7 @@
     const previous=JSON.parse(saved);
     const confirmation=()=>(field.id==='realGoal'?'Real Goal':'Motivational Goal')+' saved on this device: '+field.value+' '+document.getElementById(field.id==='realGoal'?'lineWeightUnit':'goalWeightUnit').textContent+'.';
     if(previous.find(([id])=>id===field.id)?.[1]===field.value){if(confirmUnchanged)status.textContent=confirmation();return true;}
-    try{saveWeeklyGoalOnly(field.id);saved=JSON.stringify(previous.map(([id,value])=>[id,id===field.id?field.value:value]));status.textContent=confirmation();return true;}
+    try{saveWeeklyGoalOnly(field.id);successfulSaves++;saved=JSON.stringify(previous.map(([id,value])=>[id,id===field.id?field.value:value]));status.textContent=confirmation();return true;}
     catch{status.textContent='Could not save this goal. Please keep the window open and try again.';return false;}
   }
   function valid(){const bad=fields().find(e=>!e.checkValidity());if(bad){status.textContent='Check the highlighted value before closing. Changes are not saved yet.';bad.reportValidity();return false;}return true;}
@@ -25,17 +28,16 @@
     const baseline=document.getElementById('startingWaistInput'),editor=document.getElementById('startingWaistEditor');
     if(!editor.hidden){if(!baseline.checkValidity()||!baseline.value){status.textContent='Finish or cancel the Starting Waist edit before closing.';baseline.reportValidity();return false;}document.getElementById('saveStartingWaist').click();}
     if(snapshot()===saved)return true;if(!valid())return false;
-    try{saveWeekly(false);saved=snapshot();renderWaistProgress();status.textContent='Changes saved on this device.';return true;}
+    try{saveWeekly(false);successfulSaves++;saved=snapshot();renderWaistProgress();status.textContent='Changes saved on this device.';return true;}
     catch(error){status.textContent='Could not save changes. Please keep this window open and try again.';return false;}
   }
   dialog.addEventListener('input',e=>{if(e.target.matches(selector)){begin();if(e.target.matches('#realGoal,#motivationalGoal')){const field=e.target;clearTimeout(goalTimers.get(field.id));status.textContent='Saving goal changes…';goalTimers.set(field.id,setTimeout(()=>{saveGoal(field);},600));}else status.textContent='Editing… changes save when you leave this field.';}});
-  dialog.addEventListener('change',e=>{if(e.target.matches('#realGoal,#motivationalGoal'))saveGoal(e.target);else if(e.target.matches(selector))flush();});
-  function close(){if(flush())dialog.close();}
-  document.getElementById('closeWeekly').addEventListener('click',e=>{e.stopImmediatePropagation();close();},true);
-  dialog.addEventListener('cancel',e=>{e.preventDefault();close();});
+  dialog.addEventListener('change',e=>{if(e.target.matches('#realGoal,#motivationalGoal'))userSave(()=>saveGoal(e.target),e);else if(e.target.matches(selector))userSave(flush,e);});
+  function close(event){if(userSave(flush,event))dialog.close();}
+  document.getElementById('closeWeekly').addEventListener('click',e=>{e.stopImmediatePropagation();close(e);},true);
+  dialog.addEventListener('cancel',e=>{e.preventDefault();close(e);});
   const outside=e=>{const r=dialog.getBoundingClientRect();return e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom;};
   let startedOutside=false;dialog.addEventListener('pointerdown',e=>{startedOutside=e.target===dialog&&outside(e);});
-  dialog.addEventListener('click',e=>{if(startedOutside&&e.target===dialog&&outside(e))close();startedOutside=false;});
+  dialog.addEventListener('click',e=>{if(startedOutside&&e.target===dialog&&outside(e))close(e);startedOutside=false;});
   dialog.addEventListener('close',()=>{goalTimers.forEach(clearTimeout);goalTimers.clear();active=false;});
 })();
-
