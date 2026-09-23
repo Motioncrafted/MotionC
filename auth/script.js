@@ -143,6 +143,14 @@ function setMode(next) {
   setAccountMessage();
 }
 
+function recordAuthOutcome(action, session) {
+  void import('/shared/motionc-analytics.js?v=20260923-phase2').then(async module => {
+    if (session === undefined) session = (await supabase.auth.getSession()).data.session;
+    await module.startMotionCAnalytics(supabase, session);
+    await module.recordExplicitSignIn(action, session);
+  }).catch(() => {});
+}
+
 async function checkUsernameAvailability() {
   if (mode !== "create") return true;
   const username = $("username").value.trim();
@@ -242,6 +250,7 @@ $("accountForm").addEventListener("submit", async (event) => {
   setAccountMessage();
   const email = $("email").value.trim();
   const password = $("password").value;
+  let signInAttempted = false, signInOutcomeRecorded = false;
   try {
     let result;
     if (mode === "create") {
@@ -257,12 +266,17 @@ $("accountForm").addEventListener("submit", async (event) => {
         "Account creation is taking longer than expected. Check your connection and try again."
       );
     } else {
+      signInAttempted = true;
       result = await withTimeout(
         supabase.auth.signInWithPassword({ email, password }),
         "Sign-in is taking longer than expected. Check your connection and try again."
       );
     }
-    if (result.error) throw result.error;
+    if (result.error) {
+      if (signInAttempted) { recordAuthOutcome('signin_failed'); signInOutcomeRecorded = true; }
+      throw result.error;
+    }
+    if (signInAttempted && result.data.session) { recordAuthOutcome('signin_success', result.data.session); signInOutcomeRecorded = true; }
     if (!result.data.session) {
       setAccountMessage("Check your email and select Confirm. The link will return you safely to MotionC.", "success");
       return;
@@ -272,6 +286,7 @@ $("accountForm").addEventListener("submit", async (event) => {
       "You are signed in, but restoring your MotionC data is taking longer than expected. Refresh this page to continue."
     );
   } catch (error) {
+    if (signInAttempted && !signInOutcomeRecorded) recordAuthOutcome('signin_failed');
     const message = error?.message === "Invalid login credentials"
       ? "That email and password did not match. Try again or use Forgot password."
       : (error.message || "The account could not be opened. Please try again.");

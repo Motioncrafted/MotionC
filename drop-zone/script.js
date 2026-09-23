@@ -406,6 +406,7 @@ async function loadHistory() {
     query = query.limit(50);
     const { data, error } = await query;
     if (error) throw error;
+    window.MotionCAnalytics?.recordAction('contribution_server');
     historyTags = (data || []).map(row => ({
       id: row.id, text: row.text, color: String(row.color).toLowerCase() === "#69a923" ? "#168a55" : row.color,
       renderStyle: normalizeRenderStyle(row.render_style),
@@ -470,6 +471,7 @@ async function saveHistory(tag) {
   } catch {
     historyState.classList.add("error");
     historyState.textContent = "That message stayed on this screen but could not be saved.";
+    window.MotionCAnalytics?.recordAction('save_failed');
   }
   renderHistory();
 }
@@ -515,6 +517,7 @@ function spray() {
     wallTags.push(tag);
     renderWall(wallTags.map(storableTag));
     if (!currentSession && currentWall === "commons") saveLocalWall();
+    if (!currentSession) { window.MotionCAnalytics?.recordAction('contribution_local'); }
     syncVisitorPostLimit();
   }, 850);
 

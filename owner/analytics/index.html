@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex,nofollow,noarchive">
   <title>MotionC Owner Analytics</title>
-  <link rel="stylesheet" href="/owner/analytics/styles.css?v=20260922-phase1">
+  <link rel="stylesheet" href="/owner/analytics/styles.css?v=20260923-phase2">
 </head>
 <body>
   <header class="owner-header">
@@ -30,37 +30,20 @@
           <select id="period"><option value="7">Last 7 days</option><option value="30">Last 30 days</option></select>
         </label>
       </div>
-      <p class="privacy-note">Visits and engagement only. No names, email addresses, health measurements, posts, or precise locations are collected here.</p>
+      <p class="privacy-note">Aggregate usage and engagement only. No names, email addresses, health measurements, posts, or precise locations are collected here.</p>
 
       <section class="test-mode panel" aria-label="Browser analytics exclusion">
         <button id="analyticsExclude" type="button" aria-pressed="false" disabled>Exclude this browser from analytics</button>
         <p id="analyticsExcludeStatus" role="status">Checking browser exclusion…</p>
         <p>Enable for signed-out testing on this browser. It stays on after sign-out, applies only to this browser/profile and site address, and may be removed by clearing site data. Your signed-in owner account is always excluded.</p>
       </section>
-      <p class="status">Browser recognition uses a random identifier for up to 90 days, never linked to an account. It estimates browsers, not people; different devices or cleared storage can appear new. Historical pre-launch telemetry remains until the separately approved reset.</p>
-
-      <div class="summary-grid">
-        <article><span>Visits</span><strong id="visits">—</strong><small>Distinct browsing sessions</small></article>
-        <article><span>Visitors</span><strong id="visitors">—</strong><small>Signed-out sessions</small></article>
-        <article><span>Registered</span><strong id="registered">—</strong><small>Signed-in sessions</small></article>
-        <article><span>Page views</span><strong id="views">—</strong><small>Pages opened</small></article>
-        <article><span>Active time</span><strong id="active">—</strong><small>Visible, engaged minutes</small></article>
-        <article><span>Average active time</span><strong id="averageActive">—</strong><small>Per browsing session</small></article>
-        <article><span>Library searches</span><strong id="searches">—</strong><small>Searches submitted</small></article>
-      </div>
-
-      <div class="panel-grid">
-        <article class="panel"><h2>Visits by day</h2><div id="daily" class="bars"></div></article>
-        <article class="panel"><h2>Most visited areas</h2><ol id="pages" class="ranked"></ol></article>
-        <article class="panel"><h2>Articles read</h2><ol id="articles" class="ranked"></ol></article>
-        <article class="panel"><h2>Most searched topics</h2><ol id="searchTopics" class="ranked"></ol></article>
-        <article class="panel"><h2>Searches with no results</h2><ol id="missingTopics" class="ranked"></ol></article>
-        <article class="panel"><h2>Entry pages</h2><ol id="entries" class="ranked"></ol></article>
-        <article class="panel"><h2>Where visitors arrived from</h2><ol id="sources" class="ranked"></ol></article>
-      </div>
+      <p class="status" id="windowNote"></p>
+      <p class="status">Version 2 collection only. Earlier development telemetry remains stored but is excluded from these metrics. New action counters begin with this deployment.</p>
+      <div class="summary-grid"><article><span>Sessions</span><strong id="visits">—</strong><small>Distinct sessions with activity</small></article><article><span>Signed-in sessions</span><strong id="registered">—</strong><small>Any signed-in activity in this period</small></article><article><span>Signed-out sessions</span><strong id="visitors">—</strong><small>No signed-in activity in this period</small></article><article><span>Page views</span><strong id="views">—</strong><small>Successful page/article openings</small></article><article><span>Visible time</span><strong id="active">—</strong><small>Reported visible time</small></article><article><span>Average visible time</span><strong id="averageActive">—</strong><small>Visible time per session</small></article></div>
+      <div class="panel-grid"><article class="panel"><h2>Recognized browsers</h2><ol id="recognition" class="ranked"></ol><p class="panel-note">Browsers, not people. Different devices or browser profiles can appear separately. Cleared data or private browsing may appear first-time again. Recognition expires after 90 days. If a browser returns within this period, it is counted only as returning.</p></article><article class="panel"><h2>Screen categories</h2><ol id="screens" class="ranked"></ol><p class="panel-note">One category per session, using its earliest activity in this period. Broad viewport widths: Mobile up to 640px, Tablet up to 1024px, otherwise Desktop. No hardware identification.</p></article><article class="panel"><h2>Sessions by day</h2><div id="daily" class="bars"></div><p class="panel-note">Each session is placed on its first active day within this period. Daily counts add up to Sessions.</p></article><article class="panel"><h2>Most visited areas</h2><ol id="pages" class="ranked"></ol></article><article class="panel"><h2>Articles opened</h2><ol id="articles" class="ranked"></ol></article><article class="panel"><h2>Library searches</h2><ol id="searchSummary" class="ranked"></ol></article><article class="panel"><h2>Known search topics</h2><ol id="searchTopics" class="ranked"></ol></article><article class="panel"><h2>Entry pages</h2><ol id="entries" class="ranked"></ol></article><article class="panel"><h2>Sources</h2><ol id="sources" class="ranked"></ol></article><article class="panel"><h2>Actions</h2><ol id="actions" class="ranked"></ol><p class="panel-note">Weekly saves are user-initiated saves, not completions. Mo counts explicit shortcut use; Comix counts viewer openings. Local contributions count on-screen completion; server contributions count accepted saves. Walking and Daily entry-save counters are not collected.</p></article><article class="panel"><h2>Account doorway</h2><ol id="accounts" class="ranked"></ol><p class="panel-note">Explicit sign-in outcomes only; session restoration and refresh are excluded. Accounts created: unavailable. A client signup acknowledgement cannot reliably prove a new durable account.</p></article><article class="panel"><h2>Application failures</h2><ol id="failures" class="ranked"></ol><p class="panel-note">Bounded incident counters, limited to one per category per minute per page. No exception text or application values. Detailed diagnostics remain in infrastructure tools.</p></article></div>
       <p id="status" class="status"></p>
     </section>
   </main>
-  <script type="module" src="/owner/analytics/script.js?v=20260922-phase1"></script>
+  <script type="module" src="/owner/analytics/script.js?v=20260923-phase2"></script>
 </body>
 </html>
