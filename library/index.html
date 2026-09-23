@@ -1742,7 +1742,7 @@
     </section>
     <div class="comix-return"><button id="comixHome" class="comix-home" type="button">COMIX HOME</button><button id="comixBrowseReturn" class="comix-browse-return" type="button" hidden>BROWSE ISSUES</button><button class="comix-close" id="comixClose" type="button">← Back to Library</button></div>
   </dialog>
-  <script src="/library/comix-rolodex.js?v=20260919-nav2"></script>
+  <script src="/library/comix-rolodex.js?v=20260923-phase2"></script>
 
   <script type="module">
     import { supabase } from "../shared/motionc-supabase.js?v=20260922-phase1";
@@ -4073,6 +4073,7 @@
 
     readerMoShortcut.addEventListener("click", () => {
       if (!readerMoTarget) return;
+      window.MotionCAnalytics?.recordAction('mo_shortcut');
       readerMoTarget.setAttribute("tabindex", "-1");
       readerMoTarget.focus({ preventScroll: true });
       readerContent.scrollTop += readerMoTarget.getBoundingClientRect().top - readerContent.getBoundingClientRect().top;
@@ -4375,12 +4376,7 @@
       activeArticle = articles.find(article => article.id === articleId);
       if (!activeArticle) return;
 
-      window.dispatchEvent(new CustomEvent("motionc:analytics-pageview", {
-        detail: {
-          path: `/library/article/${encodeURIComponent(activeArticle.id)}`,
-          title: activeArticle.title
-        }
-      }));
+
       if (activeSectionId) sectionScrollPositions.set(activeSectionId, sectionContent.scrollTop);
       readerMoTarget = null;
       readerMoShortcut.hidden = true;
@@ -4389,9 +4385,11 @@
       readerHeading.textContent = activeArticle.title;
       readerCategory.textContent = categoryMap.get(activeArticle.category)?.title || "MotionC Library";
       readerContent.innerHTML = '<p class="section-empty">Loading article…</p>';
+      let articleDisplayed = false;
       try {
         await loadArticleSections(activeArticle);
         renderContinuousArticle();
+        articleDisplayed = true;
       } catch (error) {
         console.error("MotionC Library could not load this article", error);
         const fallback = fallbackArticles.find(article => article.id === activeArticle.id);
@@ -4399,10 +4397,19 @@
           activeArticle.pages = fallback.pages;
           activeArticle.series ||= fallback.series || "";
           renderContinuousArticle();
+          articleDisplayed = true;
         } else {
           readerContent.innerHTML = '<p class="section-empty">This article could not be loaded. Please close it and try again.</p>';
         }
       }
+      if (articleDisplayed) {
+      window.dispatchEvent(new CustomEvent("motionc:analytics-pageview", {
+        detail: {
+          path: `/library/article/${encodeURIComponent(activeArticle.id)}`,
+          title: activeArticle.title
+        }
+      }));
+      } else { window.MotionCAnalytics?.recordAction('article_failed'); }
       requestAnimationFrame(() => {
         readerOverlay.classList.add("open");
         readerIndex.focus();
