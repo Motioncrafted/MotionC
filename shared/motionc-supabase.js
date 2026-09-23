@@ -1,8 +1,8 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 // Analytics loads independently: import, storage, network and initialization failures cannot block account sync.
 function launchAnalytics(session) {
-  void import("/shared/motionc-analytics.js?v=20260922-phase1").then(module => {
-    window.MotionCAnalytics = { recordLibrarySearch: module.recordLibrarySearch };
+  void import("/shared/motionc-analytics.js?v=20260923-phase2").then(module => {
+    window.MotionCAnalytics = { recordLibrarySearch: module.recordLibrarySearch, recordAction: module.recordAction };
     return module.startMotionCAnalytics(supabase, session);
   }).catch(() => console.warn("MotionC analytics: initialization-unavailable"));
 }
@@ -380,6 +380,7 @@ async function bootPageSync() {
       } catch (error) {
         if (isCurrent() && error.code !== "MOTIONC_SYNC_CANCELLED" && error.name !== "AbortError") {
           console.error("MotionC cloud sync failed", error);
+          try { window.MotionCAnalytics?.recordAction("sync_failed"); } catch { /* Analytics cannot affect sync. */ }
         }
       } finally { worker.busy = false; }
     };

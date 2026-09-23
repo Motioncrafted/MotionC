@@ -1,5 +1,7 @@
 import { PRODUCTION_ORIGINS, canonicalPath, navigationSource, searchTopic, referralHost } from './analytics-policy.js?v=20260922-phase1';
 
+import { ACTIONS } from './analytics-actions.js?v=20260923-phase2';
+
 export const EXCLUDE_KEY = 'motionc-analytics-exclude-v1';
 const BROWSER_KEY = 'motionc-analytics-browser-v2';
 const SESSION_KEY = 'motionc-analytics-session-v2';
@@ -37,13 +39,14 @@ export function setAnalyticsExclusion(excluded) {
   } catch { cancelPending(); disabled = true; return { available: false, excluded: null }; }
 }
 function resetSession() { try { sessionStorage.removeItem(SESSION_KEY); } catch { /* No application storage touched. */ } }
-export function analyticsAllowed() {
+function collectionAllowed() {
   try {
     const state = getAnalyticsExclusion();
     return Boolean(!disabled && production && authKnown && state.available && !state.excluded &&
-      auth?.user?.app_metadata?.role !== 'owner' && currentPath);
+      auth?.user?.app_metadata?.role !== 'owner');
   } catch { return false; }
 }
+export function analyticsAllowed() { return Boolean(collectionAllowed() && currentPath); }
 function read(storage, key) {
   const text = storage.getItem(key); // Storage exceptions propagate to the isolated guard.
   try { return text ? JSON.parse(text) : null; } catch { return null; }
@@ -78,7 +81,7 @@ function context(touch = false) {
   } catch { disabled = true; diagnostic('storage-unavailable'); return null; }
 }
 async function request(body, stamp = generation) {
-  if (!analyticsAllowed() || stamp !== generation || pending >= 4) return false;
+  if (!(body.kind === 'action' ? collectionAllowed() : analyticsAllowed()) || stamp !== generation || pending >= 4) return false;
   const controller = new AbortController(); controllers.add(controller); pending++;
   const timeout = setTimeout(() => controller.abort(), 4000);
   try {
@@ -89,7 +92,7 @@ async function request(body, stamp = generation) {
     });
     const result = response.ok ? await response.json() : null;
     if (!result?.accepted) diagnostic('delivery-unavailable');
-    return Boolean(result?.accepted && stamp === generation && analyticsAllowed());
+    return Boolean(result?.accepted && stamp === generation && (body.kind === 'action' ? collectionAllowed() : analyticsAllowed()));
   } catch { diagnostic('delivery-unavailable'); return false; }
   finally { clearTimeout(timeout); controllers.delete(controller); pending--; }
 }
@@ -131,6 +134,28 @@ function record(type, seconds = 0, touch = false) {
   void request(eventPayload(type, ctx, seconds), stamp).then(ok => {
     if (ok) accepted(ctx, stamp);
   }).catch(() => diagnostic('delivery-unavailable'));
+}
+// Failure counters are bounded and limited to one incident/category per minute.
+const failureTimes = new Map();
+export function recordAction(action) {
+  try {
+    if (!collectionAllowed() || !ACTIONS.includes(action)) return;
+    if (['save_failed','sync_failed','article_failed'].includes(action)) {
+      const now = Date.now();
+      if (now - (failureTimes.get(action) ?? -Infinity) < 60000) return;
+      failureTimes.set(action, now);
+    }
+    // One UUID per observed action; retry uses the same ID. No personal context.
+    const body = { kind: 'action', action, event_id: crypto.randomUUID() }, stamp = generation;
+    void request(body, stamp).then(ok => { if (!ok && stamp === generation) return request(body, stamp); }).catch(() => diagnostic('delivery-unavailable'));
+  } catch { diagnostic('unavailable'); }
+}
+export async function recordExplicitSignIn(action, session) {
+  try {
+    if (!['signin_success', 'signin_failed'].includes(action)) return;
+    await refreshAuth(session);
+    recordAction(action);
+  } catch { diagnostic('unavailable'); }
 }
 // All search writers use this gate; raw text never reaches fetch, storage or logs.
 export function recordLibrarySearch(input, resultsCount) {
@@ -211,7 +236,7 @@ export async function startMotionCAnalytics(supabase, initialSession) {
     if (initialized) return;
     initialized = true; client = supabase;
     currentPath = canonicalPath(location.pathname);
-    if (!client || !currentPath || !PRODUCTION_ORIGINS.includes(location.origin)) return;
+    if (!client || (!currentPath && !/^\/auth\/?$/.test(location.pathname)) || !PRODUCTION_ORIGINS.includes(location.origin)) return;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 3000);
     try {
@@ -220,7 +245,7 @@ export async function startMotionCAnalytics(supabase, initialSession) {
       production = configuration?.enabled === true && configuration?.version === 2;
     } finally { clearTimeout(timeout); }
     if (!production) return;
-    install();
+    if (currentPath) install();
     client.auth.onAuthStateChange((_event, nextSession) => {
       authKnown = false; cancelPending();
       setTimeout(() => { void refreshAuth(nextSession); }, 0);
