@@ -1,1 +1,25 @@
-
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>MotionC Demo — isolation foundation</title><style>:root{font:16px/1.5 system-ui,sans-serif;color:#153b30;background:#f3f6f4}*{box-sizing:border-box}body{margin:0}header{position:sticky;top:0;z-index:1;padding:12px 18px;background:#153b30;color:white}header strong{display:block}header p{margin:2px 0;font-size:.9rem}main{max-width:960px;margin:auto;padding:18px}nav{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}button,a{font:inherit}button{padding:10px 14px;background:white;border:1px solid #537568;border-radius:6px;color:#153b30;cursor:pointer}button[aria-current=page]{background:#d7eadf;font-weight:700}button:focus-visible,a:focus-visible{outline:3px solid #be7500;outline-offset:3px}iframe{display:block;width:100%;height:430px;border:2px solid #537568;background:white;border-radius:6px}h1{font-size:1.6rem}#status{min-height:1.5em}.actions{border-top:1px solid #aabbb2;padding-top:12px}@media(max-width:400px){main{padding:12px}header{padding:10px 12px}button{padding:9px 11px}iframe{height:460px}}</style></head><body><header><strong>DEMO MODE</strong><p>Isolation test — sample information has not yet been installed.</p></header><main><h1>MotionC Demo Isolation Test</h1><p>These are empty test screens. No person, health history or walking data exists in this demo.</p><nav aria-label="Demo screens"><button type="button" data-screen="home">Demo landing</button><button type="button" data-screen="daily">Daily</button><button type="button" data-screen="summary">Summary</button><button type="button" data-screen="compass">Compass</button><button type="button" data-screen="walking">Walking / Jasper</button></nav><p id="status" role="status"></p><section id="presentation" aria-label="Isolated demo presentation"></section><nav class="actions" aria-label="Leave Demo"><button type="button" data-leave="exit">Exit Demo</button><button type="button" data-leave="create">Create Account</button><button type="button" data-leave="signin">Sign In</button></nav></main><script>'use strict';
+(()=>{
+ const screens=Object.freeze({home:'Demo landing',daily:'Daily',summary:'Summary',compass:'Compass',walking:'Walking / Jasper'});
+ const slot=document.getElementById('presentation'),status=document.getElementById('status');
+ let frame=null,channel=null,ready=false,current='home',disposed=false;
+ const valid=x=>typeof x==='string'&&Object.hasOwn(screens,x);
+ function screenFromLocation(){if(!['/demo','/demo/','/demo/index.html'].includes(location.pathname))return 'home';const value=location.hash.slice(1);return valid(value)?value:'home';}
+ function paint(){document.querySelectorAll('[data-screen]').forEach(b=>{if(b.dataset.screen===current)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});status.textContent=screens[current]+' — placeholder only';}
+ function send(){if(ready&&frame)frame.contentWindow.postMessage({type:'motionc-demo-screen',channel,screen:current},'*');}
+ function select(value,push=true){current=valid(value)?value:'home';const wanted='#'+current;if(location.hash!==wanted||location.pathname!=='/demo/'||location.search)history[push?'pushState':'replaceState'](null,'','/demo/'+wanted);paint();send();}
+ function discard(){disposed=true;ready=false;channel=null;if(frame){frame.remove();frame=null;}slot.replaceChildren();}
+ function mount(){discard();disposed=false;channel=crypto.randomUUID();frame=document.createElement('iframe');frame.title='MotionC Demo placeholders — isolated presentation';frame.setAttribute('sandbox','allow-scripts');frame.setAttribute('referrerpolicy','no-referrer');frame.src='/demo/frame.html#'+channel;frame.addEventListener('load',()=>{ready=true;send();});slot.append(frame);select(screenFromLocation(),false);}
+ window.addEventListener('message',event=>{
+  if(disposed||!frame||event.source!==frame.contentWindow||event.origin!=='null')return;
+  const m=event.data;if(!m||typeof m!=='object'||Array.isArray(m)||Object.keys(m).sort().join(',')!=='channel,screen,type'||m.channel!==channel||m.type!=='motionc-demo-request')return;
+  select(valid(m.screen)?m.screen:'home');
+ });
+ document.querySelectorAll('[data-screen]').forEach(button=>button.addEventListener('click',()=>select(button.dataset.screen)));
+ const destinations=Object.freeze({exit:'/landing-page/',create:'/auth/?mode=create&next=%2Flanding-page%2F',signin:'/auth/?mode=signin&next=%2Flanding-page%2F'});
+ document.querySelectorAll('[data-leave]').forEach(button=>button.addEventListener('click',()=>{const target=destinations[button.dataset.leave];if(!target)return;discard();location.replace(target);}));
+ window.addEventListener('popstate',()=>select(screenFromLocation(),false));window.addEventListener('hashchange',()=>select(screenFromLocation(),false));
+ window.addEventListener('pagehide',discard);window.addEventListener('pageshow',event=>{if(event.persisted)mount();});
+ mount();
+})();</script></body></html>
