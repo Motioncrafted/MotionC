@@ -1,123 +1,31 @@
-import { supabase } from "/shared/motionc-supabase.js?v=20260922-phase1";
-
-const gate = document.querySelector("#gate");
-const dashboard = document.querySelector("#dashboard");
-const period = document.querySelector("#period");
-const status = document.querySelector("#status");
-
-function deny(title, detail, action = "Sign in") {
-  gate.innerHTML = `<p class="eyebrow">Private owner page</p><h1>${title}</h1><p>${detail}</p><p><a class="return-link" href="/auth/?mode=signin&next=%2Fowner%2Fanalytics%2F">${action}</a></p>`;
-}
-
-function counts(rows, key, fallback = "Unknown") {
-  const map = new Map();
-  rows.forEach((row) => { const value = row[key] || fallback; map.set(value, (map.get(value) || 0) + 1); });
-  return [...map.entries()].sort((a,b) => b[1] - a[1]);
-}
-
-function ranked(id, items, empty = "No visits yet") {
-  document.querySelector(id).innerHTML = items.length
-    ? items.slice(0, 7).map(([name,value]) => `<li><span>${escapeHtml(name)}</span><b>${value.toLocaleString()}</b></li>`).join("")
-    : `<li><span>${empty}</span></li>`;
-}
-
-function escapeHtml(value) {
-  const div = document.createElement("div"); div.textContent = value; return div.innerHTML;
-}
-
-function formatDuration(totalSeconds) {
-  const seconds = Math.max(0, Math.round(totalSeconds));
-  const minutes = Math.floor(seconds / 60);
-  const remainder = seconds % 60;
-  return minutes ? `${minutes}m ${remainder}s` : `${remainder}s`;
-}
-
-async function fetchRows(days) {
-  const since = new Date(Date.now() - days * 86400000).toISOString();
-  const rows = [];
-  for (let from = 0; from < 50000; from += 1000) {
-    const { data, error } = await supabase.from("site_analytics_events")
-      .select("occurred_at,session_id,event_type,path,page_title,entry_path,referrer_host,is_registered,active_seconds")
-      .gte("occurred_at", since).order("occurred_at", { ascending: true }).range(from, from + 999);
-    if (error) throw error;
-    rows.push(...data);
-    if (data.length < 1000) break;
-  }
-  return rows;
-}
-
-async function fetchSearchRows(days) {
-  const since = new Date(Date.now() - days * 86400000).toISOString();
-  const rows = [];
-  for (let from = 0; from < 50000; from += 1000) {
-    const { data, error } = await supabase.from("site_search_events")
-      .select("searched_at,query,results_count")
-      .gte("searched_at", since).order("searched_at", { ascending: true }).range(from, from + 999);
-    if (error) throw error;
-    rows.push(...data);
-    if (data.length < 1000) break;
-  }
-  return rows;
-}
-
-async function render() {
-  status.textContent = "Refreshing…";
-  const days = Number(period.value);
-  const [rows, searchRows] = await Promise.all([fetchRows(days), fetchSearchRows(days)]);
-  const starts = rows.filter((r) => r.event_type === "session_start");
-  const views = rows.filter((r) => r.event_type === "page_view");
-  const articleViews = views.filter((r) => r.path.startsWith("/library/article/"));
-  const areaViews = views.filter((r) => !r.path.startsWith("/library/article/"));
-  const sessionIds = new Set(rows.map((r) => r.session_id));
-  const registeredIds = new Set(rows.filter((r) => r.is_registered).map((r) => r.session_id));
-  const activeSeconds = rows.reduce((sum,r) => sum + Number(r.active_seconds || 0), 0);
-  document.querySelector("#visits").textContent = (starts.length || sessionIds.size).toLocaleString();
-  document.querySelector("#visitors").textContent = Math.max(0, sessionIds.size - registeredIds.size).toLocaleString();
-  document.querySelector("#registered").textContent = registeredIds.size.toLocaleString();
-  document.querySelector("#views").textContent = views.length.toLocaleString();
-  document.querySelector("#active").textContent = `${Math.round(activeSeconds / 60).toLocaleString()}m`;
-  document.querySelector("#averageActive").textContent = formatDuration(sessionIds.size ? activeSeconds / sessionIds.size : 0);
-  document.querySelector("#searches").textContent = searchRows.length.toLocaleString();
-  ranked("#pages", counts(areaViews, "path"));
-  ranked("#articles", counts(articleViews, "page_title"), "No articles opened yet");
-  ranked("#searchTopics", counts(searchRows, "query"), "No Library searches yet");
-  ranked("#missingTopics", counts(searchRows.filter((r) => r.results_count === 0), "query"), "No unsuccessful searches");
-  ranked("#entries", counts(starts.length ? starts : views, "entry_path"));
-  ranked("#sources", counts(starts.length ? starts : views, "referrer_host", "Direct / unknown"));
-
-  const byDay = new Map();
-  for (let i = days - 1; i >= 0; i--) {
-    const d = new Date(Date.now() - i * 86400000).toLocaleDateString("en-CA", { month:"short", day:"numeric" });
-    byDay.set(d, 0);
-  }
-  (starts.length ? starts : views).forEach((r) => {
-    const d = new Date(r.occurred_at).toLocaleDateString("en-CA", { month:"short", day:"numeric" });
-    if (byDay.has(d)) byDay.set(d, byDay.get(d) + 1);
-  });
-  const max = Math.max(1, ...byDay.values());
-  document.querySelector("#daily").innerHTML = [...byDay].map(([day,value]) => `<span class="bar" title="${value} visits"><b>${value}</b><i style="height:${Math.max(3,value/max*110)}px"></i><small>${day}</small></span>`).join("");
-  status.textContent = `Updated ${new Date().toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})}.`;
-}
-
-async function boot() {
-  const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) { deny("Sign in required", "Use your MotionC account to open this page."); return; }
-  if (data.user.app_metadata?.role !== "owner") { deny("Owner access only", "This signed-in account does not have owner permission.", "Return to site"); return; }
-  const { error: refreshError } = await supabase.auth.refreshSession();
-  if (refreshError) throw refreshError;
-  gate.hidden = true; dashboard.hidden = false;
-  installTestMode();
-  await render();
-  period.addEventListener("change", () => render().catch((e) => { status.textContent = `Analytics could not refresh: ${e.message}`; }));
-}
-
-boot().catch((error) => deny("Analytics unavailable", error.message, "Return to site"));
+import { supabase } from '/shared/motionc-supabase.js?v=20260923-phase2';
+const gate=document.querySelector('#gate'), dashboard=document.querySelector('#dashboard'), period=document.querySelector('#period'), status=document.querySelector('#status');
+let generation=0;
+const names={weekly_checkin_saved:'Weekly Check-In Saved',mo_shortcut:'Mo Explainer shortcut uses',comix_opened:'Comix viewer opened',contribution_local:'Drop Zone — local completion',contribution_server:'Drop Zone — server saved',signin_success:'Successful sign-ins',signin_failed:'Failed sign-ins',save_failed:'Contribution save failures',sync_failed:'Account sync failures',article_failed:'Article load failures'};
+const labels={'/':'MotionC','/landing-page/':'MotionC','/daily/':'Daily','/walking/':'Walking','/dashboard/':'Summary','/compass/':'Compass','/engine-room/':'Engine Room','/library/':'Library','/drop-zone/':'Drop Zone'};
+const number=n=>Number(n||0).toLocaleString();
+function text(id,value){document.querySelector('#'+id).textContent=value;}
+function duration(s){s=Math.round(s||0);return Math.floor(s/60)+'m '+s%60+'s';}
+function list(id,rows){const root=document.querySelector('#'+id);root.replaceChildren();for(const row of rows){const li=document.createElement('li'),span=document.createElement('span'),b=document.createElement('b');span.textContent=labels[row.name]||names[row.name]||row.name;b.textContent=row.display??number(row.count);li.append(span,b);root.append(li);}if(!rows.length){const li=document.createElement('li');li.textContent='No activity in this period';root.append(li);}}
+function deny(message){generation++;dashboard.hidden=true;gate.hidden=false;gate.replaceChildren();const h=document.createElement('h1'),p=document.createElement('p'),a=document.createElement('a');h.textContent=message;p.textContent='This page is restricted to the MotionC owner.';a.href='/auth/?mode=signin&next=%2Fowner%2Fanalytics%2F';a.textContent='Sign in';gate.append(h,p,a);}
+async function render(){const stamp=++generation;status.textContent='Refreshing…';const {data,error}=await supabase.rpc('motionc_owner_analytics',{p_days:Number(period.value)});if(stamp!==generation)return;if(error||!data){status.textContent='Analytics could not refresh. No partial results are shown.';return;}const d=data;
+text('visits',number(d.sessions));text('registered',number(d.signed_in));text('visitors',number(d.signed_out));text('views',number(d.page_views));text('active',duration(d.visible_seconds));text('averageActive',duration(d.sessions?d.visible_seconds/d.sessions:0));
+const date=v=>new Intl.DateTimeFormat('en-CA',{timeZone:d.timezone,dateStyle:'medium',timeStyle:'short'}).format(new Date(v));text('windowNote',date(d.from)+' through '+date(d.through)+' · Edmonton time · Today plus the previous '+(d.days-1)+' calendar days.');
+const browsers=d.first_time_browsers+d.returning_browsers;list('recognition',[{name:'First-time recognized browsers',count:d.first_time_browsers},{name:'Returning recognized browsers',count:d.returning_browsers},{name:'Returning share',display:browsers?(100*d.returning_browsers/browsers).toFixed(1)+'%':'—'}]);
+list('screens',['Desktop','Tablet','Mobile'].map(name=>{const count=d.screens.find(r=>r.name===name)?.count||0;return {name,display:number(count)+' · '+(d.sessions?(100*count/d.sessions).toFixed(1):'0.0')+'%'};}));
+for(const [id,key] of [['pages','areas'],['articles','articles'],['entries','entries'],['sources','sources'],['searchTopics','topics']])list(id,d[key]);
+list('searchSummary',[{name:'Total Library searches',count:d.searches},{name:'Unclassified searches',count:d.unclassified_searches},{name:'Zero-result searches',count:d.zero_result_searches}]);
+const get=keys=>keys.map(name=>({name,count:d.actions.find(r=>r.name===name)?.count||0}));list('actions',get(['weekly_checkin_saved','mo_shortcut','comix_opened','contribution_local','contribution_server']).concat([{name:'Compass views from Summary',count:d.summary_navigation}]));list('accounts',get(['signin_success','signin_failed']).concat([{name:'Accounts created',display:'Unavailable'}]));list('failures',get(['save_failed','sync_failed','article_failed']));
+const chart=document.querySelector('#daily');chart.replaceChildren();const max=Math.max(1,...d.daily.map(r=>r.count));for(const row of d.daily){const bar=document.createElement('span'),b=document.createElement('b'),i=document.createElement('i'),small=document.createElement('small');bar.className='bar';bar.title=row.day+': '+row.count+' sessions';b.textContent=number(row.count);i.style.height=Math.max(3,row.count/max*110)+'px';small.textContent=row.day.slice(5);bar.append(b,i,small);chart.append(bar);}status.textContent='Complete database aggregation · Updated '+date(d.through)+'.';}
+async function boot(){const {data,error}=await supabase.auth.getUser();if(error||data.user?.app_metadata?.role!=='owner'){deny('Owner access required');return;}const {error:refreshError}=await supabase.auth.refreshSession();if(refreshError){deny('Sign in required');return;}gate.hidden=true;dashboard.hidden=false;await installTestMode();await render();period.addEventListener('change',()=>{void render().catch(()=>{status.textContent='Analytics unavailable. Please try again.';});});}
+supabase.auth.onAuthStateChange((_event,session)=>{if(session?.user?.app_metadata?.role!=='owner')deny('Owner access required');});
+boot().catch(()=>deny('Analytics unavailable'));
 
 async function installTestMode() {
   const button = document.querySelector('#analyticsExclude');
   const state = document.querySelector('#analyticsExcludeStatus');
   try {
-    const controls = await import('/shared/motionc-analytics.js?v=20260922-phase1');
+    const controls = await import('/shared/motionc-analytics.js?v=20260923-phase2');
     const display = (value = controls.getAnalyticsExclusion()) => {
       button.disabled = !value.available;
       button.setAttribute('aria-pressed', value.excluded === true ? 'true' : 'false');
