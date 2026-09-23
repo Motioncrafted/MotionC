@@ -1,4 +1,5 @@
 import { PRODUCTION_ORIGINS, PAGE_TITLES, TOPICS, canonicalPath, referralHost } from '../shared/analytics-policy.js';
+import { ACTIONS } from '../shared/analytics-actions.js';
 import { FALLBACK_ARTICLES } from '../shared/analytics-articles.js';
 
 const DATABASE = 'https://fzduvafeshrrouaejots.supabase.co';
@@ -50,7 +51,11 @@ export default async function handler(req, res) {
       registered = !user.is_anonymous;
     }
     let table, row;
-    if (body.kind === 'search') {
+    if (body.kind === 'action') {
+      if (!uuid(body.event_id) || !ACTIONS.includes(body.action) || Object.keys(body).some(key => !['kind','event_id','action'].includes(key))) return res.status(400).json({ accepted: false });
+      table = 'site_action_events';
+      row = { event_id: body.event_id, action: body.action, collection_version: 2 };
+    } else if (body.kind === 'search') {
       if (body.topic !== 'unclassified' && !Object.hasOwn(TOPICS, body.topic)) return res.status(400).json({ accepted: false });
       if (!Number.isInteger(body.results_count) || body.results_count < 0 || body.results_count > 32767) return res.status(400).json({ accepted: false });
       table = 'site_search_events';
@@ -77,13 +82,13 @@ export default async function handler(req, res) {
       method: 'POST', headers: { ...headers, Prefer: 'return=minimal' }, body: JSON.stringify(row), signal: AbortSignal.timeout(2500)
     });
     let accepted = response.ok;
-    if (!accepted && response.status === 409 && row.event_type === 'session_start') {
+    if (!accepted && response.status === 409 && (row.event_type === 'session_start' || table === 'site_action_events')) {
       const error = await response.json();
       // The partial unique index is the authority, including concurrent inserts
       // and retries after a committed write whose acknowledgement was lost.
       // Other uniqueness/RLS failures must never be acknowledged as successful.
       accepted = error.code === '23505' &&
-        error.message === 'duplicate key value violates unique constraint "site_analytics_v2_session_start_unique"';
+        error.message === `duplicate key value violates unique constraint "${table === 'site_action_events' ? 'site_action_events_pkey' : 'site_analytics_v2_session_start_unique'}"`;
     }
     return res.status(accepted ? 200 : 503).json({ accepted });
   } catch { return res.status(503).json({ accepted: false }); }
