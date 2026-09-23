@@ -40,12 +40,25 @@ function withTimeout(promise, message) {
 }
 const params = new URLSearchParams(location.search);
 const requestedNext = params.get("next");
-const safeNext = requestedNext?.startsWith("/") && !requestedNext.startsWith("//") ? requestedNext : null;
+function validatedReturnPath(value) {
+  if (typeof value !== "string" || !value || value.trim() !== value ||
+      /[\u0000-\u001f\u007f\\]/.test(value) || /%(?![0-9a-f]{2})/i.test(value)) return null;
+  if (!value.startsWith("/") && !/^https?:\/\//i.test(value)) return null;
+  try {
+    const target = new URL(value, location.origin);
+    if (target.origin !== location.origin || target.username || target.password ||
+        target.pathname.startsWith("//")) return null;
+    return `${target.pathname}${target.search}${target.hash}`;
+  } catch {
+    return null;
+  }
+}
+const safeNext = validatedReturnPath(requestedNext);
 let referrerReturn = null;
 try {
   const referrer = new URL(document.referrer);
   if (referrer.origin === location.origin && !referrer.pathname.startsWith("/auth")) {
-    referrerReturn = `${referrer.pathname}${referrer.search}${referrer.hash}`;
+    referrerReturn = validatedReturnPath(referrer.href);
   }
 } catch {
   // Direct visits have no usable same-site referrer.
