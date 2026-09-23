@@ -258,6 +258,31 @@ function persist() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
+let profileReadyOwner = null;
+
+async function refreshProfileAccountReadiness() {
+  profileReadyOwner = null;
+  updateProfileReminder();
+  const owner = window.MotionCAccountReady?.owner;
+  if (!owner) return;
+  try {
+    const session = await window.MotionCSupabase.getSession();
+    if (session?.user?.id !== owner || session.user.is_anonymous ||
+        window.MotionCAccountReady?.owner !== owner ||
+        localStorage.getItem("motionc-auth-active-user") !== owner) return;
+    profileReadyOwner = owner;
+    updateProfileReminder();
+  } catch {
+    // Keep the sign-in destination until a registered account is confirmed.
+  }
+}
+
+window.addEventListener("motionc:account-ready", refreshProfileAccountReadiness);
+window.addEventListener("motionc:account-changing", () => {
+  profileReadyOwner = null;
+  updateProfileReminder();
+});
+
 function updateProfileReminder() {
   const reminder = byId("profileReminder");
   if (!reminder) return;
@@ -268,7 +293,17 @@ function updateProfileReminder() {
     Number(profile.heightInches) > 0 &&
     (Number(profile.currentWeight) > 0 || Number(profile.startWeight) > 0) &&
     Number(profile.waist) > 0;
-  reminder.hidden = complete;
+  const owner = window.MotionCAccountReady?.owner;
+  const accountReady = Boolean(owner && owner === profileReadyOwner &&
+    owner === localStorage.getItem("motionc-auth-active-user"));
+  reminder.hidden = accountReady && complete;
+  byId("completeProfileLink").href = accountReady
+    ? "/daily/?checkin=personal"
+    : "/auth/?mode=signin&next=%2Fdaily%2F%3Fcheckin%3Dpersonal";
+  byId("completeProfileLink").textContent = accountReady ? "Complete Profile" : "Sign in to create profile";
+  byId("profileReminderDescription").textContent = accountReady
+    ? "Add your age, sex, height, weight, and waist once to unlock all personalized MotionC metrics. Your Daily information will be preserved."
+    : "Sign in or create an account to create and save your personal profile.";
 }
 
 function syncLifestyleSummary() {
@@ -1891,3 +1926,4 @@ renderAll();
 setupWalkingCalculator();
 applyUnitSystem();
 scheduleDailyGaugeReset();
+void refreshProfileAccountReadiness();

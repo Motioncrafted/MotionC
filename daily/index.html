@@ -55,9 +55,9 @@
           <div class="profile-reminder-icon" aria-hidden="true">✓</div>
           <div>
             <strong id="profileReminderTitle">Complete your Profile Info</strong>
-            <p>Add your age, sex, height, weight, and waist once to unlock all personalized MotionC metrics. Your Daily information will be preserved.</p>
+            <p id="profileReminderDescription">Sign in or create an account to create and save your personal profile.</p>
           </div>
-          <a class="profile-reminder-action" href="/dashboard/?complete-profile=1">Complete Profile</a>
+          <a class="profile-reminder-action" id="completeProfileLink" href="/auth/?mode=signin&amp;next=%2Fdaily%2F%3Fcheckin%3Dpersonal">Sign in to create profile</a>
         </aside>
 
         <aside class="weekly-checkin-nudge" id="weeklyCheckinNudge" hidden aria-labelledby="weeklyCheckinNudgeTitle" aria-live="polite">
@@ -489,7 +489,7 @@
   </dialog>
 
   <script src="/shared/waist-progress.js?v=20260911-1"></script>
-  <script src="/daily/script.js?v=20260922-phase1"></script>
+  <script src="/daily/script.js?v=20260923-stage1"></script>
   <script type="module" src="/shared/motionc-supabase.js?v=20260922-phase1"></script>
   <script src="/daily/waist-info.js?v=20260912-1"></script>
 <script src="/shared/checkin-access.js?v=20260915-2"></script>
