@@ -1363,6 +1363,32 @@ let summaryMotivationalWeight = null;
 let summaryVibratoryWeight = null;
 let summaryWeightPoints = [];
 let summaryUnitSystem = "imperial";
+let summaryReadyOwner = null;
+
+function summaryAccountReady() {
+    const owner = window.MotionCAccountReady?.owner;
+    return Boolean(owner && owner === summaryReadyOwner &&
+        owner === localStorage.getItem("motionc-auth-active-user"));
+}
+
+async function refreshSummaryAccountReadiness() {
+    summaryReadyOwner = null;
+    const owner = window.MotionCAccountReady?.owner;
+    if (!owner) return;
+    try {
+        const session = await window.MotionCSupabase.getSession();
+        if (session?.user?.id !== owner || session.user.is_anonymous ||
+            window.MotionCAccountReady?.owner !== owner ||
+            localStorage.getItem("motionc-auth-active-user") !== owner) return;
+        summaryReadyOwner = owner;
+        renderSummaryData();
+    } catch {
+        // Until the account is confirmed, the fallback goal is display-only.
+    }
+}
+
+window.addEventListener("motionc:account-ready", refreshSummaryAccountReadiness);
+window.addEventListener("motionc:account-changing", () => { summaryReadyOwner = null; });
 const summaryDisplayWeight = pounds => summaryUnitSystem === "metric" ? pounds * summaryKgPerLb : pounds;
 const summaryStoredWeight = value => summaryUnitSystem === "metric" ? value / summaryKgPerLb : value;
 const summaryDisplayDistance = miles => summaryUnitSystem === "metric" ? miles * summaryKmPerMi : miles;
@@ -2148,7 +2174,7 @@ function renderSummaryData() {
     summaryGoalWeight = summaryDisplayWeight(canonicalGoal);
     summaryVibratoryWeight = summaryDisplayWeight(canonicalGoal + 4);
     summaryMotivationalWeight = profileMotivationalGoal > 0 ? summaryDisplayWeight(profileMotivationalGoal) : null;
-    if (!(profileRealGoal > 0)) {
+    if (!(profileRealGoal > 0) && summaryAccountReady()) {
         localStorage.setItem(summaryGoalStorageKey, String(canonicalGoal));
         saveSharedGoal("realGoal", canonicalGoal);
     }
@@ -2466,3 +2492,4 @@ window.addEventListener("DOMContentLoaded", () => {
     renderSummaryData();
 });
 window.addEventListener("pageshow", renderSummaryData);
+void refreshSummaryAccountReadiness();
