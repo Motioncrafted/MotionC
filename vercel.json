@@ -115,7 +115,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'none'; base-uri 'none'; object-src 'none'; connect-src 'none'; form-action 'none'; worker-src 'none'; img-src 'none'; font-src 'none'; media-src 'none'; manifest-src 'none'; style-src 'sha256-jVGM6xvAr8cG0Ei45pv7YiuhRLSCcnqDq5JP4XF5v9E='; script-src 'sha256-u1m/7vcBHdyj1HZZM5G0/lr5V2hYDswaW+gLiP0TDzk='; frame-src 'self'; frame-ancestors 'none'"
+          "value": "default-src 'none'; base-uri 'none'; object-src 'none'; connect-src 'none'; form-action 'none'; worker-src 'none'; img-src 'none'; font-src 'none'; media-src 'none'; manifest-src 'none'; style-src 'sha256-SoeRUtUYGErusVd670kUI/PtGyiqlxuwOzeSg65hsk0='; script-src 'sha256-Au48G7I+03dLof/9OUN+uW9dY8UTiKwy8ClLzttH4ZQ='; frame-src 'self'; frame-ancestors 'none'"
         },
         {
           "key": "Cache-Control",
@@ -144,7 +144,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'none'; base-uri 'none'; object-src 'none'; connect-src 'none'; form-action 'none'; worker-src 'none'; img-src 'none'; font-src 'none'; media-src 'none'; manifest-src 'none'; style-src 'sha256-jVGM6xvAr8cG0Ei45pv7YiuhRLSCcnqDq5JP4XF5v9E='; script-src 'sha256-u1m/7vcBHdyj1HZZM5G0/lr5V2hYDswaW+gLiP0TDzk='; frame-src 'self'; frame-ancestors 'none'"
+          "value": "default-src 'none'; base-uri 'none'; object-src 'none'; connect-src 'none'; form-action 'none'; worker-src 'none'; img-src 'none'; font-src 'none'; media-src 'none'; manifest-src 'none'; style-src 'sha256-SoeRUtUYGErusVd670kUI/PtGyiqlxuwOzeSg65hsk0='; script-src 'sha256-Au48G7I+03dLof/9OUN+uW9dY8UTiKwy8ClLzttH4ZQ='; frame-src 'self'; frame-ancestors 'none'"
         },
         {
           "key": "Cache-Control",
@@ -173,7 +173,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'none'; base-uri 'none'; object-src 'none'; connect-src 'none'; form-action 'none'; worker-src 'none'; img-src 'none'; font-src 'none'; media-src 'none'; manifest-src 'none'; style-src 'sha256-jVGM6xvAr8cG0Ei45pv7YiuhRLSCcnqDq5JP4XF5v9E='; script-src 'sha256-7wN7akwFhAeeT2+10gsXe40g46Ush2cv1C1cnhMkPFY='; frame-src 'none'; frame-ancestors 'self'; sandbox allow-scripts"
+          "value": "default-src 'none'; base-uri 'none'; object-src 'none'; connect-src 'none'; form-action 'none'; worker-src 'none'; img-src 'none'; font-src 'none'; media-src 'none'; manifest-src 'none'; style-src 'sha256-Ox5T7IRyGnCWr0C8FAnkq2J5QgoTumFGVypK4pXlIck='; script-src 'sha256-BY1QCiLoI7KE8OsalVzIG06YwgJc2YDB7hsKMvdnitE='; frame-src 'none'; frame-ancestors 'self'; sandbox allow-scripts"
         },
         {
           "key": "Cache-Control",
@@ -196,6 +196,13 @@
           "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
         }
       ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/demo/frame.html",
+      "destination": "/api/demo-frame",
+      "permanent": false
     }
   ]
 }
