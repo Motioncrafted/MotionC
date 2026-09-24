@@ -7,10 +7,17 @@ import path from 'node:path';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const read=p=>fs.readFileSync(path.join(root,p),'utf8').replace(/\r\n/g,'\n');
 const hash=s=>crypto.createHash('sha256').update(s).digest('base64');
-const parts=['dave.js','summary-rules.js','compass-engine.js','provider.js','summary-template.js','summary-view.js','renderer.js'];
+// Curated Daily outputs must be revalidated offline when their sources change.
+const dailyDisplay=JSON.parse(read('demo/foundation/daily-display.js').match(/demoFreeze\(([\s\S]*)\);/)[1]);
+for(const [file,expected] of [['demo/foundation/dave.js',dailyDisplay.manifest.sourceSha256],['daily/script.js',dailyDisplay.manifest.productionRulesSha256]]) {
+ const actual=crypto.createHash('sha256').update(fs.readFileSync(path.join(root,file))).digest('hex');
+ if(actual!==expected)throw Error('Revalidate curated Demo Daily outputs before building: '+file);
+}
+if(dailyDisplay.dates.length!==56||dailyDisplay.dates.some(date=>!dailyDisplay.snapshots[date]))throw Error('Incomplete curated Daily history');
+const parts=['dave.js','summary-rules.js','compass-engine.js','provider.js','summary-template.js','summary-view.js','daily-display.js','daily-view.js','renderer.js'];
 const script="'use strict';\n(()=>{\n"+parts.map(p=>read('demo/foundation/'+p)).join('\n')+'\n})();';
 if(script.includes('</script'))throw Error('Unexpected script terminator');
-const style=read('demo/foundation/summary.css');
+const style=read('demo/foundation/summary.css')+'\n'+read('demo/foundation/daily.css');
 const html='<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>MotionC Demo — Dave’s Summary</title><style>'+style+'</style></head><body><div class="demo-banner"><strong>DEMO MODE</strong>Dave is fictional · Read-only<p id="demo-connection">Fixed demonstration date: September 20, 2026</p></div><div id="demo-root"></div><script>'+script+'</script></body></html>';
 const policy="default-src 'none'; base-uri 'none'; object-src 'none'; connect-src 'none'; form-action 'none'; worker-src 'none'; img-src 'none'; font-src 'none'; media-src 'none'; manifest-src 'none'; style-src 'sha256-"+hash(style)+"'; script-src 'sha256-"+hash(script)+"'; frame-src 'none'; frame-ancestors 'self'; sandbox allow-scripts";
 const headers={'Content-Security-Policy':policy,'Cache-Control':'no-store','Referrer-Policy':'no-referrer','X-Content-Type-Options':'nosniff','X-Robots-Tag':'noindex, nofollow, noarchive','Permissions-Policy':'camera=(), microphone=(), geolocation=(), payment=(), usb=()','Content-Type':'text/html; charset=utf-8'};
