@@ -4,8 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>MotionC Account</title>
-  <link rel="stylesheet" href="styles.css?v=20260924-demo-entry">
+  <link rel="stylesheet" href="styles.css?v=20260924-demo-chooser">
   <link rel="stylesheet" href="password-controls.css?v=20260819-1">
+  <script>
+    // Prevent a sign-in-form flash on the explicit neutral Demo entry.
+    if (new URLSearchParams(location.search).get('mode') === 'choose') {
+      document.documentElement.dataset.accountChoice = 'choose';
+    }
+  </script>
 </head>
 <body>
   <main class="account-shell">
@@ -20,6 +26,7 @@
         <button id="createTab" type="button">Create account</button>
         <a class="try-demo" href="/demo/">Try Demo</a>
       </div>
+      <p id="accountChoicePrompt" class="account-choice-prompt">Choose how you’d like to continue.</p>
       <form id="accountForm" method="post" novalidate>
         <label id="usernameField" class="hidden">Username
           <input id="username" type="text" autocomplete="username" minlength="3" maxlength="24" pattern="[A-Za-z0-9_]+" placeholder="Letters, numbers, and underscores">
@@ -144,6 +151,6 @@
       }
     });
   </script>
-  <script type="module" src="script.js?v=20260923-stage1"></script>
+  <script type="module" src="script.js?v=20260924-demo-chooser"></script>
 </body>
 </html>

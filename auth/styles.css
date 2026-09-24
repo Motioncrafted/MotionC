@@ -7,3 +7,9 @@ label small{color:#74827f;font-weight:600;line-height:1.35}.text-action{margin-t
 .tabs .try-demo{display:inline-flex;align-items:center;font-size:15px;text-decoration:none;white-space:nowrap}.tabs .try-demo:hover{background:#e0e9e4}.tabs .try-demo:focus-visible{outline:2px solid var(--deep);outline-offset:3px}
 @media(max-width:400px){.tabs{gap:6px}.tabs button,.tabs .try-demo{padding:10px 8px;font-size:12px;white-space:nowrap}}
 @media(max-width:350px){.tabs{gap:4px}.tabs button,.tabs .try-demo{padding-inline:4px}}
+
+/* Neutral chooser is opt-in; explicit sign-in/create entry remains unchanged. */
+.account-choice-prompt{display:none;color:#5c6d70;line-height:1.5}
+html[data-account-choice="choose"] #accountChoicePrompt{display:block}
+html[data-account-choice="choose"] #accountForm,html[data-account-choice="choose"] #forgotPasswordButton,html[data-account-choice="choose"] #formMessage{display:none}
+html[data-account-choice="choose"] .tabs button.active{background:#edf1ef;color:#52645f}

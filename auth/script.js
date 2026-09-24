@@ -136,8 +136,10 @@ function openPasswordDialog(nextMode) {
 
 function setMode(next) {
   mode = next;
+  const choosing = mode === "choose";
+  document.documentElement.dataset.accountChoice = choosing ? "choose" : "";
   const creating = mode === "create";
-  $("signInTab").classList.toggle("active", !creating);
+  $("signInTab").classList.toggle("active", mode === "signin");
   $("createTab").classList.toggle("active", creating);
   $("usernameField").classList.toggle("hidden", !creating);
   $("username").required = creating;
@@ -253,6 +255,7 @@ $("username").addEventListener("blur", () => {
 
 $("accountForm").addEventListener("submit", async (event) => {
   event.preventDefault();
+  if (mode === "choose") { $("signInTab").focus(); return; }
   const form = event.currentTarget;
   if (!form.checkValidity()) {
     form.reportValidity();
@@ -412,7 +415,7 @@ supabase.auth.onAuthStateChange((event) => {
 });
 
 installPasswordToggles();
-setMode(requestedMode === "create" ? "create" : "signin");
+setMode(requestedMode === "choose" ? "choose" : requestedMode === "create" ? "create" : "signin");
 show("signedOutPanel");
 window.motioncAuthReady = true;
 const recoveryRequested = requestedMode === "recovery" || location.hash.includes("type=recovery");
