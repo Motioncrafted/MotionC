@@ -6,7 +6,7 @@
  let frame=null,channel=null,ready=false,current='home',disposed=false;
  const valid=x=>typeof x==='string'&&Object.hasOwn(screens,x);
  function screenFromLocation(){if(!['/demo','/demo/','/demo/index.html'].includes(location.pathname))return 'home';const value=location.hash.slice(1);return valid(value)?value:'home';}
- function paint(){document.getElementById('demoWelcome').hidden=current!=='home';slot.hidden=current==='home';document.querySelectorAll('[data-screen]').forEach(b=>{if(b.dataset.screen===current)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});status.textContent=screens[current]+(current==='summary'?' — Dave’s fictional Summary':current==='home'?' — Meet Dave':' — placeholder only');}
+ function paint(){document.getElementById('demoWelcome').hidden=current!=='home';slot.hidden=current==='home';document.querySelectorAll('[data-screen]').forEach(b=>{if(b.dataset.screen===current)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});status.textContent=screens[current]+(current==='summary'?' — Dave’s fictional Summary':current==='home'?' — Meet Dave':current==='daily'?' — Dave’s fictional Daily':' — placeholder only');}
  function send(){if(ready&&frame)frame.contentWindow.postMessage({type:'motionc-demo-screen',channel,screen:current},'*');}
  function select(value,push=true){current=valid(value)?value:'home';const wanted='#'+current;if(location.hash!==wanted||location.pathname!=='/demo/'||location.search)history[push?'pushState':'replaceState'](null,'','/demo/'+wanted);paint();send();}
  function discard(){disposed=true;ready=false;channel=null;if(frame){frame.remove();frame=null;}slot.replaceChildren();}
