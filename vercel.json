@@ -197,5 +197,12 @@
         }
       ]
     }
+  ],
+  "redirects": [
+    {
+      "source": "/demo/frame.html",
+      "destination": "/api/demo-frame",
+      "permanent": false
+    }
   ]
 }
