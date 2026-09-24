@@ -60,7 +60,8 @@
       box-shadow: none;
     }
 
-    .member-sign-in {
+    .member-sign-in,
+    .landing-try-demo {
       position: absolute;
       z-index: 6;
       top: 2.5%;
@@ -83,14 +84,20 @@
       backdrop-filter: blur(4px);
     }
 
-    .member-sign-in:hover {
+    .member-sign-in:hover,
+    .landing-try-demo:hover {
       border-color: #a9cf3f;
       background: rgba(17, 70, 55, .9);
     }
 
-    .member-sign-in:focus-visible {
+    .member-sign-in:focus-visible,
+    .landing-try-demo:focus-visible {
       outline: 2px solid #a9cf3f;
       outline-offset: 3px;
+    }
+
+    .landing-try-demo {
+      top: calc(7.7% + 8px);
     }
 
     .get-started {
@@ -525,6 +532,7 @@
       href="/auth/?mode=signin"
       aria-label="Sign in to your MotionC account"
     >Sign In</a>
+    <a class="landing-try-demo" href="/demo/">TRY DEMO</a>
 
     <a
       class="hotspot get-started"
