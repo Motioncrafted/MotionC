@@ -98,6 +98,11 @@
 
     .landing-try-demo {
       top: calc(7.7% + 8px);
+      min-width: 0;
+      min-height: 0;
+      padding: 0;
+      line-height: 1;
+      white-space: nowrap;
     }
 
     .get-started {
@@ -875,6 +880,25 @@
       }
     });
 
+  </script>
+  <script>
+    // Size and center only the secondary Demo link; the Sign In control is unchanged.
+    (() => {
+      const signIn = document.querySelector('.member-sign-in');
+      const demo = document.querySelector('.landing-try-demo');
+      function placeDemo() {
+        const width = signIn.getBoundingClientRect().width;
+        const height = signIn.getBoundingClientRect().height;
+        demo.style.width = width * .85 + 'px';
+        demo.style.height = height * .6 + 'px';
+        demo.style.left = signIn.offsetLeft + width * .075 + 'px';
+        demo.style.right = 'auto';
+        demo.style.fontSize = parseFloat(getComputedStyle(signIn).fontSize) * .74 + 'px';
+      }
+      placeDemo();
+      new ResizeObserver(placeDemo).observe(signIn);
+      window.addEventListener('resize', placeDemo);
+    })();
   </script>
   <script type="module" src="/shared/motionc-supabase.js?v=20260922-phase1"></script>
 </body>
