@@ -13,3 +13,6 @@ label small{color:#74827f;font-weight:600;line-height:1.35}.text-action{margin-t
 html[data-account-choice="choose"] #accountChoicePrompt{display:block}
 html[data-account-choice="choose"] #accountForm,html[data-account-choice="choose"] #forgotPasswordButton,html[data-account-choice="choose"] #formMessage{display:none}
 html[data-account-choice="choose"] .tabs button.active{background:#edf1ef;color:#52645f}
+
+/* Keep the destructive entry separate from everyday account actions. */
+#deleteAccountButton{display:block;margin-left:auto;max-width:100%}
