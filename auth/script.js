@@ -385,6 +385,7 @@ $("deleteAccountButton").addEventListener("click", () => {
 $("deleteForm").addEventListener("submit", async (event) => {
   event.preventDefault();
   if ($("deleteConfirmation").value !== "DELETE") return;
+  const deletingOwner = localStorage.getItem(ACTIVE_USER_KEY);
   const button = event.submitter;
   button.disabled = true;
   $("deleteMessage").textContent = "Deleting your account and MotionC data…";
@@ -392,8 +393,7 @@ $("deleteForm").addEventListener("submit", async (event) => {
     const { error } = await supabase.functions.invoke("delete-account", { body: { confirmation: "DELETE" } });
     if (error) throw error;
     await supabase.auth.signOut({ scope: "local" });
-    clearLocalState();
-    localStorage.removeItem(ACTIVE_USER_KEY);
+    await clearLocalState(deletingOwner);
     closeDialog("deleteDialog");
     $("accountForm").reset();
     setMode("signin");
