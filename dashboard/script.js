@@ -949,6 +949,13 @@ function saveLifestyleSummary(score) {
             updatedAt: new Date().toISOString()
         })
     );
+    // Complete the same canonical import Daily uses before refreshing Compass.
+    const daily = readSummaryStorage(summaryDailyStorageKey, { entries: {}, weeks: {}, profile: {} });
+    const summary = readSummaryStorage(lifestyleSummaryStorageKey, null);
+    if (window.MotionCCompassRefresh.reconcileLifestyle(daily, summary, currentLifestyleWeekKey())) {
+        localStorage.setItem(summaryDailyStorageKey, JSON.stringify(daily));
+    }
+    try { void window.MotionCCompassRefresh?.refresh(); } catch { /* Preserve the source save. */ }
 }
 
 function restoreLifestyleSummary() {
@@ -1422,6 +1429,7 @@ function saveSharedGoal(field, pounds) {
     if (field === "realGoal") daily.profile.vibratoryLine = pounds + 4;
     daily.profile.updatedAt = new Date().toISOString();
     localStorage.setItem(summaryDailyStorageKey, JSON.stringify(daily));
+    try { void window.MotionCCompassRefresh?.refresh(); } catch { /* Preserve the source save. */ }
 }
 
 function summaryDate(value) {
@@ -1982,6 +1990,7 @@ function saveSharedProfileMeasurements(measurementData) {
     if (measurementData.sex) daily.profile.sex = measurementData.sex;
     daily.profile.updatedAt = new Date().toISOString();
     localStorage.setItem(summaryDailyStorageKey, JSON.stringify(daily));
+    try { void window.MotionCCompassRefresh?.refresh(); } catch { /* Preserve the source save. */ }
 }
 
 function latestDailyWeight(entries) {
