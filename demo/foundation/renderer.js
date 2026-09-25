@@ -7,7 +7,7 @@ let summaryGoalWeight=null,summaryMotivationalWeight=null,summaryVibratoryWeight
 const summaryDate=value=>new Date(value+'T12:00:00Z');
 const shortChartDate=value=>new Intl.DateTimeFormat('en-US',{month:'short',day:'numeric',timeZone:'UTC'}).format(summaryDate(value));
 const demoSnapshot=DemoProvider.summary();
-const screens=Object.freeze({home:'Meet Dave',daily:'Daily',summary:'Summary',compass:'Compass',walking:'Walking / Jasper — placeholder'});
+const screens=Object.freeze({home:'Meet Dave',daily:'Daily',summary:'Summary',compass:'Compass',walking:'Walking / Jasper'});
 const embedded=window.parent!==window,channel=location.hash.slice(1),channelOK=/^[0-9a-f-]{36}$/.test(channel);
 let activeScreen='home';
 function renderSummary() {
@@ -77,6 +77,7 @@ function requestScreen(screen){if(embedded&&channelOK)parent.postMessage({type:'
 function render(screen) {
   activeScreen=Object.hasOwn(screens,screen)?screen:'home';
   const root=document.getElementById('demo-root');
+  if(activeScreen==='walking') {DemoWalking.render();return;}
   if(activeScreen==='daily') {DemoDaily.render();return;}
   if(activeScreen==='compass') {DemoCompass.render();return;}
   if(activeScreen==='summary') {root.innerHTML=DEMO_SUMMARY_TEMPLATE;renderSummary();return;}

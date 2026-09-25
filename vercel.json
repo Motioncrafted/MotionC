@@ -115,7 +115,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'none'; base-uri 'none'; object-src 'none'; connect-src 'none'; form-action 'none'; worker-src 'none'; img-src 'none'; font-src 'none'; media-src 'none'; manifest-src 'none'; style-src 'sha256-2GZCy+MfqQZIbjbrC3F+YYJSFHxmqee4o6shyGQScZk='; script-src 'sha256-xMtVW4pmxMsgXmPqdJjU3uxXrCRxAiJFWrPDxiBhBds='; frame-src 'self'; frame-ancestors 'none'"
+          "value": "default-src 'none'; base-uri 'none'; object-src 'none'; connect-src 'none'; form-action 'none'; worker-src 'none'; img-src 'none'; font-src 'none'; media-src 'none'; manifest-src 'none'; style-src 'sha256-2GZCy+MfqQZIbjbrC3F+YYJSFHxmqee4o6shyGQScZk='; script-src 'sha256-KIznWYI5PlGdee05xkdXiRDilTkNRq44O66EcFKLjGM='; frame-src 'self'; frame-ancestors 'none'"
         },
         {
           "key": "Cache-Control",
@@ -144,7 +144,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'none'; base-uri 'none'; object-src 'none'; connect-src 'none'; form-action 'none'; worker-src 'none'; img-src 'none'; font-src 'none'; media-src 'none'; manifest-src 'none'; style-src 'sha256-2GZCy+MfqQZIbjbrC3F+YYJSFHxmqee4o6shyGQScZk='; script-src 'sha256-xMtVW4pmxMsgXmPqdJjU3uxXrCRxAiJFWrPDxiBhBds='; frame-src 'self'; frame-ancestors 'none'"
+          "value": "default-src 'none'; base-uri 'none'; object-src 'none'; connect-src 'none'; form-action 'none'; worker-src 'none'; img-src 'none'; font-src 'none'; media-src 'none'; manifest-src 'none'; style-src 'sha256-2GZCy+MfqQZIbjbrC3F+YYJSFHxmqee4o6shyGQScZk='; script-src 'sha256-KIznWYI5PlGdee05xkdXiRDilTkNRq44O66EcFKLjGM='; frame-src 'self'; frame-ancestors 'none'"
         },
         {
           "key": "Cache-Control",
@@ -173,7 +173,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'none'; base-uri 'none'; object-src 'none'; connect-src 'none'; form-action 'none'; worker-src 'none'; img-src 'none'; font-src 'none'; media-src 'none'; manifest-src 'none'; style-src 'sha256-nAafGy3wPjQLsFB/FqloxOwfqevw1Ht//Q1cJQojQ4A='; script-src 'sha256-zFJfxYiCXYdRFAdKk+Nh/yxeha0o5ULjtS81hx4/l6A='; frame-src 'none'; frame-ancestors 'self'; sandbox allow-scripts"
+          "value": "default-src 'none'; base-uri 'none'; object-src 'none'; connect-src 'none'; form-action 'none'; worker-src 'none'; img-src 'none'; font-src 'none'; media-src 'none'; manifest-src 'none'; style-src 'sha256-HjC05NH8namA6mcfDWJCA/R6E17VBfhv9JajiY0kvjQ='; script-src 'sha256-EYAiP0Nvs9hGlnzByN1sssxKQ6RTq4T9ePqglN8p0fU='; frame-src 'none'; frame-ancestors 'self'; sandbox allow-scripts"
         },
         {
           "key": "Cache-Control",
