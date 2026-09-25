@@ -19,10 +19,15 @@ for(const [file,expected] of Object.entries(compassDisplay.manifest.sourceHashes
  if(crypto.createHash('sha256').update(fs.readFileSync(path.join(root,file))).digest('hex')!==expected)throw Error('Revalidate curated Demo Compass outputs before building: '+file);
 }
 if(compassDisplay.history.length!==14||compassDisplay.manifest.asOf!=='2026-09-20'||compassDisplay.history.some((p,i)=>p.date!==new Date(Date.UTC(2026,8,7+i)).toISOString().slice(0,10)))throw Error('Incomplete curated Compass history');
-const parts=['dave.js','summary-rules.js','compass-engine.js','provider.js','summary-template.js','summary-view.js','daily-display.js','daily-view.js','compass-display.js','compass-view.js','renderer.js'];
+const walkingDisplay=JSON.parse(read('demo/foundation/walking-display.js').match(/demoFreeze\(([\s\S]*)\);/)[1]);
+for(const [file,expected] of Object.entries(walkingDisplay.manifest.sourceHashes)) {
+ if(crypto.createHash('sha256').update(fs.readFileSync(path.join(root,file))).digest('hex')!==expected)throw Error('Revalidate curated Demo Jasper outputs before building: '+file);
+}
+if(walkingDisplay.manifest.asOf!=='2026-09-20'||walkingDisplay.stations.length!==13)throw Error('Invalid curated Jasper display');
+const parts=['dave.js','summary-rules.js','compass-engine.js','provider.js','summary-template.js','summary-view.js','daily-display.js','daily-view.js','compass-display.js','compass-view.js','walking-display.js','walking-artwork.js','walking-view.js','renderer.js'];
 const script="'use strict';\n(()=>{\n"+parts.map(p=>read('demo/foundation/'+p)).join('\n')+'\n})();';
 if(script.includes('</script'))throw Error('Unexpected script terminator');
-const style=read('demo/foundation/summary.css')+'\n'+read('demo/foundation/daily.css')+'\n'+read('demo/foundation/compass.css');
+const style=read('demo/foundation/summary.css')+'\n'+read('demo/foundation/daily.css')+'\n'+read('demo/foundation/compass.css')+'\n'+read('demo/foundation/walking.css');
 const html='<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>MotionC Demo — Dave’s Summary</title><style>'+style+'</style></head><body><div class="demo-banner"><strong>DEMO MODE</strong>Dave is fictional · Read-only<p id="demo-connection">Fixed demonstration date: September 20, 2026</p></div><div id="demo-root"></div><script>'+script+'</script></body></html>';
 const policy="default-src 'none'; base-uri 'none'; object-src 'none'; connect-src 'none'; form-action 'none'; worker-src 'none'; img-src 'none'; font-src 'none'; media-src 'none'; manifest-src 'none'; style-src 'sha256-"+hash(style)+"'; script-src 'sha256-"+hash(script)+"'; frame-src 'none'; frame-ancestors 'self'; sandbox allow-scripts";
 const headers={'Content-Security-Policy':policy,'Cache-Control':'no-store','Referrer-Policy':'no-referrer','X-Content-Type-Options':'nosniff','X-Robots-Tag':'noindex, nofollow, noarchive','Permissions-Policy':'camera=(), microphone=(), geolocation=(), payment=(), usb=()','Content-Type':'text/html; charset=utf-8'};
