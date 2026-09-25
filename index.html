@@ -1,19 +1,908 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MotionC</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MotionC — See What Change Looks Like</title>
+  <link rel="canonical" href="https://www.motionc.me/">
+  <meta name="description" content="Move, track, and live with purpose using MotionC.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Kalam:wght@400;700&family=Patrick+Hand&display=swap"
+    rel="stylesheet"
+  >
+  <style>
+    * { box-sizing: border-box; }
 
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #17120e;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      font-family: Arial, sans-serif;
+    }
+
+    .landing-page {
+      position: relative;
+      width: min(100vw, 177.7778vh);
+      aspect-ratio: 16 / 9;
+      background: url("/images/landing-page.png") center / 100% 100% no-repeat;
+    }
+
+    .hotspot {
+      position: absolute;
+      z-index: 2;
+      display: block;
+      border: 3px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .hotspot:hover {
+      border-color: transparent;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .hotspot:focus-visible {
+      outline: 2px solid rgba(255, 255, 255, .8);
+      outline-offset: 3px;
+      border-color: transparent;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .member-sign-in,
+    .landing-try-demo {
+      position: absolute;
+      z-index: 6;
+      top: 2.5%;
+      right: 2.3%;
+      display: grid;
+      min-width: 8.5%;
+      min-height: 5.2%;
+      padding: .45% 1.15%;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, .72);
+      border-radius: 999px;
+      color: #fff;
+      background: rgba(8, 35, 34, .7);
+      box-shadow: 0 3px 12px rgba(0, 0, 0, .28);
+      font-size: clamp(8px, .9vw, 16px);
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-decoration: none;
+      text-transform: uppercase;
+      backdrop-filter: blur(4px);
+    }
+
+    .member-sign-in:hover,
+    .landing-try-demo:hover {
+      border-color: #a9cf3f;
+      background: rgba(17, 70, 55, .9);
+    }
+
+    .member-sign-in:focus-visible,
+    .landing-try-demo:focus-visible {
+      outline: 2px solid #a9cf3f;
+      outline-offset: 3px;
+    }
+
+    .landing-try-demo {
+      top: calc(7.7% + 8px);
+      min-width: 0;
+      min-height: 0;
+      padding: 0;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .landing-try-demo span { transform: translateY(.12em); }
+
+    .get-started {
+      left: 50.9%;
+      top: 52%;
+      width: 13.7%;
+      height: 7.7%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7%;
+      overflow: hidden;
+      border-color: #1e6d3a;
+      border-radius: 9px;
+      color: #fff;
+      background: linear-gradient(180deg, #3b9b59, #287a43);
+      box-shadow: 0 4px 10px rgba(20, 74, 41, .28);
+      font-size: clamp(9px, 1vw, 17px);
+      font-weight: 800;
+      letter-spacing: .01em;
+      text-decoration: none;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, .3);
+    }
+
+    .get-started::before {
+      content: "\21BB";
+      display: grid;
+      flex: 0 0 auto;
+      width: 20%;
+      aspect-ratio: 1;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, .48);
+      border-radius: 50%;
+      color: #fff;
+      background: #1f6939;
+      font-size: 1.05em;
+      line-height: 1;
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, .18);
+    }
+
+    .get-started:hover {
+      border-color: #1e6d3a;
+      background: linear-gradient(180deg, #43a861, #2d8148);
+      box-shadow: 0 4px 10px rgba(20, 74, 41, .28);
+    }
+
+    .get-started:active {
+      background: linear-gradient(180deg, #226c3c, #1b5b32);
+      box-shadow: inset 0 3px 6px rgba(0, 0, 0, .3);
+      transform: translateY(1px);
+    }
+
+.learn-more {
+  left: 65.8%;
+  top: 52.4%;
+  width: 12.7%;
+  height: 7.2%;
+}
+
+.understand {
+  left: 17.2%;
+  top: 82.8%;
+  width: 14.2%;
+  height: 11.5%;
+  border-radius: 999px;
+}
+
+.get-started,
+.learn-more,
+.understand {
+  z-index: 3;
+}
+
+/* TEMPORARY COMPASS PROTOTYPE HOTSPOT — remove this rule with the matching link. */
+.compass-prototype-sign {
+  left: 4.7%;
+  top: 23.2%;
+  width: 15.8%;
+  height: 8.5%;
+  transform: rotate(-1deg);
+}
+    
+.walks-sign {
+  left: 4.8%;
+  top: 32.8%;
+  width: 15.6%;
+  height: 9%;
+  transform: rotate(1deg);
+}
+
+.progress-sign {
+  left: 5%;
+  top: 42.6%;
+  width: 15.4%;
+  height: 8.3%;
+  transform: rotate(-1deg);
+}
+
+.drop-zone-sign {
+  left: 5.1%;
+  top: 52.6%;
+  width: 15.2%;
+  height: 8.5%;
+  transform: rotate(.5deg);
+}
+
+.live-well-sign {
+  left: 5.2%;
+  top: 62.5%;
+  width: 15%;
+  height: 8.4%;
+  transform: rotate(-1deg);
+}
+
+.track-circle,
+.move-circle,
+.live-circle {
+  top: 82.8%;
+  height: 11.5%;
+  border-radius: 999px;
+  z-index: 3;
+}
+
+.track-circle {
+  left: 38.3%;
+  width: 15.4%;
+}
+
+.move-circle {
+  left: 56.6%;
+  width: 14.2%;
+}
+
+.live-circle {
+  left: 73.7%;
+  width: 13.4%;
+}
+
+.mira-hotspot {
+  left: 66.3%;
+  top: 56%;
+  width: 24.5%;
+  height: 31.5%;
+}
+
+    .mira-hotspot:hover {
+      border-color: transparent;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .mira-hotspot:focus-visible {
+      border-color: transparent;
+      background: transparent;
+      box-shadow: none;
+      outline: 3px solid rgba(255, 243, 207, .9);
+      outline-offset: 3px;
+    }
+
+    .mira-bubble {
+      position: absolute;
+      z-index: 8;
+      left: 48.5%;
+      top: 32%;
+      width: 25%;
+      min-height: 19%;
+      padding: clamp(14px, 1.7vw, 28px);
+      border: 3px solid #9a672c;
+      border-radius: 18px;
+      color: #2b2118;
+      background: #fff3cf;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, .46);
+      opacity: 1;
+      transition: opacity 700ms ease;
+    }
+
+    .mira-bubble[hidden] { display: none; }
+    .mira-bubble.is-closing {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .mira-bubble { transition-duration: 1ms; }
+    }
+
+    .mira-bubble::after {
+      content: "";
+      position: absolute;
+      right: -28px;
+      bottom: 24%;
+      width: 50px;
+      height: 34px;
+      background: #fff3cf;
+      clip-path: polygon(0 0, 100% 50%, 0 100%);
+    }
+
+    .scale-talk {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid rgba(154, 103, 44, .35);
+      color: #6c461f;
+      font: 800 clamp(10px, .85vw, 15px) Arial, sans-serif;
+      letter-spacing: .14em;
+    }
+
+    .mira-comment {
+      min-height: 2.6em;
+      margin: 0 0 12px;
+      font-size: clamp(18px, 1.75vw, 31px);
+      line-height: 1.28;
+    }
+
+    .font-caveat { font-family: "Caveat", cursive; }
+
+    .mira-close {
+      min-height: 30px;
+      padding: 4px 10px;
+      border: 1px solid #9a672c;
+      border-radius: 6px;
+      color: #38271b;
+      background: #ead29c;
+      cursor: pointer;
+      font: 700 clamp(9px, .68vw, 12px) Arial, sans-serif;
+    }
+
+    .mira-close {
+      min-width: 28px;
+      min-height: 24px;
+      padding: 0 6px;
+    }
+
+    .info-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: rgba(10, 8, 6, .72);
+      backdrop-filter: blur(3px);
+    }
+
+    .info-overlay[hidden] { display: none; }
+
+    .info-card {
+      position: relative;
+      width: min(620px, 92vw);
+      max-height: 86%;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-gutter: stable;
+      padding: clamp(24px, 4vw, 46px);
+      border: 2px solid #9c6b31;
+      border-radius: 16px;
+      color: #f6ead5;
+      background:
+        linear-gradient(rgba(38, 26, 17, .97), rgba(21, 15, 11, .98)),
+        #21170f;
+      box-shadow: 0 18px 55px rgba(0, 0, 0, .65);
+    }
+
+    .info-card h1 {
+      margin: 0 0 12px;
+      color: #f0b429;
+      font-size: clamp(25px, 3vw, 42px);
+    }
+
+    .info-card p {
+      margin: 0 0 20px;
+      font-size: clamp(15px, 1.4vw, 19px);
+      line-height: 1.55;
+    }
+
+    .about-card { width: min(760px, 92vw); }
+    .about-card h2 {
+      margin: 25px 0 8px;
+      color: #7bd35a;
+      font-size: clamp(18px, 2vw, 24px);
+    }
+    .about-card .about-closing {
+      margin-top: 24px;
+      padding: 16px 18px;
+      border-left: 4px solid #f0b429;
+      color: #fff4d6;
+      background: rgba(240, 180, 41, .08);
+      font-weight: 800;
+    }
+
+    .disclaimer-copyright {
+      margin-bottom: 14px !important;
+      color: #d8bf91;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+
+    .disclaimer-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 26px;
+    }
+
+    .got-it {
+      min-width: 112px;
+      padding: 11px 24px;
+      border: 1px solid #f0b429;
+      border-radius: 999px;
+      color: #20160e;
+      background: #f0b429;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 7px 18px rgba(0, 0, 0, .28);
+    }
+
+    .got-it:hover,
+    .got-it:focus-visible {
+      background: #ffd36a;
+      outline: 2px solid #fff1c5;
+      outline-offset: 3px;
+    }
+
+    .pillars {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .pillar {
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .07);
+    }
+
+    .pillar strong {
+      display: block;
+      margin-bottom: 3px;
+      color: #7bd35a;
+    }
+
+    .info-actions {
+      display: flex;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .about-meta {
+      display: flex;
+      flex: 1 1 360px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 3px 7px;
+      margin-left: auto;
+      color: #d8bf91;
+      font-size: clamp(12px, 1vw, 14px);
+      line-height: 1.35;
+      text-align: right;
+    }
+
+    .about-meta > * + *::before {
+      content: "\00b7";
+      margin-right: 7px;
+      color: #9c6b31;
+    }
+
+    .info-actions .about-meta a {
+      display: inline;
+      min-height: 0;
+      padding: 0;
+      border: 0;
+      color: #f6ead5;
+      background: transparent;
+      font: inherit;
+      text-decoration: none;
+    }
+
+    .info-actions .about-meta a:hover,
+    .info-actions .about-meta a:focus-visible {
+      color: #7bd35a;
+      text-decoration: underline;
+      outline: none;
+    }
+
+    .info-actions a,
+    .close-info {
+      min-height: 44px;
+      padding: 0 20px;
+      border: 1px solid #c79545;
+      border-radius: 7px;
+      color: #fff;
+      background: #785027;
+      font: 700 16px Arial, sans-serif;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .info-actions a {
+      display: grid;
+      place-items: center;
+      background: #287a43;
+    }
+
+    .close-info {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      min-width: 42px;
+      padding: 0;
+      font-size: 22px;
+    }
+
+    @media (max-width: 620px) {
+      .pillars { grid-template-columns: 1fr; }
+      .about-meta {
+        width: 100%;
+        margin-left: 0;
+        justify-content: flex-start;
+        text-align: left;
+      }
+    }
+  </style>
+</head>
 <body>
-  <main class="poster-wrap">
-    <img 
-      src="images/motionc-coming-soon.png" 
-      alt="MotionC - Motion Creates Change - Coming Soon"
-      class="poster"
+  <main class="landing-page">
+    <a
+      class="member-sign-in"
+      href="/auth/?mode=signin"
+      aria-label="Sign in to your MotionC account"
+    >Sign In</a>
+    <a class="landing-try-demo" href="/demo/"><span>TRY DEMO</span></a>
+
+    <a
+      class="hotspot get-started"
+      href="/daily/index.html"
+      aria-label="Daily Update — open Daily"
+      title="Daily Update"
+    ><span>Daily Update</span></a>
+
+    <button
+      class="hotspot learn-more"
+      id="learnMore"
+      type="button"
+      aria-label="Learn more about MotionC"
+      aria-controls="infoOverlay"
+      aria-expanded="false"
+      title="Learn More"
+    ></button>
+
+    <button
+      class="hotspot understand"
+      id="understand"
+      type="button"
+      aria-label="Understand — read the MotionC site disclaimer"
+      aria-controls="disclaimerOverlay"
+      aria-expanded="false"
+      title="Understand"
+    ></button>
+
+    <!-- TEMPORARY COMPASS PROTOTYPE HOTSPOT — remove this link and its CSS rule to restore the landing page. -->
+    <a
+      class="hotspot compass-prototype-sign"
+      href="/compass/"
+      aria-label="Open the experimental Your Compass prototype"
+      title="Your Compass prototype"
+    ></a>
+
+    <a
+      class="hotspot walks-sign"
+      href="/walking/"
+      aria-label="Open the Walking page"
+      title="Walking"
+    ></a>
+
+    <a
+      class="hotspot progress-sign"
+      href="/dashboard/"
+      aria-label="Open Summary"
+      title="Summary"
+    ></a>
+
+    <a
+      class="hotspot drop-zone-sign"
+      href="/drop-zone/"
+      aria-label="Open The Commons in the Drop Zone"
+      title="The Commons"
+    ></a>
+
+    <a
+      class="hotspot live-well-sign"
+      href="/library/"
+      aria-label="Open the MotionC Library"
+      title="Library"
+    ></a>
+
+    <a
+      class="hotspot track-circle"
+      href="/dashboard/"
+      aria-label="Summary — open the Summary page"
+      title="Summary"
+    ></a>
+
+    <a
+      class="hotspot move-circle"
+      href="/walking/"
+      aria-label="Walking — open the Walking page"
+      title="Walking"
+    ></a>
+
+    <a
+      class="hotspot live-circle"
+      href="/library/"
+      aria-label="Library — open the Library page"
+      title="Library"
+    ></a>
+
+    <button
+      class="hotspot mira-hotspot"
+      id="miraHotspot"
+      type="button"
+      aria-label="Talk to MIRA"
+      aria-controls="miraBubble"
+      aria-expanded="false"
+    ></button>
+
+    <aside class="mira-bubble" id="miraBubble" aria-live="polite" hidden>
+      <div class="scale-talk">
+        <span>MIRA · SCALE TALK</span>
+        <button class="mira-close" id="miraClose" type="button" aria-label="Close MIRA">×</button>
+      </div>
+      <p class="mira-comment font-caveat" id="miraComment"></p>
+    </aside>
+
+    <section
+      class="info-overlay"
+      id="infoOverlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="infoTitle"
+      hidden
     >
+      <div class="info-card about-card">
+        <button class="close-info" id="closeInfo" type="button" aria-label="Close">×</button>
+        <h1 id="infoTitle">See What Change Looks Like</h1>
+        <p>MotionC turns movement into meaning. Track your progress, explore your journey, and discover how motion creates change.</p>
+
+        <h2>You May Already Have a Fitness App</h2>
+        <p>That’s perfectly fine. MotionC wasn’t created to imitate another step counter or workout tracker.</p>
+        <p>Fitness apps are good at recording numbers. MotionC was designed to help you understand those numbers, connect them, and experience the story they tell.</p>
+
+        <h2>Apps Track Workouts. MotionC Tracks Destinations.</h2>
+        <p>Most fitness apps show your steps, pace, calories, and the route you walked today.</p>
+        <p>MotionC shows where all those walks are taking you.</p>
+        <p>Each walk becomes part of a continuing journey toward a real destination. Your progress doesn’t disappear when the day ends—it carries forward to the next checkpoint, the next milestone, and eventually the finish.</p>
+
+        <h2>Your Journey Continues</h2>
+        <p>MotionC brings walking, weight, measurements, milestones, motivation, and personal reflection together in one place.</p>
+        <p>Instead of treating every number as a separate statistic, MotionC helps you see how the pieces work together and how small daily choices create meaningful change over time.</p>
+
+        <h2>Progress Should Feel Personal</h2>
+        <p>MotionC isn’t only a collection of charts. It has destinations to explore, milestones to reach, reflections to consider, and even a scale with a little personality.</p>
+        <p>It was designed to feel human—because lasting change is personal.</p>
+
+        <h2>A Place You Choose to Return To</h2>
+        <p>Some people don’t want another app demanding their attention throughout the day. They want a calm place where they can check in, understand their progress, and leave feeling encouraged.</p>
+        <p>MotionC can be that place.</p>
+        <p>Your other apps may show what you did.</p>
+        <p class="about-closing">MotionC helps you see where you’re going—and why it matters.</p>
+
+        <div class="info-actions">
+          <a href="/dashboard/">Open Dashboard</a>
+          <footer class="about-meta" aria-label="MotionC version, copyright, and contact information">
+            <span>MotionC™ — Motion Creates Change</span>
+            <span>Version 1.0.0</span>
+            <span>© 2026 Motioncrafted. All rights reserved.</span>
+            <a href="mailto:info@motionc.me">info@motionc.me</a>
+          </footer>
+        </div>
+      </div>
+    </section>
+
+    <section
+      class="info-overlay"
+      id="disclaimerOverlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="disclaimerTitle"
+      hidden
+    >
+      <div class="info-card">
+        <p class="disclaimer-copyright">© 2026 MotionC</p>
+        <h1 id="disclaimerTitle">Disclaimer</h1>
+        <p>
+          The MCP-Score™ is designed to provide personal insight and promote general
+          wellness awareness. It is <strong>not</strong> a medical device or diagnostic
+          tool and does not diagnose, treat, prevent, or predict any disease or health
+          condition. Always consult a qualified healthcare professional regarding
+          questions about your health, measurements, or personal risk factors.
+        </p>
+        <div class="disclaimer-actions">
+          <button class="got-it" id="closeDisclaimer" type="button">Got It</button>
+        </div>
+      </div>
+    </section>
   </main>
+
+  <script>
+    const learnMore = document.getElementById("learnMore");
+    const infoOverlay = document.getElementById("infoOverlay");
+    const closeInfo = document.getElementById("closeInfo");
+    const understand = document.getElementById("understand");
+    const disclaimerOverlay = document.getElementById("disclaimerOverlay");
+    const closeDisclaimer = document.getElementById("closeDisclaimer");
+    const miraHotspot = document.getElementById("miraHotspot");
+    const miraBubble = document.getElementById("miraBubble");
+    const miraComment = document.getElementById("miraComment");
+    const miraClose = document.getElementById("miraClose");
+    const miraComments = [
+      "Oh, you found me. I was beginning to think that button was decorative.",
+      "Progress is rarely dramatic. Annoying, but true.",
+      "Small steps count. I checked the math twice.",
+      "Clicking me is not technically exercise.",
+      "Back again? I’ll pretend this is about your health.",
+      "Your persistence is impressive. Misguided, but impressive.",
+      "I measure numbers, not excuses. Those require different equipment.",
+      "You bring the effort. I’ll bring the unsolicited commentary.",
+      "Measurement complete. Judgment unavailable.",
+      "That’s today’s number—not today’s verdict.",
+      "I measure weight. Progress is considerably larger.",
+      "You stepped on. I did the math. Excellent teamwork.",
+      "Data received. Self-criticism rejected.",
+      "A fluctuation is not a plot twist.",
+      "There you are. I was beginning to feel like furniture.",
+      "Second reading confirmed. My reputation survives.",
+      "Some days move the line. Some days build the habit.",
+      "Progress occasionally wears camouflage."
+    ];
+    let miraCommentBag = [];
+    let miraLastComment = "";
+    const miraDisplayDuration = 3000;
+    const miraFadeDuration = 700;
+    let miraDismissTimer = null;
+    let miraFadeTimer = null;
+    let miraTimerStartedAt = 0;
+    let miraTimeRemaining = miraDisplayDuration;
+
+    function refillMiraCommentBag() {
+      miraCommentBag = [...miraComments];
+
+      for (let index = miraCommentBag.length - 1; index > 0; index -= 1) {
+        const swapIndex = Math.floor(Math.random() * (index + 1));
+        [miraCommentBag[index], miraCommentBag[swapIndex]] =
+          [miraCommentBag[swapIndex], miraCommentBag[index]];
+      }
+
+      if (
+        miraCommentBag.length > 1 &&
+        miraCommentBag[miraCommentBag.length - 1] === miraLastComment
+      ) {
+        [miraCommentBag[0], miraCommentBag[miraCommentBag.length - 1]] =
+          [miraCommentBag[miraCommentBag.length - 1], miraCommentBag[0]];
+      }
+    }
+
+    function nextMiraComment() {
+      if (miraCommentBag.length === 0) refillMiraCommentBag();
+      miraLastComment = miraCommentBag.pop();
+      return miraLastComment;
+    }
+
+    function setInfoOpen(open) {
+      infoOverlay.hidden = !open;
+      learnMore.setAttribute("aria-expanded", String(open));
+      if (open) closeInfo.focus();
+      else learnMore.focus();
+    }
+
+    learnMore.addEventListener("click", () => setInfoOpen(true));
+    closeInfo.addEventListener("click", () => setInfoOpen(false));
+
+    function setDisclaimerOpen(open) {
+      disclaimerOverlay.hidden = !open;
+      understand.setAttribute("aria-expanded", String(open));
+      if (open) closeDisclaimer.focus();
+      else understand.focus();
+    }
+
+    understand.addEventListener("click", () => setDisclaimerOpen(true));
+    closeDisclaimer.addEventListener("click", () => setDisclaimerOpen(false));
+
+    infoOverlay.addEventListener("click", event => {
+      if (event.target === infoOverlay) setInfoOpen(false);
+    });
+
+    disclaimerOverlay.addEventListener("click", event => {
+      if (event.target === disclaimerOverlay) setDisclaimerOpen(false);
+    });
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && !infoOverlay.hidden) setInfoOpen(false);
+      if (event.key === "Escape" && !disclaimerOverlay.hidden) setDisclaimerOpen(false);
+      if (event.key === "Escape" && !miraBubble.hidden) setMiraOpen(false);
+    });
+
+    function clearMiraTimers() {
+      window.clearTimeout(miraDismissTimer);
+      window.clearTimeout(miraFadeTimer);
+      miraDismissTimer = null;
+      miraFadeTimer = null;
+    }
+
+    function startMiraDismissTimer(duration = miraDisplayDuration) {
+      window.clearTimeout(miraDismissTimer);
+      miraTimeRemaining = duration;
+      miraTimerStartedAt = Date.now();
+      miraDismissTimer = window.setTimeout(() => setMiraOpen(false), duration);
+    }
+
+    function setMiraOpen(open) {
+      clearMiraTimers();
+
+      if (open) {
+        miraBubble.classList.remove("is-closing");
+        miraBubble.hidden = false;
+        miraHotspot.setAttribute("aria-expanded", "true");
+        startMiraDismissTimer();
+        return;
+      }
+
+      if (miraBubble.hidden || miraBubble.classList.contains("is-closing")) return;
+
+      miraHotspot.setAttribute("aria-expanded", "false");
+      miraBubble.classList.add("is-closing");
+      miraFadeTimer = window.setTimeout(() => {
+        miraBubble.hidden = true;
+        miraBubble.classList.remove("is-closing");
+      }, miraFadeDuration);
+    }
+
+    function showNextMiraComment() {
+      miraComment.textContent = nextMiraComment();
+      setMiraOpen(true);
+    }
+
+    miraHotspot.addEventListener("click", showNextMiraComment);
+    miraClose.addEventListener("click", () => setMiraOpen(false));
+
+    document.addEventListener("pointerdown", event => {
+      if (
+        !miraBubble.hidden &&
+        !miraBubble.contains(event.target) &&
+        !miraHotspot.contains(event.target)
+      ) {
+        setMiraOpen(false);
+      }
+    });
+
+    miraBubble.addEventListener("mouseenter", () => {
+      if (miraDismissTimer === null) return;
+      miraTimeRemaining = Math.max(
+        0,
+        miraTimeRemaining - (Date.now() - miraTimerStartedAt)
+      );
+      window.clearTimeout(miraDismissTimer);
+      miraDismissTimer = null;
+    });
+
+    miraBubble.addEventListener("mouseleave", () => {
+      if (!miraBubble.hidden && !miraBubble.classList.contains("is-closing")) {
+        startMiraDismissTimer(miraTimeRemaining);
+      }
+    });
+
+  </script>
+  <script>
+    // Size and center only the secondary Demo link; the Sign In control is unchanged.
+    (() => {
+      const signIn = document.querySelector('.member-sign-in');
+      const demo = document.querySelector('.landing-try-demo');
+      function placeDemo() {
+        const width = signIn.getBoundingClientRect().width;
+        const height = signIn.getBoundingClientRect().height;
+        demo.style.width = width * .85 + 'px';
+        demo.style.height = height * .6 + 'px';
+        demo.style.left = signIn.offsetLeft + width * .075 + 'px';
+        demo.style.right = 'auto';
+        demo.style.fontSize = parseFloat(getComputedStyle(signIn).fontSize) * .74 + 'px';
+      }
+      placeDemo();
+      new ResizeObserver(placeDemo).observe(signIn);
+      window.addEventListener('resize', placeDemo);
+    })();
+  </script>
+  <script type="module" src="/shared/motionc-supabase.js?v=20260922-phase1"></script>
 </body>
 </html>

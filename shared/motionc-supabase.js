@@ -304,7 +304,7 @@ function installPreferenceSignOut() {
     action.textContent = "Signing out…";
     try {
       await signOutAndClear();
-      location.assign("/landing-page/");
+      location.assign("/");
     } catch (error) {
       console.error("MotionC sign out failed", error);
       action.disabled = false;

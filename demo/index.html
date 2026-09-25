@@ -18,7 +18,7 @@
  });
  document.querySelectorAll('[data-screen]').forEach(button=>button.addEventListener('click',()=>select(button.dataset.screen)));
  document.getElementById('exploreDaveSummary').addEventListener('click',()=>select('summary'));
- const destinations=Object.freeze({exit:'/landing-page/',account:'/auth/?mode=choose&next=%2Flanding-page%2F'});
+ const destinations=Object.freeze({exit:'/',account:'/auth/?mode=choose&next=%2F'});
  document.querySelectorAll('[data-leave]').forEach(button=>button.addEventListener('click',()=>{const target=destinations[button.dataset.leave];if(!target)return;discard();location.replace(target);}));
  window.addEventListener('popstate',()=>select(screenFromLocation(),false));window.addEventListener('hashchange',()=>select(screenFromLocation(),false));
  window.addEventListener('pagehide',discard);window.addEventListener('pageshow',event=>{if(event.persisted)mount();});
