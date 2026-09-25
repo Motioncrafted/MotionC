@@ -15,7 +15,7 @@
 </head>
 <body>
   <main class="account-shell">
-    <a class="back" id="accountBack" href="/landing-page/">← Back to Previous Page</a>
+    <a class="back" id="accountBack" href="/">← Back to Previous Page</a>
     <p class="eyebrow">YOUR MOTIONC ACCOUNT</p>
     <h1>Your journey. Your private space.</h1>
     <p class="intro">Use your email privately to secure your account. Around MotionC, other members see only the username you choose.</p>
@@ -44,7 +44,7 @@
       <button id="forgotPasswordButton" class="text-action" type="button">Forgot password?</button>
       <p id="formMessage" class="message" role="status" aria-live="polite" aria-atomic="true"></p>
       <nav class="visitor-links" aria-label="Explore MotionC without an account">
-        <a class="visitor-link visitor-link-primary" href="/landing-page/">Explore MotionC</a>
+        <a class="visitor-link visitor-link-primary" href="/">Explore MotionC</a>
         <a class="visitor-link" href="/drop-zone/">Visit The Commons</a>
       </nav>
     </section>
@@ -144,7 +144,7 @@
       syncStatus.textContent = "Saving before signing out…";
       try {
         await signOutAndClear();
-        location.assign("/landing-page/");
+        location.assign("/");
       } catch (error) {
         syncStatus.textContent = error.message || "Could not sign out.";
         signOutButton.disabled = false;

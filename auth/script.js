@@ -63,7 +63,7 @@ try {
 } catch {
   // Direct visits have no usable same-site referrer.
 }
-$("accountBack").href = safeNext || referrerReturn || "/landing-page/";
+$("accountBack").href = safeNext || referrerReturn || "/";
 const requestedMode = params.get("mode");
 const manageRequested = params.get("manage") === "1";
 const recoveryReturn = `${location.origin}/auth/?mode=recovery`;
@@ -225,7 +225,7 @@ async function finishLogin(session, { stayOnAccount = false } = {}) {
     show("signedInPanel");
     return;
   }
-  location.assign(safeNext || "/landing-page/");
+  location.assign(safeNext || "/");
 }
 
 $("signInTab").addEventListener("click", () => setMode("signin"));
@@ -330,7 +330,7 @@ $("usernameForm").addEventListener("submit", async (event) => {
     return;
   }
   await supabase.auth.updateUser({ data: { username } });
-  location.assign(safeNext || "/landing-page/");
+  location.assign(safeNext || "/");
 });
 
 $("forgotPasswordButton").addEventListener("click", () => {
