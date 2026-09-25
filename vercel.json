@@ -230,6 +230,11 @@
       "permanent": true
     },
     {
+      "source": "/retired/coming-soon-homepage-2026-09-25/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
       "source": "/retired/coming-soon-homepage-2026-09-25/:path*",
       "destination": "/",
       "permanent": true
