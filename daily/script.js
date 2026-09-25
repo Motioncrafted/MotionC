@@ -256,6 +256,7 @@ function loadState() {
 
 function persist() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  try { void window.MotionCCompassRefresh?.refresh(); } catch { /* Compass cannot block a source save. */ }
 }
 
 let profileReadyOwner = null;
@@ -309,30 +310,7 @@ function updateProfileReminder() {
 function syncLifestyleSummary() {
   try {
     const summary = JSON.parse(localStorage.getItem(LIFESTYLE_SUMMARY_STORAGE_KEY));
-    if (!Number.isFinite(Number(summary?.score))) return false;
-    const summaryWeek = summary.week || weekKey(new Date());
-
-    const existing = state.weeks[summaryWeek];
-    if (existing?.summaryUpdatedAt === summary.updatedAt && existing?.scoreLogicVersion === 4) return false;
-
-    const maximumScore = Number(summary.maximumScore) > 0 ? Number(summary.maximumScore) : 24;
-    const score = Math.min(10, roundHalf(Number(summary.score) / maximumScore * 10));
-
-    const values = Object.fromEntries(Object.entries(summary.values || {}).map(([key, value]) => {
-      const numeric = Number(value);
-      return [key, Number.isFinite(numeric) ? Math.max(1, Math.min(3, Math.round(numeric * 3))) : 1];
-    }));
-    state.weeks[summaryWeek] = {
-      ...existing,
-      values: Object.keys(values).length ? values : existing?.values || {},
-      score,
-      assessed: true,
-      summaryScore: Number(summary.score),
-      summaryUpdatedAt: summary.updatedAt,
-      scoreLogicVersion: 4,
-      lifestyleScale: 3,
-      updatedAt: new Date().toISOString()
-    };
+    if (!window.MotionCCompassRefresh.reconcileLifestyle(state, summary, weekKey(new Date()))) return false;
     persist();
     return true;
   } catch {
