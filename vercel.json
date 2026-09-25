@@ -115,7 +115,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'none'; base-uri 'none'; object-src 'none'; connect-src 'none'; form-action 'none'; worker-src 'none'; img-src 'none'; font-src 'none'; media-src 'none'; manifest-src 'none'; style-src 'sha256-2GZCy+MfqQZIbjbrC3F+YYJSFHxmqee4o6shyGQScZk='; script-src 'sha256-KIznWYI5PlGdee05xkdXiRDilTkNRq44O66EcFKLjGM='; frame-src 'self'; frame-ancestors 'none'"
+          "value": "default-src 'none'; base-uri 'none'; object-src 'none'; connect-src 'none'; form-action 'none'; worker-src 'none'; img-src 'none'; font-src 'none'; media-src 'none'; manifest-src 'none'; style-src 'sha256-2GZCy+MfqQZIbjbrC3F+YYJSFHxmqee4o6shyGQScZk='; script-src 'sha256-T6ZL+Hot8ZfVAB9Ea5NgAsdNXcegUlRHx3NXQpufH4A='; frame-src 'self'; frame-ancestors 'none'"
         },
         {
           "key": "Cache-Control",
@@ -144,7 +144,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'none'; base-uri 'none'; object-src 'none'; connect-src 'none'; form-action 'none'; worker-src 'none'; img-src 'none'; font-src 'none'; media-src 'none'; manifest-src 'none'; style-src 'sha256-2GZCy+MfqQZIbjbrC3F+YYJSFHxmqee4o6shyGQScZk='; script-src 'sha256-KIznWYI5PlGdee05xkdXiRDilTkNRq44O66EcFKLjGM='; frame-src 'self'; frame-ancestors 'none'"
+          "value": "default-src 'none'; base-uri 'none'; object-src 'none'; connect-src 'none'; form-action 'none'; worker-src 'none'; img-src 'none'; font-src 'none'; media-src 'none'; manifest-src 'none'; style-src 'sha256-2GZCy+MfqQZIbjbrC3F+YYJSFHxmqee4o6shyGQScZk='; script-src 'sha256-T6ZL+Hot8ZfVAB9Ea5NgAsdNXcegUlRHx3NXQpufH4A='; frame-src 'self'; frame-ancestors 'none'"
         },
         {
           "key": "Cache-Control",
@@ -203,6 +203,36 @@
       "source": "/demo/frame.html",
       "destination": "/api/demo-frame",
       "permanent": false
+    },
+    {
+      "source": "/landing-page",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/landing-page/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/landing-page/index.html",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/index.html",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/retired/coming-soon-homepage-2026-09-25",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/retired/coming-soon-homepage-2026-09-25/:path*",
+      "destination": "/",
+      "permanent": true
     }
   ]
 }
