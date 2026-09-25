@@ -1,7 +1,7 @@
 (()=>{'use strict';
  const C=window.CompassV2,H=window.CompassV2History,$=id=>document.getElementById(id);
  if(!C||!H||!window.CompassV2Language||!window.CompassV2Cards||!window.CompassV2DirectionView){$('directionUnavailable').textContent='Compass could not be loaded. Please reload.';return;}
- let owner=null,lastPresentation=null,historyEnd=null;
+ let owner=null,lastPresentation=null,historyEnd=null,refreshSequence=0;
  const text=(id,value)=>$(id).textContent=value,day=()=>C.dayKey(new Date()),read=k=>{try{return JSON.parse(localStorage.getItem(k)||'null');}catch{return null;}};
  const shift=(d,n)=>{const date=new Date(d+'T12:00:00');date.setDate(date.getDate()+n);return C.dayKey(date);};
  const dateLabel=d=>new Date(d+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
@@ -28,14 +28,18 @@
   const errors={'save-failed':'This reading could not be saved on this device.','history-unreadable':'Saved V2 history could not be read. This reading has not been saved.','history-owner-or-version-mismatch':'Saved V2 history is not available for this account or calculation version. This reading has not been saved.','clock-before-saved-reading':'This device’s date or time is before its latest saved reading. This reading has not been saved.','account-not-ready':'Waiting for your account data before saving a V2 reading.'};
   text('saveStatus',errors[p.error]||'');
  }
- function refresh(){
+ async function refresh(){
+  const sequence=++refreshSequence;
+  const update=await window.MotionCCompassRefresh.refresh();
+  if(sequence!==refreshSequence)return;
+  if(!update){text('saveStatus','This reading could not be saved on this device.');return;}
   const active=localStorage.getItem('motionc-auth-active-user'),ready=window.MotionCAccountReady?.owner;
   const nextOwner=active&&active===ready?active:null;
   if(nextOwner!==owner){owner=nextOwner;historyEnd=null;lastPresentation=null;}
-  const s=owner?read('motionc-daily-prototype-v1')||{}:{};
-  const r=C.calculate(s,{asOf:day()});if(owner)window.renderMcpPosition(s);else{text('mcpScore','—');text('mcpZone','Not assessed');$('mcpPosition').setAttribute('aria-label','Current position: MCP not assessed');}
+  if(update.owner!==owner)return;
+  const s=update.state,r=update.result;if(owner)window.renderMcpPosition(s);else{text('mcpScore','—');text('mcpZone','Not assessed');$('mcpPosition').setAttribute('aria-label','Current position: MCP not assessed');}
   text('coverage',Math.round(r.coverage*100)+'% recorded coverage. Coverage describes available evidence, not certainty.');
-  const p=H.observe({storage:localStorage,owner,ready:Boolean(owner),result:r,state:s});lastPresentation=p;window.CompassV2DirectionView.render(r,p);renderSaveStatus(p);window.CompassV2Cards.render(s,r,p.previous,owner);renderHistory(p);
+  const p=update.presentation;lastPresentation=p;window.CompassV2DirectionView.render(r,p);renderSaveStatus(p);window.CompassV2Cards.render(s,r,p.previous,owner);renderHistory(p);
  }
  for(const [id,fn] of [['historyBack',()=>{historyEnd=shift(historyEnd||day(),-7);}],['historyForward',()=>{historyEnd=shift(historyEnd||day(),7);if(historyEnd>day())historyEnd=day();}],['historyToday',()=>{historyEnd=null;}]])$(id).addEventListener('click',()=>{fn();if(lastPresentation)renderHistory(lastPresentation);});
  if(new URLSearchParams(location.search).get('from')==='summary'){$('compassReturnLink').href='../dashboard/';text('compassReturnLink','← Back to Summary');}
