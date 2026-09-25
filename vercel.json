@@ -173,7 +173,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'none'; base-uri 'none'; object-src 'none'; connect-src 'none'; form-action 'none'; worker-src 'none'; img-src 'none'; font-src 'none'; media-src 'none'; manifest-src 'none'; style-src 'sha256-VkqaxCybzOatk4ThzIwA4t1PUl6NHOE5DkvNJDxrYTs='; script-src 'sha256-IUzdEWuH2gIBmA/vzK53PIT3653GTCl3ygUHqAwk2UA='; frame-src 'none'; frame-ancestors 'self'; sandbox allow-scripts"
+          "value": "default-src 'none'; base-uri 'none'; object-src 'none'; connect-src 'none'; form-action 'none'; worker-src 'none'; img-src 'none'; font-src 'none'; media-src 'none'; manifest-src 'none'; style-src 'sha256-BEJR0DT7njagOXoBqGQ13cwnFZpvlc5n97ZRO1DUl90='; script-src 'sha256-66skuOKy2AP9C2xFy/ferJJjQZ/WKvSVineVinYZGMk='; frame-src 'none'; frame-ancestors 'self'; sandbox allow-scripts"
         },
         {
           "key": "Cache-Control",
