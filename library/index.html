@@ -1511,6 +1511,23 @@
 .comix-reader .comix-home{border:0;background:transparent;font-size:11px;padding:8px;letter-spacing:.4px;margin-top:12px}
 .comix-cover-mode .comix-close{background:transparent;color:#e3cbaa;border-color:transparent;margin:4px auto 10px;font-size:12px}
 @media(max-width:480px){.comix-cover header{padding:16px 12px 12px}.comix-cover header p{font-size:12px}.comix-reader #comixEnter{margin-top:12px}.comix-return{gap:6px}}
+
+/* Phone overlays use the viewport, not the cropped artwork bounds. */
+    @media (max-width: 700px), (max-width: 950px) and (max-height: 500px) {
+      .section-overlay, .reader-overlay {
+        position: fixed;
+        height: 100vh;
+        height: 100dvh;
+        padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+      }
+      .section-sheet, .reader-sheet { width: 100%; height: 100%; min-height: 0; }
+    }
+    @media (max-width: 700px) {
+      .section-overlay, .reader-overlay {
+        padding-top: max(62px, env(safe-area-inset-top));
+        padding-bottom: calc(82px + env(safe-area-inset-bottom));
+      }
+    }
 </style>
   <link rel="stylesheet" href="/library/comix-rolodex.css?v=20260919-nav2">
 </head>
