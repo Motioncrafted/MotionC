@@ -546,7 +546,11 @@
       font: 400 12px/1.3 Arial, sans-serif;
       white-space: nowrap;
       opacity: 1;
-      cursor: default;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
     }
     @media (max-width: 1200px) and (max-aspect-ratio: 16/11) {
       .landing-support {
@@ -560,7 +564,7 @@
 </head>
 <body>
   <main class="landing-page">
-    <button class="landing-support" type="button" disabled>♡ Support MotionC</button>
+    <a class="landing-support" href="https://www.paypal.com/ncp/payment/K2XHUN6CB3BXS" target="_blank" rel="noopener noreferrer">♡ Support MotionC</a>
     <a
       class="member-sign-in"
       href="/auth/?mode=signin"
