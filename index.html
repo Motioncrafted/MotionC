@@ -535,8 +535,8 @@
     .landing-support {
       position: absolute;
       z-index: 4;
-      right: 1.2%;
-      bottom: .8%;
+      right: max(1.2%, 30px);
+      bottom: calc(.8% + 22px);
       min-height: 44px;
       padding: 8px 12px;
       border: 1px solid rgba(236, 225, 201, .38);
@@ -551,8 +551,8 @@
     @media (max-width: 1200px) and (max-aspect-ratio: 16/11) {
       .landing-support {
         position: fixed;
-        right: max(16px, env(safe-area-inset-right));
-        bottom: max(16px, env(safe-area-inset-bottom));
+        right: max(38px, env(safe-area-inset-right));
+        bottom: max(38px, env(safe-area-inset-bottom));
         font-size: 13px;
       }
     }
