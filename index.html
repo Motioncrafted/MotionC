@@ -560,7 +560,19 @@
         font-size: 13px;
       }
     }
-  </style>
+  
+/* Bound the existing Learn More card to phone viewport space. */
+    @media (max-width: 700px), (max-width: 950px) and (max-height: 500px) {
+      #infoOverlay {
+        position: fixed;
+        height: 100vh;
+        height: 100dvh;
+        padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+      }
+      #infoOverlay .info-card { width: min(760px, 100%); max-height: 100%; min-width: 0; }
+      #infoOverlay h1 { padding-right: 36px; }
+    }
+</style>
 </head>
 <body>
   <main class="landing-page">
