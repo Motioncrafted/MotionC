@@ -791,3 +791,16 @@ body {
         transition: left 45ms linear;
     }
 }
+
+/* Extend phone hit areas without changing the artwork or visible controls. */
+@media (max-width: 700px), (max-width: 950px) and (max-height: 500px) {
+  .engine-preferences-toggle::after {
+    content: ""; position: absolute; top: -2px; left: -2px;
+    width: max(100%, 44px); height: max(100%, 44px);
+  }
+  #refresh-population-button { position: relative; }
+  #refresh-population-button::after {
+    content: ""; position: absolute; top: -4px; left: 0;
+    width: 44px; height: max(100%, 24px);
+  }
+}
