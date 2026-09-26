@@ -807,7 +807,21 @@
       .walk-card strong { font-size: 7px; }
       .delete { width: 14px; height: 14px; font-size: 7px; }
     }
-  </style>
+  
+/* Extend phone hit areas without moving their visible artwork controls. */
+    @media (max-width: 700px), (max-width: 950px) and (max-height: 500px) {
+      .walking-side-brand { position: relative; }
+      .walking-side-brand::after {
+        content: ""; position: absolute; top: -2px; left: -2px;
+        width: max(100%, 32px); height: max(100%, 28px);
+      }
+      .journey-reset { position: relative; }
+      .journey-reset::after {
+        content: ""; position: absolute; bottom: 8px; left: 0;
+        width: 100%; height: max(100%, 32px);
+      }
+    }
+</style>
 <link rel="stylesheet" href="/shared/checkin-access.css?v=20260914-1">
 </head>
 <body>
