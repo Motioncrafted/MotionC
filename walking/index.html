@@ -807,6 +807,42 @@
       .walk-card strong { font-size: 7px; }
       .delete { width: 14px; height: 14px; font-size: 7px; }
     }
+
+    /* Wide/short canvases: scale only the crowded card contents to the artwork. */
+    @media (min-width: 951px) and (min-height: 481px) and (min-aspect-ratio: 3/2) {
+      .page { --walking-content-unit: min(1vw, 1.5vh); }
+      @media (max-height: 700px) {
+        .page { --walking-content-unit: min(1vw, calc((100dvh - clamp(24px, 7dvh, 48px)) * .015)); }
+      }
+      .lifetime { padding: clamp(4px, calc(.45 * var(--walking-content-unit)), 9px); }
+      .lifetime strong { font-size: clamp(17px, calc(2 * var(--walking-content-unit)), 36px); }
+      .lifetime span { font-size: clamp(8px, calc(.8 * var(--walking-content-unit)), 14px); }
+      .lifetime .lifetime-total {
+        margin-top: clamp(2px, calc(.3 * var(--walking-content-unit)), 5px);
+        padding-top: clamp(2px, calc(.3 * var(--walking-content-unit)), 5px);
+        font-size: clamp(6px, calc(.57 * var(--walking-content-unit)), 10px);
+      }
+      .entry {
+        padding: clamp(7px, calc(.75 * var(--walking-content-unit)), 15px);
+        gap: clamp(5px, calc(.55 * var(--walking-content-unit)), 10px);
+      }
+      .entry h2 { font-size: clamp(11px, calc(1.15 * var(--walking-content-unit)), 20px); }
+      .entry .message { flex-shrink: 0; font-size: clamp(8px, calc(.7 * var(--walking-content-unit)), 12px); }
+      .entry .journey-reset {
+        height: clamp(25px, calc(2.4 * var(--walking-content-unit)), 40px);
+        padding-inline: clamp(5px, calc(.65 * var(--walking-content-unit)), 11px);
+        margin-top: clamp(5px, calc(.55 * var(--walking-content-unit)), 9px);
+        font-size: clamp(9px, calc(.78 * var(--walking-content-unit)), 13px);
+      }
+      .page.route-toronto .entry {
+        padding-block: clamp(4px, calc(.42 * var(--walking-content-unit)), 8px);
+        gap: clamp(2px, calc(.28 * var(--walking-content-unit)), 5px);
+      }
+      .page.route-toronto .entry .message { flex-shrink: 0; font-size: clamp(6px, calc(.58 * var(--walking-content-unit)), 10px); }
+      .page.route-toronto .entry .journey-reset { margin-top: 0; }
+      .route-access { font-size: clamp(10px, calc(.9 * var(--walking-content-unit)), 16px); }
+      .route-access span { font-size: clamp(13px, calc(1.6 * var(--walking-content-unit)), 27px); }
+    }
   </style>
 <link rel="stylesheet" href="/shared/checkin-access.css?v=20260914-1">
 </head>
