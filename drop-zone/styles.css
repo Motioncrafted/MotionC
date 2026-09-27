@@ -1347,3 +1347,14 @@ textarea {
   .mist-target { display: none; }
   .wall-tag.revealed { animation-duration: 1ms; animation-delay: 0ms; }
 }
+
+/* Scale the height-constrained wall header against its existing 3:2 canvas.
+   Keep viewport-fixed editor/drawer and narrow-screen rules unchanged. */
+@media (min-width: 951px) and (min-height: 481px) and (min-aspect-ratio: 3/2) {
+  .wall-stage { --wall-content-unit: min(1vw, 1.5vh); }
+  .wall-view-tabs button { font-size: clamp(7px, calc(.78 * var(--wall-content-unit)), 14px); }
+  .wall-view-tabs p { font-size: clamp(7px, calc(.72 * var(--wall-content-unit)), 13px); }
+  .visitor-account-actions a { font-size: clamp(7px, calc(.57 * var(--wall-content-unit)), 10px); }
+  .wall-stage:has(.visitor-account-actions:not([hidden])) .wall-view-tabs p { padding-top: 1%; }
+  .history-state { font-size: clamp(9px, calc(.82 * var(--wall-content-unit)), 14px); }
+}
