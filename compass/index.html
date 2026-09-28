@@ -50,8 +50,8 @@
   </section>
   <section class="history-card">
     <header class="history-header"><button id="historyBack" aria-label="Show seven days earlier">◀</button><div><h2>Your direction, over time</h2><p id="historyRange"></p></div><button id="historyForward" aria-label="Show seven days later">▶</button></header>
-    <p class="history-intro">Your saved direction readings, in degrees. 0° at the top · 180° at the bottom.</p>
-    <div class="history-chart-wrap"><svg id="historyPlot" role="group" aria-label="Saved direction in degrees over time, from 0 at the top to 180 at the bottom. Focus a point for its saved evidence."></svg></div>
+    <p id="historyScale" class="history-intro" aria-live="polite">Your saved direction readings, in degrees · North is 0°</p>
+    <div class="history-chart-wrap"><svg id="historyPlot" role="group" aria-describedby="historyScale" aria-label="Saved direction in degrees over time. Focus a point for its saved evidence."></svg></div>
     <div id="v2History" class="v2-history"></div><button id="historyToday">Latest 14 days</button>
     <p class="design-note">This history begins with your first saved reading using the corrected Vibratory Zone. Earlier Compass history is preserved separately; it is not compared with this new baseline.</p>
   </section>
@@ -64,7 +64,7 @@
 <script src="language-v2.js?v=20260920-language-vz1-polish1"></script>
 <script src="cards-v2.js?v=20260921-clean-view2"></script>
 <script src="direction-view-v2.js?v=20260921-clean-view1"></script>
-<script src="controller-v2.js?v=20260925-compass-refresh"></script>
+<script src="controller-v2.js?v=20260927-history-detail"></script>
 <script type="module" src="/shared/motionc-supabase.js?v=20260922-phase1"></script>
 </body>
 </html>

@@ -13,11 +13,23 @@
   const valid=Object.values(records).filter(r=>H.valid(r,owner,day(),Date.now()));
   const earliest=valid.map(r=>r.asOf).sort()[0];$('historyBack').disabled=!earliest||earliest>=start;$('historyForward').disabled=end>=day();
   const rows=valid.filter(r=>r.asOf>=start&&r.asOf<=end).sort((a,b)=>a.asOf.localeCompare(b.asOf));
+  // History display bounds only; saved angles and the full Compass model stay unchanged.
+  let lower=0,upper=180;
+  if(rows.length){
+   const angles=rows.map(r=>r.angle),minimum=Math.min(...angles),maximum=Math.max(...angles);
+   const padding=Math.max(2,(maximum-minimum)*.1),span=Math.min(180,Math.max(20,maximum-minimum+2*padding));
+   lower=Math.max(0,Math.min(180-span,(minimum+maximum-span)/2));
+   upper=Math.min(180,Math.ceil((lower+span)/5)*5);
+   lower=Math.max(0,Math.floor(lower/5)*5);
+  }
+  const scaleLabel=`${lower===0&&upper===180?'Full view':'Detailed view'}: ${lower}°–${upper}° · North is 0°`;
+  if($('historyScale').textContent!==scaleLabel)text('historyScale',scaleLabel);
   const svg=$('historyPlot');svg.replaceChildren();const width=Math.max(300,svg.parentElement.clientWidth),height=180,left=65,right=20,top=20,bottom=35;
+  svg.setAttribute('aria-label',`Saved direction in degrees over time. Showing ${lower} to ${upper} degrees, from top to bottom, within the full Compass range of 0 degrees North to 180 degrees South. Focus a point for its saved evidence.`);
   svg.setAttribute('viewBox',`0 0 ${width} ${height}`);
   const node=(tag,attrs,content)=>{const n=document.createElementNS(svgNS,tag);for(const [k,v]of Object.entries(attrs))n.setAttribute(k,v);if(content)n.textContent=content;svg.append(n);return n;};
-  const x=date=>left+(C.dayNumber(date)-C.dayNumber(start))/13*(width-left-right),y=angle=>top+angle/180*(height-top-bottom);
-  for(const a of [0,90,180]){node('line',{x1:left,x2:width-right,y1:y(a),y2:y(a),class:'history-gridline'});node('text',{x:left-10,y:y(a)+4,'text-anchor':'end',class:'history-axis'},a+'°');}
+  const x=date=>left+(C.dayNumber(date)-C.dayNumber(start))/13*(width-left-right),y=angle=>top+(angle-lower)/(upper-lower)*(height-top-bottom);
+  for(const a of [lower,(lower+upper)/2,upper]){node('line',{x1:left,x2:width-right,y1:y(a),y2:y(a),class:'history-gridline'});node('text',{x:left-10,y:y(a)+4,'text-anchor':'end',class:'history-axis'},a+'°');}
   for(const i of [0,6,13])node('text',{x:x(shift(start,i)),y:height-8,'text-anchor':i===0?'start':i===13?'end':'middle',class:'history-axis'},new Date(shift(start,i)+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric'}));
   let previous=null;for(const r of rows){if(previous&&C.dayNumber(r.asOf)-C.dayNumber(previous.asOf)===1)node('line',{x1:x(previous.asOf),x2:x(r.asOf),y1:y(previous.angle),y2:y(r.angle),class:'history-line'});const n=node('circle',{cx:x(r.asOf),cy:y(r.angle),r:5,class:'history-point',tabindex:0,role:'button','aria-label':dateLabel(r.asOf)+': '+r.angle.toFixed(3)+' degrees. Show saved evidence.'});const select=()=>{const detail=box.querySelector(`[data-date="${r.asOf}"]`);if(detail){detail.open=true;detail.querySelector('summary').focus();}};n.addEventListener('click',select);n.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select();}});previous=r;}
   if(!rows.length){const e=document.createElement('p');e.textContent='No saved direction readings in this period.';box.append(e);}
