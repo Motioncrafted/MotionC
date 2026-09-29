@@ -2339,3 +2339,16 @@ body {
     outline: 2px solid #bba268;
     outline-offset: 3px;
 }
+
+/* One page-local period control for the paired Summary charts. */
+.summary-chart-navigation { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; min-height: 14px; }
+.summary-chart-navigation .eyebrow { margin: 0; white-space: nowrap; letter-spacing: .08em; }
+.summary-chart-arrows { display: inline-flex; gap: 3px; }
+.summary-chart-arrows button { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; margin: -7px 0; padding: 0; border: 1px solid #c8d8c7; border-radius: 7px; background: #e8f1e5; color: #326445; font: 24px/1 Arial, sans-serif; cursor: pointer; }
+.summary-chart-arrows button:disabled { opacity: .4; cursor: default; }
+.summary-chart-arrows button:focus-visible { outline: 2px solid #347b50; outline-offset: 2px; }
+.summary-chart-arrows button:not(:disabled):hover { background: #dce9d8; }
+.weight-chart-heading { position: relative; }
+@media (max-width: 600px) {
+    .summary-chart-arrows { position: absolute; top: calc(100% + 14px); left: 0; }
+}

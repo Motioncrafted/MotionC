@@ -13,7 +13,7 @@
 
     <link
         rel="stylesheet"
-        href="/dashboard/styles.css?v=20260922-phase1"
+        href="/dashboard/styles.css?v=20260929-chart-history"
     >
 
     <style>
@@ -253,7 +253,7 @@
             <section class="chart-grid">
                 <article class="panel chart-panel">
                     <div class="panel-heading">
-                        <div><p class="eyebrow">LAST 14 DAYS</p><h3>Weight trend</h3></div>
+                        <div class="weight-chart-heading"><div class="summary-chart-navigation"><p class="eyebrow" id="summary-chart-period" aria-live="polite">LAST 14 DAYS</p><span class="summary-chart-arrows"><button type="button" id="summary-chart-earlier" aria-label="Previous 14 days for both charts" aria-controls="weight-chart walking-chart" disabled>‹</button><button type="button" id="summary-chart-later" aria-label="Next 14 days for both charts" aria-controls="weight-chart walking-chart" disabled>›</button></span></div><h3>Weight trend</h3></div>
                         <div class="weight-chart-meta">
                             <span id="weight-chart-summary" class="chart-summary">No entries yet</span>
                             <span id="real-goal-weight-label" class="goal-weight-label real-goal-weight-label">Real Goal: —</span>
@@ -1005,7 +1005,7 @@
     <script src="/compass/engine-v2.js?v=20260920-language-vz1"></script>
     <script src="/compass/history-v2.js?v=20260920-language-vz1"></script>
     <script src="/shared/compass-refresh.js?v=20260925-1"></script>
-    <script src="/dashboard/script.js?v=20260925-compass-refresh"></script>
+    <script src="/dashboard/script.js?v=20260929-chart-history"></script>
     <script type="module" src="/shared/motionc-supabase.js?v=20260922-phase1"></script>
 
 

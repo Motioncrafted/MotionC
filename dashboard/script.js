@@ -1369,6 +1369,11 @@ let summaryGoalWeight = null;
 let summaryMotivationalWeight = null;
 let summaryVibratoryWeight = null;
 let summaryWeightPoints = [];
+// Chart navigation is deliberately page-local, never saved with user state.
+let summaryChartOffset = 0;
+let summaryChartEntries = {};
+let summaryChartDates = [];
+let summaryCurrentWeightPoints = [];
 let summaryUnitSystem = "imperial";
 let summaryReadyOwner = null;
 
@@ -1395,7 +1400,7 @@ async function refreshSummaryAccountReadiness() {
 }
 
 window.addEventListener("motionc:account-ready", refreshSummaryAccountReadiness);
-window.addEventListener("motionc:account-changing", () => { summaryReadyOwner = null; });
+window.addEventListener("motionc:account-changing", () => { summaryReadyOwner = null; summaryChartOffset = 0; summaryChartEntries = {}; });
 const summaryDisplayWeight = pounds => summaryUnitSystem === "metric" ? pounds * summaryKgPerLb : pounds;
 const summaryStoredWeight = value => summaryUnitSystem === "metric" ? value / summaryKgPerLb : value;
 const summaryDisplayDistance = miles => summaryUnitSystem === "metric" ? miles * summaryKmPerMi : miles;
@@ -1731,11 +1736,33 @@ function drawGrid(context, width, height, padding) {
     }
 }
 
+function updateSummaryGoalHeaders() {
+    const latestWeight = summaryCurrentWeightPoints.at(-1)?.value;
+    const remaining = Number.isFinite(latestWeight) && Number.isFinite(summaryGoalWeight)
+        ? latestWeight - summaryGoalWeight
+        : null;
+    const realGoalProgress = remaining === null
+        ? ""
+        : remaining > 0
+            ? ` · ${remaining.toFixed(1)} ${summaryWeightUnit()} to go`
+            : remaining < 0
+                ? ` · ${Math.abs(remaining).toFixed(1)} ${summaryWeightUnit()} under`
+                : " · Goal reached";
+    setText("real-goal-weight-label", Number.isFinite(summaryGoalWeight) ? `Real Goal: ${summaryGoalWeight.toFixed(1)} ${summaryWeightUnit()}${realGoalProgress}` : "Real Goal: —");
+    setText("motivational-goal-weight-label", Number.isFinite(summaryMotivationalWeight) ? `Motivational Goal: ${summaryMotivationalWeight.toFixed(1)} ${summaryWeightUnit()}` : "Motivational Goal: —");
+    setText("vibratory-weight-label", Number.isFinite(summaryVibratoryWeight) ? `VZ: ${summaryVibratoryWeight.toFixed(1)} ${summaryWeightUnit()}` : "VZ: —");
+    return realGoalProgress;
+}
+
 function drawWeightChart(points) {
+    updateSummaryGoalHeaders();
     const canvas = document.getElementById("weight-chart");
     const empty = document.getElementById("weight-chart-empty");
     if (!canvas || !empty) return;
 
+    summaryWeightPoints = points;
+    canvas._hitPoints = [];
+    canvas._goalScale = null;
     if (points.length < 1) {
         empty.hidden = false;
         canvas.hidden = true;
@@ -1748,9 +1775,9 @@ function drawWeightChart(points) {
     const padding = { top: 18, right: 15, bottom: 34, left: 14 };
     summaryWeightPoints = points;
     const values = points.map(point => point.value);
-    if (Number.isFinite(summaryGoalWeight)) values.push(summaryGoalWeight);
-    if (Number.isFinite(summaryMotivationalWeight)) values.push(summaryMotivationalWeight);
-    if (Number.isFinite(summaryVibratoryWeight)) values.push(summaryVibratoryWeight);
+    if (!summaryChartOffset && Number.isFinite(summaryGoalWeight)) values.push(summaryGoalWeight);
+    if (!summaryChartOffset && Number.isFinite(summaryMotivationalWeight)) values.push(summaryMotivationalWeight);
+    if (!summaryChartOffset && Number.isFinite(summaryVibratoryWeight)) values.push(summaryVibratoryWeight);
     const minimum = Math.min(...values) - .7;
     const maximum = Math.max(...values) + .7;
     const chartWidth = width - padding.left - padding.right;
@@ -1758,7 +1785,7 @@ function drawWeightChart(points) {
     drawGrid(context, width, height, padding);
 
     const coordinates = points.map((point, index) => ({
-        x: padding.left + chartWidth * (points.length === 1 ? .5 : index / (points.length - 1)),
+        x: padding.left + chartWidth * summaryChartDates.indexOf(point.date) / 13,
         y: padding.top + chartHeight * (1 - (point.value - minimum) / (maximum - minimum)),
         ...point
     }));
@@ -1767,16 +1794,22 @@ function drawWeightChart(points) {
     const gradient = context.createLinearGradient(0, padding.top, 0, height - padding.bottom);
     gradient.addColorStop(0, "rgba(52, 123, 80, .28)");
     gradient.addColorStop(1, "rgba(52, 123, 80, 0)");
+    const segments = [];
+    coordinates.forEach((point, index) => {
+        if (!index || summaryChartDates.indexOf(point.date) - summaryChartDates.indexOf(coordinates[index - 1].date) !== 1) segments.push([]);
+        segments.at(-1).push(point);
+    });
+    segments.forEach(segment => {
+        context.beginPath();
+        context.moveTo(segment[0].x, height - padding.bottom);
+        segment.forEach(point => context.lineTo(point.x, point.y));
+        context.lineTo(segment.at(-1).x, height - padding.bottom);
+        context.closePath();
+        context.fillStyle = gradient;
+        context.fill();
+    });
     context.beginPath();
-    context.moveTo(coordinates[0].x, height - padding.bottom);
-    coordinates.forEach(point => context.lineTo(point.x, point.y));
-    context.lineTo(coordinates.at(-1).x, height - padding.bottom);
-    context.closePath();
-    context.fillStyle = gradient;
-    context.fill();
-
-    context.beginPath();
-    coordinates.forEach((point, index) => index ? context.lineTo(point.x, point.y) : context.moveTo(point.x, point.y));
+    segments.forEach(segment => segment.forEach((point, index) => index ? context.lineTo(point.x, point.y) : context.moveTo(point.x, point.y)));
     context.strokeStyle = "#347b50";
     context.lineWidth = 3;
     context.lineJoin = "round";
@@ -1795,7 +1828,7 @@ function drawWeightChart(points) {
 
     const lineY = value => padding.top + chartHeight * (1 - (value - minimum) / (maximum - minimum));
     const drawMarkerLine = ({ value, color, dash, text, fill, textColor, side = "right" }) => {
-        if (!Number.isFinite(value)) return null;
+        if (summaryChartOffset || !Number.isFinite(value)) return null;
         const y = lineY(value);
         context.save();
         context.setLineDash(dash);
@@ -1818,17 +1851,7 @@ function drawWeightChart(points) {
         return y;
     };
 
-    const latestWeight = points.at(-1)?.value;
-    const remaining = Number.isFinite(latestWeight) && Number.isFinite(summaryGoalWeight)
-        ? latestWeight - summaryGoalWeight
-        : null;
-    const realGoalProgress = remaining === null
-        ? ""
-        : remaining > 0
-            ? ` · ${remaining.toFixed(1)} ${summaryWeightUnit()} to go`
-            : remaining < 0
-                ? ` · ${Math.abs(remaining).toFixed(1)} ${summaryWeightUnit()} under`
-                : " · Goal reached";
+    const realGoalProgress = updateSummaryGoalHeaders();
     const vibratoryY = drawMarkerLine({
         value: summaryVibratoryWeight,
         color: "#d19a2d",
@@ -1856,17 +1879,15 @@ function drawWeightChart(points) {
         textColor: "#087348",
         side: "left"
     });
-    canvas._goalScale = { minimum, maximum, top: padding.top, height: chartHeight, realY, motivationalY, vibratoryY };
-    setText("real-goal-weight-label", Number.isFinite(summaryGoalWeight) ? `Real Goal: ${summaryGoalWeight.toFixed(1)} ${summaryWeightUnit()}${realGoalProgress}` : "Real Goal: —");
-    setText("motivational-goal-weight-label", Number.isFinite(summaryMotivationalWeight) ? `Motivational Goal: ${summaryMotivationalWeight.toFixed(1)} ${summaryWeightUnit()}` : "Motivational Goal: —");
-    setText("vibratory-weight-label", Number.isFinite(summaryVibratoryWeight) ? `VZ: ${summaryVibratoryWeight.toFixed(1)} ${summaryWeightUnit()}` : "VZ: —");
+    canvas._goalScale = summaryChartOffset ? null : { minimum, maximum, top: padding.top, height: chartHeight, realY, motivationalY, vibratoryY };
+
 
     context.fillStyle = "#7a8782";
     context.font = "10px Arial";
     context.textAlign = "center";
-    coordinates.forEach((point, index) => {
-        if (index === 0 || index === coordinates.length - 1 || index % 3 === 0) {
-            context.fillText(shortChartDate(point.date), point.x, height - 11);
+    summaryChartDates.forEach((date, index) => {
+        if (index === 0 || index === 13 || index % 3 === 0) {
+            context.fillText(shortChartDate(date), padding.left + chartWidth * index / 13, height - 11);
         }
     });
 }
@@ -1876,6 +1897,7 @@ function drawWalkingChart(points) {
     const empty = document.getElementById("walking-chart-empty");
     if (!canvas || !empty) return;
 
+    canvas._hitPoints = [];
     if (!points.some(point => point.miles > 0 || point.minutes > 0)) {
         empty.hidden = false;
         canvas.hidden = true;
@@ -2156,6 +2178,81 @@ function drawDailyGaugeTrend(key, dates, gauges) {
     setText(`${key}-trend-summary`, `${formatDailyTrendValue(average, key)} ${config.unit} avg · ${recorded.length} recorded`);
 }
 
+function summaryWalkingPoints(dates, entries) {
+    return dates.map(date => {
+        const dailyEntry = entries[date] || {};
+        const individualWalks = Array.isArray(dailyEntry.walks)
+            ? dailyEntry.walks
+                .map(walk => summaryDisplayDistance(Number(walk?.distance || 0)))
+                .filter(distance => distance > 0)
+            : [];
+        return {
+            date,
+            miles: summaryDisplayDistance(Number(dailyEntry.distance || 0)),
+            minutes: Number(dailyEntry.minutes || 0),
+            walks: individualWalks
+        };
+    });
+}
+
+function summaryWeightRecords(dates, entries) {
+    return dates.filter(date => Number.isFinite(Number(entries[date]?.weight)) && Number(entries[date]?.weight) > 0)
+        .map(date => ({ date, value: summaryDisplayWeight(Number(entries[date].weight)) }));
+}
+
+function summaryChartWindow(offset = summaryChartOffset) {
+    return recentDateKeys(14).map(key => {
+        const date = summaryDate(key);
+        date.setDate(date.getDate() - offset * 14);
+        return summaryIso(date);
+    });
+}
+
+function hasEarlierSummaryRecords(start) {
+    return Object.entries(summaryChartEntries).some(([date, entry]) =>
+        /^\d{4}-\d{2}-\d{2}$/.test(date) && Number.isFinite(summaryDate(date).getTime()) &&
+        summaryIso(summaryDate(date)) === date && date < start &&
+        [entry?.weight, entry?.distance, entry?.minutes].some(value => Number.isFinite(Number(value)) && Number(value) > 0));
+}
+
+function renderSummaryCharts() {
+    summaryChartDates = summaryChartWindow();
+    const historical = summaryChartOffset > 0;
+    const format = key => new Intl.DateTimeFormat("en-US", {
+        month: "short", day: "numeric"
+    }).format(summaryDate(key));
+    const range = `${format(summaryChartDates[0])} – ${format(summaryChartDates[13])}`;
+    setText("summary-chart-period", historical ? range.toUpperCase() : "LAST 14 DAYS");
+    const period = document.getElementById("summary-chart-period");
+    period.title = `${summaryChartDates[0]} through ${summaryChartDates[13]}`;
+    period.setAttribute("aria-label", period.title);
+    document.getElementById("summary-chart-earlier").disabled = !hasEarlierSummaryRecords(summaryChartDates[0]);
+    document.getElementById("summary-chart-later").disabled = !historical;
+    for (const id of ["weight", "walking"]) {
+        document.getElementById(`${id}-chart-tooltip`).hidden = true;
+        document.getElementById(`${id}-chart`).setAttribute("aria-label", `${id === "weight" ? "Weight" : "Walking distance and minutes"}: ${summaryChartDates[0]} through ${summaryChartDates[13]}`);
+    }
+    const help = document.querySelector(".goal-line-help");
+    if (!help.dataset.currentText) help.dataset.currentText = help.textContent;
+    help.textContent = help.dataset.currentText;
+    help.style.minHeight = "";
+    help.style.minHeight = `${help.getBoundingClientRect().height}px`;
+    help.textContent = historical ? "Historical goals unavailable; goal lines hidden. Headers show current status." : help.dataset.currentText;
+    document.getElementById("weight-chart").style.cursor = historical ? "default" : "ns-resize";
+    drawWeightChart(summaryWeightRecords(summaryChartDates, summaryChartEntries));
+    drawWalkingChart(summaryWalkingPoints(summaryChartDates, summaryChartEntries));
+}
+
+function navigateSummaryCharts(direction) {
+    if (direction < 0 && !hasEarlierSummaryRecords(summaryChartWindow()[0])) return;
+    summaryChartOffset = Math.max(0, summaryChartOffset - direction);
+    draggingWeightGoal = null;
+    renderSummaryCharts();
+}
+
+document.getElementById("summary-chart-earlier")?.addEventListener("click", () => navigateSummaryCharts(-1));
+document.getElementById("summary-chart-later")?.addEventListener("click", () => navigateSummaryCharts(1));
+
 function renderSummaryData() {
     const daily = readSummaryStorage(summaryDailyStorageKey, { entries: {}, profile: {} });
     const lifestyle = readSummaryStorage(lifestyleSummaryStorageKey, null);
@@ -2205,7 +2302,7 @@ function renderSummaryData() {
     const weightPoints = dates14
         .filter(date => Number(entries[date]?.weight) > 0)
         .map(date => ({ date, value: summaryDisplayWeight(Number(entries[date].weight)) }));
-    drawWeightChart(weightPoints);
+    summaryCurrentWeightPoints = weightPoints;
 
     if (weightPoints.length) {
         const first = weightPoints[0].value;
@@ -2218,21 +2315,9 @@ function renderSummaryData() {
         setText("weekly-weight-change", `${change > 0 ? "+" : ""}${change.toFixed(1)} ${summaryWeightUnit()}`);
     }
 
-    const walkPoints = dates14.map(date => {
-        const dailyEntry = entries[date] || {};
-        const individualWalks = Array.isArray(dailyEntry.walks)
-            ? dailyEntry.walks
-                .map(walk => summaryDisplayDistance(Number(walk?.distance || 0)))
-                .filter(distance => distance > 0)
-            : [];
-        return {
-            date,
-            miles: summaryDisplayDistance(Number(dailyEntry.distance || 0)),
-            minutes: Number(dailyEntry.minutes || 0),
-            walks: individualWalks
-        };
-    });
-    drawWalkingChart(walkPoints);
+    const walkPoints = summaryWalkingPoints(dates14, entries);
+    summaryChartEntries = entries;
+    renderSummaryCharts();
 
     const completedDates14 = recentDateKeys(15).slice(0, -1);
     // Sleep matches Recovery: today plus the previous 13 calendar days.
@@ -2312,7 +2397,7 @@ let draggingWeightGoal = null;
 
 function updateGoalFromPointer(event) {
     const scale = summaryWeightCanvas?._goalScale;
-    if (!scale || !draggingWeightGoal) return;
+    if (summaryChartOffset || !scale || !draggingWeightGoal) return;
     const rect = summaryWeightCanvas.getBoundingClientRect();
     const y = Math.max(scale.top, Math.min(scale.top + scale.height, event.clientY - rect.top));
     const percentage = 1 - (y - scale.top) / scale.height;
@@ -2332,7 +2417,7 @@ function updateGoalFromPointer(event) {
 
 summaryWeightCanvas?.addEventListener("pointerdown", event => {
     const scale = summaryWeightCanvas._goalScale;
-    if (!scale) return;
+    if (summaryChartOffset || !scale) return;
     const rect = summaryWeightCanvas.getBoundingClientRect();
     const pointerY = event.clientY - rect.top;
     const pointerX = event.clientX - rect.left;
@@ -2423,7 +2508,7 @@ function attachChartTooltip(canvasId, tooltipId, renderContent) {
         const point = nearestChartPoint(canvas, event);
         if (!point) {
             tooltip.hidden = true;
-            canvas.style.cursor = canvas === summaryWeightCanvas ? "ns-resize" : "default";
+            canvas.style.cursor = canvas === summaryWeightCanvas && !summaryChartOffset ? "ns-resize" : "default";
             return;
         }
 
@@ -2435,7 +2520,7 @@ function attachChartTooltip(canvasId, tooltipId, renderContent) {
 
     canvas.addEventListener("pointerleave", () => {
         tooltip.hidden = true;
-        canvas.style.cursor = canvas === summaryWeightCanvas ? "ns-resize" : "default";
+        canvas.style.cursor = canvas === summaryWeightCanvas && !summaryChartOffset ? "ns-resize" : "default";
     });
 }
 
@@ -2500,5 +2585,5 @@ document.querySelectorAll('input[name="summaryUnitSystem"]').forEach(input => {
 window.addEventListener("DOMContentLoaded", () => {
     renderSummaryData();
 });
-window.addEventListener("pageshow", renderSummaryData);
+window.addEventListener("pageshow", () => { summaryChartOffset = 0; renderSummaryData(); });
 void refreshSummaryAccountReadiness();
