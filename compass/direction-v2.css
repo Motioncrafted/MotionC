@@ -35,7 +35,7 @@
 @media(max-width:680px){.shaping-cards{grid-template-columns:minmax(0,1fr)}.compass-overview{gap:18px;margin-bottom:26px}.compass-overview .speak-easy{padding:23px}.compass-overview .speak-easy h2{font-size:1.5rem;margin:10px 0 16px}.compass-overview .speak-easy p:last-child{font-size:1rem;line-height:1.7}.direction-panel{padding:22px}.direction-scale{max-width:270px}.current-marker strong{font-size:1.2rem}}
 
 /* Tablet supporting copy: contrast only; instrument/layout untouched. */
-@media (min-width: 768px) and (max-width: 1400px) and (min-height: 600px) {
+@media (min-width: 768px) and (max-width: 1400px) and (min-height: 481px) {
   .direction-intro, .direction-unavailable, .previous-readout,
   .direction-panel .coverage-note, .mcp-position > span:first-child,
   .design-note, .history-intro, .design-view .driver .evidence,
@@ -43,4 +43,12 @@
     color: #263f49;
 
   }
+}
+
+/* Supporting card copy only; preserve instrument scale and card dimensions. */
+@media (min-width: 768px) and (max-width: 1199px) and (min-height: 481px) {
+ .design-view .driver .card-observation,
+ .design-view .driver .card-disclosure>p { color:#263f49; font-weight:400; }
+ .design-view .driver .evidence,
+ .design-view .driver .card-disclosure .comparison-evidence { color:#263f49; font-weight:600; }
 }
