@@ -843,6 +843,20 @@
       .route-access { font-size: clamp(10px, calc(.9 * var(--walking-content-unit)), 16px); }
       .route-access span { font-size: clamp(13px, calc(1.6 * var(--walking-content-unit)), 27px); }
     }
+
+    /* Laptop/tablet readability shared by all routes; preserve artwork geometry. */
+    @media (min-width: 768px) and (min-height: 600px) {
+      .lifetime span, .lifetime .lifetime-total,
+      .entry .message, .station-card, .walk-card,
+      .walk-card small, .progress-detail, .empty {
+        color: #26343a;
+        font-weight: 700;
+      }
+      .station-card strong { color: #26343a; }
+
+      .route-option strong { font-size: clamp(11px, .95vw, 16px); line-height: normal; }
+      .route-option small { opacity: 1; font-size: clamp(10px, .8vw, 13px); line-height: normal; }
+    }
   </style>
 <link rel="stylesheet" href="/shared/checkin-access.css?v=20260914-1">
 </head>
