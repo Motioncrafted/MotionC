@@ -1304,3 +1304,8 @@ dialog::backdrop { background: rgba(9,18,20,.66); backdrop-filter: blur(3px); }
   .sidebar { overflow-y: auto; }
   .sidebar > * { flex-shrink: 0; }
 }
+
+/* Distinguish saved individual walks without changing their fields or geometry. */
+@media (min-width: 1024px) and (min-height: 600px) {
+  .walk-row { background: #f1f5fa; }
+}
