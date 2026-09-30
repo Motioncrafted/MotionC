@@ -21,9 +21,11 @@
 .rolodex-card[data-slot="-3"],.rolodex-card[data-slot="3"]{filter:brightness(.78)}
 .comix-reader .rolodex-card.is-wrapping{opacity:0;pointer-events:none;transition:none;z-index:0!important}
 .rolodex-card-fallback{position:absolute;inset:18% 8%;display:grid;place-content:center;color:#fff2cf;font:bold 19px/1.3 Georgia,serif;text-align:center}
-.comix-reader .rolodex-turn{position:absolute;z-index:30;bottom:40px;width:48px;height:48px;min-height:48px;padding:0;border:1px solid #b49b69;border-radius:50%;background:linear-gradient(145deg,#75654a,#35332a 58%,#4d4331);color:#f1dfb8;box-shadow:inset 0 0 0 4px #372f2366,0 3px 5px #20180c40;font:32px/1 Georgia,serif;touch-action:manipulation}
+.comix-reader .rolodex-turn{position:absolute;z-index:30;bottom:40px;width:86px;height:48px;min-height:48px;padding:2px 6px;border:2px solid #8a6235;border-radius:10px;background:#fff4dc;color:#30251e;box-shadow:0 3px 5px #20180c40;font:700 26px/1 Arial,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;touch-action:manipulation}
 .rolodex-turn-left{left:7%}.rolodex-turn-right{right:7%}
-.comix-reader .rolodex-turn:hover{background:linear-gradient(145deg,#8a7551,#4a4434)}
+.comix-reader .rolodex-turn:hover{background:#ffe9bd}
+.comix-reader .rolodex-turn .rolodex-turn-label{font:700 12px/1 Arial,sans-serif}
+.comix-reader .rolodex-turn:focus-visible{outline:3px solid #30251e;outline-offset:3px}
 .rolodex-info{min-height:152px;padding:15px 20px 20px;border-top:1px solid #9b80603b;text-align:center;background:linear-gradient(#fff9ed88,#f8eedb88)}
 .rolodex-number{margin:0 0 5px;font:700 11px/1.3 Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#80643d}
 .rolodex-info h3{max-width:38ch;margin:0 auto 6px;font:700 clamp(20px,2.5vw,27px)/1.2 Georgia,serif;color:#303a2c;text-wrap:balance}
@@ -45,7 +47,7 @@
  .rolodex-stage{--cover-w:clamp(154px,49vw,235px);--step:calc((96vw - var(--cover-w)) / 6.8);height:calc(var(--cover-w) * 1.333333 + 105px)}
  .rolodex-machine{width:120%;left:-10%;height:126px;bottom:17px}
  .comix-reader .rolodex-card{bottom:91px}
- .comix-reader .rolodex-turn{bottom:27px;width:44px;height:44px;min-height:44px}
+ .comix-reader .rolodex-turn{bottom:27px;width:80px;height:44px;min-height:44px}
  .rolodex-turn-left{left:5%}.rolodex-turn-right{right:5%}
  .rolodex-info{min-height:148px;padding:14px 14px 18px}.rolodex-info h3{font-size:22px}
 }
