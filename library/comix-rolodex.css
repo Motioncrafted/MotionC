@@ -54,7 +54,7 @@
 
 /* Wide tablet issue reader: all five existing controls share one visible row.
    Cover, issue browser, portrait and phone layouts retain their existing flow. */
-@media (orientation: landscape) and (min-width: 960px) and (min-height: 481px) {
+@media (orientation: landscape) and (min-width: 960px) {
   .comix-reader[open]:not(.comix-cover-mode):not(.comix-browser-mode) {
     display: grid;
     grid-template-columns: auto 1fr 1fr 1fr auto;
@@ -75,4 +75,15 @@
   #comixBrowseReturn { grid-row: 4; grid-column: 3; }
   #comixClose { grid-row: 4; grid-column: 4; }
   #comixNext { grid-row: 4; grid-column: 5; }
+}
+
+/* Browser bars and the tablet taskbar reduce available landscape height.
+   Recover space from the reader padding, never from the comic artwork. */
+@media (orientation: landscape) and (min-width: 960px) and (max-height: 480px) {
+  .comix-reader[open]:not(.comix-cover-mode):not(.comix-browser-mode) {
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+  #comixIssueView #comixTitle { margin-bottom: 8px; }
+  #comixCounter { margin-top: 6px; margin-bottom: 6px; }
 }
