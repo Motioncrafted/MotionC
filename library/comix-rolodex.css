@@ -51,3 +51,28 @@
 }
 @media(max-height:600px){.comix-reader.comix-browser-mode{max-height:94dvh}.rolodex-stage{--cover-w:170px;height:330px}.rolodex-heading{padding-top:12px}.rolodex-info{min-height:140px}}
 @media(prefers-reduced-motion:reduce){.comix-reader .rolodex-card{transition:none;will-change:auto}}
+
+/* Wide tablet issue reader: all five existing controls share one visible row.
+   Cover, issue browser, portrait and phone layouts retain their existing flow. */
+@media (orientation: landscape) and (min-width: 960px) and (min-height: 481px) {
+  .comix-reader[open]:not(.comix-cover-mode):not(.comix-browser-mode) {
+    display: grid;
+    grid-template-columns: auto 1fr 1fr 1fr auto;
+    column-gap: 10px;
+  }
+  .comix-reader:not([open]) { display: none; }
+  .comix-reader:not(.comix-cover-mode):not(.comix-browser-mode) #comixIssueView,
+  .comix-reader:not(.comix-cover-mode):not(.comix-browser-mode) .comix-controls,
+  .comix-reader:not(.comix-cover-mode):not(.comix-browser-mode) .comix-return { display: contents; }
+  #comixIssueView #comixTitle, #comixPanel, #comixCounter { grid-column: 1 / -1; }
+  .comix-reader:not(.comix-cover-mode):not(.comix-browser-mode) .comix-return button {
+    margin: 0;
+    padding: 10px 8px;
+    align-self: stretch;
+  }
+  #comixPrevious { grid-row: 4; grid-column: 1; }
+  #comixHome { grid-row: 4; grid-column: 2; }
+  #comixBrowseReturn { grid-row: 4; grid-column: 3; }
+  #comixClose { grid-row: 4; grid-column: 4; }
+  #comixNext { grid-row: 4; grid-column: 5; }
+}
