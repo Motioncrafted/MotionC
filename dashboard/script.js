@@ -21,110 +21,6 @@ const closeButton = document.querySelector(".drawer-close-btn");
 const engineRoomButton =
     document.getElementById("simulation-button");
 
-/* -----------------------------------------
-   Summary theatre gauge
-   Reads, calculates, writes, and stores nothing.
-   ----------------------------------------- */
-
-const theatreGauge = document.getElementById("theatreGauge");
-const theatreGaugeTrigger = document.getElementById("theatreGaugeTrigger");
-const theatreGaugeNeedle = document.getElementById("theatreGaugeNeedle");
-const theatreGaugeResult = document.getElementById("theatreGaugeResult");
-const theatreGaugeInfo = document.getElementById("theatreGaugeInfo");
-const theatreGaugePopover = document.getElementById("theatreGaugePopover");
-
-const theatreGaugeAnswers = [
-    "Just spinning for your amusement!",
-    "Measuring smiles per minute.",
-    "Powered by pure whimsy.",
-    "Calibrated for fun only.",
-    "Zero data, 100% charm.",
-    "Because life needs more gauges.",
-    "Randomness is our specialty.",
-    "No numbers, just good vibes.",
-    "Gauge your grin here!",
-    "Fun levels: off the charts."
-];
-
-let theatreGaugeAnswerBag = [];
-let theatreGaugeLastAnswer = "";
-
-function refillTheatreGaugeAnswerBag() {
-    theatreGaugeAnswerBag = [...theatreGaugeAnswers];
-
-    for (let index = theatreGaugeAnswerBag.length - 1; index > 0; index -= 1) {
-        const swapIndex = Math.floor(Math.random() * (index + 1));
-        [theatreGaugeAnswerBag[index], theatreGaugeAnswerBag[swapIndex]] =
-            [theatreGaugeAnswerBag[swapIndex], theatreGaugeAnswerBag[index]];
-    }
-
-    if (
-        theatreGaugeAnswerBag.length > 1 &&
-        theatreGaugeAnswerBag[theatreGaugeAnswerBag.length - 1] === theatreGaugeLastAnswer
-    ) {
-        [theatreGaugeAnswerBag[0], theatreGaugeAnswerBag[theatreGaugeAnswerBag.length - 1]] =
-            [theatreGaugeAnswerBag[theatreGaugeAnswerBag.length - 1], theatreGaugeAnswerBag[0]];
-    }
-}
-
-function nextTheatreGaugeAnswer() {
-    if (theatreGaugeAnswerBag.length === 0) refillTheatreGaugeAnswerBag();
-    theatreGaugeLastAnswer = theatreGaugeAnswerBag.pop();
-    return theatreGaugeLastAnswer;
-}
-
-function setTheatreGaugeInfo(open) {
-    if (!theatreGaugeInfo || !theatreGaugePopover) return;
-    theatreGaugeInfo.setAttribute("aria-expanded", String(open));
-    theatreGaugePopover.hidden = !open;
-}
-
-theatreGaugeInfo?.addEventListener("click", event => {
-    event.stopPropagation();
-    setTheatreGaugeInfo(theatreGaugePopover?.hidden ?? true);
-});
-
-theatreGaugeTrigger?.addEventListener("click", () => {
-    if (!theatreGaugeNeedle || !theatreGaugeResult || theatreGaugeTrigger.disabled) return;
-
-    setTheatreGaugeInfo(false);
-    theatreGaugeTrigger.disabled = true;
-    theatreGaugeResult.textContent = "Calculating…";
-    theatreGaugeResult.className = "theatre-gauge-result is-calculating";
-
-    const finalAngle = -72 + Math.random() * 34;
-    const motion = theatreGaugeNeedle.animate([
-        { transform: "rotate(-138deg)", offset: 0 },
-        { transform: "rotate(-95deg)", offset: .28 },
-        { transform: "rotate(-108deg)", offset: .4 },
-        { transform: `rotate(${finalAngle + 10}deg)`, offset: .67 },
-        { transform: `rotate(${finalAngle + 3}deg)`, offset: .76 },
-        { transform: `rotate(${finalAngle + 8}deg)`, offset: .82 },
-        { transform: `rotate(${finalAngle - 4}deg)`, offset: .9 },
-        { transform: `rotate(${finalAngle}deg)`, offset: 1 }
-    ], {
-        duration: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 250 : 2700,
-        easing: "cubic-bezier(.35,.05,.2,1)",
-        fill: "forwards"
-    });
-
-    motion.finished.then(() => {
-        const answer = nextTheatreGaugeAnswer();
-        theatreGaugeResult.textContent = answer;
-        theatreGaugeResult.className = "theatre-gauge-result has-answer";
-        theatreGaugeTrigger.disabled = false;
-    }).catch(() => {
-        theatreGaugeTrigger.disabled = false;
-    });
-});
-
-document.addEventListener("click", event => {
-    if (theatreGauge && !theatreGauge.contains(event.target)) setTheatreGaugeInfo(false);
-});
-
-document.addEventListener("keydown", event => {
-    if (event.key === "Escape") setTheatreGaugeInfo(false);
-});
 /* =========================================
    Active page indicator
    ========================================= */
@@ -2161,10 +2057,15 @@ function drawDailyGaugeTrend(key, dates, gauges) {
             context.stroke();
         }
         if (index === 0 || index === coordinates.length - 1 || index % 4 === 0) {
-            context.fillStyle = "#7a8782";
-            context.font = "9px Arial";
+            const readableLabels = matchMedia("(min-width: 768px) and (max-width: 1199px) and (min-height: 481px)").matches;
+            context.fillStyle = readableLabels ? "#34483e" : "#7a8782";
+            context.font = readableLabels ? "600 10px Arial" : "9px Arial";
             context.textAlign = "center";
-            context.fillText(shortChartDate(point.date), point.x, height - 11);
+            const label = shortChartDate(point.date);
+            const halfLabel = context.measureText(label).width / 2;
+            if (readableLabels && index !== 0 && index !== coordinates.length - 1 && coordinates.at(-1).x - point.x < halfLabel * 2 + 8) return;
+            const labelX = readableLabels ? Math.max(halfLabel + 2, Math.min(width - halfLabel - 2, point.x)) : point.x;
+            context.fillText(label, labelX, height - 11);
         }
     });
 
@@ -2499,13 +2400,13 @@ function attachChartTooltip(canvasId, tooltipId, renderContent) {
     const tooltip = document.getElementById(tooltipId);
     if (!canvas || !tooltip) return;
 
-    canvas.addEventListener("pointermove", event => {
+    const showTooltip = event => {
         if (canvas === summaryWeightCanvas && draggingWeightGoal) {
             tooltip.hidden = true;
             return;
         }
 
-        const point = nearestChartPoint(canvas, event);
+        const point = nearestChartPoint(canvas, event, canvasId === "walking-chart" && event.pointerType !== "mouse" ? 24 : 12);
         if (!point) {
             tooltip.hidden = true;
             canvas.style.cursor = canvas === summaryWeightCanvas && !summaryChartOffset ? "ns-resize" : "default";
@@ -2516,9 +2417,23 @@ function attachChartTooltip(canvasId, tooltipId, renderContent) {
         tooltip.hidden = false;
         canvas.style.cursor = "pointer";
         positionChartTooltip(tooltip, canvas, point);
-    });
+    };
+    canvas.addEventListener("pointermove", showTooltip);
+    if (canvasId === "walking-chart") {
+        // A completed tap persists after touch pointerleave; scrolling does not select.
+        let tapStart = null;
+        canvas.addEventListener("pointerdown", event => { if (event.pointerType !== "mouse") tapStart = {x:event.clientX,y:event.clientY}; });
+        canvas.addEventListener("pointerup", event => {
+            if (tapStart && Math.hypot(event.clientX-tapStart.x,event.clientY-tapStart.y)<10) showTooltip(event);
+            tapStart = null;
+        });
+        canvas.addEventListener("pointercancel", () => { tapStart = null; tooltip.hidden = true; });
+        document.addEventListener("pointerdown", event => { if(event.target !== canvas) tooltip.hidden = true; });
+        document.addEventListener("keydown", event => { if(event.key === "Escape") tooltip.hidden = true; });
+    }
 
-    canvas.addEventListener("pointerleave", () => {
+    canvas.addEventListener("pointerleave", event => {
+        if (canvasId === "walking-chart" && event.pointerType !== "mouse") return;
         tooltip.hidden = true;
         canvas.style.cursor = canvas === summaryWeightCanvas && !summaryChartOffset ? "ns-resize" : "default";
     });
