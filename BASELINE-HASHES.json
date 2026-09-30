@@ -1,0 +1,22 @@
+[
+  {
+    "file": "shared/ipad-rooms.js",
+    "matches": true,
+    "sha256": "b9bd0a83507f1fbeff2bc1add897f55c3682c21cc4cf34f15519ee3c86a1c2a0"
+  },
+  {
+    "file": "drop-zone/index.html",
+    "matches": true,
+    "sha256": "b23cc15dd41ccc9e4f0e4f7c6d03cc30951ae6b97fd025ceb79518d66b877d0f"
+  },
+  {
+    "file": "drop-zone/styles.css",
+    "matches": true,
+    "sha256": "9f0cb5382f6514540b3f5b7afefe3bc49e07b791836a545d63e19fc4a28406e5"
+  },
+  {
+    "file": "drop-zone/script.js",
+    "matches": true,
+    "sha256": "3c9d8ee94cdb8df5535e1b906eb637415b5882961954f3d96e8e7a18b21201c9"
+  }
+]
