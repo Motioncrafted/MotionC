@@ -92,3 +92,18 @@ window.addEventListener('message',event=>{const m=event.data;if(!embedded||!chan
 window.addEventListener('resize',()=>{if(activeScreen==='summary')renderSummary();});
 if(!embedded)document.getElementById('demo-connection').textContent='Direct-open isolation is active. Open /demo/ in the address bar for shell navigation.';
 render('home');
+
+// Let the outer page own vertical scrolling; retain the opaque sandbox boundary.
+let heightFrame=0,lastReportedHeight=0;
+function reportDemoHeight(){
+ if(!embedded||!channelOK)return;
+ cancelAnimationFrame(heightFrame);
+ heightFrame=requestAnimationFrame(()=>{
+  const root=document.getElementById('demo-root');
+  const height=Math.max(100,Math.ceil(root.getBoundingClientRect().top+scrollY+root.scrollHeight+64));
+  if(height!==lastReportedHeight){lastReportedHeight=height;parent.postMessage({type:'motionc-demo-height',channel,height},'*');}
+ });
+}
+new ResizeObserver(reportDemoHeight).observe(document.getElementById('demo-root'));
+window.addEventListener('resize',reportDemoHeight);
+reportDemoHeight();
