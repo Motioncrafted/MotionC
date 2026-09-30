@@ -33,3 +33,14 @@
 @media(max-width:1199px){.shaping-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.compass-overview{grid-template-columns:minmax(0,1fr) minmax(300px,340px);gap:20px}.compass-overview .speak-easy{padding:28px}}
 @media(max-width:900px){.compass-overview{grid-template-columns:minmax(0,1fr)}.compass-overview .speak-easy{padding:28px}.direction-panel{padding:24px 28px}.direction-scale{height:228px}.compass-overview .speak-easy h2{font-size:1.7rem}.compass-overview .speak-easy p:last-child{font-size:1.05rem}}
 @media(max-width:680px){.shaping-cards{grid-template-columns:minmax(0,1fr)}.compass-overview{gap:18px;margin-bottom:26px}.compass-overview .speak-easy{padding:23px}.compass-overview .speak-easy h2{font-size:1.5rem;margin:10px 0 16px}.compass-overview .speak-easy p:last-child{font-size:1rem;line-height:1.7}.direction-panel{padding:22px}.direction-scale{max-width:270px}.current-marker strong{font-size:1.2rem}}
+
+/* Tablet supporting copy: contrast only; instrument/layout untouched. */
+@media (min-width: 768px) and (max-width: 1400px) and (min-height: 600px) {
+  .direction-intro, .direction-unavailable, .previous-readout,
+  .direction-panel .coverage-note, .mcp-position > span:first-child,
+  .design-note, .history-intro, .design-view .driver .evidence,
+  .design-view .driver .card-disclosure .comparison-evidence {
+    color: #263f49;
+
+  }
+}
