@@ -65,7 +65,8 @@
    .room-drop-dock .spray-button{position:static;grid-column:2;grid-row:1;width:100%;height:84px;min-height:44px;box-shadow:none;font-size:17px}
    .room-drop-dock .emoji-picker,.room-drop-dock .font-picks,.room-drop-dock .color-picks,.room-drop-dock .size-picks{position:static;grid-column:1/-1;grid-row:auto;display:flex;flex-wrap:wrap;width:auto;height:auto;gap:10px;margin:0}
    .room-drop-dock .emoji-toggle,.room-drop-dock .font-picks button,.room-drop-dock .color-picks button,.room-drop-dock .size-picks button{min-width:44px;min-height:44px}
-   .room-drop-dock .emoji-menu[hidden]{display:none}.room-drop-dock .emoji-menu{flex-wrap:wrap;display:flex}
+   .room-drop-dock .emoji-menu[hidden]{display:none}.room-drop-dock .emoji-menu{position:static;flex:0 1 auto;display:grid;grid-template-columns:repeat(7,44px);gap:6px;width:max-content;max-width:100%;margin:0;padding:6px}
+   .room-drop-dock .emoji-menu button{width:44px;min-width:44px;height:44px;min-height:44px;aspect-ratio:1}
    .room-drop-dock .visitor-account-actions{position:static;width:auto;display:flex;gap:12px;padding:12px 0 0}.room-drop-dock .visitor-account-actions[hidden]{display:none}.room-drop-dock .visitor-account-actions a{min-height:44px;font:700 15px Arial;padding:12px}
   }`;document.head.append(css);
  }
