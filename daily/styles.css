@@ -1306,6 +1306,7 @@ dialog::backdrop { background: rgba(9,18,20,.66); backdrop-filter: blur(3px); }
 }
 
 /* Distinguish saved individual walks without changing their fields or geometry. */
-@media (min-width: 1024px) and (min-height: 600px) {
+@media (min-width: 600px) and (min-height: 600px),
+       (min-width: 960px) and (orientation: landscape) {
   .walk-row { background: #f1f5fa; }
 }
