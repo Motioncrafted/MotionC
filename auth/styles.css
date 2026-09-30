@@ -21,3 +21,6 @@ html[data-account-choice="choose"] .tabs button.active{background:#edf1ef;color:
 .account-support h3{margin:0;font-size:16px;line-height:1.4;font-weight:700}
 .account-support p{margin:12px 0 18px;color:#5c6d70;line-height:1.5}
 .support-placeholder:disabled{background:var(--soft);color:var(--deep);border:1px solid var(--line);opacity:1;cursor:default;max-width:100%}
+
+/* Account return control: retain destination/handler, enlarge only its hit area. */
+#accountBack{display:inline-flex;align-items:center;min-height:44px;padding:8px 12px;border:1px solid #829b90;border-radius:8px;background:#fff;color:#16483b;font-size:16px;text-decoration:underline;text-underline-offset:3px}
