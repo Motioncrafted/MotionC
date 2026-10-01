@@ -80,3 +80,6 @@ html[data-motionc-presentation="phone"][data-motionc-phone-nav="ready"] body:has
   box-sizing: border-box; max-width: calc(100vw - max(12px, env(safe-area-inset-right)) - 84px);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
+
+/* The Phone Library selector already provides its own Go back escape. */
+html[data-motionc-presentation="phone"]:has(#phoneLibrary:not([hidden])) .motionc-phone-menu-button { display: none; }
