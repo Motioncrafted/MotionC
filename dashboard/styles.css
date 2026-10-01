@@ -2352,3 +2352,10 @@ body {
 @media (max-width: 600px) {
     .summary-chart-arrows { position: absolute; top: calc(100% + 14px); left: 0; }
 }
+
+/* Keep tablet portrait preferences attached to the main navigation. */
+@media (min-width: 641px) and (max-width: 900px) and (orientation: portrait) {
+ .side-menu { display:flex;flex-direction:row;align-items:flex-start;gap:10px; }
+ .side-menu nav { flex:1;min-width:0;grid-template-columns:repeat(6,minmax(0,1fr)); }
+ .side-menu #summaryPreferencesToggle { position:static;display:flex!important;flex:0 0 48px;margin:0; }
+}
