@@ -287,10 +287,12 @@ textarea {
   border-bottom: 2px solid transparent;
   color: rgba(255,255,255,.68);
   background: #07090a;
-  font-family: "Segoe Print", "Comic Sans MS", cursive;
-  font-size: clamp(7px, .78vw, 14px);
-  font-weight: 800;
-  text-transform: uppercase;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(10px, 1.05vw, 16px);
+  font-weight: 700;
+  font-style: normal;
+  padding-inline: 2px;
+  text-transform: none;
   white-space: nowrap;
   cursor: pointer;
 }
@@ -1352,7 +1354,7 @@ textarea {
    Keep viewport-fixed editor/drawer and narrow-screen rules unchanged. */
 @media (min-width: 951px) and (min-height: 481px) and (min-aspect-ratio: 3/2) {
   .wall-stage { --wall-content-unit: min(1vw, 1.5vh); }
-  .wall-view-tabs button { font-size: clamp(7px, calc(.78 * var(--wall-content-unit)), 14px); }
+  .wall-view-tabs button { font-size: clamp(10px, calc(1.05 * var(--wall-content-unit)), 16px); }
   .wall-view-tabs p { font-size: clamp(7px, calc(.72 * var(--wall-content-unit)), 13px); }
   .visitor-account-actions a { font-size: clamp(7px, calc(.57 * var(--wall-content-unit)), 10px); }
   .wall-stage:has(.visitor-account-actions:not([hidden])) .wall-view-tabs p { padding-top: 1%; }
