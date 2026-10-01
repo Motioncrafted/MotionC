@@ -1,24 +1,27 @@
 [
   {
-    "file": "drop-zone/styles.css",
-    "matches": [
-      "8d094d4",
-      "356a668"
-    ],
-    "sha256": "9f0cb5382f6514540b3f5b7afefe3bc49e07b791836a545d63e19fc4a28406e5"
+    "file": "dashboard/styles.css",
+    "matches": true,
+    "sha256": "09d83807733600f90977bc89628fbb488620b55da5136af6545e1b175499179b"
   },
   {
-    "file": "drop-zone/index.html",
-    "matches": [
-      "356a668"
-    ],
-    "sha256": "38b8569c62e4a4d52d96c133f7942c2e70cca2f87220f5da224e089b6de8041a"
+    "file": "dashboard/index.html",
+    "matches": true,
+    "sha256": "7d4a087b1f3f3257311d5bcd99fd840a09a3f6ab8fab58db2ded352305a0ee89"
   },
   {
-    "file": "shared/ipad-rooms.js",
-    "matches": [
-      "356a668"
-    ],
-    "sha256": "50e12f26151edcebb09a66021c4d996c656ed6368f195ac809e91e06317a6060"
+    "file": "library/index.html",
+    "matches": true,
+    "sha256": "a5a66c1ea8b59b3bde32d109e2870fbd5b68201ac9394391352ee1556bec7947"
+  },
+  {
+    "file": "shared/checkin-access.css",
+    "matches": true,
+    "sha256": "29c400d0ad4d9e0e31a29be37621e9521d88bfa0fff5897757b229a26bf4a606"
+  },
+  {
+    "file": "shared/checkin-access.js",
+    "matches": true,
+    "sha256": "1049cbfb0ee89fa4d3300b22d6276ba52da34ba093b1b7926156ae3706b42143"
   }
 ]
