@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="/shared/presentation.js?v=20261001-phase1"></script>
   <title>MotionC Library</title>
   <meta
     name="description"
@@ -1336,7 +1337,7 @@
     }
 
     @media (max-width: 700px) {
-      .page {
+      html:not([data-motionc-presentation="phone"]) .page {
         /* Crop the retired sidebar that is baked into the Library artwork. */
         left: -16.8vw;
         width: calc(100vw / .856);
@@ -1554,10 +1555,16 @@
 /* Retain Library's existing top-left phone preferences button. */
 @media(max-width:700px){#preferencesToggle.motionc-brand{top:10px;bottom:auto;left:10px}}
 </style>
+  <link rel="stylesheet" href="/library/phone-entrance.css?v=20261001-phase1">
 </head>
 
 <body class="nav-visualization">
   <main class="page">
+    <section class="phone-library" id="phoneLibrary" aria-labelledby="phoneLibraryHeading" hidden>
+      <h1 id="phoneLibraryHeading" tabindex="-1">MotionC Library</h1>
+      <p>Choose a section to explore.</p>
+      <ul class="phone-library-choices" id="phoneLibraryChoices"></ul>
+    </section>
     <aside class="motionc-sidebar" aria-label="MotionC navigation">
       <button class="motionc-brand" id="preferencesToggle" type="button"
         aria-label="Open preferences" aria-expanded="false" aria-controls="preferencesMenu">
@@ -4105,6 +4112,9 @@
     let articles = fallbackArticles;
     const categoryMap = new Map(categories.map(category => [category.id, category]));
     const page = document.querySelector(".page");
+    const phonePresentation = document.documentElement.dataset.motioncPresentation === "phone";
+    const phoneLibrary = document.getElementById("phoneLibrary");
+    const phoneLibraryHeading = document.getElementById("phoneLibraryHeading");
     const indexHotspots = document.getElementById("indexHotspots");
     const bookPages = document.getElementById("bookPages");
     const leftBookPage = document.getElementById("leftBookPage");
@@ -4180,6 +4190,7 @@
     }
 
     function renderIndex() {
+      if (phonePresentation) phoneLibrary.hidden = false;
       currentMode = "index";
       resultSpread = 0;
       page.classList.remove("results-view");
@@ -4337,6 +4348,7 @@
     }
 
     function openSection(sectionId, options = {}) {
+      if (phonePresentation) phoneLibrary.hidden = true;
       if (activeSectionId) sectionScrollPositions.set(activeSectionId, sectionContent.scrollTop);
       const changingSection = activeSectionId !== sectionId;
       activeSectionId = sectionId;
@@ -4357,6 +4369,7 @@
         sectionOverlay.hidden = true;
         activeSectionId = null;
         renderIndex();
+        if (phonePresentation) phoneLibraryHeading.focus();
       }, 440);
     }
 
@@ -4692,6 +4705,24 @@
     window.addEventListener("resize", () => {
       if (window.innerWidth > 700 && !mobileMoreMenu.hidden) setMobileMoreMenu(false);
     });
+
+    if (phonePresentation) {
+      const choices = document.getElementById("phoneLibraryChoices");
+      categories.forEach(category => {
+        const item = document.createElement("li");
+        const button = document.createElement("button");
+        button.type = "button";
+        button.dataset.category = category.id;
+        button.textContent = category.title;
+        item.append(button);
+        choices.append(item);
+      });
+      // Move the original controls, preserving their existing handlers and IDs.
+      phoneLibrary.insertBefore(searchPanel, choices);
+      const comixTrigger = document.getElementById("comixHotspot");
+      comixTrigger.textContent = "Mo Comix";
+      phoneLibrary.append(comixTrigger);
+    }
 
     syncLibraryUnitChoices();
     async function loadPublishedArticles() {

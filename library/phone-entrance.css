@@ -1,0 +1,195 @@
+/* Library entrance pilot. Full presentation receives no layout changes. */
+.phone-library { display: none; }
+html[data-motionc-presentation="phone"] body {
+  display: block;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: #edf4ef;
+}
+html[data-motionc-presentation="phone"] .page {
+  left: 0;
+  width: 100%;
+  max-width: none;
+  min-height: 100%;
+  margin: 0;
+  aspect-ratio: auto;
+  overflow: visible;
+  background: none;
+}
+html[data-motionc-presentation="phone"] .page::before,
+html[data-motionc-presentation="phone"] .index-hotspots,
+html[data-motionc-presentation="phone"] .book-interface,
+html[data-motionc-presentation="phone"] .book-transition,
+html[data-motionc-presentation="phone"] .magnifier-hotspot { display: none; }
+html[data-motionc-presentation="phone"] .phone-library:not([hidden]) {
+  display: block;
+  max-width: 720px;
+  margin: auto;
+  padding: 78px max(20px, env(safe-area-inset-right)) calc(96px + env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+  color: #18372d;
+  font: 16px/1.5 Arial, sans-serif;
+}
+.phone-library h1 { margin: 0 0 8px; font: 700 30px/1.2 Georgia, serif; }
+.phone-library p { margin: 0 0 20px; color: #496454; }
+.phone-library-choices { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.phone-library-choices button,
+html[data-motionc-presentation="phone"] .phone-library #comixHotspot {
+  position: static;
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 54px;
+  padding: 15px 18px;
+  border: 1px solid #b7cdbd;
+  border-radius: 12px;
+  background: #fffdf5;
+  color: #18372d;
+  font: 700 16px/1.4 Arial, sans-serif;
+  text-align: left;
+  clip-path: none;
+}
+html[data-motionc-presentation="phone"] .phone-library #comixHotspot { margin-top: 16px; background: #173f32; color: #fff; }
+.phone-library button:focus-visible { outline: 3px solid #c77828; outline-offset: 3px; }
+html[data-motionc-presentation="phone"] .phone-library .search-panel {
+  position: static;
+  width: 100%;
+  margin: 20px 0;
+  padding: 6px;
+  gap: 6px;
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+  border: 1px solid #b7cdbd;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: none;
+}
+html[data-motionc-presentation="phone"] .phone-library .search-panel input,
+html[data-motionc-presentation="phone"] .phone-library .search-panel button { min-height: 44px; font: 16px/1.4 Arial, sans-serif; }
+/* Preserve the existing phone overlay layout in both orientations. */
+html[data-motionc-presentation="phone"] .section-overlay,
+html[data-motionc-presentation="phone"] .reader-overlay {
+  position: fixed;
+  height: 100vh;
+  height: 100dvh;
+  padding: max(62px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) calc(82px + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+}
+html[data-motionc-presentation="phone"] .section-sheet,
+html[data-motionc-presentation="phone"] .reader-sheet { width: 100%; height: 100%; min-height: 0; }
+
+/* Existing Library phone navigation, retained beyond the width breakpoint. */
+@media (min-width: 701px) {
+html[data-motionc-presentation="phone"] .motionc-sidebar {
+        position: fixed;
+        z-index: 60;
+        inset: auto 0 0;
+        display: block;
+        width: 100%;
+        height: 70px;
+        padding: 5px 8px max(5px, env(safe-area-inset-bottom));
+        overflow: visible;
+        border-top: 1px solid rgba(255, 255, 255, .16);
+        background: rgba(10, 27, 24, .97);
+        box-shadow: 0 -8px 24px rgba(7, 24, 20, .28);
+        
+        backdrop-filter: none;
+      }
+html[data-motionc-presentation="phone"] .motionc-brand {
+        position: fixed;
+        z-index: 62;
+        top: 10px;
+        left: 10px;
+        width: 48px;
+        height: 48px;
+        margin: 0;
+        border-radius: 14px;
+      }
+html[data-motionc-presentation="phone"] .preferences-menu {
+        position: fixed;
+        top: 66px;
+        left: 10px;
+        width: min(260px, calc(100vw - 20px));
+      }
+html[data-motionc-presentation="phone"] .motionc-nav {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-template-rows: 1fr;
+        gap: 3px;
+      }
+html[data-motionc-presentation="phone"] .motionc-nav a,
+html[data-motionc-presentation="phone"] .mobile-more-toggle {
+        display: grid;
+        min-width: 0;
+        min-height: 58px;
+        padding: 3px 1px;
+        font-size: inherit;
+      }
+html[data-motionc-presentation="phone"] .motionc-nav a img { width: 25px; height: 25px; }
+html[data-motionc-presentation="phone"] .motionc-nav a.active img { width: 38px; height: 38px; padding: 7px; border-radius: 12px; }
+html[data-motionc-presentation="phone"] .motionc-nav a small,
+html[data-motionc-presentation="phone"] .mobile-more-toggle small { font-size: 7px; }
+html[data-motionc-presentation="phone"] .motionc-nav a::before,
+html[data-motionc-presentation="phone"] .mobile-more-toggle::before { top: calc(50% - 4px); width: 42px; height: 42px; border-radius: 11px; }
+html[data-motionc-presentation="phone"] .nav-home { order: 1; }
+html[data-motionc-presentation="phone"] .nav-daily { order: 2; }
+html[data-motionc-presentation="phone"] .nav-mcp { order: 3; }
+html[data-motionc-presentation="phone"] .nav-library { order: 4; }
+html[data-motionc-presentation="phone"] .mobile-more-toggle { order: 5; }
+html[data-motionc-presentation="phone"] .motionc-nav .nav-walking,
+html[data-motionc-presentation="phone"] .motionc-nav .nav-drop-zone { display: none; }
+html[data-motionc-presentation="phone"] .mobile-more-toggle {
+        border: 0;
+        color: rgba(255, 255, 255, .74);
+      }
+html[data-motionc-presentation="phone"] .more-glyph {
+        display: grid;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        border: 1px solid rgba(255, 255, 255, .38);
+        border-radius: 11px;
+        color: #fff;
+        font-size: 15px;
+        font-weight: 900;
+        letter-spacing: 1px;
+        line-height: 1;
+      }
+html[data-motionc-presentation="phone"] .mobile-more-toggle[aria-expanded="true"] .more-glyph {
+        border-color: rgba(183, 221, 199, .46);
+        background: linear-gradient(145deg, #356649, #1f4934);
+        box-shadow: 0 7px 14px rgba(0, 0, 0, .24);
+      }
+html[data-motionc-presentation="phone"] .mobile-more-menu {
+        position: fixed;
+        z-index: 61;
+        right: 10px;
+        bottom: calc(78px + env(safe-area-inset-bottom));
+        display: grid;
+        width: min(230px, calc(100vw - 20px));
+        gap: 6px;
+        padding: 10px;
+        border: 1px solid rgba(255, 255, 255, .2);
+        border-radius: 15px;
+        background: rgba(13, 37, 32, .98);
+        box-shadow: 0 16px 38px rgba(0, 0, 0, .34);
+        backdrop-filter: blur(16px);
+      }
+html[data-motionc-presentation="phone"] .mobile-more-menu[hidden] { display: none; }
+html[data-motionc-presentation="phone"] .mobile-more-menu a {
+        display: flex;
+        gap: 12px;
+        padding: 11px 12px;
+        align-items: center;
+        border-radius: 10px;
+        color: #fff;
+        font-family: Arial, sans-serif;
+        text-decoration: none;
+      }
+html[data-motionc-presentation="phone"] .mobile-more-menu a:hover,
+html[data-motionc-presentation="phone"] .mobile-more-menu a:focus-visible {
+        outline: 2px solid #f0b429;
+        background: rgba(255, 255, 255, .08);
+      }
+html[data-motionc-presentation="phone"] .mobile-more-menu img { width: 30px; height: 30px; object-fit: contain; }
+}
