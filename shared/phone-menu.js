@@ -31,6 +31,23 @@
     const a = document.createElement('a');
     a.href = href;
     a.textContent = label;
+    if (label === 'DEMO') {
+      // A fixed entry context, never an account identifier or arbitrary return URL.
+      const setDemoEntry = signedIn => { a.href = signedIn ? '/demo/?entry=phone-menu-member' : '/demo/'; };
+      setDemoEntry(Boolean(window.MotionCAccountReady?.owner));
+      window.addEventListener('motionc:account-ready', () => setDemoEntry(Boolean(window.MotionCAccountReady?.owner)));
+      window.addEventListener('motionc:account-changing', () => setDemoEntry(false));
+      a.addEventListener('click', async event => {
+        if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        let signedIn = Boolean(window.MotionCAccountReady?.owner);
+        try {
+          if (window.MotionCSupabase?.getSession) signedIn = Boolean((await window.MotionCSupabase.getSession())?.user?.id);
+        } catch { signedIn = false; }
+        setDemoEntry(signedIn);
+        location.assign(a.href);
+      });
+    }
     if (location.pathname.startsWith(href)) a.setAttribute('aria-current', 'page');
     a.addEventListener('click', () => dialog.close());
     nav.append(a);
