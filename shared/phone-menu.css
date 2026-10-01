@@ -14,23 +14,58 @@ html[data-motionc-presentation="phone"] #simulation-button.engine-room-button { 
 }
 .motionc-phone-menu-button img { display: block; width: 38px; height: 38px; object-fit: contain; }
 dialog.motionc-phone-menu {
-  box-sizing: border-box; width: min(320px, calc(100% - 24px)); max-height: calc(100% - 24px);
-  margin: auto; padding: 16px; overflow-y: auto; overscroll-behavior: contain;
-  border: 1px solid #79957a; border-radius: 12px;
-  background: #f5f7f2; color: #18372d; font: 16px/1.4 Arial, sans-serif;
+  box-sizing: border-box; width: min(340px, calc(100% - 24px));
+  max-height: calc(100vh - 24px); max-height: calc(100dvh - 24px);
+  inset: 12px max(12px, env(safe-area-inset-right)) 12px auto; margin: auto 0; padding: 0;
+  overflow: hidden; flex-direction: column; border: 1px solid rgb(80 108 94 / .28); border-radius: 12px;
+  background: rgb(249 251 247 / .98); color: #18372d; font: 16px/1.4 Arial, sans-serif;
+  box-shadow: 0 12px 36px rgb(12 39 29 / .16), 0 2px 6px rgb(12 39 29 / .06);
+  transform: translateX(calc(100% + 24px)); opacity: 0;
+  transition: transform 220ms ease, opacity 220ms ease, overlay 220ms allow-discrete, display 220ms allow-discrete;
 }
-.motionc-phone-menu::backdrop { background: rgb(0 0 0 / .35); }
-.motionc-phone-menu h2 { margin: 0 0 8px; font: 700 20px/1.3 Arial, sans-serif; }
-.motionc-phone-menu-close { min-height: 44px; margin-bottom: 8px; padding: 8px 16px; font: inherit; cursor: pointer; }
-.motionc-phone-menu nav { display: grid; gap: 4px; }
-.motionc-phone-menu nav a { display: block; padding: 12px 16px; border-radius: 6px; color: #18372d; background: white; font: 700 16px/1.4 Arial, sans-serif; text-decoration: none; }
-.motionc-phone-menu nav a[aria-current="page"] { background: #173d31; color: white; }
-.motionc-phone-menu hr { width: 100%; margin: 8px 0; border: 0; border-top: 1px solid #9bb2a3; }
-/* Retain the original preference button and panel without their former sidebar. */
+dialog.motionc-phone-menu[open] { display: flex; transform: translateX(0); opacity: 1; }
+@starting-style { dialog.motionc-phone-menu[open] { transform: translateX(calc(100% + 24px)); opacity: 0; } }
+.motionc-phone-menu::backdrop {
+  background: rgb(8 25 18 / .24); touch-action: none; opacity: 0;
+  transition: opacity 220ms ease, overlay 220ms allow-discrete, display 220ms allow-discrete;
+}
+.motionc-phone-menu[open]::backdrop { opacity: 1; }
+@starting-style { .motionc-phone-menu[open]::backdrop { opacity: 0; } }
+.motionc-phone-menu-header { display: flex; flex: none; align-items: center; gap: 9px; padding: 8px 8px 8px 17px; border-bottom: 1px solid rgb(80 108 94 / .19); }
+.motionc-phone-menu h2 { margin: 0; font: 700 19px/1.3 Arial, sans-serif; letter-spacing: -.3px; }
+.motionc-menu-mo { flex: none; width: 22px; height: 26px; fill: #697b6c; opacity: .5; }
+.motionc-phone-menu-close {
+  display: grid; place-items: center; flex: none; width: 44px; height: 44px; margin: 0 0 0 auto;
+  padding: 0; border: 0; border-radius: 8px; background: transparent; color: #506257;
+  font: 400 25px/1 Arial, sans-serif; cursor: pointer;
+}
+.motionc-phone-menu-content { min-height: 0; padding: 12px; overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y; }
+.motionc-phone-menu nav { display: grid; gap: 6px; margin: 0; padding: 0; }
+.motionc-phone-menu nav a {
+  position: relative; display: flex; flex-direction: column; justify-content: center; gap: 3px;
+  box-sizing: border-box; min-height: 62px; padding: 10px 18px; border: 1px solid rgb(106 125 112 / .12);
+  border-radius: 8px; color: #254237; background: rgb(255 255 255 / .72); text-decoration: none;
+  transition: transform 100ms ease, background-color 120ms ease;
+}
+.motionc-menu-destination { position: relative; font: 700 14px/1.35 Arial, sans-serif; letter-spacing: .65px; }
+.motionc-phone-menu nav small { display: block; color: #596c60; font: 400 13px/1.4 Arial, sans-serif; }
+.motionc-phone-menu nav a[aria-current="page"] { background: #edf5ed; border-color: #b3cfb8; box-shadow: 0 0 0 1px rgb(57 134 75 / .07); }
+.motionc-phone-menu nav a[aria-current="page"] .motionc-menu-destination::before { content: ''; position: absolute; left: -11px; top: calc(50% - 2.5px); width: 5px; height: 5px; border-radius: 50%; background: #328448; }
+.motionc-phone-menu hr { width: 100%; margin: 5px 0; border: 0; border-top: 1px solid rgb(80 108 94 / .19); }
+.motionc-phone-menu nav .motionc-menu-demo { background: #f2f1e9; border-color: #dddcd0; }
+.motionc-phone-menu nav a:active, .motionc-phone-menu-button:active { transform: scale(.98); }
+.motionc-phone-menu-button { transition: transform 100ms ease; }
+/* Keep the original Preferences controller; only soften the menu action. */
 html[data-motionc-presentation="phone"] #motioncPhoneMenu .motionc-phone-preferences {
-  position: static !important; display: block !important; width: auto; height: auto; min-height: 44px; aspect-ratio: auto;
-  margin: 12px 0 0; padding: 8px 12px; border: 1px solid #79957a; border-radius: 6px;
-  background: white; color: #18372d; font: 16px/1.4 Arial, sans-serif; box-shadow: none; cursor: pointer;
+  position: static !important; display: block !important; width: 100%; height: auto; min-height: 44px; aspect-ratio: auto;
+  margin: 7px 0 0; padding: 9px 18px; border: 0; border-radius: 6px; text-align: left;
+  background: transparent; color: #596c60; font: 400 14px/1.4 Arial, sans-serif; box-shadow: none; cursor: pointer;
+}
+.motionc-menu-signature { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 4px 5px; color: #738174; font: 400 11px/1.4 Arial, sans-serif; }
+.motionc-menu-mark { font: 700 14px/1 Georgia, serif; letter-spacing: -1px; color: #526c5a; }
+@media (prefers-reduced-motion: reduce) {
+  dialog.motionc-phone-menu, .motionc-phone-menu::backdrop, .motionc-phone-menu nav a, .motionc-phone-menu-button { transition: none; }
+  .motionc-phone-menu nav a:active, .motionc-phone-menu-button:active { transform: none; }
 }
 html[data-motionc-presentation="phone"] .motionc-phone-preferences-panel {
   position: fixed !important; top: max(12px, env(safe-area-inset-top)) !important; left: 12px !important;
