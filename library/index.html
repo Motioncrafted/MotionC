@@ -1529,6 +1529,24 @@
       }
     }
 @media (min-width:768px) and (max-width:1199px) and (min-height:481px) { .search-panel input { font-size:13px; font-weight:600; color:#30251e; } }
+
+    /* Keep the complete Library scene reachable in short landscape views. */
+    @media (min-width: 701px) and (orientation: landscape) {
+      body {
+        height: 100svh;
+        height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        overflow-x: hidden;
+        overflow-y: auto;
+      }
+
+      .page {
+        flex: none;
+        margin-block: auto;
+      }
+    }
 </style>
   <link rel="stylesheet" href="/library/comix-rolodex.css?v=20260930-carousel-controls">
 <link rel="stylesheet" href="/shared/checkin-access.css?v=20260914-1">
