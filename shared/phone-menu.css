@@ -73,3 +73,10 @@ html[data-motionc-presentation="phone"] .motionc-phone-preferences-panel {
   overflow-y: auto; z-index: 1000 !important;
 }
 .motionc-phone-menu :focus-visible, .motionc-phone-menu-button:focus-visible { outline: 3px solid #be741c; outline-offset: 2px; }
+
+/* Keep the Compass account badge beside, rather than over, the Phone trigger. */
+html[data-motionc-presentation="phone"][data-motionc-phone-nav="ready"] body:has(.compass-page) .motionc-account-badge {
+  right: calc(max(12px, env(safe-area-inset-right)) + 60px);
+  box-sizing: border-box; max-width: calc(100vw - max(12px, env(safe-area-inset-right)) - 84px);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
