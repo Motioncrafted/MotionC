@@ -2706,3 +2706,6 @@ setupPhoneSummary();
 
 window.addEventListener("pageshow", () => { summaryChartOffset = 0; summaryPhoneEditing = false; summaryPhoneSelectedDate = null; renderSummaryData(); });
 void refreshSummaryAccountReadiness();
+
+window.addEventListener('motionc:cloud-restored',renderSummaryData);
+window.addEventListener('motionc:account-ready',renderSummaryData);
