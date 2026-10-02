@@ -2359,3 +2359,69 @@ body {
  .side-menu nav { flex:1;min-width:0;grid-template-columns:repeat(6,minmax(0,1fr)); }
  .side-menu #summaryPreferencesToggle { position:static;display:flex!important;flex:0 0 48px;margin:0; }
 }
+
+/* Phone Summary presentation only; classification comes from shared/presentation.js. */
+html[data-motionc-presentation="phone"] .chart-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px; padding: 8px; border-radius: 20px;
+    background: #e4eee4; margin-bottom: 16px;
+}
+html[data-motionc-presentation="phone"] .chart-grid > .chart-panel {
+    background: #f3f8f1; padding: 14px 10px; min-width: 0;
+    border-color: transparent; box-shadow: none;
+}
+html[data-motionc-presentation="phone"] .insight-grid { grid-template-columns: minmax(0, 1fr); }
+html[data-motionc-presentation="phone"] .summary-chart-navigation {
+    display: grid; grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center; gap: 4px; margin: 0;
+}
+html[data-motionc-presentation="phone"] .summary-chart-navigation .eyebrow {
+    text-align: center; letter-spacing: 0; font-size: 11px; color: #326445;
+}
+html[data-motionc-presentation="phone"] .summary-chart-navigation button,
+html[data-motionc-presentation="phone"] .phone-summary-control {
+    min-height: 44px; padding: 6px 9px; border: 1px solid #c8d8c7;
+    border-radius: 9px; background: #edf5e9; color: #326445; font: 700 12px Arial, sans-serif;
+    cursor: pointer;
+}
+html[data-motionc-presentation="phone"] .summary-chart-navigation button:disabled,
+html[data-motionc-presentation="phone"] .phone-summary-control:disabled { opacity: .4; cursor: default; }
+html[data-motionc-presentation="phone"] .phone-summary-control { margin-top: 8px; }
+html[data-motionc-presentation="phone"] .phone-summary-control[aria-pressed="true"] { background: #326445; color: #fff; }
+html[data-motionc-presentation="phone"] #weight-chart { touch-action: pan-y pinch-zoom; }
+html[data-motionc-presentation="phone"] #weight-chart.phone-goals-editing { touch-action: none; }
+html[data-motionc-presentation="phone"] #phone-weight-selection {
+    min-height: 32px; padding: 7px 3px; text-align: center; color: #326445; font-size: 12px;
+}
+html[data-motionc-presentation="phone"] #phone-weight-selection strong { margin-right: 8px; }
+html[data-motionc-presentation="phone"] .lifestyle-panel { margin-top: 16px; }
+html[data-motionc-presentation="phone"] .phone-lifestyle-toggle {
+    width: 100%; min-height: 44px; padding: 0; margin: 0; border: 0;
+    background: transparent; color: inherit; text-align: left; font: inherit; cursor: pointer; align-items: center;
+}
+html[data-motionc-presentation="phone"] .phone-lifestyle-toggle h3 { font-size: 16px; }
+html[data-motionc-presentation="phone"] .phone-lifestyle-indicator { font-size: 24px; color: #326445; }
+html[data-motionc-presentation="phone"] #lifestyle-items[hidden] { display: none; }
+html[data-motionc-presentation="phone"] #lifestyle-items:not([hidden]) { margin-top: 18px; grid-template-columns: 1fr; gap: 14px; }
+html[data-motionc-presentation="phone"] .phone-summary-control:focus-visible,
+html[data-motionc-presentation="phone"] .phone-lifestyle-toggle:focus-visible,
+html[data-motionc-presentation="phone"] .summary-chart-navigation button:focus-visible { outline: 2px solid #347b50; outline-offset: 2px; }
+html[data-motionc-presentation="phone"] .chart-grid .panel-heading { flex-wrap: wrap; }
+html[data-motionc-presentation="phone"] .chart-grid .weight-chart-meta { flex: 1; min-width: 130px; }
+html[data-motionc-presentation="phone"] .chart-grid .chart-summary { white-space: normal; max-width: 100%; }
+
+/* The existing hover bubble becomes a persistent, collision-positioned Phone callout. */
+html[data-motionc-presentation="phone"] #weight-chart-tooltip {
+    transform: none; min-width: 0; max-width: calc(100% - 8px);
+    box-sizing: border-box; white-space: nowrap;
+}
+html[data-motionc-presentation="phone"] #weight-chart-tooltip::after { display: none; }
+html[data-motionc-presentation="phone"] #phone-weight-selection { min-height: 60px; }
+html[data-motionc-presentation="phone"] .chart-panel:has(#weight-chart-tooltip:not([hidden])) #phone-weight-selection { color: transparent; }
+
+html[data-motionc-presentation="phone"] #walking-chart-tooltip {
+    transform: none; min-width: 0; max-width: calc(100% - 8px);
+    box-sizing: border-box; white-space: normal; overflow-wrap: anywhere;
+}
+html[data-motionc-presentation="phone"] #walking-chart-tooltip::after { display: none; }
+html[data-motionc-presentation="phone"] #walking-chart { touch-action: pan-y pinch-zoom; }

@@ -1266,6 +1266,9 @@ let summaryMotivationalWeight = null;
 let summaryVibratoryWeight = null;
 let summaryWeightPoints = [];
 // Chart navigation is deliberately page-local, never saved with user state.
+const summaryPhone = document.documentElement.dataset.motioncPresentation === "phone";
+let summaryPhoneEditing = false;
+let summaryPhoneSelectedDate = null;
 let summaryChartOffset = 0;
 let summaryChartEntries = {};
 let summaryChartDates = [];
@@ -1659,6 +1662,7 @@ function drawWeightChart(points) {
     summaryWeightPoints = points;
     canvas._hitPoints = [];
     canvas._goalScale = null;
+    if (summaryPhone) canvas._labelBoxes = [];
     if (points.length < 1) {
         empty.hidden = false;
         canvas.hidden = true;
@@ -1668,7 +1672,7 @@ function drawWeightChart(points) {
     empty.hidden = true;
     canvas.hidden = false;
     const { context, width, height } = prepareCanvas(canvas);
-    const padding = { top: 18, right: 15, bottom: 34, left: 14 };
+    const padding = { top: 18, right: summaryPhone ? 32 : 15, bottom: 34, left: 14 };
     summaryWeightPoints = points;
     const values = points.map(point => point.value);
     if (!summaryChartOffset && Number.isFinite(summaryGoalWeight)) values.push(summaryGoalWeight);
@@ -1681,7 +1685,7 @@ function drawWeightChart(points) {
     drawGrid(context, width, height, padding);
 
     const coordinates = points.map((point, index) => ({
-        x: padding.left + chartWidth * summaryChartDates.indexOf(point.date) / 13,
+        x: padding.left + chartWidth * summaryChartDates.indexOf(point.date) / (summaryChartDates.length - 1),
         y: padding.top + chartHeight * (1 - (point.value - minimum) / (maximum - minimum)),
         ...point
     }));
@@ -1722,6 +1726,16 @@ function drawWeightChart(points) {
         context.stroke();
     });
 
+    if (summaryPhone && summaryPhoneSelectedDate) {
+        const selected = coordinates.find(point => point.date === summaryPhoneSelectedDate);
+        if (selected) {
+            context.beginPath();
+            context.arc(selected.x, selected.y, 8, 0, Math.PI * 2);
+            context.strokeStyle = "#173d31";
+            context.lineWidth = 2;
+            context.stroke();
+        }
+    }
     const lineY = value => padding.top + chartHeight * (1 - (value - minimum) / (maximum - minimum));
     const drawMarkerLine = ({ value, color, dash, text, fill, textColor, side = "right" }) => {
         if (summaryChartOffset || !Number.isFinite(value)) return null;
@@ -1738,6 +1752,7 @@ function drawWeightChart(points) {
         context.font = "bold 10px Arial";
         const labelWidth = context.measureText(text).width + 14;
         const labelX = side === "left" ? padding.left : width - padding.right - labelWidth;
+        if (summaryPhone) canvas._labelBoxes.push({ x: labelX, y: y - 20, width: labelWidth, height: 17 });
         context.fillStyle = fill;
         roundedRect(context, labelX, y - 20, labelWidth, 17, 7);
         context.fill();
@@ -1775,6 +1790,25 @@ function drawWeightChart(points) {
         textColor: "#087348",
         side: "left"
     });
+    // A reserved end gutter keeps these decorative locks clear of plotted dots.
+    if (summaryPhone && !summaryPhoneEditing && !summaryChartOffset) {
+        const drawLock = (y, x, color) => {
+            if (!Number.isFinite(y)) return;
+            context.save();
+            context.strokeStyle = color;
+            context.fillStyle = "#f3f8f1";
+            context.globalAlpha = .65;
+            context.lineWidth = 1.2;
+            context.beginPath();
+            context.arc(x, y - 2, 2.5, Math.PI, 0);
+            context.stroke();
+            context.fillRect(x - 3.5, y - 2, 7, 6);
+            context.strokeRect(x - 3.5, y - 2, 7, 6);
+            context.restore();
+        };
+        drawLock(realY, width - 20, "#087348");
+        drawLock(motivationalY, width - 8, "#245c91");
+    }
     canvas._goalScale = summaryChartOffset ? null : { minimum, maximum, top: padding.top, height: chartHeight, realY, motivationalY, vibratoryY };
 
 
@@ -1782,10 +1816,11 @@ function drawWeightChart(points) {
     context.font = "10px Arial";
     context.textAlign = "center";
     summaryChartDates.forEach((date, index) => {
-        if (index === 0 || index === 13 || index % 3 === 0) {
-            context.fillText(shortChartDate(date), padding.left + chartWidth * index / 13, height - 11);
+        if (index === 0 || index === summaryChartDates.length - 1 || index % (summaryPhone ? 2 : 3) === 0) {
+            context.fillText(shortChartDate(date), padding.left + chartWidth * index / (summaryChartDates.length - 1), height - 11);
         }
     });
+    if (summaryPhone) canvas._restorePhoneTooltip?.();
 }
 
 function drawWalkingChart(points) {
@@ -1794,9 +1829,11 @@ function drawWalkingChart(points) {
     if (!canvas || !empty) return;
 
     canvas._hitPoints = [];
+    if (summaryPhone) { canvas._phoneWalkingPoints = points; canvas._labelBoxes = []; }
     if (!points.some(point => point.miles > 0 || point.minutes > 0)) {
         empty.hidden = false;
         canvas.hidden = true;
+        if (summaryPhone) canvas._restorePhoneTooltip?.();
         return;
     }
 
@@ -1823,6 +1860,7 @@ function drawWalkingChart(points) {
             : point.miles > 0 ? [point.miles] : [];
         const segmentTotal = segments.reduce((total, distance) => total + distance, 0);
 
+        if (summaryPhone && milesHeight > 0) canvas._labelBoxes.push({x: barLeft, y: barTop, width: barWidth, height: milesHeight});
         if (milesHeight > 0 && segmentTotal > 0) {
             context.save();
             roundedRect(context, barLeft, barTop, barWidth, milesHeight, 5);
@@ -1882,6 +1920,18 @@ function drawWalkingChart(points) {
         context.lineWidth = 2;
         context.stroke();
     });
+    if (summaryPhone) {
+        const selected = canvas._hitPoints.find(point => point.date === canvas._phoneSelectedDate);
+        if (selected) {
+            context.beginPath();
+            context.arc(selected.x, selected.y, 8, 0, Math.PI * 2);
+            context.strokeStyle = "#173d31";
+            context.lineWidth = 2;
+            context.stroke();
+        }
+        canvas._restorePhoneTooltip?.();
+    }
+
 }
 
 function saveSharedProfileMeasurements(measurementData) {
@@ -2102,9 +2152,10 @@ function summaryWeightRecords(dates, entries) {
 }
 
 function summaryChartWindow(offset = summaryChartOffset) {
-    return recentDateKeys(14).map(key => {
+    const days = summaryPhone ? 7 : 14;
+    return recentDateKeys(days).map(key => {
         const date = summaryDate(key);
-        date.setDate(date.getDate() - offset * 14);
+        date.setDate(date.getDate() - offset * days);
         return summaryIso(date);
     });
 }
@@ -2122,16 +2173,16 @@ function renderSummaryCharts() {
     const format = key => new Intl.DateTimeFormat("en-US", {
         month: "short", day: "numeric"
     }).format(summaryDate(key));
-    const range = `${format(summaryChartDates[0])} – ${format(summaryChartDates[13])}`;
-    setText("summary-chart-period", historical ? range.toUpperCase() : "LAST 14 DAYS");
+    const range = `${format(summaryChartDates[0])} – ${format(summaryChartDates.at(-1))}`;
+    setText("summary-chart-period", summaryPhone ? range : historical ? range.toUpperCase() : "LAST 14 DAYS");
     const period = document.getElementById("summary-chart-period");
-    period.title = `${summaryChartDates[0]} through ${summaryChartDates[13]}`;
+    period.title = `${summaryChartDates[0]} through ${summaryChartDates.at(-1)}`;
     period.setAttribute("aria-label", period.title);
     document.getElementById("summary-chart-earlier").disabled = !hasEarlierSummaryRecords(summaryChartDates[0]);
     document.getElementById("summary-chart-later").disabled = !historical;
     for (const id of ["weight", "walking"]) {
         document.getElementById(`${id}-chart-tooltip`).hidden = true;
-        document.getElementById(`${id}-chart`).setAttribute("aria-label", `${id === "weight" ? "Weight" : "Walking distance and minutes"}: ${summaryChartDates[0]} through ${summaryChartDates[13]}`);
+        document.getElementById(`${id}-chart`).setAttribute("aria-label", `${id === "weight" ? "Weight" : "Walking distance and minutes"}: ${summaryChartDates[0]} through ${summaryChartDates.at(-1)}`);
     }
     const help = document.querySelector(".goal-line-help");
     if (!help.dataset.currentText) help.dataset.currentText = help.textContent;
@@ -2142,12 +2193,15 @@ function renderSummaryCharts() {
     document.getElementById("weight-chart").style.cursor = historical ? "default" : "ns-resize";
     drawWeightChart(summaryWeightRecords(summaryChartDates, summaryChartEntries));
     drawWalkingChart(summaryWalkingPoints(summaryChartDates, summaryChartEntries));
+    if (summaryPhone) updatePhoneGoalControls();
 }
 
 function navigateSummaryCharts(direction) {
     if (direction < 0 && !hasEarlierSummaryRecords(summaryChartWindow()[0])) return;
     summaryChartOffset = Math.max(0, summaryChartOffset - direction);
     draggingWeightGoal = null;
+    if (summaryPhone) document.getElementById("walking-chart")._phoneSelectedDate = null;
+    if (summaryPhone) { summaryPhoneEditing = false; summaryPhoneSelectedDate = null; document.getElementById("phone-weight-selection").textContent = "Tap a weight point to view its date and weight."; }
     renderSummaryCharts();
 }
 
@@ -2298,7 +2352,7 @@ let draggingWeightGoal = null;
 
 function updateGoalFromPointer(event) {
     const scale = summaryWeightCanvas?._goalScale;
-    if (summaryChartOffset || !scale || !draggingWeightGoal) return;
+    if ((summaryPhone && !summaryPhoneEditing) || summaryChartOffset || !scale || !draggingWeightGoal) return;
     const rect = summaryWeightCanvas.getBoundingClientRect();
     const y = Math.max(scale.top, Math.min(scale.top + scale.height, event.clientY - rect.top));
     const percentage = 1 - (y - scale.top) / scale.height;
@@ -2318,7 +2372,7 @@ function updateGoalFromPointer(event) {
 
 summaryWeightCanvas?.addEventListener("pointerdown", event => {
     const scale = summaryWeightCanvas._goalScale;
-    if (summaryChartOffset || !scale) return;
+    if ((summaryPhone && !summaryPhoneEditing) || summaryChartOffset || !scale) return;
     const rect = summaryWeightCanvas.getBoundingClientRect();
     const pointerY = event.clientY - rect.top;
     const pointerX = event.clientX - rect.left;
@@ -2386,6 +2440,25 @@ function positionChartTooltip(tooltip, canvas, point) {
     if (!wrap) return;
     const canvasRect = canvas.getBoundingClientRect();
     const wrapRect = wrap.getBoundingClientRect();
+    if (summaryPhone && (canvas === summaryWeightCanvas || canvas.id === "walking-chart")) {
+        // Reuse the existing tooltip; choose the nearest free rectangle around the dot.
+        const w = tooltip.offsetWidth, h = tooltip.offsetHeight;
+        const blockers = [...(canvas._labelBoxes || []), ...(canvas._hitPoints || []).map(p => ({ x: p.x - 11, y: p.y - 11, width: 22, height: 22 }))];
+        const overlaps = (x, y, b) => x < b.x + b.width + 4 && x + w > b.x - 4 && y < b.y + b.height + 4 && y + h > b.y - 4;
+        const candidates = [];
+        const xs = [Math.max(4, Math.min(canvasRect.width - w - 4, point.x - w / 2))];
+        for (let x = 4; x <= canvasRect.width - w - 4; x += 8) xs.push(x);
+        for (const x of xs) for (let y = 4; y <= canvasRect.height - 34 - h; y += 4) {
+            if (!blockers.some(b => overlaps(x, y, b))) candidates.push({x, y, distance: Math.hypot(x + w / 2 - point.x, y + h / 2 - point.y)});
+        }
+        candidates.sort((a, b) => a.distance - b.distance);
+        // Dense data can occupy every safe space: use the reserved readout strip.
+        const place = candidates[0] || {x: canvas.id === "walking-chart" ? (canvasRect.width - w) / 2 : xs[0], y: canvasRect.height + 4};
+        if (canvas.id === "walking-chart") wrap.style.marginBottom = candidates.length ? "" : `${h + 12}px`;
+        tooltip.style.left = `${canvasRect.left - wrapRect.left + place.x}px`;
+        tooltip.style.top = `${canvasRect.top - wrapRect.top + place.y}px`;
+        return;
+    }
     const tooltipHalfWidth = Math.max(63, tooltip.offsetWidth / 2);
     const left = Math.max(
         tooltipHalfWidth + 4,
@@ -2418,6 +2491,60 @@ function attachChartTooltip(canvasId, tooltipId, renderContent) {
         canvas.style.cursor = "pointer";
         positionChartTooltip(tooltip, canvas, point);
     };
+    if (summaryPhone && canvasId === "weight-chart") {
+        canvas._restorePhoneTooltip = () => {
+            const point = canvas._hitPoints?.find(p => p.date === summaryPhoneSelectedDate);
+            tooltip.hidden = !point;
+            if (point) {
+                tooltip.innerHTML = renderContent(point);
+                positionChartTooltip(tooltip, canvas, point);
+            }
+        };
+        // Completed taps only: native scrolling cancels the pointer without editing.
+        let tapStart = null;
+        canvas.addEventListener("pointerdown", event => {
+            tapStart = summaryPhoneEditing ? null : { x: event.clientX, y: event.clientY, id: event.pointerId };
+        });
+        canvas.addEventListener("pointerup", event => {
+            if (tapStart && tapStart.id === event.pointerId && Math.hypot(event.clientX - tapStart.x, event.clientY - tapStart.y) < 10) {
+                const point = nearestChartPoint(canvas, event, 24);
+                summaryPhoneSelectedDate = point?.date || null;
+                drawWeightChart(summaryWeightPoints);
+                tooltip.hidden = !point;
+                if (point) {
+                    tooltip.innerHTML = renderContent(point);
+                    positionChartTooltip(tooltip, canvas, point);
+                }
+            }
+            tapStart = null;
+        });
+        canvas.addEventListener("pointercancel", () => { tapStart = null; });
+        return;
+    }
+    if (summaryPhone && canvasId === "walking-chart") {
+        // Walking owns its selection and retains the existing per-walk content renderer.
+        canvas._restorePhoneTooltip = () => {
+            const point = canvas._hitPoints?.find(p => p.date === canvas._phoneSelectedDate);
+            tooltip.hidden = !point;
+            if (point) {
+                tooltip.innerHTML = renderContent(point);
+                positionChartTooltip(tooltip, canvas, point);
+            } else canvas.closest(".chart-wrap").style.marginBottom = "";
+        };
+        let walkingTapStart = null;
+        canvas.addEventListener("pointerdown", event => {
+            walkingTapStart = {x: event.clientX, y: event.clientY, id: event.pointerId};
+        });
+        canvas.addEventListener("pointerup", event => {
+            if (walkingTapStart && walkingTapStart.id === event.pointerId && Math.hypot(event.clientX - walkingTapStart.x, event.clientY - walkingTapStart.y) < 10) {
+                canvas._phoneSelectedDate = nearestChartPoint(canvas, event, 24)?.date || null;
+                drawWalkingChart(canvas._phoneWalkingPoints || []);
+            }
+            walkingTapStart = null;
+        });
+        canvas.addEventListener("pointercancel", () => { walkingTapStart = null; });
+        return;
+    }
     canvas.addEventListener("pointermove", showTooltip);
     if (canvasId === "walking-chart") {
         // A completed tap persists after touch pointerleave; scrolling does not select.
@@ -2500,5 +2627,82 @@ document.querySelectorAll('input[name="summaryUnitSystem"]').forEach(input => {
 window.addEventListener("DOMContentLoaded", () => {
     renderSummaryData();
 });
-window.addEventListener("pageshow", () => { summaryChartOffset = 0; renderSummaryData(); });
+
+// Reuse the actual cards and navigation; Full keeps its original DOM and handlers.
+function updatePhoneGoalControls() {
+    const button = document.getElementById("phone-goal-edit");
+    if (!button) return;
+    button.disabled = summaryChartOffset > 0 || !summaryWeightCanvas._goalScale;
+    button.textContent = summaryPhoneEditing ? "Done" : "Edit";
+    button.setAttribute("aria-label", summaryPhoneEditing ? "Done editing goal lines" : "Edit goal lines");
+    button.setAttribute("aria-pressed", String(summaryPhoneEditing));
+    summaryWeightCanvas.classList.toggle("phone-goals-editing", summaryPhoneEditing);
+    summaryWeightCanvas.style.cursor = summaryPhoneEditing ? "ns-resize" : "default";
+    if (!summaryChartOffset) document.querySelector(".goal-line-help").textContent = summaryPhoneEditing
+        ? "Drag Real Goal or Motivational Goal. Tap Done to lock. VZ follows Real Goal."
+        : "Goals locked · Tap Edit to adjust. Swipe to scroll.";
+}
+
+function setupPhoneSummary() {
+    if (!summaryPhone) return;
+    const shell = document.querySelector(".summary-shell");
+    const charts = shell.querySelector(".chart-grid");
+    shell.insertBefore(charts, shell.querySelector(".metric-grid"));
+    const lifestyle = shell.querySelector(".lifestyle-panel");
+    shell.append(lifestyle);
+    shell.insertBefore(shell.querySelector(".weekly-strip"), shell.querySelector(".daily-trends-section"));
+    const navigation = shell.querySelector(".summary-chart-navigation");
+    const earlier = document.getElementById("summary-chart-earlier");
+    const later = document.getElementById("summary-chart-later");
+    const period = document.getElementById("summary-chart-period");
+    navigation.replaceChildren(earlier, period, later);
+    earlier.textContent = "‹ Previous";
+    later.textContent = "Next ›";
+    earlier.setAttribute("aria-label", "Previous 7 days for both charts");
+    later.setAttribute("aria-label", "Next 7 days for both charts");
+    charts.insertBefore(navigation, charts.lastElementChild);
+    const edit = document.createElement("button");
+    edit.id = "phone-goal-edit";
+    edit.type = "button";
+    edit.className = "phone-summary-control";
+    edit.setAttribute("aria-label", "Edit goal lines");
+    edit.setAttribute("aria-controls", "weight-chart");
+    shell.querySelector(".weight-chart-heading").append(edit);
+    edit.addEventListener("click", () => {
+        summaryPhoneEditing = !summaryPhoneEditing;
+        summaryPhoneSelectedDate = null;
+        document.getElementById("weight-chart-tooltip").hidden = true;
+        draggingWeightGoal = null;
+        updatePhoneGoalControls();
+        drawWeightChart(summaryWeightPoints);
+    });
+    const selection = document.createElement("div");
+    selection.id = "phone-weight-selection";
+    selection.setAttribute("role", "status");
+    selection.textContent = "Tap a weight point to view its date and weight.";
+    shell.querySelector(".goal-line-help").before(selection);
+    const heading = lifestyle.querySelector(".panel-heading");
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "phone-lifestyle-toggle panel-heading";
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.setAttribute("aria-controls", "lifestyle-items");
+    toggle.append(...heading.childNodes);
+    const indicator = document.createElement("span");
+    indicator.className = "phone-lifestyle-indicator";
+    indicator.textContent = "+";
+    indicator.setAttribute("aria-hidden", "true");
+    toggle.append(indicator);
+    heading.replaceWith(toggle);
+    const items = document.getElementById("lifestyle-items");
+    items.hidden = true;
+    toggle.addEventListener("click", () => {
+        items.hidden = !items.hidden;
+        toggle.setAttribute("aria-expanded", String(!items.hidden));
+        indicator.textContent = items.hidden ? "+" : "−";
+    });
+}
+setupPhoneSummary();
+
+window.addEventListener("pageshow", () => { summaryChartOffset = 0; summaryPhoneEditing = false; summaryPhoneSelectedDate = null; renderSummaryData(); });
 void refreshSummaryAccountReadiness();
