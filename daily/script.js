@@ -126,7 +126,7 @@ function applyUnitSystem() {
 }
 
 let state = loadState();
-syncLifestyleSummary();
+let syncMemoryBase = JSON.stringify(state);
 let activeScoreDate = null;
 let addingWalk = false;
 let editingWalkIndex = null;
@@ -255,7 +255,10 @@ function loadState() {
 }
 
 function persist() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  if(window.MotionCSyncLocal){
+    const raw=window.MotionCSyncLocal.commit(STORAGE_KEY,JSON.stringify(state),syncMemoryBase);
+    if(raw)syncMemoryBase=JSON.stringify(state);
+  }else localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
   try { void window.MotionCCompassRefresh?.refresh(); } catch { /* Compass cannot block a source save. */ }
 }
 
@@ -466,16 +469,7 @@ function walksForEntry(entry) {
 function syncWalkTotals(entry) {
   const walks = walksForEntry(entry);
   entry.walks = walks;
-  entry.distance = Math.round(walks.reduce((sum, walk) => sum + Number(walk.distance || 0), 0) * 100) / 100;
-  entry.minutes = walks.reduce((sum, walk) => sum + Number(walk.minutes || 0), 0);
-  entry.steps = walks.length && walks.every(walk => Number(walk.steps) > 0)
-    ? walks.reduce((sum, walk) => sum + Math.round(Number(walk.steps)), 0)
-    : null;
-  const allHrMeasured = walks.length && walks.every(walk => Number(walk.walkingHr) > 0 && Number(walk.minutes) > 0);
-  entry.walkingHr = allHrMeasured
-    ? Math.round(walks.reduce((sum, walk) => sum + Number(walk.walkingHr) * Number(walk.minutes), 0) / entry.minutes)
-    : null;
-  return entry;
+  return window.MotionCDayReview.walkTotals(entry);
 }
 
 function clearWalkFields() {
@@ -486,6 +480,8 @@ function clearWalkFields() {
 }
 
 function loadEntry(dateValue) {
+  window.MotionCSyncLocal?.clearDraft();
+  if(window.MotionCSyncLocal){state=loadState();syncMemoryBase=JSON.stringify(state);}
   const entry = state.entries[dateValue];
   addingWalk = false;
   editingWalkIndex = null;
@@ -1916,10 +1912,25 @@ function scheduleDailyGaugeReset() {
   }, nextMidnight.getTime() - now.getTime());
 }
 
-persist();
 loadEntry(isoDate());
 renderAll();
 setupWalkingCalculator();
 applyUnitSystem();
 scheduleDailyGaugeReset();
 void refreshProfileAccountReadiness();
+
+// Receive new readouts without replacing an active form draft or its edit baseline.
+function receiveDailySync(){
+  const hasDraft=window.MotionCSyncLocal?.hasDraft() || Boolean(document.querySelector('dialog[open]:not(#motionc-sync-review)'));
+  const oldState=state,oldBase=syncMemoryBase,date=fields.date.value||isoDate();
+  const controls=[...document.querySelectorAll('input,textarea,select')].map(e=>[e,e.value,e.checked,e.selectionStart,e.selectionEnd]);
+  state=loadState();syncMemoryBase=JSON.stringify(state);
+  if(!hasDraft)unitSystem=loadUnitSystem();
+  renderAll(date);
+  if(hasDraft){
+    state=oldState;syncMemoryBase=oldBase;
+    for(const [e,value,checked,start,end] of controls){e.value=value;e.checked=checked;if(start!==null)try{e.setSelectionRange(start,end);}catch{}}
+  }else applyUnitSystem();
+}
+window.addEventListener('motionc:cloud-restored',receiveDailySync);
+window.addEventListener('motionc:account-ready',receiveDailySync);
