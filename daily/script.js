@@ -1128,6 +1128,21 @@ function longestWalk() {
   );
 }
 
+// Record candidates must already be separate structured outings. Never use
+// walksForEntry here: its compatibility fallback wraps an unsplit daily total.
+function longestStructuredWalk(entries) {
+  let best = null;
+  entries.forEach(entry => {
+    if (!Array.isArray(entry.walks)) return;
+    entry.walks.forEach(walk => {
+      const distance = Number(walk?.distance);
+      if (walk?.legacy || !Number.isFinite(distance) || distance <= 0) return;
+      if (!best || distance > best.distance) best = { distance, date: entry.date };
+    });
+  });
+  return best;
+}
+
 function renderMilestones() {
   const entries = Object.values(state.entries).sort((a, b) => a.date.localeCompare(b.date));
   const walkingDays = entries.filter(entry => Number(entry.distance || 0) > 0);
@@ -1140,7 +1155,9 @@ function renderMilestones() {
   const latestWeight = weightedEntries.length ? Number(weightedEntries.at(-1).weight) : null;
   const startWeight = Number(state.profile.startWeight);
   const totalMiles = entries.reduce((sum, item) => sum + Number(item.distance || 0), 0);
+  const totalWalkingMinutes = Math.round(entries.reduce((sum, item) => sum + Number(item.minutes || 0), 0));
   const longest = longestWalk();
+  const longestSingle = longestStructuredWalk(entries);
   const greenDays = entries.filter(item => ["green", "light-green"].includes(scoreForEntry(item).color)).length;
   const availableDots = entries.length;
   const positivePercentage = availableDots ? Math.round(greenDays / availableDots * 100) : 0;
@@ -1182,20 +1199,21 @@ function renderMilestones() {
 
   const milestoneData = [
     { label: "Total Weight Lost", reached: hasStartWeight && latestWeight !== null, detail: hasStartWeight && latestWeight !== null ? `${formatWeight(startWeight)} start → ${formatWeight(latestWeight)} latest (${loss.toFixed(1)} ${weightUnit()} lost)` : "Starting and latest weights needed" },
-    { label: "Lowest Recorded Weight", reached: lowest !== null, detail: lowest !== null ? `${formatWeight(lowest)} · ${formatMilestoneDate(lowestEntry.date)}` : "No weight recorded" },
-    { label: "Real Goal", reached: hasRealGoal, detail: hasRealGoal ? formatWeight(realGoal) : "Set your goal in Weekly check-in or on Summary" },
-    { label: "Longest Daily Walk", reached: Boolean(longest), detail: longest ? `${longestDistance.toFixed(2)} ${distanceUnit()}` : "No walk recorded" },
-    { label: `Total Cumulative ${unitSystem === "metric" ? "Kilometres" : "Miles"}`, reached: entries.length > 0, detail: `${totalDistance.toFixed(1)} ${distanceUnit()}` },
+    { label: "Lowest Recorded Weight", reached: lowest !== null, detail: lowest !== null ? formatWeight(lowest) : "No weight recorded", date: lowestEntry?.date },
+    { label: "Longest Single Walk", reached: Boolean(longestSingle), detail: longestSingle ? formatDistance(longestSingle.distance) : "No individual walk recorded", date: longestSingle?.date },
+    { label: "Longest Daily Combined Distance", reached: Boolean(longest), detail: longest ? `${longestDistance.toFixed(2)} ${distanceUnit()}` : "No walk recorded", date: longest?.date },
+    { label: `Total ${unitSystem === "metric" ? "Kilometres" : "Miles"} Walked`, reached: entries.length > 0, detail: `${totalDistance.toFixed(1)} ${distanceUnit()}` },
+    { label: "Total Walking Time", reached: totalWalkingMinutes > 0, detail: `${Math.floor(totalWalkingMinutes / 60)} hr ${totalWalkingMinutes % 60} min` },
     { label: "Total Positive Dots", reached: availableDots > 0, detail: `${greenDays} / ${availableDots} (${positivePercentage}%)` }
   ];
   const reached = milestoneData.filter(item => item.reached);
-  byId("milestoneCount").textContent = `${reached.length} tracked`;
+  byId("milestoneCount").textContent = `${reached.length + (walkingDays.length ? 1 : 0)} tracked`;
   byId("latestMilestone").innerHTML = `<span>CURRENT PROGRESS</span><strong>${greenDays} / ${availableDots} Positive Dots</strong><small>${positivePercentage}% positive</small>`;
   byId("dailyWalkAverage").innerHTML = walkingDays.length
     ? `<span>DAILY WALK AVERAGE</span><strong>${averageDailyDistance.toFixed(2)} ${distanceUnit()}</strong>${averageDailyMinutes ? `<small>${Math.round(averageDailyMinutes)} min per walking day</small>` : `<small>Per walking day</small>`}`
     : `<span>DAILY WALK AVERAGE</span><strong>&mdash;</strong><small>Record a walk to begin</small>`;
   byId("milestoneList").innerHTML = milestoneData.map(item =>
-    `<div class="milestone-item ${item.reached ? "" : "locked"}"><i>${item.reached ? "✓" : "·"}</i><span>${item.label}</span><small>${item.detail}</small></div>`
+    `<div class="milestone-item ${item.reached ? "" : "locked"}"><i>${item.reached ? "✓" : "·"}</i><span>${item.label}</span><small class="milestone-detail">${item.detail}${item.date ? `<time datetime="${item.date}">${formatMilestoneDate(item.date)}</time>` : ""}</small></div>`
   ).join("");
 }
 
