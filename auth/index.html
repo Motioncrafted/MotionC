@@ -1,6 +1,11 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <script src="/shared/motionc-sync-core.js?v=20261002-sync1"></script>
+  <script src="/shared/motionc-sync-local.js?v=20261002-sync1"></script>
+  <script src="/shared/motionc-sync-engine.js?v=20261002-sync1"></script>
+  <script src="/shared/motionc-day-review.js?v=20261002-sync1"></script>
+  <script src="/shared/motionc-sync-ui.js?v=20261002-sync1"></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>MotionC Account</title>
@@ -140,7 +145,7 @@
     });
   </script>
   <script type="module">
-    import { signOutAndClear } from "../shared/motionc-supabase.js?v=20260922-phase1";
+    import { signOutAndClear } from "../shared/motionc-supabase.js?v=20261002-sync1";
 
     const signOutButton = document.getElementById("signOutButton");
     const syncStatus = document.getElementById("syncStatus");
@@ -156,6 +161,6 @@
       }
     });
   </script>
-  <script type="module" src="script.js?v=20260924-demo-chooser"></script>
+  <script type="module" src="script.js?v=20261002-sync1"></script>
 </body>
 </html>

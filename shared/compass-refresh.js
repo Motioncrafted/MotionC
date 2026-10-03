@@ -6,6 +6,7 @@
   const LOCK = 'motionc-member-state-v1';
   let generation = 0, pending = null, rerun = false;
   const owner = () => {
+    if(window.MotionCSyncLocal && !window.MotionCSyncLocal.canDerive())return null;
     const active = localStorage.getItem(ACTIVE);
     return active && active === window.MotionCAccountReady?.owner ? active : null;
   };

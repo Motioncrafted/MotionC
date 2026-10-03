@@ -1,7 +1,6 @@
 import {
-  supabase, getSession, readCloudState, activateUser,
-  makeFreshState, clearLocalState
-} from "../shared/motionc-supabase.js?v=20260922-phase1";
+  supabase, getSession, activateUser, clearLocalState
+} from "../shared/motionc-supabase.js?v=20261002-sync1";
 
 const $ = (id) => document.getElementById(id);
 const USERNAME_PATTERN = /^[A-Za-z0-9_]{3,24}$/;
@@ -212,9 +211,7 @@ async function readOrCreateProfile(user) {
 
 async function finishLogin(session, { stayOnAccount = false } = {}) {
   activeSession = session;
-  const cloud = await readCloudState(session.user.id);
-  const accountState = Object.keys(cloud.state?.storage || {}).length ? cloud.state : makeFreshState();
-  await activateUser(session.user.id, accountState);
+  await activateUser(session.user.id);
   const username = await readOrCreateProfile(session.user);
   if (!username) {
     show("usernamePanel");

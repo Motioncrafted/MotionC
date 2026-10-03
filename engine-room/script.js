@@ -867,6 +867,13 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("pageshow", () => {
         synchronizeSummaryProfile();
     });
+    window.addEventListener('motionc:cloud-restored',()=>{
+        if(!window.MotionCSyncLocal?.hasDraft()){
+            unitSystem=readUnitSystem();
+            document.querySelectorAll('input[name="engineUnitSystem"]').forEach(input=>input.checked=input.value===unitSystem);
+            synchronizeSummaryProfile();renderPopulationSummary();runSimulation();
+        }
+    });
     
     /*
         Starting state.
