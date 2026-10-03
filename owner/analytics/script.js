@@ -1,4 +1,4 @@
-import { supabase } from '/shared/motionc-supabase.js?v=20260923-phase2';
+import { supabase } from '/shared/motionc-supabase.js?v=20261002-sync1';
 const gate=document.querySelector('#gate'), dashboard=document.querySelector('#dashboard'), period=document.querySelector('#period'), status=document.querySelector('#status');
 let generation=0;
 const names={weekly_checkin_saved:'Weekly Check-In Saved',mo_shortcut:'Mo Explainer shortcut uses',comix_opened:'Comix viewer opened',contribution_local:'Drop Zone — local completion',contribution_server:'Drop Zone — server saved',signin_success:'Successful sign-ins',signin_failed:'Failed sign-ins',save_failed:'Contribution save failures',sync_failed:'Account sync failures',article_failed:'Article load failures'};
