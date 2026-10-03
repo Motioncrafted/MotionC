@@ -2425,3 +2425,14 @@ html[data-motionc-presentation="phone"] #walking-chart-tooltip {
 }
 html[data-motionc-presentation="phone"] #walking-chart-tooltip::after { display: none; }
 html[data-motionc-presentation="phone"] #walking-chart { touch-action: pan-y pinch-zoom; }
+
+/* Phone only: fit the unchanged supplied artwork inside the accepted hero. */
+html[data-motionc-presentation="phone"] .summary-hero::before {
+    background: url("/images/summary-phone-hero.png") center 60% / cover no-repeat;
+    -webkit-mask-image: none;
+    mask-image: none;
+}
+/* Keep accepted Phone hero geometry while omitting its tagline. */
+html[data-motionc-presentation="phone"] .hero-copy > p:last-child {
+    visibility: hidden;
+}
