@@ -11,7 +11,7 @@
     return {version:1,day,startOfDayResponse:day===previous.day?(valid(previous.startOfDayResponse)?previous.startOfDayResponse:null):previous.lastResponse,lastResponse:valid(value)?value:previous.lastResponse};
   }
   function read(){try{return JSON.parse(localStorage.getItem(key)||'null');}catch{return null;}}
-  function enabled(){return owner&&owner===localStorage.getItem(ownerKey);}
+  function enabled(){return owner&&owner===localStorage.getItem(ownerKey)&&(!window.MotionCSyncLocal||window.MotionCSyncLocal.canDerive());}
   function observe(value,day=date(),calculation=null){
     if(!enabled())return null;
     const previous=read(),next=advance(previous,day,value);
