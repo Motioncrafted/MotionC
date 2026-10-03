@@ -2436,3 +2436,11 @@ html[data-motionc-presentation="phone"] .summary-hero::before {
 html[data-motionc-presentation="phone"] .hero-copy > p:last-child {
     visibility: hidden;
 }
+
+/* Phone Summary overview: approved warm brand tint. */
+html[data-motionc-presentation="phone"] .summary-heading {
+    background-color: #F6EFE4;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    row-gap: 0;
+}
