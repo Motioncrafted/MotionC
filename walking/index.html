@@ -1,6 +1,11 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <script src="/shared/motionc-sync-core.js?v=20261002-sync1"></script>
+  <script src="/shared/motionc-sync-local.js?v=20261002-sync1"></script>
+  <script src="/shared/motionc-sync-engine.js?v=20261002-sync1"></script>
+  <script src="/shared/motionc-day-review.js?v=20261002-sync1"></script>
+  <script src="/shared/motionc-sync-ui.js?v=20261002-sync1"></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Walking</title>
@@ -1198,6 +1203,7 @@
     }
 
     function updateRouteCelebration(totalMiles) {
+      if(window.MotionCSyncLocal && !window.MotionCSyncLocal.canDerive())return;
       if (totalMiles < activeRoute.totalMiles) {
         localStorage.removeItem(activeRoute.celebrationKey);
         return;
@@ -1472,6 +1478,7 @@
     });
 
     window.addEventListener("motionc:registration", event => {
+      const savedRouteId=localStorage.getItem(SELECTED_ROUTE_KEY);
       registeredUser = Boolean(event.detail?.registered);
       routeAccessIcon.textContent = registeredUser ? "🗺️" : "🔒";
       routeAccess.setAttribute("aria-label", registeredUser ? "Choose a walking route" : "Sign in to unlock walking routes");
@@ -1528,6 +1535,16 @@
       render();
     });
 
+    window.addEventListener('motionc:cloud-restored',()=>{
+      unitSystem=JSON.parse(localStorage.getItem(PREFERENCES_STORAGE_KEY)||'{}').unitSystem==='metric'?'metric':'imperial';
+      document.querySelectorAll('input[name="walkingUnitSystem"]').forEach(input=>input.checked=input.value===unitSystem);
+      document.getElementById('walkingTotalLabel').textContent=unitSystem==='metric'?'Current Journey Kilometres':'Current Journey Miles';
+      document.getElementById('walkDistanceLabel').textContent=unitSystem==='metric'?'Kilometres Walked':'Miles Walked';
+      const route=localStorage.getItem(SELECTED_ROUTE_KEY);
+      activeRoute=registeredUser&&ROUTES[route]?ROUTES[route]:ROUTES.jasper;
+      walks=loadWalks();applyRoute();render();
+    });
+
     window.addEventListener("pageshow", () => {
       walks = loadWalks();
       render();
@@ -1579,13 +1596,13 @@
     })();
   </script>
   <script type="module">
-    import { getSession } from "/shared/motionc-supabase.js?v=20260922-phase1";
+    import { getSession } from "/shared/motionc-supabase.js?v=20261002-sync1";
     const session = await getSession().catch(() => null);
     window.dispatchEvent(new CustomEvent("motionc:registration", {
       detail: { registered: Boolean(session?.user && !session.user.is_anonymous) }
     }));
   </script>
-  <script type="module" src="/shared/motionc-supabase.js?v=20260922-phase1"></script>
+  <script type="module" src="/shared/motionc-supabase.js?v=20261002-sync1"></script>
 <script src="/shared/checkin-access.js?v=20260915-2"></script>
 </body>
 </html>
