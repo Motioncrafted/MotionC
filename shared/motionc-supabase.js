@@ -23,15 +23,19 @@ let bootToken = null;
 let reconcileTimer = null;
 let localTransition = false;
 const pendingSync = new Set();
+const SyncLocal = window.MotionCSyncLocal;
+let activeSync = null;
+let requestedAgain = false;
+let lastSyncResult = null;
 
 // Serialize account replacement with the UI-free Compass writer across tabs.
 // Older browsers retain existing account behaviour; Compass itself fails closed without Web Locks.
 const withMemberStateLock = action => navigator.locks?.request
   ? navigator.locks.request("motionc-member-state-v1", action)
-  : Promise.resolve().then(action);
+  : Promise.reject(new Error("Safe synchronization requires browser Web Locks. Local work is retained."));
 const withCloudSaveLock = action => navigator.locks?.request
   ? navigator.locks.request("motionc-cloud-save-v1", action)
-  : Promise.resolve().then(action);
+  : Promise.reject(new Error("Safe synchronization requires browser Web Locks. Local work is retained."));
 
 function cancelledSync() {
   const error = new Error("Account changed before synchronization completed.");
@@ -46,8 +50,7 @@ function stopSynchronization() {
   reconcileTimer = null;
   if (syncWorker) {
     clearInterval(syncWorker.timer);
-    document.removeEventListener("visibilitychange", syncWorker.onHidden);
-    window.removeEventListener("pagehide", syncWorker.onPageHide);
+    for (const [target,event,handler] of syncWorker.listeners) target.removeEventListener(event,handler);
     syncWorker = null;
   }
   pendingSync.forEach(operation => operation.controller.abort());
@@ -144,7 +147,7 @@ export function captureLocalState() {
 }
 
 function clearLocalStateUnlocked() {
-  dataKeys().forEach((key) => localStorage.removeItem(key));
+  dataKeys().forEach((key) => SyncLocal.rawRemove(key));
 }
 
 export async function clearLocalState(expectedOwner = localStorage.getItem(ACTIVE_USER_KEY)) {
@@ -153,6 +156,8 @@ export async function clearLocalState(expectedOwner = localStorage.getItem(ACTIV
     if (localStorage.getItem(ACTIVE_USER_KEY) !== expectedOwner) return;
     clearLocalStateUnlocked();
     localStorage.removeItem(ACTIVE_USER_KEY);
+    // Called after a successful final sync, or an explicitly confirmed account deletion.
+    for(const key of Object.keys(localStorage))if(key.startsWith(SyncLocal.key(expectedOwner,'')))SyncLocal.rawRemove(key);
   });
 }
 
@@ -171,7 +176,7 @@ function applyLocalStateUnlocked(state, userId) {
   clearLocalStateUnlocked();
   Object.entries(state?.storage || {}).forEach(([key, value]) => {
     if (key.startsWith(DATA_PREFIX) && !key.startsWith(AUTH_PREFIX) && !key.startsWith("motionc-analytics-") && typeof value === "string") {
-      localStorage.setItem(key, value);
+      SyncLocal.rawSet(key, value);
     }
   });
   localStorage.setItem(ACTIVE_USER_KEY, userId);
@@ -187,50 +192,91 @@ export async function readCloudState(userId, { signal } = {}) {
   let query = supabase.from("motionc_user_state")
     .select("state, revision, updated_at").eq("user_id", userId);
   if (signal) query = query.abortSignal(signal);
-  const { data, error } = await query.single();
+  const { data, error } = await query.maybeSingle();
   if (error) throw error;
-  return data;
+  return data || {state: makeFreshState(), revision: "-1"};
+}
+
+function publishStatus(detail) {
+  window.dispatchEvent(new CustomEvent('motionc:sync-status',{detail}));
 }
 
 export async function saveCloudState(userId) {
-  const operation = beginSyncOperation(userId);
-  try {
-    return await withCloudSaveLock(async () => {
-    await verifySyncSession(operation);
-    const current = await readCloudState(userId, { signal: operation.controller.signal });
-    // Authentication may change while the revision read is in flight.
-    await verifySyncSession(operation);
-    // Capture after acquiring the cloud queue: an older tab must not upload a stale queued snapshot.
-    const state = await withMemberStateLock(() => {
+  if (activeSync) {
+    requestedAgain = true;
+    await activeSync;
+    if (authenticatedUserId !== userId) throw cancelledSync();
+    return captureLocalState();
+  }
+  const operation=beginSyncOperation(userId);
+  activeSync=(async()=>{
+    return withCloudSaveLock(async()=>{
+      await verifySyncSession(operation);
+      // The durable intent journal also covers writers operating while the network is in flight.
+      const result=await window.MotionCSyncEngine.synchronize({
+        id:userId,local:SyncLocal,assertCurrent:()=>assertSyncCurrent(operation),
+        readCloud:()=>readCloudState(userId,{signal:operation.controller.signal}),
+        writeCloud:async(revision,state)=>{
+          await verifySyncSession(operation);
+          const {data,error}=await supabase.rpc('motionc_commit_state',{
+            expected_revision:String(revision),next_state:state
+          }).abortSignal(operation.controller.signal);
+          if(error)throw error;
+          return data;
+        }
+      });
       assertSyncCurrent(operation);
-      return captureLocalState();
+      lastSyncResult=result;
+      SyncLocal.enable(userId);
+      SyncLocal.acknowledgeReviews(result.cloud.state);
+      const newlyReady=window.MotionCAccountReady?.owner!==userId;
+      window.MotionCAccountReady={owner:userId};
+      const changed=!window.MotionCSyncCore.equal(window.MotionCSyncCore.split(syncWorker?.lastView),window.MotionCSyncCore.split(result.view));
+      if(syncWorker)syncWorker.lastView=result.view;
+      publishStatus(result);
+      if(changed)window.dispatchEvent(new CustomEvent('motionc:cloud-restored',{detail:{owner:userId}}));
+      if(newlyReady)window.dispatchEvent(new CustomEvent('motionc:account-ready',{detail:{owner:userId}}));
+      return result.view;
     });
-    assertSyncCurrent(operation);
-    const { error } = await supabase.from("motionc_user_state").upsert({
-      user_id: userId,
-      state,
-      revision: Number(current?.revision || 0) + 1,
-      updated_at: new Date().toISOString()
-    }).abortSignal(operation.controller.signal);
-    assertSyncCurrent(operation);
-    if (error) throw error;
-    return state;
-    });
-  } finally {
-    pendingSync.delete(operation);
+  })();
+  try{return await activeSync;}
+  catch(error){
+    if(error.name!=='AbortError' && authenticatedUserId===userId && SyncLocal.owner()===userId){
+      SyncLocal.enable(userId);publishStatus({error:true,conflicts:SyncLocal.read(userId)?.conflicts||{}});
+    }
+    throw error;
+  }finally{
+    activeSync=null;pendingSync.delete(operation);
+    if(requestedAgain){requestedAgain=false;setTimeout(()=>void syncNow(),0);}
   }
 }
 
-export async function activateUser(userId, state) {
-  const operation = beginSyncOperation(userId);
-  try {
-    await verifySyncSession(operation, false);
-    await withMemberStateLock(() => {
-      assertSyncCurrent(operation, false);
-      applyLocalStateUnlocked(state, userId);
-    });
-  } finally { pendingSync.delete(operation); }
+export async function syncNow() {
+  const id=authenticatedUserId;
+  if(!id||SyncLocal.owner()!==id||localTransition)return;
+  try{await saveCloudState(id);}catch(error){if(error.name!=='AbortError')console.warn('MotionC sync unavailable; local work retained.');}
+}
+
+export async function activateUser(userId, _state) {
+  // Re-signing into the same account must not discard local pending work.
+  if(SyncLocal.owner()!==userId){
+    const oldOwner=SyncLocal.owner();
+    if(oldOwner)SyncLocal.rawSet(SyncLocal.key(oldOwner,'suspended'),JSON.stringify(captureLocalState()));
+    const operation=beginSyncOperation(userId);
+    try{
+      const cloud=await readCloudState(userId);
+      await verifySyncSession(operation,false);
+      const suspended=SyncLocal.rawGet(SyncLocal.key(userId,'suspended'));
+      const restored=suspended?JSON.parse(suspended):cloud.state;
+      await withMemberStateLock(()=>{
+        assertSyncCurrent(operation,false);
+        clearLocalStateUnlocked();SyncLocal.apply(restored);localStorage.setItem(ACTIVE_USER_KEY,userId);
+        if(!suspended)SyncLocal.checkpoint(userId,{version:1,base:cloud.state,revision:String(cloud.revision),view:cloud.state,conflicts:{},covered:[]});
+      });
+    }finally{pendingSync.delete(operation);}
+  }
   await saveCloudState(userId);
+  SyncLocal.rawRemove(SyncLocal.key(userId,'suspended'));
   schedulePageSync();
 }
 
@@ -243,6 +289,10 @@ export async function signOutAndClear() {
     if (userId && localStorage.getItem(ACTIVE_USER_KEY) === userId) {
       // Preserve the existing final save, with all background workers stopped.
       await saveCloudState(userId);
+      if(Object.keys(lastSyncResult?.conflicts||{}).length||SyncLocal.operations(userId).length||SyncLocal.reviews().some(SyncLocal.pendingReview)){
+        publishStatus(lastSyncResult||{pending:true});
+        throw new Error('Local work needs synchronization or review before sign-out.');
+      }
     }
     const current = await getSession();
     if ((current?.user?.id || null) !== userId || authenticatedUserId !== userId) throw cancelledSync();
@@ -365,6 +415,8 @@ async function bootPageSync() {
     launchAnalytics(session);
     if (!session) {
       const hadPersonalState = hasPersonalLocalState();
+      const suspendedOwner=SyncLocal.owner();
+      if(suspendedOwner)SyncLocal.rawSet(SyncLocal.key(suspendedOwner,'suspended'),JSON.stringify(captureLocalState()));
       await withMemberStateLock(() => {
         if (authenticatedUserId !== null) throw cancelledSync();
         clearLocalStateUnlocked();
@@ -379,14 +431,8 @@ async function bootPageSync() {
     const userId = session.user.id;
     operation = beginSyncOperation(userId);
     if (localStorage.getItem(ACTIVE_USER_KEY) !== userId) {
-      const cloud = await readCloudState(userId, { signal: operation.controller.signal });
-      await verifySyncSession(operation, false);
-      await withMemberStateLock(() => {
-        assertSyncCurrent(operation, false);
-        applyLocalStateUnlocked(Object.keys(cloud.state?.storage || {}).length ? cloud.state : makeFreshState(), userId);
-      });
-      location.reload();
-      return;
+      await activateUser(userId);
+      location.reload();return;
     }
 
     let accountLabel = session.user.user_metadata?.username || "MotionC account";
@@ -398,30 +444,18 @@ async function bootPageSync() {
     await verifySyncSession(operation);
     accountBadge(accountLabel, "/auth/?manage=1");
     installPreferenceSignOut();
-    const worker = { userId, generation: syncGeneration, previous: JSON.stringify(captureLocalState()), busy: false };
-    const isCurrent = () => syncWorker === worker && worker.generation === syncGeneration &&
-      authenticatedUserId === userId && localStorage.getItem(ACTIVE_USER_KEY) === userId;
-    const syncIfChanged = async () => {
-      if (!isCurrent() || worker.busy) return;
-      const next = JSON.stringify(captureLocalState());
-      if (next === worker.previous) return;
-      worker.busy = true;
-      try {
-        const saved = await saveCloudState(userId);
-        if (isCurrent()) worker.previous = JSON.stringify(saved);
-      } catch (error) {
-        if (isCurrent() && error.code !== "MOTIONC_SYNC_CANCELLED" && error.name !== "AbortError") {
-          console.error("MotionC cloud sync failed", error);
-          try { window.MotionCAnalytics?.recordAction("sync_failed"); } catch { /* Analytics cannot affect sync. */ }
-        }
-      } finally { worker.busy = false; }
-    };
-    worker.onHidden = () => { if (document.visibilityState === "hidden") void syncIfChanged(); };
-    worker.onPageHide = () => { void syncIfChanged(); };
-    syncWorker = worker;
-    worker.timer = setInterval(syncIfChanged, 1500);
-    document.addEventListener("visibilitychange", worker.onHidden);
-    window.addEventListener("pagehide", worker.onPageHide);
+    const worker={userId,generation:syncGeneration,listeners:[],lastView:null};
+    syncWorker=worker;
+    const on=(target,event,fn)=>{target.addEventListener(event,fn);worker.listeners.push([target,event,fn]);};
+    let debounce;
+    const request=()=>{clearTimeout(debounce);debounce=setTimeout(()=>void syncNow(),120);};
+    on(window,'pageshow',request);on(window,'online',request);
+    on(document,'visibilitychange',()=>{if(document.visibilityState==='visible')request();});
+    on(window,'motionc:local-change',request);
+    on(window,'storage',e=>{if((e.key?.startsWith('MotionCSync.v1:')&&(/:op:|:checkpoint$/.test(e.key)))||e.key?.startsWith('motionc-'))request();});
+    worker.timer=setInterval(()=>{if(!document.hidden)void syncNow();},30000);
+    await saveCloudState(userId);
+    assertSyncCurrent(operation);
     window.MotionCAccountReady = { owner: userId };
     window.dispatchEvent(new CustomEvent("motionc:account-ready", { detail: { owner: userId } }));
   } catch (error) {
@@ -434,7 +468,7 @@ async function bootPageSync() {
 
 window.MotionCSupabase = {
   supabase, captureLocalState, clearLocalState, makeFreshState,
-  getSession, readCloudState, saveCloudState, activateUser, signOutAndClear
+  getSession, readCloudState, saveCloudState, activateUser, signOutAndClear, syncNow
 };
 
 // Supabase delivers INITIAL_SESSION and cross-tab SIGNED_OUT/SIGNED_IN events.
