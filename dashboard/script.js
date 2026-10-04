@@ -2489,14 +2489,30 @@ function positionChartTooltip(tooltip, canvas, point) {
 // Phone Daily Gauges use completed taps, like Recent Walks; Full retains hover.
 function attachPhoneDailyTrendSelection(canvas, tooltip, renderContent) {
     let tapStart = null;
-    let readoutAtTop = false;
+    let tapY = 0;
     canvas._restorePhoneTrend = () => {
         const point = canvas._hitPoints?.find(point => point.date === canvas._phoneTrendDate);
         tooltip.hidden = !point;
         if (!point) { canvas._phoneTrendDate = null; return; }
         tooltip.innerHTML = renderContent(point);
-        tooltip.style.top = readoutAtTop ? "max(12px, env(safe-area-inset-top))" : "auto";
-        tooltip.style.bottom = readoutAtTop ? "auto" : "max(12px, env(safe-area-inset-bottom))";
+        const viewport = window.visualViewport;
+        const viewportTop = viewport?.offsetTop || 0;
+        const viewportHeight = viewport?.height || window.innerHeight;
+        const height = tooltip.offsetHeight;
+        const minTop = viewportTop + 12;
+        const maxTop = viewportTop + viewportHeight - height - 12;
+        const clamp = top => Math.max(minTop, Math.min(maxTop, top));
+        const preferred = clamp(viewportTop + viewportHeight / 3 - height / 2);
+        let top = preferred;
+        // Stay near the upper third, with 40px clearance from the tap.
+        if (tapY > top - 40 && tapY < top + height + 40) {
+            const alternatives = [tapY - height - 40, tapY + 40]
+                .filter(candidate => candidate >= minTop && candidate <= maxTop)
+                .sort((a, b) => Math.abs(a - preferred) - Math.abs(b - preferred));
+            top = alternatives[0] ?? preferred;
+        }
+        tooltip.style.top = top + "px";
+        tooltip.style.bottom = "auto";
     };
     const clear = () => {
         tapStart = null;
@@ -2513,8 +2529,7 @@ function attachPhoneDailyTrendSelection(canvas, tooltip, renderContent) {
         if (tapStart && tapStart.id === event.pointerId
             && Math.hypot(event.clientX - tapStart.x, event.clientY - tapStart.y) < 10) {
             canvas._phoneTrendDate = nearestChartPoint(canvas, event, 24)?.date || null;
-            // Fixed readout opposite the finger; no card resizing or covered dot.
-            readoutAtTop = event.clientY > window.innerHeight / 2;
+            tapY = event.clientY;
             canvas._redrawPhoneTrend?.();
         }
         tapStart = null;
