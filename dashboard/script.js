@@ -2730,7 +2730,26 @@ function setupPhoneSummary() {
     shell.insertBefore(charts, shell.querySelector(".metric-grid"));
     const lifestyle = shell.querySelector(".lifestyle-panel");
     shell.append(lifestyle);
-    shell.insertBefore(shell.querySelector(".weekly-strip"), shell.querySelector(".daily-trends-section"));
+    // Move the authoritative value nodes; their existing renderers keep updating them.
+    const phoneMetrics = [
+        ["weekly-weight-change", "display-weight", "14-Day Weight Change", "↕", "green"],
+        ["weekly-miles", "display-lifetime-distance", "Last 7 Days — Distance", "↗", "violet"],
+        ["weekly-minutes", "weekly-miles", "Last 7 Days — Walking Time", "◷", "sky"]
+    ];
+    for (const [valueId, afterId, title, symbol, colour] of phoneMetrics) {
+        const value = document.getElementById(valueId);
+        const after = document.getElementById(afterId).closest(".metric-card");
+        const card = document.createElement("article");
+        card.className = "metric-card metric-card-" + colour;
+        const icon = document.createElement("div");
+        icon.className = "metric-icon";
+        icon.setAttribute("aria-hidden", "true");
+        icon.textContent = symbol;
+        const label = document.createElement("p");
+        label.textContent = title;
+        card.append(icon, label, value);
+        after.after(card);
+    }
     const navigation = shell.querySelector(".summary-chart-navigation");
     const earlier = document.getElementById("summary-chart-earlier");
     const later = document.getElementById("summary-chart-later");

@@ -2455,3 +2455,7 @@ html[data-motionc-presentation="phone"] .daily-trend-wrap .chart-tooltip {
     max-width: calc(100vw - 32px);
 }
 html[data-motionc-presentation="phone"] .daily-trend-wrap .chart-tooltip::after { display: none; }
+
+/* Phone metrics use the existing metric-card family; Full keeps its footer. */
+html[data-motionc-presentation="phone"] .weekly-strip { display: none; }
+html[data-motionc-presentation="phone"] .metric-grid { align-items: start; }
