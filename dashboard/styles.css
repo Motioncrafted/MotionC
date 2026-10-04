@@ -2444,3 +2444,14 @@ html[data-motionc-presentation="phone"] .summary-heading {
     padding-bottom: 16px;
     row-gap: 0;
 }
+
+/* Phone Daily Gauge selection readout: isolated from Full and other charts. */
+html[data-motionc-presentation="phone"] .daily-trend-wrap canvas { touch-action: pan-y pinch-zoom; }
+html[data-motionc-presentation="phone"] .daily-trend-wrap .chart-tooltip {
+    position: fixed;
+    z-index: 70;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: calc(100vw - 32px);
+}
+html[data-motionc-presentation="phone"] .daily-trend-wrap .chart-tooltip::after { display: none; }

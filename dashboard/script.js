@@ -2046,12 +2046,18 @@ function drawDailyGaugeTrend(key, dates, gauges) {
     const canvas = document.getElementById(`${key}-trend-chart`);
     const empty = document.getElementById(`${key}-trend-empty`);
     if (!canvas || !empty) return;
+    if (summaryPhone) canvas._redrawPhoneTrend = () => drawDailyGaugeTrend(key, dates, gauges);
     const points = dates.map(date => {
         const saved = gauges?.[date]?.[key];
         return { date, value: dailyTrendValue(key, saved) };
     });
     const recorded = points.filter(point => point.value !== null);
     if (!recorded.length) {
+        if (summaryPhone) {
+            canvas._hitPoints = [];
+            canvas._phoneTrendDate = null;
+            canvas._restorePhoneTrend?.();
+        }
         empty.hidden = false;
         canvas.hidden = true;
         setText(`${key}-trend-summary`, key === "sleep" ? "No recorded entries" : "No completed entries");
@@ -2124,6 +2130,18 @@ function drawDailyGaugeTrend(key, dates, gauges) {
     context.textAlign = "left";
     context.fillText(String(config.maximum), 2, padding.top + 3);
     context.fillText("0", 8, height - padding.bottom + 3);
+
+    if (summaryPhone) {
+        const selected = canvas._hitPoints.find(point => point.date === canvas._phoneTrendDate);
+        if (selected) {
+            context.beginPath();
+            context.arc(selected.x, selected.y, 8, 0, Math.PI * 2);
+            context.strokeStyle = "#173d31";
+            context.lineWidth = 2;
+            context.stroke();
+        }
+        canvas._restorePhoneTrend?.();
+    }
 
     const average = recorded.reduce((sum, point) => sum + point.value, 0) / recorded.length;
     setText(`${key}-trend-summary`, `${formatDailyTrendValue(average, key)} ${config.unit} avg · ${recorded.length} recorded`);
@@ -2468,6 +2486,49 @@ function positionChartTooltip(tooltip, canvas, point) {
     tooltip.style.top = `${canvasRect.top - wrapRect.top + point.y}px`;
 }
 
+// Phone Daily Gauges use completed taps, like Recent Walks; Full retains hover.
+function attachPhoneDailyTrendSelection(canvas, tooltip, renderContent) {
+    let tapStart = null;
+    let readoutAtTop = false;
+    canvas._restorePhoneTrend = () => {
+        const point = canvas._hitPoints?.find(point => point.date === canvas._phoneTrendDate);
+        tooltip.hidden = !point;
+        if (!point) { canvas._phoneTrendDate = null; return; }
+        tooltip.innerHTML = renderContent(point);
+        tooltip.style.top = readoutAtTop ? "max(12px, env(safe-area-inset-top))" : "auto";
+        tooltip.style.bottom = readoutAtTop ? "auto" : "max(12px, env(safe-area-inset-bottom))";
+    };
+    const clear = () => {
+        tapStart = null;
+        if (!canvas._phoneTrendDate) return;
+        canvas._phoneTrendDate = null;
+        tooltip.hidden = true;
+        canvas._redrawPhoneTrend?.();
+    };
+    canvas.addEventListener("pointerdown", event => {
+        tapStart = event.isPrimary && event.button === 0
+            ? { x: event.clientX, y: event.clientY, id: event.pointerId } : null;
+    });
+    canvas.addEventListener("pointerup", event => {
+        if (tapStart && tapStart.id === event.pointerId
+            && Math.hypot(event.clientX - tapStart.x, event.clientY - tapStart.y) < 10) {
+            canvas._phoneTrendDate = nearestChartPoint(canvas, event, 24)?.date || null;
+            // Fixed readout opposite the finger; no card resizing or covered dot.
+            readoutAtTop = event.clientY > window.innerHeight / 2;
+            canvas._redrawPhoneTrend?.();
+        }
+        tapStart = null;
+    });
+    canvas.addEventListener("pointercancel", () => { tapStart = null; });
+    canvas.addEventListener("pointerleave", () => { tapStart = null; });
+    document.addEventListener("pointerdown", event => {
+        if (event.target !== canvas && !tooltip.contains(event.target)) clear();
+    });
+    document.addEventListener("keydown", event => { if (event.key === "Escape") clear(); });
+    window.addEventListener("scroll", clear, { passive: true });
+    window.addEventListener("resize", clear);
+}
+
 function attachChartTooltip(canvasId, tooltipId, renderContent) {
     const canvas = document.getElementById(canvasId);
     const tooltip = document.getElementById(tooltipId);
@@ -2543,6 +2604,10 @@ function attachChartTooltip(canvasId, tooltipId, renderContent) {
             walkingTapStart = null;
         });
         canvas.addEventListener("pointercancel", () => { walkingTapStart = null; });
+        return;
+    }
+    if (summaryPhone && /^(sleep|hydration|stress)-trend-chart$/.test(canvasId)) {
+        attachPhoneDailyTrendSelection(canvas, tooltip, renderContent);
         return;
     }
     canvas.addEventListener("pointermove", showTooltip);
