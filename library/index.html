@@ -4773,6 +4773,14 @@
     }
 
     renderIndex();
+    // Phone Summary's quick reference reuses the existing catalogue and reader.
+    if (phonePresentation && new URLSearchParams(location.search).get("article") === "understanding-mcp-score") {
+      const mcpArticle = articles.find(article => article.id === "understanding-mcp-score");
+      if (mcpArticle) {
+        openSection(mcpArticle.category);
+        await openArticle(mcpArticle.id);
+      }
+    }
   </script>
 <script src="/shared/checkin-access.js?v=20260915-2"></script>
 </body>
