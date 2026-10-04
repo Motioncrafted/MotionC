@@ -2302,6 +2302,11 @@ function renderSummaryData() {
     const weeklyMinutes = recentWalks.reduce((total, point) => total + point.minutes, 0);
     setText("weekly-miles", `${weeklyMiles.toFixed(2)} ${summaryDistanceUnit()}`);
     setText("weekly-minutes", `${Math.round(weeklyMinutes)} min`);
+    if (summaryPhone) {
+        const walkAverage = window.MotionCDailyWalkAverage(Object.values(entries), summaryDisplayDistance, summaryDistanceUnit());
+        setText("phone-daily-walk-average", walkAverage.distance);
+        setText("phone-daily-walk-average-detail", walkAverage.detail);
+    }
     setText("walking-chart-summary", `${weeklyMiles.toFixed(1)} ${summaryDistanceUnit()} · ${Math.round(weeklyMinutes)} min in the last 7 days`);
 
     renderWalkingMetrics(entries, dates14);
@@ -2760,6 +2765,10 @@ function setupPhoneSummary() {
         card.append(icon, label, value);
         after.after(card);
     }
+    const averageCard = document.createElement("article");
+    averageCard.className = "metric-card metric-card-green";
+    averageCard.innerHTML = '<div class="metric-icon" aria-hidden="true">↔</div><p>Daily Walk Average</p><strong id="phone-daily-walk-average">—</strong><span class="metric-change" id="phone-daily-walk-average-detail">Record a walk to begin</span>';
+    document.getElementById("display-steps").closest(".metric-card").after(averageCard);
     const navigation = shell.querySelector(".summary-chart-navigation");
     const earlier = document.getElementById("summary-chart-earlier");
     const later = document.getElementById("summary-chart-later");
