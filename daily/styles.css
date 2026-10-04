@@ -1319,3 +1319,6 @@ dialog::backdrop { background: rgba(9,18,20,.66); backdrop-filter: blur(3px); }
   .milestones-card .milestone-item { grid-template-columns: 28px minmax(0, 1fr); }
   .milestones-card .milestone-detail { grid-column: 2; text-align: left; }
 }
+
+/* Phone relocates this presentation to Summary; Full retains Milestones. */
+html[data-motionc-presentation="phone"] #dailyWalkAverage { display: none; }
