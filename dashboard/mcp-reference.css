@@ -1,0 +1,88 @@
+/* The existing card, dial and Full presentation retain their original geometry. */
+html[data-motionc-presentation="phone"] .mcp-reference-trigger {
+  position: absolute;
+  left: -5px;
+  bottom: -14px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #597367;
+  font: 20px/1 Georgia, serif;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+html[data-motionc-presentation="phone"] .mcp-reference-trigger:focus-visible {
+  outline: 2px solid #347b50;
+  outline-offset: -4px;
+}
+html[data-motionc-presentation="phone"] #mcp-reference {
+  box-sizing: border-box;
+  width: min(336px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 30px 22px 14px;
+  border: 1px solid #ad8e58;
+  border-radius: 5px 8px 5px 7px;
+  color: #30291c;
+  background: repeating-linear-gradient(0deg, #ffffff06 0 2px, #70502806 2px 4px), linear-gradient(115deg, #e3c58e, #d7b780 65%, #e6cb9a);
+  box-shadow: inset 0 0 0 6px #f7e5bc30, 0 16px 54px #0005;
+  font: 19px/1.45 "Kalam", "Segoe Print", cursive;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+html[data-motionc-presentation="phone"] #mcp-reference::backdrop { background: #18271e88; }
+html[data-motionc-presentation="phone"] #mcp-reference h2 {
+  margin: 0 28px 20px 0;
+  font: 700 25px/1.2 "Kalam", "Segoe Print", cursive;
+  letter-spacing: .06em;
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+html[data-motionc-presentation="phone"] .mcp-reference-close {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #51452f;
+  font: 26px/1 Arial, sans-serif;
+  cursor: pointer;
+}
+html[data-motionc-presentation="phone"] .mcp-reference-zones { margin: 0; }
+html[data-motionc-presentation="phone"] .mcp-reference-zones > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 8px 0;
+}
+html[data-motionc-presentation="phone"] .mcp-reference-zones dt { display: flex; align-items: center; gap: 10px; }
+html[data-motionc-presentation="phone"] .mcp-reference-zones dd { margin: 0; white-space: nowrap; }
+html[data-motionc-presentation="phone"] .mcp-reference-zones i { flex: 0 0 11px; width: 11px; height: 11px; border-radius: 50%; box-shadow: 0 1px 2px #0003; }
+html[data-motionc-presentation="phone"] .mcp-reference-core { background: #268047; }
+html[data-motionc-presentation="phone"] .mcp-reference-healthy { background: #2587b0; }
+html[data-motionc-presentation="phone"] .mcp-reference-elevated { background: #d37521; }
+html[data-motionc-presentation="phone"] .mcp-reference-watch { background: #b63730; }
+html[data-motionc-presentation="phone"] .mcp-reference-current {
+  margin: 19px 0 0;
+  padding-top: 13px;
+  border-top: 1px dashed #866d4870;
+  font: 600 13px/1.5 Arial, sans-serif;
+}
+html[data-motionc-presentation="phone"] .mcp-reference-link {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  min-height: 44px;
+  color: #324b3d;
+  font: 13px/1.4 Arial, sans-serif;
+  text-underline-offset: 3px;
+}
+html[data-motionc-presentation="phone"] #mcp-reference :focus-visible { outline: 2px solid #345f46; outline-offset: 2px; }
