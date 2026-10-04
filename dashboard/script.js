@@ -2619,6 +2619,16 @@ function attachChartTooltip(canvasId, tooltipId, renderContent) {
             walkingTapStart = null;
         });
         canvas.addEventListener("pointercancel", () => { walkingTapStart = null; });
+        const clearWalkingSelection = () => {
+            walkingTapStart = null;
+            if (!canvas._phoneSelectedDate) return;
+            canvas._phoneSelectedDate = null;
+            drawWalkingChart(canvas._phoneWalkingPoints || []);
+        };
+        document.addEventListener("pointerdown", event => {
+            if (event.target !== canvas && !tooltip.contains(event.target)) clearWalkingSelection();
+        });
+        window.addEventListener("scroll", clearWalkingSelection, { passive: true });
         return;
     }
     if (summaryPhone && /^(sleep|hydration|stress)-trend-chart$/.test(canvasId)) {
