@@ -27,6 +27,27 @@ const SyncLocal = window.MotionCSyncLocal;
 let activeSync = null;
 let requestedAgain = false;
 let lastSyncResult = null;
+let pageSyncTimer = null;
+let statusCycle = null;
+// Presentation deadline only: do not abort requests or change retained work.
+const STATUS_WAIT_MS = 15000;
+function checkingStatus(userId) {
+  if (!userId || SyncLocal.owner() !== userId) return;
+  if (statusCycle?.owner === userId && statusCycle.generation === syncGeneration) return;
+  const cycle = { owner: userId, generation: syncGeneration, timer: null };
+  statusCycle = cycle;
+  publishStatus({ phase: 'checking', conflicts: SyncLocal.read(userId)?.conflicts || {} });
+  cycle.timer = setTimeout(() => {
+    if (statusCycle !== cycle || cycle.generation !== syncGeneration || SyncLocal.owner() !== userId) return;
+    publishStatus({ phase: 'waiting', conflicts: SyncLocal.read(userId)?.conflicts || {} });
+  }, STATUS_WAIT_MS);
+}
+function finishStatus(detail, operation) {
+  assertSyncCurrent(operation);
+  if (statusCycle?.timer) clearTimeout(statusCycle.timer);
+  statusCycle = null;
+  publishStatus(detail);
+}
 
 // Serialize account replacement with the UI-free Compass writer across tabs.
 // Older browsers retain existing account behaviour; Compass itself fails closed without Web Locks.
@@ -46,6 +67,10 @@ function cancelledSync() {
 
 function stopSynchronization() {
   syncGeneration++;
+  if (pageSyncTimer !== null) clearTimeout(pageSyncTimer);
+  pageSyncTimer = null;
+  if (statusCycle?.timer) clearTimeout(statusCycle.timer);
+  statusCycle = null;
   if (reconcileTimer !== null) clearTimeout(reconcileTimer);
   reconcileTimer = null;
   if (syncWorker) {
@@ -202,6 +227,7 @@ function publishStatus(detail) {
 }
 
 export async function saveCloudState(userId) {
+  checkingStatus(userId);
   if (activeSync) {
     requestedAgain = true;
     await activeSync;
@@ -209,6 +235,7 @@ export async function saveCloudState(userId) {
     return captureLocalState();
   }
   const operation=beginSyncOperation(userId);
+  let completedResult;
   activeSync=(async()=>{
     return withCloudSaveLock(async()=>{
       await verifySyncSession(operation);
@@ -233,7 +260,7 @@ export async function saveCloudState(userId) {
       window.MotionCAccountReady={owner:userId};
       const changed=!window.MotionCSyncCore.equal(window.MotionCSyncCore.split(syncWorker?.lastView),window.MotionCSyncCore.split(result.view));
       if(syncWorker)syncWorker.lastView=result.view;
-      publishStatus(result);
+      completedResult=result;
       if(changed)window.dispatchEvent(new CustomEvent('motionc:cloud-restored',{detail:{owner:userId}}));
       if(newlyReady)window.dispatchEvent(new CustomEvent('motionc:account-ready',{detail:{owner:userId}}));
       return result.view;
@@ -242,12 +269,18 @@ export async function saveCloudState(userId) {
   try{return await activeSync;}
   catch(error){
     if(error.name!=='AbortError' && authenticatedUserId===userId && SyncLocal.owner()===userId){
-      SyncLocal.enable(userId);publishStatus({error:true,conflicts:SyncLocal.read(userId)?.conflicts||{}});
+      if (operation.generation === syncGeneration) {
+        SyncLocal.enable(userId);
+        finishStatus({phase:'waiting',error:true,conflicts:SyncLocal.read(userId)?.conflicts||{}},operation);
+      }
     }
     throw error;
   }finally{
     activeSync=null;pendingSync.delete(operation);
-    if(requestedAgain){requestedAgain=false;setTimeout(()=>void syncNow(),0);}
+    if (operation.generation === syncGeneration) {
+      if(requestedAgain){requestedAgain=false;setTimeout(()=>void syncNow(),0);}
+      else if(completedResult && pageSyncTimer === null && !completedResult.pending) finishStatus(completedResult,operation);
+    }
   }
 }
 
@@ -290,7 +323,7 @@ export async function signOutAndClear() {
       // Preserve the existing final save, with all background workers stopped.
       await saveCloudState(userId);
       if(Object.keys(lastSyncResult?.conflicts||{}).length||SyncLocal.operations(userId).length||SyncLocal.reviews().some(SyncLocal.pendingReview)){
-        publishStatus(lastSyncResult||{pending:true});
+        if(!statusCycle)publishStatus(lastSyncResult||{pending:true});
         throw new Error('Local work needs synchronization or review before sign-out.');
       }
     }
@@ -400,6 +433,7 @@ function installPreferenceSignOut() {
 
 async function bootPageSync() {
   if (location.pathname.includes("/auth") || localTransition || syncWorker) return;
+  checkingStatus(SyncLocal.owner());
   const token = { generation: syncGeneration };
   bootToken = token;
   let operation;
@@ -447,8 +481,11 @@ async function bootPageSync() {
     const worker={userId,generation:syncGeneration,listeners:[],lastView:null};
     syncWorker=worker;
     const on=(target,event,fn)=>{target.addEventListener(event,fn);worker.listeners.push([target,event,fn]);};
-    let debounce;
-    const request=()=>{clearTimeout(debounce);debounce=setTimeout(()=>void syncNow(),120);};
+    const request=()=>{
+      checkingStatus(userId);
+      if(pageSyncTimer !== null)clearTimeout(pageSyncTimer);
+      pageSyncTimer=setTimeout(()=>{pageSyncTimer=null;void syncNow();},120);
+    };
     on(window,'pageshow',request);on(window,'online',request);
     on(document,'visibilitychange',()=>{if(document.visibilityState==='visible')request();});
     on(window,'motionc:local-change',request);

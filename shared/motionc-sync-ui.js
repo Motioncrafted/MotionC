@@ -1,32 +1,38 @@
 /* Minimal status and explicit conflict resolution. No record contents enter analytics/logs. */
 (() => {
-  'use strict';let button,dialog,current=null,editing=null,review=null,editorControls=null,draftError=null;
+  'use strict';let button,statusLabel,statusHelp,dialog,current=null,editing=null,review=null,editorControls=null,draftError=null,pausedEditor=null;
   const L=()=>window.MotionCSyncLocal,D=()=>window.MotionCDayReview;
   const node=(tag,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;return e;};
   function setup(){
     if(button)return;
     const style=document.createElement('style');style.textContent='#motionc-sync-status{position:fixed;bottom:12px;right:12px;z-index:10000;max-width:calc(100vw - 24px);padding:8px 12px;border:1px solid #b8cec5;border-radius:8px;background:#fff;color:#174b3a;font:600 13px system-ui}#motionc-sync-review{width:min(620px,calc(100vw - 40px));max-height:80vh;border:1px solid #b8cec5;border-radius:12px;padding:20px;color:#173b30}#motionc-sync-review pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;max-height:220px;overflow:auto}#motionc-sync-review button{margin:6px;padding:8px}';style.textContent+='#motionc-sync-review{box-sizing:border-box;overflow:auto}#motionc-sync-review fieldset{min-width:0;margin:12px 0}#motionc-sync-review select{max-width:100%;width:100%;padding:8px;box-sizing:border-box}#motionc-sync-review button{max-width:100%}#motionc-sync-review label{display:block;margin:10px 0}';document.head.append(style);
     button=document.createElement('button');button.id='motionc-sync-status';button.type='button';button.hidden=true;button.setAttribute('aria-live','polite');button.onclick=show;
-    dialog=document.createElement('dialog');dialog.id='motionc-sync-review';dialog.setAttribute('aria-label','Review sync differences');document.body.append(button,dialog);
+    statusLabel=node('span');statusLabel.id='motionc-sync-status-label';statusHelp=node('small','MotionC will keep trying automatically.');statusHelp.style.cssText='margin-top:4px;font-weight:400';statusHelp.hidden=true;style.textContent+='#motionc-sync-status small:not([hidden]){display:block}';button.append(statusLabel,statusHelp);
+    dialog=document.createElement('dialog');dialog.id='motionc-sync-review';dialog.setAttribute('aria-label','Review saved information');document.body.append(button,dialog);
   }
+  const awaiting=()=>current?.phase==='checking'||current?.phase==='waiting';
+  const waitMessage=()=>current?.phase==='checking'?'Checking your saved information…':'Still checking your saved information…';
+  const reviewMessage=count=>`We need your help with ${count} saved ${count===1?'item':'items'}`;
   function show(){
-    editing=null;review=null;editorControls=null;
-    setup();dialog.replaceChildren();const heading=document.createElement('h2');heading.textContent='Sync needs review';dialog.append(heading);
-    const note=document.createElement('p');note.textContent='Both versions are preserved. Choose the version to use for each record. Other records can continue syncing.';dialog.append(note);
+    editing=null;review=null;editorControls=null;pausedEditor=null;
+    setup();dialog.replaceChildren();const heading=document.createElement('h2');heading.textContent=awaiting()?waitMessage():Object.keys(current?.conflicts||{}).length?reviewMessage(Object.keys(current.conflicts).length):'Your saved day review';dialog.append(heading);
+    const note=document.createElement('p');note.textContent=awaiting()?"MotionC will keep trying automatically. These saved versions are still being checked. Both versions are preserved. You do not need to choose anything while checking continues.":'Both versions are preserved. Choose the version to use for each record. Other records can continue syncing.';dialog.append(note);
     for(const c of Object.values(current?.conflicts||{})){
       const block=document.createElement('section'),title=document.createElement('h3');title.textContent=c.id;block.append(title);
-      if(/^Daily \/ \d{4}-\d{2}-\d{2}$/.test(c.id)){
+      if(!awaiting()&&/^Daily \/ \d{4}-\d{2}-\d{2}$/.test(c.id)){
         const build=node('button','Build the correct day');build.onclick=()=>openEditor(c.id);block.append(build);
       }
-      const versions=[['local','This device',c.local],['cloud','Cloud',c.cloud],...(c.alternatives||[]).map((v,i)=>[String(i),'Other local version '+(i+1),v])];
-      for(const [choice,label,value] of versions){const details=document.createElement('details'),summary=document.createElement('summary'),pre=document.createElement('pre'),use=document.createElement('button');summary.textContent=label;pre.textContent=value===null?'Deleted / absent':JSON.stringify(value,null,2);details.append(summary,pre);use.textContent='Use '+label.toLowerCase();use.onclick=()=>{window.MotionCSyncLocal.resolve(window.MotionCSyncLocal.owner(),c,choice);use.disabled=true;use.textContent='Checking latest cloud…';};block.append(details,use);}dialog.append(block);
+      const versions=[['local',awaiting()?'Previously saved on this device':'This device',c.local],['cloud',awaiting()?'Previously saved online':'Cloud',c.cloud],...(c.alternatives||[]).map((v,i)=>[String(i),(awaiting()?'Additional saved version ':'Other local version ')+(i+1),v])];
+      for(const [choice,label,value] of versions){const details=document.createElement('details'),summary=document.createElement('summary'),pre=document.createElement('pre'),use=document.createElement('button');summary.textContent=label;pre.textContent=value===null?'Deleted / absent':JSON.stringify(value,null,2);details.append(summary,pre);use.textContent='Use '+label.toLowerCase();use.onclick=()=>{if(awaiting())return;window.MotionCSyncLocal.resolve(window.MotionCSyncLocal.owner(),c,choice);use.disabled=true;use.textContent='Checking latest cloud…';};block.append(details);if(!awaiting())block.append(use);}dialog.append(block);
     }
     for(const draft of L().reviews().filter(d=>L().pendingReview(d)&&!current?.conflicts?.[d.id])){
-      const resume=node('button','Resume saved draft · '+draft.id);resume.onclick=()=>openEditor(draft.id);dialog.append(resume);
+      if(awaiting()){dialog.append(node('p','Saved day review draft · '+draft.id+' · still being checked'));}
+      else {const resume=node('button','Resume saved draft · '+draft.id);resume.onclick=()=>openEditor(draft.id);dialog.append(resume);}
     }
     const close=document.createElement('button');close.textContent='Close';close.onclick=()=>dialog.close();dialog.append(close);if(!dialog.open)dialog.showModal();
   }
   function openEditor(id){
+    if(awaiting())return;
     const conflict=L().read(L().owner())?.conflicts?.[id];
     review=L().readReview(id);
     if(review&&!L().pendingReview(review)){L().archiveReview(review);review=null;}
@@ -34,6 +40,7 @@
     editing=id;draftError=null;renderEditor();
   }
   function renderEditor(){
+    pausedEditor=null;
     const m=D().model(review.sources);dialog.replaceChildren();
     dialog.append(node('h2','Build the correct day · '+m.date),node('p','Choose each walk explicitly. Matching distance, time, or position does not tell us whether two records are the same walk. Omit a duplicate or deleted walk rather than keeping it twice.'));
     const note=node('p');note.id='motionc-day-review-status';note.setAttribute('role','status');dialog.append(note);
@@ -66,10 +73,11 @@
     const verifyLabel=node('label'),verify=node('input');verify.type='checkbox';verify.id='motionc-day-verified';verify.checked=Boolean(review.verified);verify.onchange=()=>{review.verified=verify.checked;saveDraft();refreshEditor();};
     verifyLabel.append(verify,document.createTextNode(' I checked that retained items are separate walks, no deleted walk is being restored unintentionally, and the Daily values are correct.'));dialog.append(verifyLabel,node('br'));
     const confirm=node('button','Confirm and sync this day');confirm.id='motionc-day-confirm';confirm.onclick=async()=>{
-      confirm.disabled=true;if(!saveDraft())return;note.textContent='Checking the latest local and cloud versions…';
+      if(awaiting())return;confirm.disabled=true;if(!saveDraft())return;note.textContent='Checking the latest local and cloud versions…';
       try{
         const owner=review.owner;await window.MotionCSupabase.saveCloudState(owner);
         if(owner!==L().owner())throw Error('Account changed; the draft remains with its original account.');
+        if(awaiting())throw Error('Latest saved state is still being checked. Your draft is retained.');
         L().resolveComposed(review);refreshEditor();await window.MotionCSupabase.saveCloudState(owner);refreshEditor();
       }catch(error){note.textContent=error.message||'Could not synchronize. Your draft is retained.';refreshEditor(false);}
     };
@@ -88,6 +96,17 @@
   function edited(){review.verified=false;if(review.status!=='stale')review.status='draft';editorControls.verify.checked=false;saveDraft();refreshEditor();}
   function refreshEditor(replaceMessage=true){
     if(!editing||!editorControls)return;
+    for(const control of dialog.querySelectorAll('select,input'))control.disabled=awaiting();
+    if(awaiting()){
+      if(!pausedEditor){
+        pausedEditor=[...dialog.children].map(element=>({element,display:element.style.display}));
+        for(const {element} of pausedEditor)if(element!==editorControls.note&&element.tagName!=='H2'&&!(element.tagName==='BUTTON'&&['Back to conflicts','Close · draft saved'].includes(element.textContent)))element.style.display='none';
+      }
+      editorControls.confirm.disabled=true;editorControls.latest.disabled=true;
+      editorControls.note.textContent=waitMessage()+' MotionC will keep trying automatically. Your draft is retained and still being checked.';
+      return;
+    }
+    if(pausedEditor){for(const {element,display} of pausedEditor)element.style.display=display;pausedEditor=null;}
     const stored=L().readReview(editing);if(stored?.status==='acknowledged')review=stored;
     const composed=D().compose(review),active=L().reviewIsCurrent(review),submitted=review.status==='submitted',saved=review.status==='acknowledged';
     if(!active&&!submitted&&!saved&&review.status!=='stale'){review.status='stale';L().saveReview(review);}
@@ -101,13 +120,15 @@
   function update(detail){
     current=detail;setup();const count=Object.keys(detail.conflicts||{}).length;
     const drafts=L().reviews().some(L().pendingReview);
-    button.hidden=!count&&!detail.error&&!detail.pending&&!drafts;
-    button.textContent=count?`Sync needs review (${count})`:drafts?'Day review draft retained':detail.error?'Sync unavailable · local work retained':'Changes waiting to sync';
-    button.onclick=count||drafts?show:()=>window.MotionCSupabase?.syncNow();
-    if(dialog.open){if(editing)refreshEditor();else if(count||drafts)show();else dialog.close();}
+    button.hidden=!awaiting()&&!count&&!detail.error&&!detail.pending&&!drafts;
+    statusLabel.textContent=awaiting()?waitMessage():count?reviewMessage(count):drafts?'Day review draft retained':detail.error?'Still checking your saved information…':'Saving your information…';
+    statusHelp.hidden=current?.phase!=='waiting'&&!detail.error;
+    button.title=awaiting()?'MotionC will keep trying automatically. Saved versions are still being checked.':'';
+    button.onclick=awaiting()||count||drafts?show:()=>window.MotionCSupabase?.syncNow();
+    if(dialog.open){if(editing)refreshEditor();else if(awaiting()||count||drafts)show();else dialog.close();}
   }
   window.addEventListener('motionc:sync-status',e=>update(e.detail));
   window.addEventListener('motionc:account-changing',()=>{
-    if(dialog?.open)dialog.close();if(button)button.hidden=true;editing=null;review=null;current=null;editorControls=null;
+    if(dialog?.open)dialog.close();if(button)button.hidden=true;editing=null;review=null;current=null;editorControls=null;pausedEditor=null;
   });
 })();
