@@ -1322,3 +1322,61 @@ dialog::backdrop { background: rgba(9,18,20,.66); backdrop-filter: blur(3px); }
 
 /* Phone relocates this presentation to Summary; Full retains Milestones. */
 html[data-motionc-presentation="phone"] #dailyWalkAverage { display: none; }
+
+/* Phone-only gauge ownership and stepper affordance. No layout dimensions change. */
+html[data-motionc-presentation="phone"] .gauge-tube input { touch-action: none; }
+/* A moving native thumb must not become the browser's scroll anchor. */
+html[data-motionc-presentation="phone"] .gauge-tube { overflow-anchor: none; }
+html[data-motionc-presentation="phone"] .gauge-stepper { position: relative; }
+html[data-motionc-presentation="phone"] .gauge-stepper button {
+  position: static;
+  color: #fff;
+  background: #345057;
+  border-color: #345057;
+  /* The existing 18px box plus 3px on each side makes a 24px visible circle. */
+  box-shadow: 0 0 0 3px #345057;
+}
+html[data-motionc-presentation="phone"] .gauge-stepper button::after {
+  content: "";
+  position: absolute;
+  bottom: -3px;
+  height: 44px;
+  /* Reserve the centre for the slider, and keep neighbouring targets separate. */
+  width: min(44px, calc(50% - 12px));
+}
+html[data-motionc-presentation="phone"] .gauge-stepper button:first-child::after { left: -3px; }
+html[data-motionc-presentation="phone"] .gauge-stepper button:last-child::after { right: -3px; }
+html[data-motionc-presentation="phone"] .gauge-stepper button:hover,
+html[data-motionc-presentation="phone"] .gauge-stepper button:active,
+html[data-motionc-presentation="phone"] .gauge-stepper button:focus-visible {
+  color: #fff;
+  background: #345057;
+  border-color: #345057;
+  box-shadow: 0 0 0 3px #345057;
+}
+html[data-motionc-presentation="phone"] .gauge-stepper button:focus-visible {
+  outline: 2px solid #345057;
+  outline-offset: 5px;
+}
+/* The baseline's 92px minimum inner rows crowd each other below 350px.
+   Move only the two inner minus controls into their available label-side space. */
+@media (max-width: 349px) {
+  html[data-motionc-presentation="phone"] :is(.stress-gauge, .sleep-gauge) .gauge-stepper button:first-child { margin-left: 10px; }
+  html[data-motionc-presentation="phone"] :is(.stress-gauge, .sleep-gauge) .gauge-stepper button:first-child::after {
+    left: 7px;
+    width: min(34px, calc(50% - 22px));
+  }
+}
+
+/* Explicit scroll hit targets outside the 24px control strip around the unchanged 21px thumb/92px track. */
+html[data-motionc-presentation="phone"] .gauge-scroll-guard { position: absolute; touch-action: auto; }
+html[data-motionc-presentation="phone"] :is(.gauge-scroll-guard-left, .gauge-scroll-guard-right) {
+  top: 0; bottom: 0; width: calc(50% - 12px);
+}
+html[data-motionc-presentation="phone"] .gauge-scroll-guard-left { left: 0; }
+html[data-motionc-presentation="phone"] .gauge-scroll-guard-right { right: 0; }
+html[data-motionc-presentation="phone"] :is(.gauge-scroll-guard-top, .gauge-scroll-guard-bottom) {
+  left: calc(50% - 12px); width: 24px; height: calc(50% - 46px);
+}
+html[data-motionc-presentation="phone"] .gauge-scroll-guard-top { top: 0; }
+html[data-motionc-presentation="phone"] .gauge-scroll-guard-bottom { bottom: 0; }

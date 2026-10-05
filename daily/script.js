@@ -480,6 +480,7 @@ function clearWalkFields() {
 }
 
 function loadEntry(dateValue) {
+  dailyGaugeDrafts.clear();
   window.MotionCSyncLocal?.clearDraft();
   if(window.MotionCSyncLocal){state=loadState();syncMemoryBase=JSON.stringify(state);}
   const entry = state.entries[dateValue];
@@ -581,6 +582,36 @@ function setGaugeAppearance(key, value) {
   input.style.setProperty("--gauge-fill", `${Math.max(0, Math.min(100, percent))}%`);
 }
 
+// Gauge drafts are local UI state only. Each keeps the saved record seen when editing
+// began, so incoming edits to that same gauge still use the existing conflict rules.
+const dailyGaugeDrafts = new Map();
+const dailyGaugeDraftId = (dateValue, key) => dateValue + "/" + key;
+window.addEventListener("motionc:account-changing", () => dailyGaugeDrafts.clear());
+
+function rememberDailyGaugeDraft(key) {
+  const dateValue = fields.date.value || isoDate();
+  const id = dailyGaugeDraftId(dateValue, key);
+  const displayedValue = Number(byId(DAILY_GAUGE_CONFIG[key].input).value);
+  const value = key === "hydration" ? storedHydration(displayedValue) : displayedValue;
+  const existing = dailyGaugeDrafts.get(id);
+  if (existing) existing.value = value;
+  else dailyGaugeDrafts.set(id, {
+    value,
+    before: JSON.parse(JSON.stringify(state.dailyGauges?.[dateValue]?.[key] ?? null))
+  });
+}
+
+function refreshSavedDailyGauges(dateValue) {
+  // Adopt only the gauge slice. Other Daily form drafts retain their old edit baseline.
+  state.dailyGauges = loadState().dailyGauges;
+  const memoryBase = JSON.parse(syncMemoryBase);
+  memoryBase.dailyGauges = state.dailyGauges;
+  syncMemoryBase = JSON.stringify(memoryBase);
+  loadDailyGauges(dateValue);
+  renderDailyInsights(dateValue);
+  renderMiniGaugeCharts();
+}
+
 function loadDailyGauges(dateValue) {
   const gauges = state.dailyGauges?.[dateValue] || {};
   Object.entries(DAILY_GAUGE_CONFIG).forEach(([key, config]) => {
@@ -593,12 +624,18 @@ function loadDailyGauges(dateValue) {
       ? `Updated ${new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" }).format(new Date(saved.updatedAt))}`
       : "Not recorded today";
     input.closest(".daily-gauge").classList.toggle("is-recorded", Boolean(recorded));
+    const draft = dailyGaugeDrafts.get(dailyGaugeDraftId(dateValue, key));
+    if (draft) {
+      input.value = String(key === "hydration" ? Math.round(displayHydration(draft.value)) : draft.value);
+      byId(config.value).textContent = key === "hydration" ? String(Math.round(Number(input.value))) : displayGaugeValue(key, Number(input.value));
+    }
     setGaugeAppearance(key, input.value);
   });
   renderGaugeIndicators(dateValue);
 }
 
 function previewDailyGauge(key) {
+  rememberDailyGaugeDraft(key);
   const config = DAILY_GAUGE_CONFIG[key];
   const value = Number(byId(config.input).value);
   byId(config.value).textContent = key === "hydration" ? String(Math.round(value)) : displayGaugeValue(key, value);
@@ -615,16 +652,30 @@ function stepDailyGauge(key, direction) {
 
 function saveDailyGauge(key) {
   const dateValue = fields.date.value || isoDate();
-  const config = DAILY_GAUGE_CONFIG[key];
-  const displayedValue = Number(byId(config.input).value);
-  const value = key === "hydration" ? storedHydration(displayedValue) : displayedValue;
-  state.dailyGauges = state.dailyGauges || {};
-  state.dailyGauges[dateValue] = state.dailyGauges[dateValue] || {};
-  state.dailyGauges[dateValue][key] = { value, ...(key === "hydration" ? { unit: "oz" } : {}), updatedAt: new Date().toISOString() };
-  persist();
-  loadDailyGauges(dateValue);
-  renderDailyInsights(dateValue);
-  renderMiniGaugeCharts();
+  const id = dailyGaugeDraftId(dateValue, key);
+  const draft = dailyGaugeDrafts.get(id);
+  const canonical = loadState();
+  const saved = canonical.dailyGauges?.[dateValue]?.[key];
+  const displayedValue = Number(byId(DAILY_GAUGE_CONFIG[key].input).value);
+  const value = draft ? draft.value : saved ? Number(saved.value)
+    : key === "hydration" ? storedHydration(displayedValue) : displayedValue;
+  const expected = JSON.parse(JSON.stringify(canonical));
+  if (draft) {
+    expected.dailyGauges[dateValue] ||= {};
+    if (draft.before === null) delete expected.dailyGauges[dateValue][key];
+    else expected.dailyGauges[dateValue][key] = draft.before;
+  }
+  canonical.dailyGauges[dateValue] ||= {};
+  const next = { value, ...(key === "hydration" ? { unit: "oz" } : {}), updatedAt: new Date().toISOString() };
+  canonical.dailyGauges[dateValue][key] = next;
+  // Only this gauge differs between expected and desired. Reuse the unchanged journal.
+  if (window.MotionCSyncLocal) {
+    window.MotionCSyncLocal.commit(STORAGE_KEY, JSON.stringify(canonical), JSON.stringify(expected));
+  } else localStorage.setItem(STORAGE_KEY, JSON.stringify(canonical));
+  const merged = loadState().dailyGauges?.[dateValue]?.[key];
+  if (merged?.value === next.value && merged?.updatedAt === next.updatedAt) dailyGaugeDrafts.delete(id);
+  try { void window.MotionCCompassRefresh?.refresh(); } catch { /* Compass cannot block a source save. */ }
+  refreshSavedDailyGauges(dateValue);
 }
 
 function miniChartDateLabel(dateValue) {
@@ -1726,6 +1777,37 @@ byId("calendarToday").addEventListener("click", () => {
 Object.keys(DAILY_GAUGE_CONFIG).forEach(key => {
   byId(DAILY_GAUGE_CONFIG[key].input).addEventListener("input", () => previewDailyGauge(key));
 });
+
+// Phone-only gesture ownership. Native range values, steps and keyboard handling stay intact.
+if (document.documentElement.dataset.motioncPresentation === "phone") {
+  Object.values(DAILY_GAUGE_CONFIG).forEach(({ input: id }) => {
+    const input = byId(id);
+    // Give empty space its own hit target: Chromium otherwise redirects nearby
+    // touches onto the native range. These transparent gutters retain normal scrolling.
+    for (const side of ["left", "right", "top", "bottom"]) {
+      const guard = document.createElement("span");
+      guard.className = "gauge-scroll-guard gauge-scroll-guard-" + side;
+      guard.setAttribute("aria-hidden", "true");
+      guard.addEventListener("click", () => {}); // Exact hit target, no value action.
+      input.parentElement.append(guard);
+    }
+    let activePointer = null;
+    input.addEventListener("pointerdown", event => {
+      if (event.pointerType !== "touch" || !event.isPrimary || activePointer !== null) return;
+      activePointer = event.pointerId;
+      input.setPointerCapture(activePointer);
+    });
+    const finish = event => {
+      if (event.pointerId !== activePointer) return;
+      activePointer = null;
+      if (input.hasPointerCapture(event.pointerId)) input.releasePointerCapture(event.pointerId);
+    };
+    input.addEventListener("pointerup", finish);
+    input.addEventListener("pointercancel", finish);
+    input.addEventListener("lostpointercapture", finish);
+  });
+}
+
 byId("saveHydration").addEventListener("click", () => saveDailyGauge("hydration"));
 byId("saveStress").addEventListener("click", () => saveDailyGauge("stress"));
 byId("saveSleep").addEventListener("click", () => saveDailyGauge("sleep"));
@@ -1912,7 +1994,7 @@ void refreshProfileAccountReadiness();
 
 // Receive new readouts without replacing an active form draft or its edit baseline.
 function receiveDailySync(){
-  const hasDraft=window.MotionCSyncLocal?.hasDraft() || Boolean(document.querySelector('dialog[open]:not(#motionc-sync-review)'));
+  const hasDraft=dailyGaugeDrafts.size > 0 || window.MotionCSyncLocal?.hasDraft() || Boolean(document.querySelector('dialog[open]:not(#motionc-sync-review)'));
   const oldState=state,oldBase=syncMemoryBase,date=fields.date.value||isoDate();
   const controls=[...document.querySelectorAll('input,textarea,select')].map(e=>[e,e.value,e.checked,e.selectionStart,e.selectionEnd]);
   state=loadState();syncMemoryBase=JSON.stringify(state);
@@ -1922,6 +2004,7 @@ function receiveDailySync(){
     state=oldState;syncMemoryBase=oldBase;
     for(const [e,value,checked,start,end] of controls){e.value=value;e.checked=checked;if(start!==null)try{e.setSelectionRange(start,end);}catch{}}
   }else applyUnitSystem();
+  refreshSavedDailyGauges(date);
 }
 window.addEventListener('motionc:cloud-restored',receiveDailySync);
 window.addEventListener('motionc:account-ready',receiveDailySync);
