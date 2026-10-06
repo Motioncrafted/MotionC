@@ -1386,3 +1386,6 @@ html[data-motionc-presentation="phone"] #milestoneList > .milestone-item:last-ch
 
 /* Phone Milestones now contains only its weight-loss hero. */
 html[data-motionc-presentation="phone"] #milestoneList:empty { display: none; }
+
+/* Phone Milestones no longer presents a tracked-count badge. */
+html[data-motionc-presentation="phone"] #milestoneCount { display: none; }
