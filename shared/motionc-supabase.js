@@ -17,6 +17,8 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
 // Sync lifetime follows authentication, not the lifetime of an open page.
 let authenticatedUserId;
+// Presentation signal only; absence of account-ready does not mean signed out.
+window.MotionCSignedOutReady = false;
 let syncGeneration = 0;
 let syncWorker = null;
 let bootToken = null;
@@ -66,6 +68,7 @@ function cancelledSync() {
 }
 
 function stopSynchronization() {
+  window.MotionCSignedOutReady = false;
   syncGeneration++;
   if (pageSyncTimer !== null) clearTimeout(pageSyncTimer);
   pageSyncTimer = null;
@@ -459,6 +462,8 @@ async function bootPageSync() {
       document.querySelector(".motionc-preferences-signout")?.remove();
       if (hadPersonalState) { location.reload(); return; }
       accountBadge("Local mode · Sign in");
+      window.MotionCSignedOutReady = true;
+      window.dispatchEvent(new Event("motionc:signed-out-ready"));
       return;
     }
 
