@@ -2459,3 +2459,13 @@ html[data-motionc-presentation="phone"] .daily-trend-wrap .chart-tooltip::after 
 /* Phone metrics use the existing metric-card family; Full keeps its footer. */
 html[data-motionc-presentation="phone"] .weekly-strip { display: none; }
 html[data-motionc-presentation="phone"] .metric-grid { align-items: start; }
+
+/* Phone weight journey accomplishment: existing Summary metric geometry. */
+html[data-motionc-presentation="phone"] .phone-weight-loss-hero {
+    --accent: #fff;
+    --accent-soft: rgba(255, 255, 255, .15);
+    color: #fff;
+    background: linear-gradient(135deg, #17613f, #1a9d61);
+}
+html[data-motionc-presentation="phone"] .phone-weight-loss-hero p { color: #b9f3d2; }
+html[data-motionc-presentation="phone"] .phone-weight-loss-hero > strong { font-weight: 700; }

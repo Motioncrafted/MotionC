@@ -2240,6 +2240,19 @@ function renderSummaryData() {
     const dates7 = dates14.slice(-7);
     const entries = daily?.entries || {};
     if (summaryPhone) {
+        // Match the Daily Milestones hero using the same saved profile and entries.
+        const weightedEntries = Object.values(entries).sort((a, b) => a.date.localeCompare(b.date))
+            .filter(entry => Number(entry.weight) > 0);
+        const latestWeight = weightedEntries.length ? Number(weightedEntries.at(-1).weight) : null;
+        const startWeight = Number(daily?.profile?.startWeight);
+        const hasStartWeight = Number.isFinite(startWeight) && startWeight > 0;
+        const loss = hasStartWeight && latestWeight !== null
+            ? summaryDisplayWeight(Math.max(0, startWeight - latestWeight)) : null;
+        setText("phone-total-weight-lost", loss !== null ? loss.toFixed(1) : "—");
+        setText("phone-total-weight-lost-unit", loss !== null ? summaryWeightUnit() + " lost" : "");
+        setText("phone-total-weight-lost-detail", loss !== null
+            ? `${summaryDisplayWeight(startWeight).toFixed(1)} ${summaryWeightUnit()} start → ${summaryDisplayWeight(latestWeight).toFixed(1)} ${summaryWeightUnit()} latest`
+            : "Starting and latest weights needed");
         // Match Daily Milestones: all recorded weights, latest date on a tied low.
         const lowestEntry = Object.values(entries)
             .sort((a, b) => a.date.localeCompare(b.date))
@@ -2781,6 +2794,10 @@ function setupPhoneSummary() {
         card.append(icon, label, value);
         after.after(card);
     }
+    const lossCard = document.createElement("article");
+    lossCard.className = "metric-card metric-card-green phone-weight-loss-hero";
+    lossCard.innerHTML = '<div class="metric-icon" aria-hidden="true">✓</div><p>Total Weight Lost</p><strong><span id="phone-total-weight-lost">—</span> <small id="phone-total-weight-lost-unit"></small></strong><span class="metric-change" id="phone-total-weight-lost-detail">Starting and latest weights needed</span>';
+    document.getElementById("display-weight").closest(".metric-card").before(lossCard);
     const lowestCard = document.createElement("article");
     lowestCard.className = "metric-card metric-card-blue";
     lowestCard.innerHTML = '<div class="metric-icon" aria-hidden="true">⚖</div><p>Lowest Recorded Weight</p><strong><span id="phone-lowest-weight">—</span> <small id="phone-lowest-weight-unit">lb</small></strong><time class="metric-change" id="phone-lowest-weight-date">No weight recorded</time>';
