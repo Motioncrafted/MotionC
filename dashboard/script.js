@@ -2240,6 +2240,19 @@ function renderSummaryData() {
     const dates7 = dates14.slice(-7);
     const entries = daily?.entries || {};
     if (summaryPhone) {
+        // Match Daily Milestones lifetime minutes and combined daily record exactly.
+        const totalWalkingMinutes = Math.round(Object.values(entries).reduce((sum, entry) => sum + Number(entry.minutes || 0), 0));
+        setText("phone-total-walking-time", `${Math.floor(totalWalkingMinutes / 60)} hr ${totalWalkingMinutes % 60} min`);
+        const longestCombined = Object.values(entries).reduce((best, entry) =>
+            Number(entry.distance || 0) > Number(best?.distance || 0) ? entry : best, null);
+        setText("phone-longest-combined-distance", longestCombined ? summaryDisplayDistance(Number(longestCombined.distance)).toFixed(2) : "—");
+        setText("phone-longest-combined-unit", summaryDistanceUnit());
+        const combinedDate = document.getElementById("phone-longest-combined-date");
+        combinedDate.textContent = longestCombined
+            ? new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric" }).format(summaryDate(longestCombined.date))
+            : "No walk recorded";
+        if (longestCombined) combinedDate.setAttribute("datetime", longestCombined.date);
+        else combinedDate.removeAttribute("datetime");
         // Match Daily's all-time structured single-walk record (earliest date on ties).
         let longestSingle = null;
         Object.values(entries).sort((a, b) => a.date.localeCompare(b.date)).forEach(entry => {
@@ -2820,6 +2833,13 @@ function setupPhoneSummary() {
     lowestCard.className = "metric-card metric-card-blue";
     lowestCard.innerHTML = '<div class="metric-icon" aria-hidden="true">⚖</div><p>Lowest Recorded Weight</p><strong><span id="phone-lowest-weight">—</span> <small id="phone-lowest-weight-unit">lb</small></strong><time class="metric-change" id="phone-lowest-weight-date">No weight recorded</time>';
     document.getElementById("display-weight").closest(".metric-card").after(lowestCard);
+    const totalTimeCard = document.createElement("article");
+    totalTimeCard.className = "metric-card metric-card-sky";
+    totalTimeCard.innerHTML = '<div class="metric-icon" aria-hidden="true">◷</div><p>Total Walking Time</p><strong id="phone-total-walking-time">0 hr 0 min</strong><span class="metric-change">Your lifetime total from Daily</span>';
+    const combinedCard = document.createElement("article");
+    combinedCard.className = "metric-card metric-card-violet";
+    combinedCard.innerHTML = '<div class="metric-icon" aria-hidden="true">↗</div><p>Longest Daily Combined Distance</p><strong><span id="phone-longest-combined-distance">—</span> <small id="phone-longest-combined-unit">mi</small></strong><time class="metric-change" id="phone-longest-combined-date">No walk recorded</time>';
+    document.getElementById("weekly-miles").closest(".metric-card").before(totalTimeCard, combinedCard);
     const singleWalkCard = document.createElement("article");
     singleWalkCard.className = "metric-card metric-card-violet";
     singleWalkCard.innerHTML = '<div class="metric-icon" aria-hidden="true">↗</div><p>Longest Single Walk</p><strong><span id="phone-longest-single-walk">—</span> <small id="phone-longest-single-walk-unit">mi</small></strong><time class="metric-change" id="phone-longest-single-walk-date">No individual walk recorded</time>';
