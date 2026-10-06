@@ -263,33 +263,64 @@ function persist() {
 }
 
 let profileReadyOwner = null;
+// null means unresolved, not signed out. Eligibility waits for account restoration.
+let reminderAccountState = null;
+let reminderReadinessGeneration = 0;
+
+function reminderStateResolved() {
+  if (!reminderAccountState) return false;
+  const owner = window.MotionCAccountReady?.owner || null;
+  return reminderAccountState.owner === owner && (owner
+    ? localStorage.getItem("motionc-auth-active-user") === owner
+    : window.MotionCSignedOutReady === true);
+}
 
 async function refreshProfileAccountReadiness() {
+  const generation = ++reminderReadinessGeneration;
   profileReadyOwner = null;
+  reminderAccountState = null;
   updateProfileReminder();
+  renderWeeklyCheckinNudge();
   const owner = window.MotionCAccountReady?.owner;
-  if (!owner) return;
+  if (!owner) {
+    if (window.MotionCSignedOutReady === true) {
+      reminderAccountState = { owner: null };
+      receiveDailySync();
+    }
+    return;
+  }
   try {
     const session = await window.MotionCSupabase.getSession();
-    if (session?.user?.id !== owner || session.user.is_anonymous ||
+    if (generation !== reminderReadinessGeneration || session?.user?.id !== owner ||
         window.MotionCAccountReady?.owner !== owner ||
         localStorage.getItem("motionc-auth-active-user") !== owner) return;
-    profileReadyOwner = owner;
-    updateProfileReminder();
+    profileReadyOwner = session.user.is_anonymous ? null : owner;
+    reminderAccountState = { owner };
+    receiveDailySync();
   } catch {
-    // Keep the sign-in destination until a registered account is confirmed.
+    // Unresolved/failed verification is neutral, never a sign-in recommendation.
   }
 }
 
 window.addEventListener("motionc:account-ready", refreshProfileAccountReadiness);
+window.addEventListener("motionc:signed-out-ready", refreshProfileAccountReadiness);
 window.addEventListener("motionc:account-changing", () => {
+  ++reminderReadinessGeneration;
   profileReadyOwner = null;
+  reminderAccountState = null;
+  weeklyNudgeDisplayWeek = null;
+  weeklyNudgeSuppressedWeek = null;
   updateProfileReminder();
+  renderWeeklyCheckinNudge();
 });
 
 function updateProfileReminder() {
   const reminder = byId("profileReminder");
   if (!reminder) return;
+  if (!reminderStateResolved()) {
+    reminder.hidden = true;
+    return;
+  }
   const profile = state.profile || {};
   const complete =
     Number(profile.age) > 0 &&
@@ -359,6 +390,11 @@ function renderWeeklyCheckinNudge() {
   const nudge = byId("weeklyCheckinNudge");
   const current = byId("weeklyCheckinCurrent");
   if (!nudge || !current) return;
+  if (!reminderStateResolved()) {
+    nudge.hidden = true;
+    current.hidden = true;
+    return;
+  }
 
   if (currentWeekIsComplete()) {
     nudge.hidden = true;
