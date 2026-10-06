@@ -2803,9 +2803,9 @@ function setupPhoneSummary() {
     lowestCard.innerHTML = '<div class="metric-icon" aria-hidden="true">⚖</div><p>Lowest Recorded Weight</p><strong><span id="phone-lowest-weight">—</span> <small id="phone-lowest-weight-unit">lb</small></strong><time class="metric-change" id="phone-lowest-weight-date">No weight recorded</time>';
     document.getElementById("display-weight").closest(".metric-card").after(lowestCard);
     const averageCard = document.createElement("article");
-    averageCard.className = "metric-card metric-card-green";
+    averageCard.className = "metric-card metric-card-green phone-walk-average-hero";
     averageCard.innerHTML = '<div class="metric-icon" aria-hidden="true">↔</div><p>Daily Walk Average</p><strong id="phone-daily-walk-average">—</strong><span class="metric-change" id="phone-daily-walk-average-detail">Record a walk to begin</span>';
-    document.getElementById("display-steps").closest(".metric-card").after(averageCard);
+    lossCard.before(averageCard);
     const navigation = shell.querySelector(".summary-chart-navigation");
     const earlier = document.getElementById("summary-chart-earlier");
     const later = document.getElementById("summary-chart-later");

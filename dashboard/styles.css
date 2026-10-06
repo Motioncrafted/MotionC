@@ -2461,11 +2461,29 @@ html[data-motionc-presentation="phone"] .weekly-strip { display: none; }
 html[data-motionc-presentation="phone"] .metric-grid { align-items: start; }
 
 /* Phone weight journey accomplishment: existing Summary metric geometry. */
-html[data-motionc-presentation="phone"] .phone-weight-loss-hero {
+html[data-motionc-presentation="phone"] :is(.phone-weight-loss-hero, .phone-walk-average-hero) {
     --accent: #fff;
     --accent-soft: rgba(255, 255, 255, .15);
     color: #fff;
     background: linear-gradient(135deg, #17613f, #1a9d61);
 }
-html[data-motionc-presentation="phone"] .phone-weight-loss-hero p { color: #b9f3d2; }
-html[data-motionc-presentation="phone"] .phone-weight-loss-hero > strong { font-weight: 700; }
+html[data-motionc-presentation="phone"] :is(.phone-weight-loss-hero, .phone-walk-average-hero) p { color: #b9f3d2; }
+html[data-motionc-presentation="phone"] :is(.phone-weight-loss-hero, .phone-walk-average-hero) > strong { font-weight: 700; }
+
+/* Softer companion hero keeps the walking average visually primary. */
+html[data-motionc-presentation="phone"] .phone-weight-loss-hero {
+    --accent: #205b40;
+    --accent-soft: rgba(255, 255, 255, .38);
+    color: #205b40;
+    background: linear-gradient(135deg, #d9eddf, #b9dfc7);
+}
+html[data-motionc-presentation="phone"] .phone-weight-loss-hero p { color: #31694d; }
+
+/* Calm companion shade, slightly deeper than the weight-loss hero. */
+html[data-motionc-presentation="phone"] .phone-walk-average-hero {
+    --accent: #205b40;
+    --accent-soft: rgba(255, 255, 255, .38);
+    color: #205b40;
+    background: linear-gradient(135deg, #c6e3d0, #9dcdb0);
+}
+html[data-motionc-presentation="phone"] .phone-walk-average-hero p { color: #31694d; }
