@@ -1,6 +1,14 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <script src="/shared/presentation.js?v=20261001-phase1"></script>
+  <style>html[data-motionc-presentation="phone"] body { display: none !important; }</style>
+  <script>
+    // Guard the destination too: old links and account return URLs can still point here.
+    if (document.documentElement.dataset.motioncPresentation === "phone") {
+      location.replace("/dashboard/");
+    }
+  </script>
   <script src="/shared/motionc-sync-core.js?v=20261002-sync1"></script>
   <script src="/shared/motionc-sync-local.js?v=20261002-sync1"></script>
   <script src="/shared/motionc-sync-engine.js?v=20261002-sync1"></script>
