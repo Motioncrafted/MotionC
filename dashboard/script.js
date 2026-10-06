@@ -2239,6 +2239,22 @@ function renderSummaryData() {
     const dates14 = recentDateKeys(14);
     const dates7 = dates14.slice(-7);
     const entries = daily?.entries || {};
+    if (summaryPhone) {
+        // Match Daily Milestones: all recorded weights, latest date on a tied low.
+        const lowestEntry = Object.values(entries)
+            .sort((a, b) => a.date.localeCompare(b.date))
+            .filter(entry => Number(entry.weight) > 0)
+            .reduce((lowest, entry) => !lowest || Number(entry.weight) <= Number(lowest.weight) ? entry : lowest, null);
+        setText("phone-lowest-weight", lowestEntry ? summaryDisplayWeight(Number(lowestEntry.weight)).toFixed(1) : "—");
+        setText("phone-lowest-weight-unit", summaryWeightUnit());
+        const recordDate = document.getElementById("phone-lowest-weight-date");
+        recordDate.textContent = lowestEntry
+            ? new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric" }).format(summaryDate(lowestEntry.date))
+            : "No weight recorded";
+        if (lowestEntry) recordDate.setAttribute("datetime", lowestEntry.date);
+        else recordDate.removeAttribute("datetime");
+    }
+
     const lifetimeMiles = Object.values(entries).reduce(
         (total, entry) => total + Number(entry?.distance || 0),
         0
@@ -2765,6 +2781,10 @@ function setupPhoneSummary() {
         card.append(icon, label, value);
         after.after(card);
     }
+    const lowestCard = document.createElement("article");
+    lowestCard.className = "metric-card metric-card-blue";
+    lowestCard.innerHTML = '<div class="metric-icon" aria-hidden="true">⚖</div><p>Lowest Recorded Weight</p><strong><span id="phone-lowest-weight">—</span> <small id="phone-lowest-weight-unit">lb</small></strong><time class="metric-change" id="phone-lowest-weight-date">No weight recorded</time>';
+    document.getElementById("display-weight").closest(".metric-card").after(lowestCard);
     const averageCard = document.createElement("article");
     averageCard.className = "metric-card metric-card-green";
     averageCard.innerHTML = '<div class="metric-icon" aria-hidden="true">↔</div><p>Daily Walk Average</p><strong id="phone-daily-walk-average">—</strong><span class="metric-change" id="phone-daily-walk-average-detail">Record a walk to begin</span>';
