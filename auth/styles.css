@@ -24,3 +24,6 @@ html[data-account-choice="choose"] .tabs button.active{background:#edf1ef;color:
 
 /* Account return control: retain destination/handler, enlarge only its hit area. */
 #accountBack{display:inline-flex;align-items:center;min-height:44px;padding:8px 12px;border:1px solid #829b90;border-radius:8px;background:#fff;color:#16483b;font-size:16px;text-decoration:underline;text-underline-offset:3px}
+
+/* Phone account pages omit the retired visitor destinations. */
+html[data-motionc-presentation="phone"] .visitor-links { display: none; }
