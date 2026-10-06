@@ -2240,6 +2240,24 @@ function renderSummaryData() {
     const dates7 = dates14.slice(-7);
     const entries = daily?.entries || {};
     if (summaryPhone) {
+        // Match Daily's all-time structured single-walk record (earliest date on ties).
+        let longestSingle = null;
+        Object.values(entries).sort((a, b) => a.date.localeCompare(b.date)).forEach(entry => {
+            if (!Array.isArray(entry.walks)) return;
+            entry.walks.forEach(walk => {
+                const distance = Number(walk?.distance);
+                if (walk?.legacy || !Number.isFinite(distance) || distance <= 0) return;
+                if (!longestSingle || distance > longestSingle.distance) longestSingle = { distance, date: entry.date };
+            });
+        });
+        setText("phone-longest-single-walk", longestSingle ? summaryDisplayDistance(longestSingle.distance).toFixed(2) : "—");
+        setText("phone-longest-single-walk-unit", summaryDistanceUnit());
+        const walkRecordDate = document.getElementById("phone-longest-single-walk-date");
+        walkRecordDate.textContent = longestSingle
+            ? new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric" }).format(summaryDate(longestSingle.date))
+            : "No individual walk recorded";
+        if (longestSingle) walkRecordDate.setAttribute("datetime", longestSingle.date);
+        else walkRecordDate.removeAttribute("datetime");
         // Match the Daily Milestones hero using the same saved profile and entries.
         const weightedEntries = Object.values(entries).sort((a, b) => a.date.localeCompare(b.date))
             .filter(entry => Number(entry.weight) > 0);
@@ -2802,6 +2820,10 @@ function setupPhoneSummary() {
     lowestCard.className = "metric-card metric-card-blue";
     lowestCard.innerHTML = '<div class="metric-icon" aria-hidden="true">⚖</div><p>Lowest Recorded Weight</p><strong><span id="phone-lowest-weight">—</span> <small id="phone-lowest-weight-unit">lb</small></strong><time class="metric-change" id="phone-lowest-weight-date">No weight recorded</time>';
     document.getElementById("display-weight").closest(".metric-card").after(lowestCard);
+    const singleWalkCard = document.createElement("article");
+    singleWalkCard.className = "metric-card metric-card-violet";
+    singleWalkCard.innerHTML = '<div class="metric-icon" aria-hidden="true">↗</div><p>Longest Single Walk</p><strong><span id="phone-longest-single-walk">—</span> <small id="phone-longest-single-walk-unit">mi</small></strong><time class="metric-change" id="phone-longest-single-walk-date">No individual walk recorded</time>';
+    document.getElementById("display-steps").closest(".metric-card").before(singleWalkCard);
     const averageCard = document.createElement("article");
     averageCard.className = "metric-card metric-card-green phone-walk-average-hero";
     averageCard.innerHTML = '<div class="metric-icon" aria-hidden="true">↔</div><p>Daily Walk Average</p><strong id="phone-daily-walk-average">—</strong><span class="metric-change" id="phone-daily-walk-average-detail">Record a walk to begin</span>';
