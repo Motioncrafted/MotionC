@@ -2487,3 +2487,9 @@ html[data-motionc-presentation="phone"] .phone-walk-average-hero {
     background: linear-gradient(135deg, #c6e3d0, #9dcdb0);
 }
 html[data-motionc-presentation="phone"] .phone-walk-average-hero p { color: #31694d; }
+
+/* Phone brand motto: warm gold with definition over the hero photograph. */
+html[data-motionc-presentation="phone"] .brand small {
+    color: #e4bd45;
+    text-shadow: 0 1px 2px rgba(5, 27, 24, .95);
+}
