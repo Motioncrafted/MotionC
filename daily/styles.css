@@ -1383,3 +1383,6 @@ html[data-motionc-presentation="phone"] .gauge-scroll-guard-bottom { bottom: 0; 
 
 /* Phone Milestones ends with its final visible metric, without a trailing divider. */
 html[data-motionc-presentation="phone"] #milestoneList > .milestone-item:last-child { border-bottom: 0; }
+
+/* Phone Milestones now contains only its weight-loss hero. */
+html[data-motionc-presentation="phone"] #milestoneList:empty { display: none; }
