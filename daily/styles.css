@@ -1380,3 +1380,6 @@ html[data-motionc-presentation="phone"] :is(.gauge-scroll-guard-top, .gauge-scro
 }
 html[data-motionc-presentation="phone"] .gauge-scroll-guard-top { top: 0; }
 html[data-motionc-presentation="phone"] .gauge-scroll-guard-bottom { bottom: 0; }
+
+/* Phone Milestones ends with its final visible metric, without a trailing divider. */
+html[data-motionc-presentation="phone"] #milestoneList > .milestone-item:last-child { border-bottom: 0; }

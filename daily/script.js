@@ -1253,7 +1253,7 @@ function renderMilestones() {
     ? `<span>TOTAL WEIGHT LOST</span><strong>${loss !== null ? `${loss.toFixed(1)} ${weightUnit()} lost` : "Starting and latest weights needed"}</strong><small>${loss !== null ? `${formatWeight(startWeight)} start → ${formatWeight(latestWeight)} latest` : ""}</small>`
     : `<span>CURRENT PROGRESS</span><strong>${greenDays} / ${availableDots} Positive Dots</strong><small>${positivePercentage}% positive</small>`;
   byId("dailyWalkAverage").innerHTML = `<span>DAILY WALK AVERAGE</span><strong>${walkAverage.distance}</strong><small>${walkAverage.detail}</small>`;
-  byId("milestoneList").innerHTML = (phoneMilestones ? milestoneData.filter((item, index) => index !== 0 && index !== 1 && index !== 4) : milestoneData).map(item =>
+  byId("milestoneList").innerHTML = (phoneMilestones ? milestoneData.filter((item, index) => index !== 0 && index !== 1 && index !== 4 && index !== 6) : milestoneData).map(item =>
     `<div class="milestone-item ${item.reached ? "" : "locked"}"><i>${item.reached ? "✓" : "·"}</i><span>${item.label}</span><small class="milestone-detail">${item.detail}${item.date ? `<time datetime="${item.date}">${formatMilestoneDate(item.date)}</time>` : ""}</small></div>`
   ).join("");
 }
