@@ -1248,9 +1248,12 @@ function renderMilestones() {
   ];
   const reached = milestoneData.filter(item => item.reached);
   byId("milestoneCount").textContent = `${reached.length + (walkAverage.walkingDayCount ? 1 : 0)} tracked`;
-  byId("latestMilestone").innerHTML = `<span>CURRENT PROGRESS</span><strong>${greenDays} / ${availableDots} Positive Dots</strong><small>${positivePercentage}% positive</small>`;
+  const phoneMilestones = document.documentElement.dataset.motioncPresentation === "phone";
+  byId("latestMilestone").innerHTML = phoneMilestones
+    ? `<span>TOTAL WEIGHT LOST</span><strong>${loss !== null ? `${loss.toFixed(1)} ${weightUnit()} lost` : "Starting and latest weights needed"}</strong><small>${loss !== null ? `${formatWeight(startWeight)} start → ${formatWeight(latestWeight)} latest` : ""}</small>`
+    : `<span>CURRENT PROGRESS</span><strong>${greenDays} / ${availableDots} Positive Dots</strong><small>${positivePercentage}% positive</small>`;
   byId("dailyWalkAverage").innerHTML = `<span>DAILY WALK AVERAGE</span><strong>${walkAverage.distance}</strong><small>${walkAverage.detail}</small>`;
-  byId("milestoneList").innerHTML = milestoneData.map(item =>
+  byId("milestoneList").innerHTML = (phoneMilestones ? milestoneData.slice(1) : milestoneData).map(item =>
     `<div class="milestone-item ${item.reached ? "" : "locked"}"><i>${item.reached ? "✓" : "·"}</i><span>${item.label}</span><small class="milestone-detail">${item.detail}${item.date ? `<time datetime="${item.date}">${formatMilestoneDate(item.date)}</time>` : ""}</small></div>`
   ).join("");
 }
