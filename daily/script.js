@@ -134,6 +134,10 @@ let calendarViewDate = new Date();
 let weeklyNudgeDisplayWeek = null;
 let weeklyNudgeSuppressedWeek = null;
 let scratchPadVisibleResults = 10;
+let dailyFormBaseline = "";
+function dailyFormSignature() {
+  return JSON.stringify(Object.entries(fields).filter(([key]) => key !== "observation").map(([key, input]) => [key, input.value, input.checked]));
+}
 
 function isoDate(date = new Date()) {
   const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
@@ -526,7 +530,7 @@ function loadEntry(dateValue) {
   fields.weight.value = entry?.weight ? displayWeight(Number(entry.weight)).toFixed(1) : "";
   clearWalkFields();
   fields.restingHr.value = entry?.restingHr ?? "";
-  fields.observation.value = combinedObservation(entry);
+  // Daily Highlight is edited and saved independently in Scratch Pad.
   fields.noRestaurant.checked = entry?.noRestaurant ?? true;
   fields.noAlcohol.checked = entry?.noAlcohol ?? true;
   fields.noJunkFood.checked = entry?.noJunkFood ?? true;
@@ -537,6 +541,7 @@ function loadEntry(dateValue) {
   loadDailyGauges(dateValue);
   renderDailyInsights(dateValue);
   renderScratchPadIndicator(dateValue);
+  dailyFormBaseline = dailyFormSignature();
 }
 
 function combinedObservation(entry) {
@@ -899,7 +904,7 @@ function readDayFields(existing = {}) {
     date: fields.date.value,
     weight: enteredWeight === null ? null : unchangedWeight ? Number(existing.weight) : storedWeight(enteredWeight),
     restingHr: fields.restingHr.value ? Number(fields.restingHr.value) : null,
-    observation: fields.observation.value.trim(),
+    // Preserve saved observations when saving walking controls.
     noRestaurant: fields.noRestaurant.checked,
     noAlcohol: fields.noAlcohol.checked,
     noJunkFood: fields.noJunkFood.checked,
@@ -922,7 +927,7 @@ function saveEntry() {
   if (!fields.date.value) return;
   const existing = state.entries[fields.date.value];
   const entry = readDayFields(existing || {});
-  entry.weightNote = "";
+  // Legacy weightNote remains intact until an explicit highlight edit.
   entry.walks = walksForEntry(existing).map(walk => ({ ...walk }));
   const walk = readWalkFields();
   const editingWalk = editingWalkIndex !== null;
@@ -1088,11 +1093,11 @@ function renderCalendar() {
     number.className = "day-number";
     number.textContent = day;
     cell.append(number);
-    if (scratchPadFor(value).trim()) {
+    if (scratchPadFor(value).trim() || combinedObservation(state.entries[value])) {
       const scratchPadMark = document.createElement("span");
       scratchPadMark.className = "scratch-pad-calendar-mark";
-      scratchPadMark.title = "Scratch Pad note saved";
-      scratchPadMark.setAttribute("aria-label", "Scratch Pad note saved");
+      scratchPadMark.title = "Highlight or note saved";
+      scratchPadMark.setAttribute("aria-label", "Highlight or note saved");
       cell.append(scratchPadMark);
     }
     const dot = document.createElement("button");
@@ -1509,8 +1514,8 @@ function renderNotesSearch() {
     : `<p class="notes-search-empty">${allNotes.length ? "No notes match that search." : "No weekly notes have been recorded yet."}</p>`;
 }
 
-function scratchPadFor(dateValue) {
-  const saved = state.scratchPads?.[dateValue];
+function scratchPadFor(dateValue, source = state) {
+  const saved = source.scratchPads?.[dateValue];
   return typeof saved === "string" ? saved : String(saved?.text || "");
 }
 
@@ -1545,7 +1550,8 @@ function highlightScratchPadMatch(text, query) {
 }
 
 function renderScratchPadIndicator(dateValue = fields.date.value) {
-  byId("scratchPadIndicator").classList.toggle("has-note", Boolean(scratchPadFor(dateValue).trim()));
+  const saved = loadState();
+  byId("scratchPadIndicator").classList.toggle("has-note", Boolean(scratchPadFor(dateValue, saved).trim() || combinedObservation(saved.entries[dateValue])));
 }
 
 function renderScratchPadSearch() {
@@ -1554,8 +1560,9 @@ function renderScratchPadSearch() {
   const query = rawQuery.toLocaleLowerCase();
   const results = byId("scratchPadSearchResults");
   const previousScroll = results.scrollTop;
-  const allNotes = Object.keys(state.scratchPads || {})
-    .map(date => ({ date, text: scratchPadFor(date).trim() }))
+  const savedNotes = loadState();
+  const allNotes = [...new Set([...Object.keys(savedNotes.scratchPads || {}), ...Object.keys(savedNotes.entries || {})])]
+    .map(date => ({ date, text: [combinedObservation(savedNotes.entries[date]), scratchPadFor(date, savedNotes).trim()].filter(Boolean).join("\n\n") }))
     .filter(note => note.text)
     .sort((a, b) => b.date.localeCompare(a.date));
   const matches = query
@@ -1564,44 +1571,151 @@ function renderScratchPadSearch() {
   const visible = matches.slice(0, scratchPadVisibleResults);
   byId("scratchPadSearchSummary").textContent = query
     ? `${matches.length} ${matches.length === 1 ? "note" : "notes"} found for “${rawQuery}” — showing ${visible.length}`
-    : `${allNotes.length} ${allNotes.length === 1 ? "note" : "notes"} in your Scratch Pad — showing ${visible.length}`;
+    : `${allNotes.length} ${allNotes.length === 1 ? "note" : "notes"} across all dates — showing ${visible.length}`;
   results.innerHTML = matches.length
     ? `${visible.map(note => `<button class="notes-search-result" type="button" data-scratch-pad-date="${note.date}">
         <header><strong>${formatScratchPadDate(note.date)}</strong></header>
         <p>${highlightScratchPadMatch(scratchPadExcerpt(note.text), rawQuery)}</p>
-        <footer>Open this Scratch Pad note →</footer>
+        <footer>Open this date →</footer>
       </button>`).join("")}${visible.length < matches.length
         ? `<button class="scratch-pad-show-more" type="button" data-scratch-pad-show-more>Show 10 more</button>`
         : ""}`
-    : `<p class="notes-search-empty">${allNotes.length ? "No Scratch Pad notes match that search." : "No Scratch Pad notes have been saved yet."}</p>`;
+    : `<p class="notes-search-empty">${allNotes.length ? "No highlights or notes match that search." : "No highlights or notes have been saved yet."}</p>`;
   results.scrollTop = previousScroll;
 }
 
+// Unsaved writing is tab-local, account/date scoped, and never synchronized as saved data.
+let scratchDate = null;
+let scratchOwner = null;
+let scratchDraft = null;
+const scratchOwnerId = () => localStorage.getItem("motionc-auth-active-user") || "guest";
+const scratchDraftKey = date => `MotionCScratchDraft.v1:${scratchOwnerId()}:${date}`;
+const scratchClone = value => JSON.parse(JSON.stringify(value ?? null));
+function scratchSectionText(section, record) {
+  return section === "highlight" ? combinedObservation(record) : typeof record === "string" ? record : String(record?.text || "");
+}
+function retainScratchDraft() {
+  if (!scratchDraft || scratchOwner !== scratchOwnerId()) return;
+  if (scratchDirty("highlight") || scratchDirty("notes")) sessionStorage.setItem(scratchDraftKey(scratchDate), JSON.stringify(scratchDraft));
+  else sessionStorage.removeItem(scratchDraftKey(scratchDate));
+}
+function scratchDirty(section) {
+  const part = scratchDraft?.[section];
+  return part && part.text !== scratchSectionText(section, part.before);
+}
 function loadScratchPad(dateValue = fields.date.value) {
+  retainScratchDraft();
+  scratchDate = dateValue;
+  scratchOwner = scratchOwnerId();
+  const saved = loadState();
+  let retained;
+  try { retained = JSON.parse(sessionStorage.getItem(scratchDraftKey(dateValue))); } catch {}
+  scratchDraft = {};
+  for (const [section, record] of [["highlight", saved.entries[dateValue]], ["notes", saved.scratchPads[dateValue]]]) {
+    const previous = retained?.[section];
+    scratchDraft[section] = previous && previous.text !== scratchSectionText(section, previous.before)
+      ? previous : { before: scratchClone(record), text: scratchSectionText(section, record) };
+  }
   byId("scratchPadDate").textContent = formatScratchPadDate(dateValue);
-  byId("scratchPadText").value = scratchPadFor(dateValue);
-  byId("scratchPadStatus").textContent = "";
+  byId("scratchPadDialog").querySelector(".scratch-pad-body").scrollTop = 0;
+  fields.observation.value = scratchDraft.highlight.text;
+  byId("scratchPadText").value = scratchDraft.notes.text;
+  byId("dailyHighlightStatus").textContent = scratchDirty("highlight") ? "Unsaved highlight retained in this tab." : "";
+  byId("scratchPadStatus").textContent = scratchDirty("notes") ? "Unsaved notes retained in this tab." : "";
   renderScratchPadSearch();
 }
-
+function sizeScratchPad() {
+  const dialog = byId("scratchPadDialog");
+  const viewport = window.visualViewport;
+  dialog.style.setProperty("--scratch-height", `${viewport?.height || window.innerHeight}px`);
+  dialog.style.setProperty("--scratch-top", `${viewport?.offsetTop || 0}px`);
+}
 function openScratchPad() {
   scratchPadVisibleResults = 10;
   loadScratchPad(fields.date.value);
+  sizeScratchPad();
   byId("scratchPadDialog").showModal();
-  requestAnimationFrame(() => byId("scratchPadText").focus());
+  byId("scratchPadDialog").querySelector(".scratch-pad-body").scrollTop = 0;
+  // Opening does not summon a tablet keyboard before the user chooses a field.
+  byId("scratchPadClose").focus({ preventScroll: true });
 }
+function saveScratchSection(section) {
+  if (!scratchDraft || scratchOwner !== scratchOwnerId()) return;
+  const status = byId(section === "highlight" ? "dailyHighlightStatus" : "scratchPadStatus");
+  if (!scratchDirty(section)) { status.textContent = "No changes to save."; return; }
+  const part = scratchDraft[section], date = scratchDate;
+  const bucket = section === "highlight" ? "entries" : "scratchPads";
+  const expected = loadState();
+  // A highlight save edits only the two legacy note fields. Adopt newer walking
+  // fields only when those note fields still match the editor's original values.
+  const noteFields = record => JSON.stringify([record?.observation ?? null, record?.weightNote ?? null]);
+  const before = section === "highlight" && noteFields(expected.entries[date]) === noteFields(part.before)
+    ? scratchClone(expected.entries[date]) : part.before;
+  // Change only this atomic record, retaining the exact edit baseline for conflict detection.
+  if (before === null) delete expected[bucket][date];
+  else expected[bucket][date] = scratchClone(before);
+  const next = scratchClone(expected), text = part.text.trim();
+  if (section === "highlight") {
+    if (text || before) next.entries[date] = { ...before, date, observation: text, weightNote: "", updatedAt: new Date().toISOString() };
+  } else if (text) next.scratchPads[date] = { ...(typeof part.before === "object" ? part.before : {}), text, updatedAt: new Date().toISOString() };
+  else delete next.scratchPads[date];
+  try {
+    if (window.MotionCSyncLocal) window.MotionCSyncLocal.commit(STORAGE_KEY, JSON.stringify(next), JSON.stringify(expected));
+    else localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    const saved = loadState();
+    const record = saved[bucket][date];
+    if (scratchSectionText(section, record) !== text) throw new Error("Save did not complete");
+    // Merge only the edited note fields into the Daily form's existing baseline.
+    // Unsaved walking fields and their original conflict baseline are untouched.
+    const memoryBase = JSON.parse(syncMemoryBase);
+    for (const target of [state, memoryBase]) {
+      if (section === "highlight") {
+        target.entries[date] = { ...(target.entries[date] || { date }), observation: record?.observation || "", weightNote: record?.weightNote || "", updatedAt: record?.updatedAt };
+        if (!part.before) target.entries[date] = scratchClone(record);
+      } else if (record === undefined) delete target.scratchPads[date];
+      else target.scratchPads[date] = scratchClone(record);
+    }
+    syncMemoryBase = JSON.stringify(memoryBase);
+    part.before = scratchClone(record);
+    part.text = scratchSectionText(section, record);
+    byId(section === "highlight" ? "observation" : "scratchPadText").value = part.text;
+    retainScratchDraft();
+    renderScratchPadIndicator(fields.date.value);
+    renderCalendar();
+    renderWeekly();
+    renderScratchPadSearch();
+    status.textContent = text ? "Saved for this day." : "This day’s text was removed.";
+  } catch {
+    status.textContent = "Could not save. Your draft is retained; please try again.";
+  }
+}
+for (const [id, section] of [["observation", "highlight"], ["scratchPadText", "notes"]]) {
+  byId(id).addEventListener("input", () => {
+    if (!scratchDraft || scratchOwner !== scratchOwnerId()) return;
+    scratchDraft[section].text = byId(id).value;
+    retainScratchDraft();
+    byId(section === "highlight" ? "dailyHighlightStatus" : "scratchPadStatus").textContent = scratchDirty(section) ? "Unsaved — retained in this tab." : "";
+  });
+}
+byId("scratchPadDialog").addEventListener("close", retainScratchDraft);
+window.addEventListener("beforeunload", event => {
+  const prefix = `MotionCScratchDraft.v1:${scratchOwnerId()}:`;
+  const dirty = Object.keys(sessionStorage).filter(key => key.startsWith(prefix)).some(key => {
+    try { const d = JSON.parse(sessionStorage.getItem(key)); return ["highlight", "notes"].some(s => d[s].text !== scratchSectionText(s, d[s].before)); } catch { return false; }
+  });
+  if (dirty) { event.preventDefault(); event.returnValue = ""; }
+});
+window.addEventListener("motionc:account-changing", () => {
+  // Already retained on each input; never expose the previous account's editor to the next one.
+  byId("scratchPadDialog").close();
+  scratchDraft = null;
+  fields.observation.value = "";
+  byId("scratchPadText").value = "";
+});
+window.visualViewport?.addEventListener("resize", sizeScratchPad);
+window.visualViewport?.addEventListener("scroll", sizeScratchPad);
+window.addEventListener("resize", sizeScratchPad);
 
-function saveScratchPad() {
-  const dateValue = fields.date.value;
-  const text = byId("scratchPadText").value.trim();
-  if (text) state.scratchPads[dateValue] = { text, updatedAt: new Date().toISOString() };
-  else delete state.scratchPads[dateValue];
-  persist();
-  renderScratchPadIndicator(dateValue);
-  renderCalendar();
-  renderScratchPadSearch();
-  byId("scratchPadStatus").textContent = text ? "Saved for this day." : "This day’s note was removed.";
-}
 
 function escapeHtml(value) {
   return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
@@ -1893,10 +2007,8 @@ byId("scoreDialog").addEventListener("click", event => {
   if (clickedBackdrop) dialog.close();
 });
 byId("notesSearchOpen").addEventListener("click", () => {
-  const dialog = byId("notesSearchDialog");
-  renderNotesSearch();
-  dialog.showModal();
-  requestAnimationFrame(() => byId("notesSearchInput").focus());
+  openScratchPad();
+  byId("scratchPadSearchInput").focus();
 });
 byId("notesSearchClose").addEventListener("click", () => byId("notesSearchDialog").close());
 byId("notesSearchInput").addEventListener("input", renderNotesSearch);
@@ -1904,17 +2016,12 @@ byId("notesSearchResults").addEventListener("click", event => {
   const result = event.target.closest("[data-note-date]");
   if (!result) return;
   const dateValue = result.dataset.noteDate;
-  const target = fields.observation;
+
   calendarViewDate = dateFromIso(dateValue);
   loadEntry(dateValue);
   renderCalendar();
   byId("notesSearchDialog").close();
-  target.focus({ preventScroll: true });
-  target.closest("label").classList.remove("search-note-target");
-  requestAnimationFrame(() => {
-    target.closest("label").classList.add("search-note-target");
-    target.scrollIntoView({ behavior: "smooth", block: "center" });
-  });
+  openScratchPad();
 });
 byId("notesSearchDialog").addEventListener("click", event => {
   const dialog = event.currentTarget;
@@ -1928,7 +2035,8 @@ byId("notesSearchDialog").addEventListener("click", event => {
 });
 byId("scratchPadOpen").addEventListener("click", openScratchPad);
 byId("scratchPadClose").addEventListener("click", () => byId("scratchPadDialog").close());
-byId("scratchPadSave").addEventListener("click", saveScratchPad);
+byId("scratchPadSave").addEventListener("click", () => saveScratchSection("notes"));
+byId("dailyHighlightSave").addEventListener("click", () => saveScratchSection("highlight"));
 byId("scratchPadSearchInput").addEventListener("input", () => {
   scratchPadVisibleResults = 10;
   byId("scratchPadSearchResults").scrollTop = 0;
@@ -1943,17 +2051,23 @@ byId("scratchPadSearchResults").addEventListener("click", event => {
   const result = event.target.closest("[data-scratch-pad-date]");
   if (!result) return;
   const dateValue = result.dataset.scratchPadDate;
-  calendarViewDate = dateFromIso(dateValue);
-  loadEntry(dateValue);
-  renderCalendar();
+  if (dateValue !== fields.date.value && (dailyFormSignature() !== dailyFormBaseline || dailyGaugeDrafts.size)) {
+    byId("scratchPadSearchSummary").textContent = "Save or cancel your Daily edits before opening another date. Your writing drafts are retained.";
+    return;
+  }
+  if (dateValue !== fields.date.value) {
+    calendarViewDate = dateFromIso(dateValue);
+    loadEntry(dateValue);
+    renderCalendar();
+  }
   loadScratchPad(dateValue);
-  byId("scratchPadText").focus();
+  byId("scratchPadClose").focus({ preventScroll: true });
 });
 byId("scratchPadDialog").addEventListener("click", event => {
   const dialog = event.currentTarget;
   const bounds = dialog.getBoundingClientRect();
   const clickedBackdrop = event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom;
-  if (clickedBackdrop) dialog.close();
+  if (event.target === dialog && clickedBackdrop) dialog.close();
 });
 byId("weeklyCheckinUpdate").addEventListener("click", openWeeklyCheckin);
 byId("weeklyCheckinLater").addEventListener("click", postponeWeeklyCheckin);
