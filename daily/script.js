@@ -963,7 +963,7 @@ function updateWalkEntryMode() {
   const enteringWalk = addingWalk || editingWalkIndex !== null;
   addWalkButton.hidden = !hasSavedWalk;
   addWalkButton.textContent = enteringWalk ? "Cancel walk changes" : "+ Add another walk";
-  byId("saveEntry").textContent = editingWalkIndex !== null ? "Update walk" : "Save walk";
+  byId("saveEntry").textContent = editingWalkIndex !== null ? "Update walk" : "Save Info";
 }
 
 function toggleAddWalk() {
