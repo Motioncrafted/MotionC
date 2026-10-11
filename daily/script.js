@@ -1171,7 +1171,7 @@ function weekNotesHtml(entries, start, emptyMessage) {
   return dates.map(date => {
     const observation = observations.get(date);
     const highlight = observation ? `<span><b>Observation:</b> ${escapeHtml(observation)}</span>` : "";
-    const additional = scratchDates.has(date) ? '<span><em>Additional notes available in Scratch Pad.</em></span>' : "";
+    const additional = scratchDates.has(date) ? `<span><button type="button" class="week-note-link" data-weekly-scratch-date="${escapeHtml(date)}" aria-haspopup="dialog" aria-controls="scratchPadDialog" aria-label="Additional notes available in Scratch Pad. Open notes for ${escapeHtml(formatScratchPadDate(date))}"><em>Additional notes available in Scratch Pad.</em></button></span>` : "";
     return `<p class="week-note"><strong>${formatShortDate(date)}:</strong>${highlight}${additional}</p>`;
   }).join("");
 }
@@ -1642,9 +1642,9 @@ function sizeScratchPad() {
   dialog.style.setProperty("--scratch-height", `${viewport?.height || window.innerHeight}px`);
   dialog.style.setProperty("--scratch-top", `${viewport?.offsetTop || 0}px`);
 }
-function openScratchPad() {
+function openScratchPad(dateValue = fields.date.value) {
   scratchPadVisibleResults = 10;
-  loadScratchPad(fields.date.value);
+  loadScratchPad(dateValue);
   sizeScratchPad();
   byId("scratchPadDialog").showModal();
   byId("scratchPadDialog").querySelector(".scratch-pad-body").scrollTop = 0;
@@ -2045,7 +2045,32 @@ byId("notesSearchDialog").addEventListener("click", event => {
     event.clientY > bounds.bottom;
   if (clickedBackdrop) dialog.close();
 });
-byId("scratchPadOpen").addEventListener("click", openScratchPad);
+byId("scratchPadOpen").addEventListener("click", () => openScratchPad());
+let weeklyScratchReturn = null;
+window.addEventListener("motionc:account-changing", () => { weeklyScratchReturn = null; });
+byId("scratchPadDialog").addEventListener("close", () => {
+  const origin = weeklyScratchReturn;
+  weeklyScratchReturn = null;
+  if (!origin || origin.owner !== scratchOwnerId()) return;
+  // Saving re-renders the report, so find the current control for this date.
+  const link = origin.report.querySelector(`[data-weekly-scratch-date="${origin.date}"]`);
+  (link || byId("scratchPadOpen")).focus({ preventScroll: true });
+});
+for (const report of [byId("weeklyNotes"), byId("previousWeeks")]) {
+  report.addEventListener("click", event => {
+    const link = event.target.closest("[data-weekly-scratch-date]");
+    if (!link || !report.contains(link)) return;
+    const dateValue = link.dataset.weeklyScratchDate;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateValue) || !scratchPadFor(dateValue, loadState()).trim()) return;
+    // The Scratch Pad owns its date and drafts independently of the Daily form.
+    openScratchPad(dateValue);
+    weeklyScratchReturn = { report, date: dateValue, owner: scratchOwnerId() };
+    const heading = byId("myNotesLabel");
+    const body = byId("scratchPadDialog").querySelector(".scratch-pad-body");
+    heading.focus({ preventScroll: true });
+    body.scrollTop += heading.getBoundingClientRect().top - body.getBoundingClientRect().top - 16;
+  });
+}
 byId("scratchPadClose").addEventListener("click", () => byId("scratchPadDialog").close());
 byId("scratchPadSave").addEventListener("click", () => saveScratchSection("notes"));
 byId("dailyHighlightSave").addEventListener("click", () => saveScratchSection("highlight"));

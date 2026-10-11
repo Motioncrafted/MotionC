@@ -774,6 +774,19 @@ summary { color: #30454b; font-weight: 850; cursor: pointer; }
 .week-note > strong { color: #30454b; }
 .week-note > span { grid-column: 2; }
 .week-note b { color: #4b6259; }
+.week-note-link {
+  border: 0;
+  padding: 2px 0;
+  min-height: 24px;
+  color: inherit;
+  background: none;
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.week-note-link:hover { color: #126b43; }
+.week-note-link:focus-visible { outline: 2px solid #126b43; outline-offset: 3px; }
 .no-week-notes { font-style: italic; }
 
 .badge { border-radius: 999px; padding: 6px 10px; color: #126b43; background: #dcf5e7; font-size: 12px; font-weight: 850; }
