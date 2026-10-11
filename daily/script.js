@@ -1171,7 +1171,7 @@ function weekNotesHtml(entries, start, emptyMessage) {
   return dates.map(date => {
     const observation = observations.get(date);
     const highlight = observation ? `<span><b>Observation:</b> ${escapeHtml(observation)}</span>` : "";
-    const additional = scratchDates.has(date) ? `<span><button type="button" class="week-note-link" data-weekly-scratch-date="${escapeHtml(date)}" aria-haspopup="dialog" aria-controls="scratchPadDialog" aria-label="Additional notes available in Scratch Pad. Open notes for ${escapeHtml(formatScratchPadDate(date))}"><em>Additional notes available in Scratch Pad.</em></button></span>` : "";
+    const additional = scratchDates.has(date) ? `<span><button type="button" class="week-note-link" data-weekly-scratch-date="${escapeHtml(date)}" aria-haspopup="dialog" aria-controls="scratchPadDialog" aria-label="View Scratch Pad Notes for ${escapeHtml(formatScratchPadDate(date))}"><span aria-hidden="true">↗</span> View Scratch Pad Notes</button></span>` : "";
     return `<p class="week-note"><strong>${formatShortDate(date)}:</strong>${highlight}${additional}</p>`;
   }).join("");
 }

@@ -768,12 +768,13 @@ summary { color: #30454b; font-weight: 850; cursor: pointer; }
 }
 .week-note {
   display: grid;
-  grid-template-columns: max-content 1fr;
+  grid-template-columns: max-content minmax(0, 1fr);
   gap: 2px 8px;
+  font-weight: 400;
 }
-.week-note > strong { color: #30454b; }
-.week-note > span { grid-column: 2; }
-.week-note b { color: #4b6259; }
+.week-note > strong { color: #30454b; font-weight: 700; }
+.week-note > span { grid-column: 2; min-width: 0; overflow-wrap: anywhere; }
+.week-note b { color: #4b6259; font-weight: 700; }
 .week-note-link {
   border: 0;
   padding: 2px 0;
