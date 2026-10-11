@@ -1438,3 +1438,8 @@ html[data-motionc-presentation="phone"] #milestoneCount { display: none; }
   .scratch-pad-body { padding: 0 16px 20px; }
   .scratch-pad-dialog h2 { font-size: 26px; }
 }
+
+/* Keep the final phone cards stacked, including wide landscape viewports. */
+html[data-motionc-presentation="phone"] :is(.calendar-card, .milestones-card, .weekly-card) {
+  grid-column: 1 / -1;
+}

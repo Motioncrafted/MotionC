@@ -1,3 +1,10 @@
+// Keep phone reading order aligned with the visible card order, including rotation.
+if (document.documentElement.dataset.motioncPresentation === "phone") {
+  const weeklyCard = document.querySelector(".weekly-card");
+  const milestonesCard = document.querySelector(".milestones-card");
+  if (weeklyCard && milestonesCard) weeklyCard.before(milestonesCard);
+}
+
 const STORAGE_KEY = "motionc-daily-prototype-v1";
 const LIFESTYLE_SUMMARY_STORAGE_KEY = "motionc-lifestyle-summary-v1";
 const PREFERENCES_STORAGE_KEY = "motionc-preferences-v1";
