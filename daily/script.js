@@ -1155,12 +1155,24 @@ function weeklySummary(start) {
   };
 }
 
-function weekNotesHtml(entries, emptyMessage) {
-  const notes = entries.filter(entry => combinedObservation(entry));
-  if (!notes.length) return `<p class="no-week-notes">${emptyMessage}</p>`;
+function savedScratchPadDates() {
+  return Object.keys(state.scratchPads || {}).filter(date => scratchPadFor(date).trim());
+}
 
-  return notes.map(entry => {
-    return `<p class="week-note"><strong>${formatShortDate(entry.date)}:</strong><span><b>Observation:</b> ${escapeHtml(combinedObservation(entry))}</span></p>`;
+function weekNotesHtml(entries, start, emptyMessage) {
+  const first = isoDate(start), last = isoDate(addDays(start, 6));
+  const observations = new Map(entries.map(entry => [entry.date, combinedObservation(entry)]));
+  // My Notes can exist without a Daily entry. Read saved account state only;
+  // never include editor drafts or the private note text in the report.
+  const scratchDates = new Set(savedScratchPadDates().filter(date => date >= first && date <= last));
+  const dates = [...new Set([...entries.filter(entry => combinedObservation(entry)).map(entry => entry.date), ...scratchDates])].sort();
+  if (!dates.length) return `<p class="no-week-notes">${emptyMessage}</p>`;
+
+  return dates.map(date => {
+    const observation = observations.get(date);
+    const highlight = observation ? `<span><b>Observation:</b> ${escapeHtml(observation)}</span>` : "";
+    const additional = scratchDates.has(date) ? '<span><em>Additional notes available in Scratch Pad.</em></span>' : "";
+    return `<p class="week-note"><strong>${formatShortDate(date)}:</strong>${highlight}${additional}</p>`;
   }).join("");
 }
 
@@ -1180,14 +1192,14 @@ function renderWeekly() {
   byId("weeklyStats").innerHTML = stats.map(([label, value]) =>
     `<div class="weekly-stat"><span>${label}</span><strong>${value}</strong></div>`
   ).join("");
-  byId("weeklyNotes").innerHTML = weekNotesHtml(summary.entries, "No notes recorded this week.");
+  byId("weeklyNotes").innerHTML = weekNotesHtml(summary.entries, start, "No notes recorded this week.");
 
   const previous = byId("previousWeeks");
   previous.replaceChildren();
   const previousWeekKeys = [...new Set(
-    Object.values(state.entries)
-      .filter(entry => dateFromIso(entry.date) < start)
-      .map(entry => weekKey(dateFromIso(entry.date)))
+    [...Object.values(state.entries).map(entry => entry.date), ...savedScratchPadDates()]
+      .filter(date => dateFromIso(date) < start)
+      .map(date => weekKey(dateFromIso(date)))
   )].sort((a, b) => b.localeCompare(a));
 
   if (!previousWeekKeys.length) {
@@ -1204,7 +1216,7 @@ function renderWeekly() {
       <p>${formatDistance(old.totalDistance)} · ${old.average || 0}% average · ${old.entries.length} entries</p>
       <div class="previous-week-notes">
         <span class="previous-week-notes-title">Notes</span>
-        ${weekNotesHtml(old.entries, "No notes recorded.")}
+        ${weekNotesHtml(old.entries, weekStart, "No notes recorded.")}
       </div>`;
     previous.append(block);
   });
