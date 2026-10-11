@@ -83,3 +83,15 @@ html[data-motionc-presentation="phone"][data-motionc-phone-nav="ready"] body:has
 
 /* The Phone Library selector already provides its own Go back escape. */
 html[data-motionc-presentation="phone"]:has(#phoneLibrary:not([hidden])) .motionc-phone-menu-button { display: none; }
+
+/* Keep sync notices above the phone navigation touch target, including safe areas. */
+html[data-motionc-presentation="phone"][data-motionc-phone-nav="ready"] #motionc-sync-status {
+  bottom: calc(max(12px, env(safe-area-inset-bottom)) + 72px);
+  left: max(12px, env(safe-area-inset-left));
+  right: max(12px, env(safe-area-inset-right));
+  box-sizing: border-box; width: auto; min-height: 44px; margin: 0;
+  max-width: none;
+  max-height: calc(100vh - max(12px, env(safe-area-inset-bottom)) - 72px - max(12px, env(safe-area-inset-top)));
+  max-height: calc(100dvh - max(12px, env(safe-area-inset-bottom)) - 72px - max(12px, env(safe-area-inset-top)));
+  white-space: normal; overflow-wrap: anywhere; overflow-y: auto;
+}
